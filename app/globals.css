@@ -1,0 +1,477 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+
+    --primary: 346 77% 49%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+
+    --accent: 346 77% 97%;
+    --accent-foreground: 346 77% 49%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 346 77% 49%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 346 77% 49%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+
+    --accent: 346 77% 15%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 346 77% 49%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    overflow-x: hidden;
+  }
+
+  html {
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Prevent horizontal scroll */
+* {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Section heights with proper margins */
+.section-height {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+
+/* Mobile section heights */
+@media (max-width: 768px) {
+  .section-height {
+    min-height: auto;
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+}
+
+/* Alternating section colors */
+.section-white {
+  background-color: #ffffff;
+}
+
+.section-pink {
+  background-color: #fff5f7;
+}
+
+/* Container with proper margins */
+.container {
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    max-width: 100vw;
+  }
+
+  /* Ensure all sections have proper mobile padding */
+  section {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  /* Better touch targets */
+  button,
+  a {
+    @apply min-h-[44px];
+  }
+
+  /* Improved mobile typography with better line heights */
+  h1 {
+    @apply text-3xl;
+    line-height: 1.3 !important;
+    padding-top: 0.2em !important;
+    padding-bottom: 0.2em !important;
+  }
+
+  h2 {
+    @apply text-2xl;
+    line-height: 1.3 !important;
+    padding-top: 0.2em !important;
+    padding-bottom: 0.2em !important;
+  }
+
+  h3,
+  h4,
+  h5,
+  h6 {
+    line-height: 1.3 !important;
+    padding-top: 0.15em !important;
+    padding-bottom: 0.15em !important;
+  }
+
+  /* Mobile-first spacing */
+  .section-inner {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Fix for all screen sizes - better line heights for large text */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  line-height: 1.2 !important;
+  padding-top: 0.1em !important;
+  padding-bottom: 0.1em !important;
+}
+
+/* Specific fixes for gradient text */
+.bg-clip-text {
+  line-height: 1.1 !important;
+  padding-top: 0.1em !important;
+  padding-bottom: 0.1em !important;
+  display: block !important;
+}
+
+/* Better line height for large text classes */
+.text-3xl,
+.text-4xl,
+.text-5xl,
+.text-6xl {
+  line-height: 1.1 !important;
+  padding-top: 0.1em !important;
+  padding-bottom: 0.1em !important;
+}
+
+/* Enhanced mobile padding for all screen sizes */
+@media (max-width: 640px) {
+  .container {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+
+  section {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+
+  .section-inner {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+}
+
+/* Extra small mobile devices */
+@media (max-width: 480px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  section {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .section-inner {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Section content spacing */
+.section-content {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+  .section-content {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .section-content {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+  }
+}
+
+/* Custom animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* Staggered animations */
+.delay-200 {
+  animation-delay: 0.2s;
+}
+
+.delay-400 {
+  animation-delay: 0.4s;
+}
+
+.delay-600 {
+  animation-delay: 0.6s;
+}
+
+.delay-800 {
+  animation-delay: 0.8s;
+}
+
+/* Glass morphism effects */
+.glass {
+  @apply bg-white/20 backdrop-blur-lg border border-white/20;
+}
+
+/* Improved focus states for accessibility */
+button:focus-visible,
+a:focus-visible {
+  @apply outline-2 outline-offset-2 outline-rose-500;
+}
+
+/* Advanced hover effects */
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* Modern scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(45deg, #f43f5e, #ec4899);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(45deg, #e11d48, #db2777);
+}
+
+/* Advanced text effects */
+.text-gradient {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Floating elements */
+.floating {
+  animation: floating 3s ease-in-out infinite;
+}
+
+@keyframes floating {
+  0% {
+    transform: translate(0, 0px);
+  }
+  50% {
+    transform: translate(0, -10px);
+  }
+  100% {
+    transform: translate(0, 0px);
+  }
+}
+
+/* Pulse animation for CTAs */
+.pulse-glow {
+  animation: pulse-glow 2s infinite;
+}
+
+@keyframes pulse-glow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(244, 63, 94, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(244, 63, 94, 0);
+  }
+}
+
+/* Ensure proper spacing between sections */
+section + section {
+  margin-top: 0;
+}
+
+/* Header spacing */
+header {
+  margin-bottom: 0;
+}
+
+/* Footer spacing */
+footer {
+  margin-top: 0;
+}
+
+/* Content spacing within sections */
+.section-inner {
+  padding: 2rem 0;
+}
+
+@media (min-width: 768px) {
+  .section-inner {
+    padding: 3rem 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .section-inner {
+    padding: 4rem 0;
+  }
+}
+
+/* Mobile-specific padding utilities */
+.mobile-px {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (max-width: 640px) {
+  .mobile-px {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .mobile-px {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Ensure no content touches screen edges on mobile */
+@media (max-width: 768px) {
+  * {
+    box-sizing: border-box;
+  }
+
+  .w-full {
+    max-width: 100%;
+  }
+
+  /* Override any negative margins on mobile */
+  .container,
+  section,
+  .section-inner {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}

@@ -47,7 +47,7 @@ FINAL CHECKLIST (before sending)
 
 ### Project Notes
 
-- CachyOS on main PC (used for dev), shell is fish.
+- CachyOS on main PC (used for dev)
 - Kiro sits in opt, and there is a Projects dir in Home.
 - Do not assume any other packages/languages/tech/apps/etc. are installed, always check.
 - Prefer FLOSS.
@@ -85,7 +85,33 @@ FINAL CHECKLIST (before sending)
 - When writing code, add comments explaining the purpose and key concepts, not just what each line does.
 - Always consider human's privacy as a key consideration. Stronly prefer anonymous (or near) solutions, warn if not possible.
 - When giving human commands to run, organise in coherent blocks and wait for output before proceeding; do not assume expected outputs, wait for actuals.
-- When giving steb-by-step instructions, first summarise the problem, proposed solution and any apps/tools/libraries/etc that will be used and for what.
+- When giving step-by-step instructions, first summarise the problem, proposed solution and any apps/tools/libraries/etc that will be used and for what.
+
+### Task Execution Protocol
+
+**MANDATORY: Always explain BEFORE executing any task**
+
+Before making ANY file changes, code modifications, or running commands:
+
+1. **Summarize the task**: What are we trying to accomplish and why?
+2. **Explain the approach**: What files will be created/modified and their purpose?
+3. **Justify the choices**: Why these specific technologies, patterns, or configurations?
+4. **Educational context**: How does this fit into the bigger picture of the project?
+5. **Wait for confirmation**: Give human chance to ask questions or request modifications
+
+**Example Pattern:**
+```
+I need to set up the local development environment. Here's what I'll do and why:
+
+1. Create .npmrc - This file enforces pnpm usage across the project because...
+2. Create .env.local - This template provides development environment variables for...
+3. Create .env.example - This documents required variables for other developers because...
+
+Each file serves a specific purpose in our Next.js development workflow. Should I proceed with this approach?
+```
+
+**FORBIDDEN**: Jumping straight into file creation without explanation
+**REQUIRED**: Educational explanations that help human understand the "why" behind each decision
 
 ### Development Workflow Requirements
 

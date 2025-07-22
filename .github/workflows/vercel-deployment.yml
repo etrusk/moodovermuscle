@@ -41,7 +41,7 @@ jobs:
           script: |
             const { owner, repo, number } = context.issue;
             const branchName = context.payload.pull_request.head.ref;
-            const deploymentUrl = `https://${repo}-git-${branchName.replace(/[^a-zA-Z0-9]/g, '-')}-${owner}.vercel.app`;
+            const deploymentUrl = `https://moodovermuscle-git-${branchName.replace(/[^a-zA-Z0-9]/g, '-')}-redundant-koalas-projects-c165d4a1.vercel.app`;
             
             github.rest.issues.createComment({
               owner,

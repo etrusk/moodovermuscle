@@ -53,7 +53,8 @@
   "github": {
     "silent": false,
     "autoJobCancelation": true,
-    "autoAlias": true
+    "autoAlias": true,
+    "enabled": true
   },
   "cleanUrls": true,
   "trailingSlash": false

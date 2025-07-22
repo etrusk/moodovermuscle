@@ -1,9 +1,11 @@
 # MoodOverMuscle - Fitness for Mums Website
 
-*Automatically synced with your [v0.dev](https://v0.dev) deployments*
+A modern, accessible fitness website built with Next.js and deployed on Vercel.
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/krystiansmidowicz-time4ecommers-projects/v0-mood-over-muscle-website)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/LueSTharnJE)
+<!-- Verifying GitHub-Vercel integration -->
+
+[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/redundant-koalas-projects-c165d4a1/moodovermuscle)
+[![GitHub Repository](https://img.shields.io/badge/GitHub-Repository-black?style=for-the-badge&logo=github)](https://github.com/jovial-banana-9934/moodovermuscle-website)
 
 ## About MoodOverMuscle
 
@@ -103,20 +105,18 @@ Multi-step form component with:
 ## Deployment
 
 ### Vercel Integration
-- **Auto-deployment**: Connected to v0.dev for automatic deployments
-- **Preview deployments**: Each PR gets a preview URL
+- **Auto-deployment**: Automatic deployments from GitHub main branch
+- **Preview deployments**: Each PR gets a preview URL for testing
 - **Production deployment**: Merges to main trigger production deployment
 - **Environment variables**: Managed through Vercel dashboard
-- **Static export ready**: Images unoptimized for compatibility
-- **Domain**: Configured to use moodovermuscle.com.au
+- **Static export ready**: Optimized for static hosting
+- **Domain**: Production site at moodovermuscle.com.au
 
-### v0.dev Workflow
-1. Create and modify your project using [v0.dev](https://v0.dev)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
-
-Continue building your app on: **[https://v0.dev/chat/projects/LueSTharnJE](https://v0.dev/chat/projects/LueSTharnJE)**
+### Development Workflow
+1. Create feature branches for new development
+2. Push changes to GitHub to trigger preview deployments
+3. Create pull requests for code review
+4. Merge to main branch for production deployment
 
 ## Content & Brand Guidelines
 

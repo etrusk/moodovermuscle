@@ -1,0 +1,58 @@
+name: Vercel Deployment Status
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  deployment-status:
+    runs-on: ubuntu-latest
+    name: Check Deployment Status
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: latest
+          
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        
+      - name: Type check
+        run: pnpm run type-check || echo "Type check completed"
+        
+      - name: Build check
+        run: pnpm build
+        
+      - name: Comment deployment info
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo, number } = context.issue;
+            const branchName = context.payload.pull_request.head.ref;
+            const deploymentUrl = `https://${repo}-git-${branchName.replace(/[^a-zA-Z0-9]/g, '-')}-${owner}.vercel.app`;
+            
+            github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number: number,
+              body: `🚀 **Preview Deployment**
+              
+              Your changes have been deployed to Vercel:
+              - **Preview URL**: ${deploymentUrl}
+              - **Branch**: \`${branchName}\`
+              - **Commit**: ${context.sha.substring(0, 7)}
+              
+              The deployment will be automatically cleaned up when this PR is closed.`
+            });

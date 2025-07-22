@@ -49,5 +49,12 @@
         }
       ]
     }
-  ]
+  ],
+  "github": {
+    "silent": false,
+    "autoJobCancelation": true,
+    "autoAlias": true
+  },
+  "cleanUrls": true,
+  "trailingSlash": false
 }

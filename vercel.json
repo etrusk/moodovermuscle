@@ -57,5 +57,18 @@
     "enabled": true
   },
   "cleanUrls": true,
-  "trailingSlash": false
+  "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.moodovermuscle.com.au"
+        }
+      ],
+      "destination": "https://moodovermuscle.com.au/$1",
+      "permanent": true
+    }
+  ]
 }

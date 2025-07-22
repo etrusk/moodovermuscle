@@ -9,6 +9,13 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  // Production domain configuration
+  async rewrites() {
+    return []
+  },
+  async redirects() {
+    return []
+  },
 }
 
 export default nextConfig

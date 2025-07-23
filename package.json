@@ -21,7 +21,9 @@
     "fix-webhook": "node scripts/fix-webhook.js",
     "advanced-diagnosis": "node scripts/advanced-webhook-diagnosis.js",
     "check-github-app": "node scripts/check-github-app.js",
-    "manual-webhook": "node scripts/manual-webhook.js"
+    "manual-webhook": "node scripts/manual-webhook.js",
+    "nuclear-reset": "node scripts/nuclear-reset-guide.js",
+    "get-webhook-url": "node scripts/get-vercel-webhook-url.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

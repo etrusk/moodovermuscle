@@ -10,113 +10,105 @@ When your GitHub repository is connected to Vercel but automatic deployments are
 **How they work**: Vercel automatically creates these webhooks when you connect your repository through their dashboard
 **Why they fail**: Connection issues, permission problems, or incomplete setup process
 
-## Troubleshooting Steps
+## Systematic Troubleshooting
 
-### 1. Check Current Status
+### Step 1: Verify GitHub App Permissions
 
-First, let's see if any webhooks exist:
+1. Go to: https://github.com/settings/installations
+2. Find "Vercel" in installed GitHub Apps
+3. Click "Configure"
+4. Ensure your repository is selected
+5. Verify these permissions are granted:
+   - ✅ Repository contents: Read & write
+   - ✅ Repository metadata: Read
+   - ✅ Pull requests: Read & write
+   - ✅ **Repository webhooks: Read & write** ← Critical for webhook creation
+   - ✅ Commit statuses: Read & write
 
-```bash
-# Check if you have a GitHub token set up
-echo $GITHUB_TOKEN
+### Step 2: Check Vercel Connection Status
 
-# If not, create one at: https://github.com/settings/tokens
-# Required permissions: repo, admin:repo_hook
-
-# Check current webhooks
-pnpm run check-webhooks
-```
-
-### 2. Verify Vercel Connection
-
-In your Vercel dashboard:
-1. Go to your project: `moodovermuscle`
+1. Go to Vercel Dashboard → Your project
 2. Navigate to Settings → Git
-3. Check if it shows "Connected to Git"
-4. Verify the repository URL matches: `jovial-banana-9934/moodovermuscle-website`
+3. Verify it shows "Connected to Git"
+4. Confirm repository URL matches your GitHub repo
+5. Check that production branch is set to `main`
 
-### 3. Test Deployment Trigger
+### Step 3: Reconnect Integration
 
-We've already created a test file. Check your Vercel dashboard to see if the recent pushes triggered deployments:
+If permissions are correct but webhook is missing:
 
-```bash
-# The test file was created and pushed
-# Check Vercel dashboard for deployment activity
-```
+1. **Disconnect**: In Vercel Settings → Git, click "Disconnect"
+2. **Wait**: Allow 2-3 minutes for caches to clear
+3. **Reconnect**: Click "Connect Git Repository"
+4. **Select**: Choose your GitHub repository
+5. **Configure**: Ensure correct build settings:
+   - Build Command: `pnpm build`
+   - Install Command: `pnpm install`
+   - Output Directory: `.next`
 
-### 4. Re-establish Connection (If Needed)
+### Step 4: Nuclear Reset (If Reconnection Fails)
 
-If no webhook exists or deployments aren't triggering:
+If webhook still won't create after multiple reconnection attempts:
 
-1. **Disconnect and Reconnect**:
-   - In Vercel dashboard → Project Settings → Git
-   - Click "Disconnect" 
-   - Click "Connect Git Repository"
-   - Re-select your repository
+1. **Backup**: Note your domain and environment variables
+2. **Delete Project**: Completely delete the Vercel project
+3. **Clear GitHub Access**: Temporarily revoke Vercel app access to your repo
+4. **Wait**: 5 minutes for all caches to clear
+5. **Fresh Start**: Create new Vercel project by importing from GitHub
+6. **Verify**: Webhook should auto-create during fresh import
 
-2. **Check GitHub App Permissions**:
-   - Go to GitHub Settings → Applications → Installed GitHub Apps
-   - Find "Vercel" and ensure it has access to your repository
-   - Grant additional permissions if needed
+### Step 5: Manual Webhook Creation
 
-### 5. Manual Webhook Creation (Last Resort)
+If automatic creation continues to fail, create webhook manually:
 
-If automatic creation still fails:
+1. **Get Vercel Webhook URL**:
+   - Go to Vercel project → Settings → Git → Deploy Hooks
+   - Create new deploy hook for `main` branch
+   - Copy the generated webhook URL
 
-```bash
-# Set required environment variables
-export GITHUB_TOKEN="your_github_token_here"
-export VERCEL_WEBHOOK_URL="your_vercel_webhook_url_here"
+2. **Create GitHub Token**:
+   - Go to: https://github.com/settings/tokens
+   - Create token with `repo` and `admin:repo_hook` scopes
 
-# Create webhook manually
-pnpm run create-webhook
-```
+3. **Use Functional Script**:
+   ```bash
+   export GITHUB_TOKEN="your_token_here"
+   export VERCEL_WEBHOOK_URL="your_webhook_url_here"
+   pnpm run manual-webhook
+   ```
 
-To get your Vercel webhook URL:
-1. Go to Vercel dashboard → Project Settings → Git
-2. Look for webhook configuration or contact Vercel support
+## Verification Steps
+
+After implementing any fix:
+
+1. **Check GitHub**: Go to your repo → Settings → Webhooks
+2. **Verify Webhook**: Should see Vercel webhook with `push` and `pull_request` events
+3. **Test Deployment**: Make small change, commit, and push to `main`
+4. **Confirm Trigger**: Check Vercel dashboard for automatic deployment
 
 ## Common Issues & Solutions
 
-### Issue: "Not Found" Error
-**Cause**: Repository is private or token lacks permissions
-**Solution**: Ensure GitHub token has `repo` and `admin:repo_hook` permissions
+| Issue | Cause | Solution |
+|-------|-------|----------|
+| No webhook after reconnection | Missing webhook permissions | Grant "Repository webhooks: Read & write" to Vercel app |
+| Webhook exists but no deployments | Incorrect webhook URL | Delete webhook, reconnect through Vercel dashboard |
+| Multiple failed reconnections | Cached connection issues | Use nuclear reset approach |
+| "Not Found" API errors | Private repo access issues | Ensure Vercel app has repository access |
 
-### Issue: Webhook Exists But Deployments Don't Trigger
-**Cause**: Webhook URL is incorrect or inactive
-**Solution**: Delete existing webhook and reconnect through Vercel dashboard
+## Available Tools
 
-### Issue: Multiple Webhooks
-**Cause**: Multiple connection attempts
-**Solution**: Remove duplicate webhooks, keep only the active Vercel one
+- `pnpm run check-webhooks` - Check current webhook status via GitHub API
+- `pnpm run manual-webhook` - Create webhook manually when auto-creation fails
+- `deployment-test.txt` - Test file for verifying webhook functionality
 
-## Verification
+## When to Contact Support
 
-After fixing the webhook:
+Contact Vercel Support if:
+- GitHub App permissions are correct but webhook won't create
+- Nuclear reset doesn't resolve the issue
+- Manual webhook creation fails with valid credentials
 
-1. **Make a small change** to any file
-2. **Commit and push** to main branch
-3. **Check Vercel dashboard** for automatic deployment
-4. **Verify deployment** completes successfully
-
-## Scripts Available
-
-- `pnpm run check-webhooks` - Check current webhook status
-- `pnpm run create-webhook` - Manually create Vercel webhook
-- `pnpm run test-deployment` - Create test file to trigger deployment
-
-## Next Steps
-
-1. Check your Vercel dashboard now to see if the recent pushes triggered deployments
-2. If deployments are working, the webhook is functioning correctly
-3. If not, follow the re-establishment steps above
-4. Contact Vercel support if issues persist
-
-## Files Created
-
-- `scripts/check-webhooks.js` - Webhook status checker
-- `scripts/create-vercel-webhook.js` - Manual webhook creator
-- `scripts/test-deployment.js` - Deployment trigger tester
-- `deployment-test.txt` - Test file for webhook verification
-
-The webhook should now be working. Check your Vercel dashboard for recent deployment activity!
+Include in your support request:
+- Project name and repository URL
+- Screenshots of GitHub App permissions
+- Description of troubleshooting steps already attempted

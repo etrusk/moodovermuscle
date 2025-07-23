@@ -19,7 +19,8 @@
     "manual-webhook": "node scripts/manual-webhook.js",
     "create-multi-webhooks": "node scripts/create-multi-env-webhooks.js",
     "setup-vercel-cli": "node scripts/setup-vercel-integration.js",
-    "automated-webhook": "node scripts/automated-webhook-setup.js"
+    "automated-webhook": "node scripts/automated-webhook-setup.js",
+    "create-standard-webhook": "node scripts/create-standard-vercel-webhook.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

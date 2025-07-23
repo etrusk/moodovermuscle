@@ -16,14 +16,7 @@
     "pre-deploy": "pnpm run type-check && pnpm run build-validate && pnpm run build",
     "check-webhooks": "node scripts/check-webhooks.js",
     "create-webhook": "node scripts/create-vercel-webhook.js",
-    "test-deployment": "node scripts/test-deployment.js",
-    "vercel-status": "node scripts/vercel-status-check.js",
-    "fix-webhook": "node scripts/fix-webhook.js",
-    "advanced-diagnosis": "node scripts/advanced-webhook-diagnosis.js",
-    "check-github-app": "node scripts/check-github-app.js",
-    "manual-webhook": "node scripts/manual-webhook.js",
-    "nuclear-reset": "node scripts/nuclear-reset-guide.js",
-    "get-webhook-url": "node scripts/get-vercel-webhook-url.js"
+    "manual-webhook": "node scripts/manual-webhook.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

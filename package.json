@@ -14,13 +14,7 @@
     "health-check": "node scripts/health-check.js",
     "test-errors": "node scripts/test-error-scenarios.js",
     "pre-deploy": "pnpm run type-check && pnpm run build-validate && pnpm run build",
-    "check-webhooks": "node scripts/check-webhooks.js",
-    "create-webhook": "node scripts/create-vercel-webhook.js",
-    "manual-webhook": "node scripts/manual-webhook.js",
-    "create-multi-webhooks": "node scripts/create-multi-env-webhooks.js",
-    "setup-vercel-cli": "node scripts/setup-vercel-integration.js",
-    "automated-webhook": "node scripts/automated-webhook-setup.js",
-    "create-standard-webhook": "node scripts/create-standard-vercel-webhook.js"
+    "check-webhooks": "node scripts/check-webhooks.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

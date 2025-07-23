@@ -13,7 +13,10 @@
     "build-validate": "node scripts/build-validation.js",
     "health-check": "node scripts/health-check.js",
     "test-errors": "node scripts/test-error-scenarios.js",
-    "pre-deploy": "pnpm run type-check && pnpm run build-validate && pnpm run build"
+    "pre-deploy": "pnpm run type-check && pnpm run build-validate && pnpm run build",
+    "check-webhooks": "node scripts/check-webhooks.js",
+    "create-webhook": "node scripts/create-vercel-webhook.js",
+    "test-deployment": "node scripts/test-deployment.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

@@ -1,6 +1,8 @@
 import type React from "react"
 import "@/app/globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
+import { Analytics } from '@vercel/analytics/next'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 
 export const metadata = {
   title: "MoodOverMuscle - Fitness for Mums",
@@ -19,6 +21,8 @@ export default function RootLayout({
       <body>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
           {children}
+          <Analytics />
+          <SpeedInsights />
         </ThemeProvider>
       </body>
     </html>

@@ -8,7 +8,12 @@
     "lint": "next lint",
     "start": "next start",
     "type-check": "tsc --noEmit",
-    "verify-deployment": "echo 'Verifying deployment configuration'"
+    "verify-deployment": "echo 'Verifying deployment configuration'",
+    "verify-domain": "node scripts/verify-domain.js",
+    "build-validate": "node scripts/build-validation.js",
+    "health-check": "node scripts/health-check.js",
+    "test-errors": "node scripts/test-error-scenarios.js",
+    "pre-deploy": "pnpm run type-check && pnpm run build-validate && pnpm run build"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -39,6 +44,8 @@
     "@radix-ui/react-toggle": "latest",
     "@radix-ui/react-toggle-group": "latest",
     "@radix-ui/react-tooltip": "latest",
+    "@vercel/analytics": "^1.5.0",
+    "@vercel/speed-insights": "^1.2.0",
     "autoprefixer": "^10.4.20",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

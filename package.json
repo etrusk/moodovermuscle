@@ -18,7 +18,10 @@
     "create-webhook": "node scripts/create-vercel-webhook.js",
     "test-deployment": "node scripts/test-deployment.js",
     "vercel-status": "node scripts/vercel-status-check.js",
-    "fix-webhook": "node scripts/fix-webhook.js"
+    "fix-webhook": "node scripts/fix-webhook.js",
+    "advanced-diagnosis": "node scripts/advanced-webhook-diagnosis.js",
+    "check-github-app": "node scripts/check-github-app.js",
+    "manual-webhook": "node scripts/manual-webhook.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

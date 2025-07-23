@@ -17,6 +17,9 @@ MoodOverMuscle is a fitness website for mothers on the Sunshine Coast, Queenslan
 - **Responsive design** - Mobile-first approach
 - **Accessibility focused** - WCAG compliant design
 - **Community gallery** - Showcasing the M.O.M.unity in action
+- **Error handling** - Custom 404/500 pages with recovery options
+- **Performance monitoring** - Vercel Analytics and Speed Insights
+- **Health monitoring** - Automated domain and SSL monitoring
 
 ## Technology Stack
 
@@ -42,20 +45,38 @@ pnpm build
 
 # Start production server
 pnpm start
+
+# Monitoring & validation scripts
+pnpm run verify-domain      # Check domain DNS and SSL status
+pnpm run health-check       # Comprehensive site health monitoring
+pnpm run build-validate     # Validate build environment consistency
+pnpm run test-errors        # Test error scenarios and recovery
+pnpm run pre-deploy         # Full validation pipeline before deployment
 ```
 
 ## Project Structure
 
 ```
 ├── app/                    # Next.js App Router
-│   ├── layout.tsx         # Root layout
+│   ├── layout.tsx         # Root layout with Analytics integration
 │   ├── page.tsx           # Homepage
+│   ├── error.tsx          # Error boundary component
+│   ├── not-found.tsx      # Custom 404 page
+│   ├── 500.tsx            # Custom 500 error page
 │   ├── globals.css        # Global styles
 │   └── classes/           # Additional pages
 ├── components/            # React components
 │   ├── ui/               # shadcn/ui components
 │   ├── booking-form.tsx  # Multi-step booking form
 │   └── theme-provider.tsx
+├── scripts/              # Monitoring and validation scripts
+│   ├── build-validation.js    # Environment consistency validation
+│   ├── health-check.js        # Production health monitoring
+│   ├── test-error-scenarios.js # Error scenario testing
+│   └── verify-domain.js       # Domain and SSL verification
+├── .github/workflows/    # GitHub Actions
+│   ├── domain-health-check.yml # Automated health monitoring
+│   └── vercel-deployment.yml   # Enhanced deployment workflow
 ├── lib/                  # Utility functions
 ├── hooks/                # Custom React hooks
 ├── public/               # Static assets
@@ -63,6 +84,59 @@ pnpm start
 └── .kiro/               # Kiro IDE configuration
     └── steering/        # LLM guidance files
 ```
+
+## Monitoring & Error Handling
+
+### Error Pages
+- **404 Not Found** (`app/not-found.tsx`): Custom branded 404 page with helpful navigation and contact information
+- **500 Server Error** (`app/500.tsx`): Server error page with retry functionality and support contact
+- **Error Boundary** (`app/error.tsx`): Client-side error boundary with development error details and recovery options
+
+### Performance Monitoring
+- **Vercel Analytics**: Integrated in `app/layout.tsx` for visitor tracking and page views
+- **Speed Insights**: Core Web Vitals monitoring for performance optimization
+- **Real-time Metrics**: Available in Vercel dashboard after deployment
+
+### Health Monitoring Scripts
+- **Domain Verification** (`scripts/verify-domain.js`):
+  - DNS resolution checking (A records, CNAME records)
+  - SSL certificate validation and expiry monitoring
+  - HTTPS functionality and security headers testing
+  - Redirect verification (HTTP→HTTPS, WWW→non-WWW)
+
+- **Health Check** (`scripts/health-check.js`):
+  - Comprehensive production health monitoring
+  - Website response time and content validation
+  - Critical pages testing (/classes, homepage)
+  - Performance threshold monitoring
+  - Detailed health reporting
+
+- **Build Validation** (`scripts/build-validation.js`):
+  - Environment consistency validation
+  - Required files and directories checking
+  - Package.json and configuration validation
+  - Build output structure verification
+
+- **Error Testing** (`scripts/test-error-scenarios.js`):
+  - 404 error pages functionality testing
+  - Build validation script testing
+  - Domain verification testing
+  - Recovery procedures validation
+  - Monitoring integration verification
+
+### Automated Monitoring
+- **GitHub Actions Health Check** (`.github/workflows/domain-health-check.yml`):
+  - Runs every 6 hours automatically
+  - Domain verification and health checks
+  - Error scenario testing
+  - Health report generation and artifact storage
+  - Failure notifications
+
+- **Enhanced Deployment Workflow** (`.github/workflows/vercel-deployment.yml`):
+  - Build validation integration
+  - Health monitoring on deployments
+  - Preview deployment comments on PRs
+  - Comprehensive error reporting
 
 ## Development Guidelines
 

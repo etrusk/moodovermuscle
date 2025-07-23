@@ -10,9 +10,12 @@ Brief description of changes made.
 ## Testing
 - [ ] Local development tested (`pnpm dev`)
 - [ ] Production build tested (`pnpm build`)
+- [ ] Build validation passed (`pnpm run build-validate`)
 - [ ] Mobile responsiveness verified
 - [ ] Accessibility checked
 - [ ] Form functionality tested (if applicable)
+- [ ] Error pages tested (if applicable)
+- [ ] Health monitoring scripts tested (if applicable)
 
 ## Deployment
 - [ ] Preview deployment will be automatically created

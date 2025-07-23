@@ -1,0 +1,11 @@
+Deployment test - 2025-07-23T03:57:02.696Z
+
+This file was created to test if Vercel deployments are working properly.
+If you see this file in your repository, the deployment trigger test was successful.
+
+Test details:
+- Timestamp: 2025-07-23T03:57:02.696Z
+- Purpose: Webhook functionality test
+- Expected: Automatic Vercel deployment should trigger
+
+You can safely delete this file after confirming deployment works.

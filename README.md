@@ -124,18 +124,25 @@ pnpm run pre-deploy         # Full validation pipeline before deployment
   - Monitoring integration verification
 
 ### Automated Monitoring
-- **GitHub Actions Health Check** (`.github/workflows/domain-health-check.yml`):
-  - Runs every 6 hours automatically
-  - Domain verification and health checks
-  - Error scenario testing
-  - Health report generation and artifact storage
-  - Failure notifications
-
 - **Enhanced Deployment Workflow** (`.github/workflows/vercel-deployment.yml`):
   - Build validation integration
   - Health monitoring on deployments
   - Preview deployment comments on PRs
   - Comprehensive error reporting
+
+- **Lighthouse Audit** (`.github/workflows/lighthouse-audit.yml`):
+  - Runs weekly and on deployments
+  - Performance and accessibility audits
+  - Enforces minimum scores (Performance >90, Accessibility >95)
+  - Creates issues for audit failures
+  - Stores audit reports as artifacts
+
+- **Critical Alerts Monitoring** (`.github/workflows/critical-alerts.yml`):
+  - Runs every 3 hours
+  - Checks website availability
+  - Monitors SSL certificate expiration
+  - Measures response time performance
+  - Creates alerts for critical failures
 
 ## Development Guidelines
 

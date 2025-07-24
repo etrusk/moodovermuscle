@@ -38,3 +38,6 @@ public/placeholder*
 # IDE
 .vscode/
 .idea/
+
+# backup and migration artifacts
+/backup/

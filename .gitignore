@@ -30,4 +30,7 @@ next-env.d.ts
 public/placeholder*
 
 # kiro
-/.kiro/
+/.kiro/steering/
+/.kiro/settings/
+# Allow specs
+!/.kiro/specs/

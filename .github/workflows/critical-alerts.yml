@@ -1,0 +1,159 @@
+name: Critical Alerts Monitoring
+
+on:
+  schedule:
+    # Run every 3 hours
+    - cron: '0 */3 * * *'
+  workflow_dispatch:
+    # Allow manual triggering
+
+jobs:
+  monitor-critical-metrics:
+    runs-on: ubuntu-latest
+    name: Monitor Critical Metrics
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: latest
+          
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        
+      - name: Check website availability
+        id: availability
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" https://moodovermuscle.com.au)
+          echo "status_code=$response" >> $GITHUB_OUTPUT
+          if [[ $response -ge 200 && $response -lt 300 ]]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+          else
+            echo "status=failure" >> $GITHUB_OUTPUT
+          fi
+        continue-on-error: true
+        
+      - name: Check SSL certificate
+        id: ssl
+        run: |
+          expiry_days=$(echo | openssl s_client -servername moodovermuscle.com.au -connect moodovermuscle.com.au:443 2>/dev/null | openssl x509 -noout -enddate | sed -e 's/notAfter=//' | xargs -I{} date -d "{}" +%s | xargs -I{} bash -c 'echo $(({}-$(date +%s)))/86400')
+          echo "expiry_days=$expiry_days" >> $GITHUB_OUTPUT
+          if [[ $expiry_days -lt 15 ]]; then
+            echo "status=warning" >> $GITHUB_OUTPUT
+          else
+            echo "status=success" >> $GITHUB_OUTPUT
+          fi
+        continue-on-error: true
+        
+      - name: Check response time
+        id: response_time
+        run: |
+          time_ms=$(curl -s -w "%{time_total}" -o /dev/null https://moodovermuscle.com.au | awk '{print int($1*1000)}')
+          echo "time_ms=$time_ms" >> $GITHUB_OUTPUT
+          if [[ $time_ms -gt 1000 ]]; then
+            echo "status=warning" >> $GITHUB_OUTPUT
+          else
+            echo "status=success" >> $GITHUB_OUTPUT
+          fi
+        continue-on-error: true
+        
+      - name: Create alert on critical failure
+        if: steps.availability.outputs.status == 'failure' || steps.ssl.outputs.status == 'warning'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            
+            // Determine alert severity
+            let severity = "⚠️ WARNING";
+            let labels = ['monitoring', 'automated'];
+            
+            if ('${{ steps.availability.outputs.status }}' === 'failure') {
+              severity = "🚨 CRITICAL";
+              labels.push('critical');
+            }
+            
+            const title = `${severity}: Site Monitoring Alert - ${new Date().toISOString().split('T')[0]}`;
+            
+            // Build alert message
+            let alertDetails = [];
+            
+            if ('${{ steps.availability.outputs.status }}' === 'failure') {
+              alertDetails.push(`- ❌ **Website Availability**: Site returned HTTP ${steps.availability.outputs.status_code}`);
+            } else {
+              alertDetails.push(`- ✅ **Website Availability**: Site is accessible`);
+            }
+            
+            if ('${{ steps.ssl.outputs.status }}' === 'warning') {
+              alertDetails.push(`- ⚠️ **SSL Certificate**: Expires in ${steps.ssl.outputs.expiry_days} days`);
+            } else {
+              alertDetails.push(`- ✅ **SSL Certificate**: Valid for ${steps.ssl.outputs.expiry_days} days`);
+            }
+            
+            if ('${{ steps.response_time.outputs.status }}' === 'warning') {
+              alertDetails.push(`- ⚠️ **Response Time**: ${steps.response_time.outputs.time_ms}ms (slow)`);
+            } else {
+              alertDetails.push(`- ✅ **Response Time**: ${steps.response_time.outputs.time_ms}ms`);
+            }
+            
+            const body = `## ${severity} Site Monitoring Alert
+            
+            The automated monitoring system detected issues with moodovermuscle.com.au.
+            
+            **Timestamp:** ${new Date().toISOString()}
+            
+            ### Status Summary:
+            ${alertDetails.join('\n')}
+            
+            ### Recommended Actions:
+            1. Check Vercel deployment status
+            2. Verify domain configuration
+            3. Test website manually
+            4. Review recent changes
+            
+            ### Quick Links:
+            - [Vercel Dashboard](https://vercel.com/dashboard)
+            - [Domain Registrar](https://your-domain-registrar.com)
+            - [Workflow Run](https://github.com/${owner}/${repo}/actions/runs/${github.run_id})
+            
+            This issue was automatically created by the monitoring system.
+            `;
+            
+            // Check if there's already an open monitoring issue
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner,
+              repo,
+              state: 'open',
+              labels: ['monitoring', 'automated']
+            });
+            
+            if (issues.length === 0) {
+              await github.rest.issues.create({
+                owner,
+                repo,
+                title: title,
+                body: body,
+                labels: labels
+              });
+            } else {
+              // Update existing issue with new report
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: issues[0].number,
+                body: `## Updated Monitoring Report - ${new Date().toISOString()}
+                
+                ${alertDetails.join('\n')}
+                
+                [Workflow Run](https://github.com/${owner}/${repo}/actions/runs/${github.run_id})
+                `
+              });
+            }

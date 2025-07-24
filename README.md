@@ -78,7 +78,6 @@ pnpm run pre-deploy         # Full validation pipeline before deployment
 │   ├── domain-health-check.yml # Automated health monitoring
 │   └── vercel-deployment.yml   # Enhanced deployment workflow
 ├── lib/                  # Utility functions
-├── hooks/                # Custom React hooks
 ├── public/               # Static assets
 │   └── images/          # Image assets
 └── .kiro/               # Kiro IDE configuration

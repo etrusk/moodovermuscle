@@ -22,8 +22,7 @@ services:
       - ./app:/app/app:cached
       - ./components:/app/components:cached
       - ./lib:/app/lib:cached
-      - ./hooks:/app/hooks:cached
-      - ./styles:/app/styles:cached
+
       - ./public:/app/public:cached
       - ./package.json:/app/package.json:ro
       - ./next.config.mjs:/app/next.config.mjs:ro

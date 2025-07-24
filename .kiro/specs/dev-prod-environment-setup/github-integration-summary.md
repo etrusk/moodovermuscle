@@ -4,7 +4,7 @@
 
 ### ✅ 1. Verify GitHub repository connection to Vercel
 - **Status**: Verified and confirmed
-- **Repository**: `https://github.com/jovial-banana-9934/moodovermuscle-website.git`
+- **Repository**: `https://github.com/etrusk/moodovermuscle.git`
 - **Connection**: Active and properly configured
 - **Vercel Integration**: Automatic deployments enabled
 

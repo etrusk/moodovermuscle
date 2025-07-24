@@ -1,7 +1,12 @@
 {
-  "name": "moodovermuscle-website",
+  "name": "moodovermuscle",
   "version": "0.1.0",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/etrusk/moodovermuscle.git"
+  },
+  "homepage": "https://moodovermuscle.com.au",
   "scripts": {
     "build": "next build",
     "dev": "next dev",

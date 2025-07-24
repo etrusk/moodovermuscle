@@ -162,7 +162,7 @@ export default function Home() {
                   <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-tight pb-2">
                     <span className="text-white block animate-fade-in-up drop-shadow-2xl">Welcome to</span>
                     <span className="text-white block animate-fade-in-up delay-200 drop-shadow-2xl">
-                      Mood Over Muscle 💗
+                      MoodOverMuscle 💗
                     </span>
                   </h1>
 
@@ -427,7 +427,7 @@ export default function Home() {
                 squats or stretchy pants – it's your daily dose of sanity, strength and self-care.
               </p>
               <p className="text-lg text-stone-700 leading-relaxed mt-4">
-                At Mood Over Muscle, we believe movement is medicine – for your physical body and your mental health.
+                At MoodOverMuscle, we believe movement is medicine – for your physical body and your mental health.
                 This is your space to rebuild from the inside out, safely and sustainably. No "bouncing back", no
                 six-pack pressure. Just real support for real women. Whether you're postpartum, peri-menopausal, or just
                 overdue for "you-time" – you're in the right place.

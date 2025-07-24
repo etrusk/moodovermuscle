@@ -243,3 +243,4 @@ For technical issues or questions about the codebase, refer to:
 - Tailwind CSS docs for styling
 - shadcn/ui docs for component usage
 # Repository successfully migrated to etrusk
+# SSH authentication configured

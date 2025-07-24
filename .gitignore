@@ -34,3 +34,7 @@ public/placeholder*
 /.kiro/settings/
 # Allow specs
 !/.kiro/specs/
+
+# IDE
+.vscode/
+.idea/

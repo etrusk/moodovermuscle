@@ -9,7 +9,7 @@ A modern, accessible fitness website built with Next.js and deployed on Vercel.
 
 ## About MoodOverMuscle
 
-MoodOverMuscle is a fitness website for mothers on the Sunshine Coast, Queensland. The platform focuses on postnatal fitness, mental wellbeing, and building a supportive community for mums. Created by Emily, a certified Safe Return to Exercise trainer and mother herself.
+MoodOverMuscle is a fitness website for mothers on the Sunshine Coast, Queensland. The platform focuses on postnatal fitness, mental wellbeing, and building a supportive community for mums. Created by Emilia, a certified Safe Return to Exercise trainer and mother herself.
 
 ### Key Features
 - **Free first session** - No payment or commitment required
@@ -204,7 +204,7 @@ Multi-step form component with:
 - Conversational and supportive ("Hi mama", "lovely")
 - Emphasizes community ("M.O.M.unity", "stronger together")
 - No-pressure approach ("no bouncing back", "just come as you are")
-- Mental health focus ("Mood Over Muscle")
+- Mental health focus ("MoodOverMuscle")
 
 ### Target Audience
 - New mothers seeking postnatal fitness recovery
@@ -242,3 +242,4 @@ For technical issues or questions about the codebase, refer to:
 - Next.js documentation for framework questions
 - Tailwind CSS docs for styling
 - shadcn/ui docs for component usage
+# Repository successfully migrated to etrusk

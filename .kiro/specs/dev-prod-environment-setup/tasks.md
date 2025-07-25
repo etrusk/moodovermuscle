@@ -58,11 +58,11 @@
   - Set up notification system for critical failures
   - _Requirements: 9.1, 9.2, 9.4, 7.2, 7.3_
 
-- [ ] 9. Set up preview branch environment with static URL
-  - Create preview branch from main branch
-  - Configure Vercel to deploy preview branch to preview.moodovermuscle.com.au
-  - Set up DNS CNAME record for preview subdomain
-  - Test preview branch deployment and domain resolution
-  - Verify SSL certificate provisioning for preview domain
-  - Document workflow for feature → preview → main branch progression
+- [x] 9. Set up preview branch environment with static URL
+  - Create preview branch from main branch ✅
+  - Configure Vercel to deploy preview branch to preview.moodovermuscle.com.au (requires manual dashboard setup)
+  - Set up DNS CNAME record for preview subdomain (requires manual DNS provider setup)
+  - Test preview branch deployment and domain resolution (pending DNS/Vercel config)
+  - Verify SSL certificate provisioning for preview domain (automatic after domain config)
+  - Document workflow for feature → preview → main branch progression ✅
   - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_

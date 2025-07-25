@@ -241,11 +241,15 @@ git push origin main
 
 ## Recent Updates
 
-### Project Cleanup (Latest)
-- Fixed import paths for hooks moved from `/hooks` to `/components/ui`
-- Updated documentation to match actual project structure
-- Verified all dependencies are being used in the project
-- Added comprehensive monitoring workflows
+### GitHub Actions & Project Cleanup (Latest)
+- ✅ Fixed GitHub Actions permission issues ("Resource not accessible by integration")
+- ✅ Added explicit permissions to workflows (issues: write, pull-requests: write)
+- ✅ Created missing scripts referenced in package.json (verify-domain.js, test-error-scenarios.js)
+- ✅ Added .env.example file to resolve build validation failures
+- ✅ Cleaned up temporary documentation files (PREVIEW_*_SETUP.md, test-preview.txt)
+- ✅ Removed redundant scripts (verify-preview-setup.js, check-vercel-dns.js)
+- ✅ Updated .gitignore to prevent future temporary file commits
+- ✅ All GitHub Actions workflows now running successfully
 
 ### Performance Monitoring
 - Implemented automated Lighthouse audits with minimum score thresholds

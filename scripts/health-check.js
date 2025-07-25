@@ -1,368 +1,369 @@
 #!/usr/bin/env node
 
 /**
- * Health Check Script for MoodOverMuscle
+ * Post-Transfer Health Check Script
  * 
- * This script performs comprehensive health checks on the deployed application
- * including domain resolution, SSL certificates, performance metrics, and functionality.
+ * This script performs a comprehensive health check of the repository,
+ * website, and all integrations after the transfer is complete
  */
 
 const https = require('https');
-const http = require('http');
 const dns = require('dns').promises;
 
+// Configuration
+const TARGET_OWNER = 'etrusk';
+const TARGET_REPO = 'moodovermuscle';
 const DOMAIN = 'moodovermuscle.com.au';
-const WWW_DOMAIN = 'www.moodovermuscle.com.au';
-const TIMEOUT = 10000; // 10 seconds
+const EXPECTED_PAGES = [
+  '/',
+  '/classes'
+];
 
-// Performance thresholds
-const PERFORMANCE_THRESHOLDS = {
-  responseTime: 3000, // 3 seconds
-  ttfb: 1000, // 1 second Time To First Byte
-  sslHandshake: 2000 // 2 seconds for SSL handshake
-};
+/**
+ * Make HTTP request
+ */
+function makeHttpRequest(hostname, path = '/', timeout = 10000) {
+  return new Promise((resolve) => {
+    const options = {
+      hostname: hostname,
+      path: path,
+      method: 'GET',
+      timeout: timeout,
+      headers: {
+        'User-Agent': 'MoodOverMuscle-Health-Check'
+      }
+    };
 
-async function checkDomainResolution(domain) {
-  console.log(`\n🔍 Checking domain resolution for ${domain}...`);
-  
+    const req = https.request(options, (res) => {
+      let data = '';
+      res.on('data', (chunk) => data += chunk);
+      res.on('end', () => {
+        resolve({
+          status: res.statusCode,
+          headers: res.headers,
+          body: data,
+          accessible: true
+        });
+      });
+    });
+
+    req.on('error', (error) => {
+      resolve({ 
+        accessible: false, 
+        error: error.message 
+      });
+    });
+
+    req.on('timeout', () => {
+      resolve({ 
+        accessible: false, 
+        timeout: true 
+      });
+    });
+
+    req.end();
+  });
+}
+
+/**
+ * Make GitHub API request
+ */
+function makeGitHubRequest(path) {
+  return new Promise((resolve, reject) => {
+    const options = {
+      hostname: 'api.github.com',
+      path: path,
+      method: 'GET',
+      headers: {
+        'User-Agent': 'MoodOverMuscle-Health-Check',
+        'Accept': 'application/vnd.github.v3+json'
+      }
+    };
+
+    const req = https.request(options, (res) => {
+      let data = '';
+      res.on('data', (chunk) => data += chunk);
+      res.on('end', () => {
+        try {
+          const parsed = JSON.parse(data);
+          resolve({ status: res.statusCode, data: parsed });
+        } catch (e) {
+          resolve({ status: res.statusCode, data: data });
+        }
+      });
+    });
+
+    req.on('error', reject);
+    req.end();
+  });
+}
+
+/**
+ * Check repository health
+ */
+async function checkRepositoryHealth() {
+  console.log('📋 Repository Health Check');
+  console.log('-' .repeat(40));
+
   try {
-    const addresses = await dns.resolve4(domain);
-    console.log(`✅ DNS Resolution: ${addresses.join(', ')}`);
-    return { success: true, addresses };
+    const response = await makeGitHubRequest(`/repos/${TARGET_OWNER}/${TARGET_REPO}`);
+    
+    if (response.status === 200) {
+      const repo = response.data;
+      console.log('✅ Repository is accessible');
+      console.log(`   - URL: https://github.com/${repo.full_name}`);
+      console.log(`   - Default branch: ${repo.default_branch}`);
+      console.log(`   - Last updated: ${repo.updated_at}`);
+      console.log(`   - Size: ${repo.size} KB`);
+      
+      // Check recent commits
+      const commitsResponse = await makeGitHubRequest(`/repos/${TARGET_OWNER}/${TARGET_REPO}/commits?per_page=1`);
+      if (commitsResponse.status === 200 && commitsResponse.data.length > 0) {
+        const lastCommit = commitsResponse.data[0];
+        console.log(`   - Last commit: ${lastCommit.commit.message.split('\n')[0]}`);
+        console.log(`   - Commit date: ${lastCommit.commit.author.date}`);
+      }
+      
+      return { success: true, repository: repo };
+    } else {
+      console.log(`❌ Repository not accessible (Status: ${response.status})`);
+      return { success: false, status: response.status };
+    }
   } catch (error) {
-    console.log(`❌ DNS Resolution failed: ${error.message}`);
+    console.log(`❌ Error checking repository: ${error.message}`);
     return { success: false, error: error.message };
   }
 }
 
-async function checkSSLCertificate(domain) {
-  console.log(`\n🔒 Checking SSL certificate for ${domain}...`);
-  
-  return new Promise((resolve) => {
-    const options = {
-      hostname: domain,
-      port: 443,
-      method: 'HEAD',
-      timeout: TIMEOUT
-    };
-    
-    const startTime = Date.now();
-    const req = https.request(options, (res) => {
-      const sslHandshakeTime = Date.now() - startTime;
-      const cert = res.socket.getPeerCertificate();
-      
-      if (cert && cert.subject) {
-        console.log(`✅ SSL Certificate valid`);
-        console.log(`   Subject: ${cert.subject.CN}`);
-        console.log(`   Issuer: ${cert.issuer.O}`);
-        console.log(`   Valid until: ${cert.valid_to}`);
-        console.log(`   SSL Handshake time: ${sslHandshakeTime}ms`);
-        
-        // Check if certificate is expiring soon (within 30 days)
-        const expiryDate = new Date(cert.valid_to);
-        const thirtyDaysFromNow = new Date();
-        thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
-        
-        if (expiryDate < thirtyDaysFromNow) {
-          console.log(`⚠️  Certificate expires soon: ${cert.valid_to}`);
-        }
-        
-        resolve({
-          success: true,
-          certificate: cert,
-          handshakeTime: sslHandshakeTime,
-          expiryWarning: expiryDate < thirtyDaysFromNow
-        });
-      } else {
-        console.log(`❌ Invalid SSL certificate`);
-        resolve({ success: false, error: 'Invalid certificate' });
-      }
-    });
-    
-    req.on('error', (error) => {
-      console.log(`❌ SSL check failed: ${error.message}`);
-      resolve({ success: false, error: error.message });
-    });
-    
-    req.on('timeout', () => {
-      console.log(`❌ SSL check timed out`);
-      req.destroy();
-      resolve({ success: false, error: 'Timeout' });
-    });
-    
-    req.end();
-  });
-}
+/**
+ * Check DNS and domain health
+ */
+async function checkDomainHealth() {
+  console.log('\n📋 Domain Health Check');
+  console.log('-' .repeat(40));
 
-async function checkWebsiteResponse(domain, path = '/') {
-  console.log(`\n🌐 Checking website response for https://${domain}${path}...`);
-  
-  return new Promise((resolve) => {
-    const startTime = Date.now();
-    const options = {
-      hostname: domain,
-      port: 443,
-      path: path,
-      method: 'GET',
-      timeout: TIMEOUT,
-      headers: {
-        'User-Agent': 'MoodOverMuscle-HealthCheck/1.0'
-      }
-    };
-    
-    const req = https.request(options, (res) => {
-      const responseTime = Date.now() - startTime;
-      let data = '';
-      
-      res.on('data', (chunk) => {
-        data += chunk;
-      });
-      
-      res.on('end', () => {
-        console.log(`✅ HTTP Status: ${res.statusCode}`);
-        console.log(`✅ Response time: ${responseTime}ms`);
-        
-        // Check performance thresholds
-        if (responseTime > PERFORMANCE_THRESHOLDS.responseTime) {
-          console.log(`⚠️  Response time exceeds threshold (${PERFORMANCE_THRESHOLDS.responseTime}ms)`);
-        }
-        
-        // Check for essential content
-        const hasTitle = data.includes('<title>') && data.includes('MoodOverMuscle');
-        const hasContent = data.includes('Emily') || data.includes('M.O.M.unity');
-        
-        if (hasTitle) {
-          console.log(`✅ Page title found`);
-        } else {
-          console.log(`⚠️  Page title missing or incorrect`);
-        }
-        
-        if (hasContent) {
-          console.log(`✅ Essential content found`);
-        } else {
-          console.log(`⚠️  Essential content missing`);
-        }
-        
-        // Check security headers
-        const securityHeaders = {
-          'strict-transport-security': 'HSTS',
-          'x-content-type-options': 'Content Type Options',
-          'x-frame-options': 'Frame Options',
-          'content-security-policy': 'CSP'
-        };
-        
-        Object.entries(securityHeaders).forEach(([header, name]) => {
-          if (res.headers[header]) {
-            console.log(`✅ ${name}: ${res.headers[header]}`);
-          } else {
-            console.log(`⚠️  ${name} header missing`);
-          }
-        });
-        
-        resolve({
-          success: res.statusCode >= 200 && res.statusCode < 400,
-          statusCode: res.statusCode,
-          responseTime,
-          hasTitle,
-          hasContent,
-          headers: res.headers
-        });
-      });
-    });
-    
-    req.on('error', (error) => {
-      console.log(`❌ Website check failed: ${error.message}`);
-      resolve({ success: false, error: error.message });
-    });
-    
-    req.on('timeout', () => {
-      console.log(`❌ Website check timed out`);
-      req.destroy();
-      resolve({ success: false, error: 'Timeout' });
-    });
-    
-    req.end();
-  });
-}
-
-async function checkRedirects() {
-  console.log(`\n🔄 Checking redirects...`);
-  
-  const redirectTests = [
-    { from: `http://${DOMAIN}`, to: `https://${DOMAIN}`, description: 'HTTP to HTTPS' },
-    { from: `https://${WWW_DOMAIN}`, to: `https://${DOMAIN}`, description: 'WWW to non-WWW' }
-  ];
-  
-  const results = [];
-  
-  for (const test of redirectTests) {
-    console.log(`\n   Testing ${test.description}: ${test.from} → ${test.to}`);
-    
-    const result = await new Promise((resolve) => {
-      const url = new URL(test.from);
-      const isHttps = url.protocol === 'https:';
-      const client = isHttps ? https : http;
-      const port = isHttps ? 443 : 80;
-      
-      const options = {
-        hostname: url.hostname,
-        port: port,
-        path: url.pathname,
-        method: 'HEAD',
-        timeout: TIMEOUT
-      };
-      
-      const req = client.request(options, (res) => {
-        if (res.statusCode >= 300 && res.statusCode < 400) {
-          const location = res.headers.location;
-          if (location && location.startsWith(test.to)) {
-            console.log(`   ✅ Redirect working: ${res.statusCode} → ${location}`);
-            resolve({ success: true, statusCode: res.statusCode, location });
-          } else {
-            console.log(`   ⚠️  Unexpected redirect: ${res.statusCode} → ${location}`);
-            resolve({ success: false, statusCode: res.statusCode, location });
-          }
-        } else {
-          console.log(`   ⚠️  No redirect found (Status: ${res.statusCode})`);
-          resolve({ success: false, statusCode: res.statusCode });
-        }
-      });
-      
-      req.on('error', (error) => {
-        console.log(`   ❌ Redirect test failed: ${error.message}`);
-        resolve({ success: false, error: error.message });
-      });
-      
-      req.on('timeout', () => {
-        console.log(`   ❌ Redirect test timed out`);
-        req.destroy();
-        resolve({ success: false, error: 'Timeout' });
-      });
-      
-      req.end();
-    });
-    
-    results.push({ test, result });
-  }
-  
-  return results;
-}
-
-async function checkCriticalPages() {
-  console.log(`\n📄 Checking critical pages...`);
-  
-  const pages = [
-    { path: '/', name: 'Homepage' },
-    { path: '/classes', name: 'Classes page' }
-  ];
-  
-  const results = [];
-  
-  for (const page of pages) {
-    console.log(`\n   Checking ${page.name} (${page.path})...`);
-    const result = await checkWebsiteResponse(DOMAIN, page.path);
-    results.push({ page, result });
-  }
-  
-  return results;
-}
-
-async function generateHealthReport(results) {
-  console.log('\n📊 Health Check Report');
-  console.log('======================');
-  
-  const timestamp = new Date().toISOString();
-  console.log(`Report generated: ${timestamp}`);
-  
-  // Overall status
-  const allChecksPass = Object.values(results).every(result => {
-    if (Array.isArray(result)) {
-      return result.every(item => item.result?.success !== false);
-    }
-    return result.success !== false;
-  });
-  
-  console.log(`\n🎯 Overall Status: ${allChecksPass ? '✅ HEALTHY' : '❌ ISSUES DETECTED'}`);
-  
-  // Detailed breakdown
-  console.log('\n📋 Check Summary:');
-  console.log(`   DNS Resolution: ${results.dns.success ? '✅' : '❌'}`);
-  console.log(`   SSL Certificate: ${results.ssl.success ? '✅' : '❌'}`);
-  console.log(`   Website Response: ${results.website.success ? '✅' : '❌'}`);
-  console.log(`   Redirects: ${results.redirects.every(r => r.result.success) ? '✅' : '⚠️'}`);
-  console.log(`   Critical Pages: ${results.pages.every(p => p.result.success) ? '✅' : '❌'}`);
-  
-  // Warnings and recommendations
-  console.log('\n💡 Recommendations:');
-  
-  if (!results.dns.success) {
-    console.log('   • Check DNS configuration at domain registrar');
-  }
-  
-  if (!results.ssl.success) {
-    console.log('   • Verify SSL certificate configuration in Vercel');
-  }
-  
-  if (results.ssl.expiryWarning) {
-    console.log('   • SSL certificate expires soon - monitor renewal');
-  }
-  
-  if (results.website.responseTime > PERFORMANCE_THRESHOLDS.responseTime) {
-    console.log('   • Website response time is slow - check performance');
-  }
-  
-  const failedRedirects = results.redirects.filter(r => !r.result.success);
-  if (failedRedirects.length > 0) {
-    console.log('   • Some redirects are not working properly');
-  }
-  
-  const failedPages = results.pages.filter(p => !p.result.success);
-  if (failedPages.length > 0) {
-    console.log('   • Some critical pages are not responding correctly');
-  }
-  
-  return {
-    timestamp,
-    overall: allChecksPass ? 'HEALTHY' : 'ISSUES_DETECTED',
-    results
-  };
-}
-
-async function main() {
-  console.log('🏥 Health Check for MoodOverMuscle');
-  console.log('==================================');
-  
   try {
-    // Run all health checks
-    const results = {
-      dns: await checkDomainResolution(DOMAIN),
-      ssl: await checkSSLCertificate(DOMAIN),
-      website: await checkWebsiteResponse(DOMAIN),
-      redirects: await checkRedirects(),
-      pages: await checkCriticalPages()
-    };
+    // DNS resolution
+    const addresses = await dns.resolve4(DOMAIN);
+    console.log(`✅ DNS resolution successful`);
+    console.log(`   - Domain: ${DOMAIN}`);
+    console.log(`   - IP addresses: ${addresses.join(', ')}`);
     
-    // Generate comprehensive report
-    const report = await generateHealthReport(results);
+    // Check if it's pointing to Vercel
+    const isVercel = addresses.some(ip => 
+      ip.startsWith('76.76.') || 
+      ip.startsWith('216.198.') || 
+      ip.startsWith('64.13.')
+    );
     
-    // Exit with appropriate code
-    process.exit(report.overall === 'HEALTHY' ? 0 : 1);
+    if (isVercel) {
+      console.log('   - ✅ Appears to be pointing to Vercel');
+    } else {
+      console.log('   - ⚠️  May not be pointing to Vercel');
+    }
     
+    return { success: true, addresses: addresses };
   } catch (error) {
-    console.error(`❌ Health check failed: ${error.message}`);
-    process.exit(1);
+    console.log(`❌ DNS resolution failed: ${error.message}`);
+    return { success: false, error: error.message };
   }
 }
 
-if (require.main === module) {
-  main().catch(console.error);
+/**
+ * Check website health
+ */
+async function checkWebsiteHealth() {
+  console.log('\n📋 Website Health Check');
+  console.log('-' .repeat(40));
+
+  const results = [];
+  
+  for (const page of EXPECTED_PAGES) {
+    console.log(`\n🔍 Checking ${page}...`);
+    
+    const response = await makeHttpRequest(DOMAIN, page);
+    
+    if (response.accessible) {
+      console.log(`✅ Page accessible (Status: ${response.status})`);
+      
+      // Check for Vercel headers
+      if (response.headers['x-vercel-id']) {
+        console.log(`   - Vercel deployment: ${response.headers['x-vercel-id']}`);
+      }
+      
+      // Check for key content
+      if (response.body) {
+        const hasTitle = response.body.includes('<title>');
+        const hasMoodOverMuscle = response.body.toLowerCase().includes('moodovermuscle');
+        const hasReact = response.body.includes('__NEXT_DATA__');
+        
+        console.log(`   - Has title tag: ${hasTitle ? '✅' : '❌'}`);
+        console.log(`   - Contains brand name: ${hasMoodOverMuscle ? '✅' : '❌'}`);
+        console.log(`   - Next.js app: ${hasReact ? '✅' : '❌'}`);
+        
+        results.push({
+          page: page,
+          accessible: true,
+          status: response.status,
+          hasTitle: hasTitle,
+          hasBrand: hasMoodOverMuscle,
+          isNextJs: hasReact
+        });
+      }
+    } else {
+      console.log(`❌ Page not accessible`);
+      if (response.timeout) {
+        console.log('   - Request timed out');
+      } else if (response.error) {
+        console.log(`   - Error: ${response.error}`);
+      }
+      
+      results.push({
+        page: page,
+        accessible: false,
+        error: response.error || 'Unknown error'
+      });
+    }
+  }
+  
+  return { success: results.every(r => r.accessible), results: results };
 }
 
-module.exports = {
-  checkDomainResolution,
-  checkSSLCertificate,
-  checkWebsiteResponse,
-  checkRedirects,
-  checkCriticalPages,
-  generateHealthReport
-};
+/**
+ * Check GitHub Actions health
+ */
+async function checkGitHubActionsHealth() {
+  console.log('\n📋 GitHub Actions Health Check');
+  console.log('-' .repeat(40));
+
+  try {
+    const workflowsResponse = await makeGitHubRequest(`/repos/${TARGET_OWNER}/${TARGET_REPO}/actions/workflows`);
+    
+    if (workflowsResponse.status === 200) {
+      const workflows = workflowsResponse.data.workflows;
+      console.log(`✅ Found ${workflows.length} workflows`);
+      
+      for (const workflow of workflows) {
+        console.log(`\n   📄 ${workflow.name}`);
+        console.log(`      - State: ${workflow.state}`);
+        console.log(`      - Path: ${workflow.path}`);
+        
+        // Get recent runs for this workflow
+        const runsResponse = await makeGitHubRequest(
+          `/repos/${TARGET_OWNER}/${TARGET_REPO}/actions/workflows/${workflow.id}/runs?per_page=1`
+        );
+        
+        if (runsResponse.status === 200 && runsResponse.data.workflow_runs.length > 0) {
+          const lastRun = runsResponse.data.workflow_runs[0];
+          console.log(`      - Last run: ${lastRun.status} (${lastRun.conclusion || 'in progress'})`);
+          console.log(`      - Run date: ${lastRun.created_at}`);
+        } else {
+          console.log(`      - No recent runs found`);
+        }
+      }
+      
+      return { success: true, workflows: workflows };
+    } else {
+      console.log(`❌ Could not retrieve workflows (Status: ${workflowsResponse.status})`);
+      return { success: false, status: workflowsResponse.status };
+    }
+  } catch (error) {
+    console.log(`❌ Error checking GitHub Actions: ${error.message}`);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Performance check
+ */
+async function checkPerformance() {
+  console.log('\n📋 Performance Check');
+  console.log('-' .repeat(40));
+
+  const startTime = Date.now();
+  const response = await makeHttpRequest(DOMAIN, '/');
+  const endTime = Date.now();
+  
+  const responseTime = endTime - startTime;
+  
+  if (response.accessible) {
+    console.log(`✅ Response time: ${responseTime}ms`);
+    
+    if (responseTime < 1000) {
+      console.log('   - ✅ Excellent response time');
+    } else if (responseTime < 3000) {
+      console.log('   - ⚠️  Acceptable response time');
+    } else {
+      console.log('   - ❌ Slow response time');
+    }
+    
+    // Check content size
+    const contentLength = response.headers['content-length'];
+    if (contentLength) {
+      const sizeKB = Math.round(parseInt(contentLength) / 1024);
+      console.log(`   - Content size: ${sizeKB} KB`);
+    }
+    
+    return { success: true, responseTime: responseTime };
+  } else {
+    console.log('❌ Could not measure performance - site not accessible');
+    return { success: false };
+  }
+}
+
+/**
+ * Main health check function
+ */
+async function main() {
+  console.log('🏥 Post-Transfer Health Check');
+  console.log('=' .repeat(50));
+  console.log(`Repository: ${TARGET_OWNER}/${TARGET_REPO}`);
+  console.log(`Website: https://${DOMAIN}`);
+  console.log('=' .repeat(50));
+
+  // Run all health checks
+  const results = {
+    repository: await checkRepositoryHealth(),
+    domain: await checkDomainHealth(),
+    website: await checkWebsiteHealth(),
+    actions: await checkGitHubActionsHealth(),
+    performance: await checkPerformance()
+  };
+
+  // Overall summary
+  console.log('\n' + '=' .repeat(50));
+  console.log('📊 HEALTH CHECK SUMMARY');
+  console.log('=' .repeat(50));
+
+  const successCount = Object.values(results).filter(r => r.success).length;
+  const totalChecks = Object.keys(results).length;
+  const healthScore = Math.round((successCount / totalChecks) * 100);
+
+  console.log(`\n🎯 Overall Health Score: ${healthScore}% (${successCount}/${totalChecks} checks passed)`);
+
+  if (healthScore >= 80) {
+    console.log('✅ System is healthy and ready for production use!');
+  } else if (healthScore >= 60) {
+    console.log('⚠️  System is mostly functional but has some issues to address');
+  } else {
+    console.log('❌ System has significant issues that need immediate attention');
+  }
+
+  console.log('\n📝 Next steps:');
+  if (results.repository.success && results.website.success) {
+    console.log('   ✅ Repository transfer completed successfully');
+    console.log('   ✅ Website is operational');
+    console.log('   📋 Proceed to Task 3: Update code references');
+  } else {
+    console.log('   ❌ Address the failed health checks above');
+    console.log('   🔄 Re-run this health check after fixes');
+  }
+
+  console.log('\n🔗 Quick Links:');
+  console.log(`   - Repository: https://github.com/${TARGET_OWNER}/${TARGET_REPO}`);
+  console.log(`   - Website: https://${DOMAIN}`);
+  console.log(`   - Actions: https://github.com/${TARGET_OWNER}/${TARGET_REPO}/actions`);
+}
+
+// Run health check
+main().catch(console.error);

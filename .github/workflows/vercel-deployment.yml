@@ -11,6 +11,11 @@ on:
   workflow_dispatch:
     # Allow manual triggering
 
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
 jobs:
   deployment-status:
     runs-on: ubuntu-latest

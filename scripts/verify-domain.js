@@ -1,203 +1,301 @@
 #!/usr/bin/env node
 
 /**
- * Domain Verification Script for moodovermuscle.com.au
+ * Domain Verification Script
  * 
- * This script helps verify that the custom domain is properly configured
- * and working with Vercel deployment.
+ * Verifies that the domain is properly configured and pointing to Vercel
  */
 
 const https = require('https');
 const dns = require('dns').promises;
 
 const DOMAIN = 'moodovermuscle.com.au';
-const WWW_DOMAIN = 'www.moodovermuscle.com.au';
-const VERCEL_IPS = ['216.198.79.1'];
 
-async function checkDNS(domain) {
-  console.log(`\n🔍 Checking DNS for ${domain}...`);
+/**
+ * Check DNS resolution
+ */
+async function checkDNS() {
+  console.log('🔍 Checking domain resolution for', DOMAIN + '...');
   
   try {
-    // Check A records
-    const aRecords = await dns.resolve4(domain);
-    console.log(`✅ A Records: ${aRecords.join(', ')}`);
+    const addresses = await dns.resolve4(DOMAIN);
+    console.log('✅ DNS Resolution:', addresses[0]);
     
-    // Verify if pointing to Vercel IPs
-    const pointsToVercel = aRecords.some(ip => VERCEL_IPS.includes(ip));
-    if (pointsToVercel) {
-      console.log('✅ Domain points to Vercel servers');
-    } else {
-      console.log('⚠️  Domain may not be pointing to Vercel servers');
-    }
-    
-    return true;
-  } catch (error) {
-    if (error.code === 'ENOTFOUND') {
-      console.log('❌ DNS not found - domain may not be configured yet');
-    } else {
-      console.log(`❌ DNS Error: ${error.message}`);
-    }
-    return false;
-  }
-}
-
-async function checkCNAME(domain) {
-  console.log(`\n🔍 Checking CNAME for ${domain}...`);
-  
-  try {
-    const cnameRecords = await dns.resolveCname(domain);
-    console.log(`✅ CNAME Records: ${cnameRecords.join(', ')}`);
-    
-    // Check if pointing to Vercel
-    const pointsToVercel = cnameRecords.some(cname => 
-      cname.includes('vercel-dns.com') || cname.includes('vercel.app') || cname.includes('vercel-dns-017.com')
+    // Check if pointing to Vercel (common Vercel IP ranges)
+    const isVercel = addresses.some(ip => 
+      ip.startsWith('76.76.') || 
+      ip.startsWith('216.198.') || 
+      ip.startsWith('64.13.')
     );
     
-    if (pointsToVercel) {
-      console.log('✅ CNAME points to Vercel');
+    if (isVercel) {
+      console.log('✅ Domain appears to be pointing to Vercel');
     } else {
-      console.log('⚠️  CNAME may not be pointing to Vercel');
+      console.log('⚠️  Domain may not be pointing to Vercel');
+      console.log('   Current IP:', addresses[0]);
     }
     
-    return true;
+    return { success: true, addresses };
   } catch (error) {
-    if (error.code === 'ENODATA') {
-      console.log('ℹ️  No CNAME records found (may be using A records)');
-    } else {
-      console.log(`❌ CNAME Error: ${error.message}`);
-    }
-    return false;
+    console.log('❌ DNS resolution failed:', error.message);
+    return { success: false, error: error.message };
   }
 }
 
-async function checkHTTPS(domain) {
-  console.log(`\n🔍 Checking HTTPS for ${domain}...`);
+/**
+ * Check SSL certificate
+ */
+async function checkSSL() {
+  console.log('🔒 Checking SSL certificate for', DOMAIN + '...');
   
   return new Promise((resolve) => {
     const options = {
-      hostname: domain,
+      hostname: DOMAIN,
       port: 443,
-      path: '/',
-      method: 'HEAD',
+      method: 'GET',
       timeout: 10000
     };
-    
-    const req = https.request(options, (res) => {
-      console.log(`✅ HTTPS Status: ${res.statusCode}`);
-      console.log(`✅ SSL Certificate: Valid`);
-      
-      // Check security headers
-      const securityHeaders = [
-        'strict-transport-security',
-        'x-content-type-options',
-        'x-frame-options'
-      ];
-      
-      securityHeaders.forEach(header => {
-        if (res.headers[header]) {
-          console.log(`✅ ${header}: ${res.headers[header]}`);
-        }
-      });
-      
-      resolve(true);
-    });
-    
-    req.on('error', (error) => {
-      console.log(`❌ HTTPS Error: ${error.message}`);
-      resolve(false);
-    });
-    
-    req.on('timeout', () => {
-      console.log('❌ HTTPS request timed out');
-      req.destroy();
-      resolve(false);
-    });
-    
-    req.end();
-  });
-}
 
-async function checkRedirect(fromDomain, toDomain) {
-  console.log(`\n🔍 Checking redirect from ${fromDomain} to ${toDomain}...`);
-  
-  return new Promise((resolve) => {
-    const options = {
-      hostname: fromDomain,
-      port: 443,
-      path: '/',
-      method: 'HEAD',
-      timeout: 10000
-    };
-    
     const req = https.request(options, (res) => {
-      if (res.statusCode >= 300 && res.statusCode < 400) {
-        const location = res.headers.location;
-        if (location && location.includes(toDomain)) {
-          console.log(`✅ Redirect working: ${res.statusCode} → ${location}`);
-          resolve(true);
+      const cert = res.socket.getPeerCertificate();
+      
+      if (cert && cert.subject) {
+        console.log('✅ SSL Certificate valid');
+        console.log('Subject:', cert.subject.CN);
+        console.log('Issuer:', cert.issuer.O);
+        console.log('Valid until:', cert.valid_to);
+        
+        // Check if certificate is expiring soon (within 30 days)
+        const expiryDate = new Date(cert.valid_to);
+        const now = new Date();
+        const daysUntilExpiry = Math.ceil((expiryDate - now) / (1000 * 60 * 60 * 24));
+        
+        if (daysUntilExpiry < 30) {
+          console.log('⚠️  Certificate expires in', daysUntilExpiry, 'days');
         } else {
-          console.log(`⚠️  Unexpected redirect: ${res.statusCode} → ${location}`);
-          resolve(false);
+          console.log('✅ Certificate valid for', daysUntilExpiry, 'days');
         }
+        
+        resolve({ success: true, cert, daysUntilExpiry });
       } else {
-        console.log(`⚠️  No redirect found (Status: ${res.statusCode})`);
-        resolve(false);
+        console.log('❌ No SSL certificate found');
+        resolve({ success: false, error: 'No certificate' });
       }
     });
-    
+
     req.on('error', (error) => {
-      console.log(`❌ Redirect check error: ${error.message}`);
-      resolve(false);
+      console.log('❌ SSL check failed:', error.message);
+      resolve({ success: false, error: error.message });
     });
-    
+
     req.on('timeout', () => {
-      console.log('❌ Redirect check timed out');
-      req.destroy();
-      resolve(false);
+      console.log('❌ SSL check timed out');
+      resolve({ success: false, error: 'Timeout' });
     });
-    
+
     req.end();
   });
 }
 
+/**
+ * Check website response
+ */
+async function checkWebsite() {
+  console.log('🌐 Checking website response for https://' + DOMAIN + '/...');
+  
+  return new Promise((resolve) => {
+    const startTime = Date.now();
+    
+    const options = {
+      hostname: DOMAIN,
+      path: '/',
+      method: 'GET',
+      timeout: 10000,
+      headers: {
+        'User-Agent': 'MoodOverMuscle-Domain-Verification'
+      }
+    };
+
+    const req = https.request(options, (res) => {
+      const responseTime = Date.now() - startTime;
+      
+      console.log('✅ HTTP Status:', res.statusCode);
+      console.log('✅ Response time:', responseTime + 'ms');
+      
+      // Check for important headers
+      if (res.headers['x-vercel-id']) {
+        console.log('✅ Vercel deployment ID:', res.headers['x-vercel-id']);
+      }
+      
+      if (res.headers['strict-transport-security']) {
+        console.log('✅ HSTS:', res.headers['strict-transport-security']);
+      }
+      
+      if (res.headers['x-content-type-options']) {
+        console.log('✅ Content Type Options:', res.headers['x-content-type-options']);
+      }
+      
+      if (res.headers['x-frame-options']) {
+        console.log('✅ Frame Options:', res.headers['x-frame-options']);
+      }
+      
+      if (!res.headers['content-security-policy']) {
+        console.log('⚠️  CSP header missing');
+      }
+      
+      let body = '';
+      res.on('data', (chunk) => body += chunk);
+      res.on('end', () => {
+        // Check for essential content
+        const hasTitle = body.includes('<title>');
+        const hasContent = body.toLowerCase().includes('moodovermuscle');
+        
+        if (hasTitle) {
+          console.log('✅ Page title found');
+        } else {
+          console.log('❌ Page title missing');
+        }
+        
+        if (hasContent) {
+          console.log('✅ Essential content found');
+        } else {
+          console.log('❌ Essential content missing');
+        }
+        
+        resolve({ 
+          success: res.statusCode >= 200 && res.statusCode < 300,
+          status: res.statusCode,
+          responseTime,
+          hasTitle,
+          hasContent
+        });
+      });
+    });
+
+    req.on('error', (error) => {
+      console.log('❌ Website check failed:', error.message);
+      resolve({ success: false, error: error.message });
+    });
+
+    req.on('timeout', () => {
+      console.log('❌ Website check timed out');
+      resolve({ success: false, error: 'Timeout' });
+    });
+
+    req.end();
+  });
+}
+
+/**
+ * Check redirects
+ */
+async function checkRedirects() {
+  console.log('🔄 Checking redirects...');
+  
+  const redirectTests = [
+    { from: 'http://' + DOMAIN, to: 'https://' + DOMAIN, description: 'HTTP to HTTPS' },
+    { from: 'https://www.' + DOMAIN, to: 'https://' + DOMAIN, description: 'WWW to non-WWW' }
+  ];
+  
+  const results = [];
+  
+  for (const test of redirectTests) {
+    console.log(`Testing ${test.description}: ${test.from} → ${test.to}`);
+    
+    try {
+      const url = new URL(test.from);
+      const options = {
+        hostname: url.hostname,
+        path: url.pathname,
+        method: 'GET',
+        timeout: 5000,
+        headers: {
+          'User-Agent': 'MoodOverMuscle-Domain-Verification'
+        }
+      };
+      
+      const protocol = url.protocol === 'https:' ? https : require('http');
+      
+      const result = await new Promise((resolve) => {
+        const req = protocol.request(options, (res) => {
+          if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+            console.log(`✅ Redirect working: ${res.statusCode} → ${res.headers.location}`);
+            resolve({ success: true, status: res.statusCode, location: res.headers.location });
+          } else {
+            console.log(`❌ Unexpected response: ${res.statusCode}`);
+            resolve({ success: false, status: res.statusCode });
+          }
+        });
+        
+        req.on('error', (error) => {
+          console.log(`❌ Redirect test failed: ${error.message}`);
+          resolve({ success: false, error: error.message });
+        });
+        
+        req.on('timeout', () => {
+          console.log(`❌ Redirect test timed out`);
+          resolve({ success: false, error: 'Timeout' });
+        });
+        
+        req.end();
+      });
+      
+      results.push({ test, result });
+    } catch (error) {
+      console.log(`❌ Error testing ${test.description}: ${error.message}`);
+      results.push({ test, result: { success: false, error: error.message } });
+    }
+  }
+  
+  return results;
+}
+
+/**
+ * Main verification function
+ */
 async function main() {
-  console.log('🚀 Domain Verification for MoodOverMuscle');
-  console.log('==========================================');
+  console.log('🔍 Domain Verification for', DOMAIN);
+  console.log('=' .repeat(50));
   
-  // Check main domain DNS
-  const mainDNS = await checkDNS(DOMAIN);
-  await checkCNAME(DOMAIN);
+  const results = {
+    dns: await checkDNS(),
+    ssl: await checkSSL(),
+    website: await checkWebsite(),
+    redirects: await checkRedirects()
+  };
   
-  // Check www subdomain DNS
-  const wwwDNS = await checkDNS(WWW_DOMAIN);
-  await checkCNAME(WWW_DOMAIN);
+  console.log('\n' + '=' .repeat(50));
+  console.log('📊 VERIFICATION SUMMARY');
+  console.log('=' .repeat(50));
   
-  // Only check HTTPS if DNS is working
-  if (mainDNS) {
-    await checkHTTPS(DOMAIN);
+  const checks = [
+    { name: 'DNS Resolution', result: results.dns.success },
+    { name: 'SSL Certificate', result: results.ssl.success },
+    { name: 'Website Response', result: results.website.success },
+    { name: 'Redirects', result: results.redirects.every(r => r.result.success) }
+  ];
+  
+  const passedChecks = checks.filter(c => c.result).length;
+  const totalChecks = checks.length;
+  
+  console.log(`\n🎯 Domain Health: ${passedChecks}/${totalChecks} checks passed`);
+  
+  checks.forEach(check => {
+    console.log(`${check.result ? '✅' : '❌'} ${check.name}`);
+  });
+  
+  if (passedChecks === totalChecks) {
+    console.log('\n✅ Domain is properly configured and ready!');
+    process.exit(0);
+  } else {
+    console.log('\n❌ Domain configuration issues detected');
+    console.log('Please review the failed checks above');
+    process.exit(1);
   }
-  
-  // Check www to non-www domain redirect
-  if (wwwDNS) {
-    await checkRedirect(WWW_DOMAIN, DOMAIN);
-  }
-  
-  console.log('\n📋 Summary:');
-  console.log('===========');
-  console.log('1. Configure DNS records at your domain registrar');
-  console.log('2. Add custom domain in Vercel project settings');
-  console.log('3. Wait for DNS propagation (can take up to 48 hours)');
-  console.log('4. Verify SSL certificate is automatically provisioned');
-  console.log('5. Test domain resolution and redirects');
-  
-  console.log('\n💡 Next Steps:');
-  console.log('- Run this script periodically to monitor domain status');
-  console.log('- Check Vercel dashboard for domain configuration status');
-  console.log('- Test the site from different locations/networks');
 }
 
-if (require.main === module) {
-  main().catch(console.error);
-}
-
-module.exports = { checkDNS, checkCNAME, checkHTTPS, checkRedirect };
+// Run verification
+main().catch((error) => {
+  console.error('❌ Verification failed:', error.message);
+  process.exit(1);
+});

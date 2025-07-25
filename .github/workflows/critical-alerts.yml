@@ -7,6 +7,10 @@ on:
   workflow_dispatch:
     # Allow manual triggering
 
+permissions:
+  contents: read
+  issues: write
+
 jobs:
   monitor-critical-metrics:
     runs-on: ubuntu-latest

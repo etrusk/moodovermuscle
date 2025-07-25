@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This spec covers the setup of proper development and production environments for the MoodOverMuscle Next.js application. The goal is to establish a professional deployment pipeline with hot-reload development capabilities and production deployment to the custom domain moodovermuscle.com.au, while maintaining the existing v0.1 codebase without modifications.
+This spec covers the setup of proper development, preview, and production environments for the MoodOverMuscle Next.js application. The goal is to establish a professional deployment pipeline with hot-reload development capabilities, a static preview environment for testing changes, and production deployment to the custom domain moodovermuscle.com.au, while maintaining the existing v0.1 codebase without modifications.
 
 ## Requirements
 
@@ -84,6 +84,18 @@ This spec covers the setup of proper development and production environments for
 4. WHEN there are performance issues THEN they SHALL be identifiable through monitoring and analytics
 
 ### Requirement 8
+
+**User Story:** As a developer and business owner, I want a static preview environment with a predictable URL, so that I can test and share proposed changes before they go to production.
+
+#### Acceptance Criteria
+
+1. WHEN I create a preview branch THEN it SHALL automatically deploy to a static, predictable URL
+2. WHEN I push changes to the preview branch THEN the preview environment SHALL update automatically
+3. WHEN I share the preview URL with stakeholders THEN they SHALL always see the latest proposed changes
+4. WHEN changes are approved THEN I SHALL be able to merge preview branch changes to production
+5. WHEN the preview environment is accessed THEN it SHALL function identically to production with all features working
+
+### Requirement 9
 
 **User Story:** As a developer, I want proper error handling and monitoring in production, so that issues can be quickly identified and resolved.
 

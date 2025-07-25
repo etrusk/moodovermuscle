@@ -42,3 +42,10 @@ public/placeholder*
 
 # backup and migration artifacts
 /backup/
+
+# temporary documentation and test files
+*_SETUP.md
+*_STATUS.md
+*_IMPLEMENTATION*.md
+test-*.txt
+temp-*.md

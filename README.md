@@ -184,19 +184,46 @@ Multi-step form component with:
 
 ## Deployment
 
+### Environment Structure
+- **Development**: `localhost:3000` - Local development with hot-reload
+- **Preview**: `preview.moodovermuscle.com.au` - Static staging environment
+- **Production**: `moodovermuscle.com.au` - Live production site
+
+### Branch Workflow
+```
+feature/new-feature → preview → main
+                   ↓         ↓
+            preview.domain  production.domain
+```
+
 ### Vercel Integration
-- **Auto-deployment**: Automatic deployments from GitHub main branch
-- **Preview deployments**: Each PR gets a preview URL for testing
-- **Production deployment**: Merges to main trigger production deployment
+- **Auto-deployment**: Automatic deployments from GitHub branches
+- **Preview environment**: `preview` branch deploys to preview.moodovermuscle.com.au
+- **Production deployment**: `main` branch deploys to moodovermuscle.com.au
 - **Environment variables**: Managed through Vercel dashboard
 - **Static export ready**: Optimized for static hosting
-- **Domain**: Production site at moodovermuscle.com.au
 
 ### Development Workflow
-1. Create feature branches for new development
-2. Push changes to GitHub to trigger preview deployments
-3. Create pull requests for code review
-4. Merge to main branch for production deployment
+1. **Develop**: Create feature branches from `main`
+2. **Stage**: Merge features to `preview` branch for testing
+3. **Test**: Review changes on `preview.moodovermuscle.com.au`
+4. **Deploy**: Merge `preview` to `main` for production deployment
+
+### Branch Management Commands
+```bash
+# Switch to preview for staging
+git checkout preview
+
+# Merge feature to preview for testing
+git checkout preview
+git merge feature/branch-name
+git push origin preview
+
+# Deploy to production after approval
+git checkout main
+git merge preview
+git push origin main
+```
 
 ## Content & Brand Guidelines
 

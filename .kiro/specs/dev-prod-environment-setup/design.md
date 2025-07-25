@@ -9,9 +9,10 @@ This design establishes a professional development and production environment se
 ### Environment Structure
 ```
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   Development   │    │   Preview/Stage  │    │   Production    │
-│   localhost     │    │  vercel.app      │    │ moodovermuscle  │
-│   :3000         │    │  (branches)      │    │    .com.au      │
+│   Development   │    │     Preview      │    │   Production    │
+│   localhost     │    │ preview.mood     │    │ moodovermuscle  │
+│   :3000         │    │ overmuscle       │    │    .com.au      │
+│                 │    │ .com.au          │    │                 │
 └─────────────────┘    └──────────────────┘    └─────────────────┘
          │                        │                        │
          │                        │                        │
@@ -19,15 +20,17 @@ This design establishes a professional development and production environment se
                                   │
                             ┌──────────┐
                             │  GitHub  │
-                            │   Repo   │
+                            │ preview  │
+                            │  main    │
                             └──────────┘
 ```
 
 ### Deployment Pipeline
 1. **Local Development**: Hot-reload with `pnpm dev`
-2. **Feature Branches**: Automatic preview deployments
-3. **Main Branch**: Automatic production deployment to custom domain
-4. **Domain Management**: DNS configuration for moodovermuscle.com.au
+2. **Feature Branches**: Merge to preview branch for testing
+3. **Preview Branch**: Static URL at preview.moodovermuscle.com.au
+4. **Main Branch**: Production deployment to moodovermuscle.com.au
+5. **Domain Management**: DNS configuration for both domains
 
 ## Components and Interfaces
 
@@ -58,15 +61,17 @@ This design establishes a professional development and production environment se
 - **Node Version**: 18.x (LTS)
 
 **Domain Configuration**
-- **Primary Domain**: moodovermuscle.com.au
-- **SSL**: Automatic via Vercel
-- **DNS**: A/CNAME records pointing to Vercel
+- **Production Domain**: moodovermuscle.com.au
+- **Preview Domain**: preview.moodovermuscle.com.au
+- **SSL**: Automatic via Vercel for both domains
+- **DNS**: A/CNAME records pointing to Vercel for both subdomains
 
 ### GitHub Integration
 
 **Repository Settings**
 - **Main Branch**: `main` (production deployments)
-- **Feature Branches**: Automatic preview deployments
+- **Preview Branch**: `preview` (staging deployments to preview.moodovermuscle.com.au)
+- **Feature Branches**: Merge to preview for testing, then preview to main
 - **Branch Protection**: Optional (recommended for team workflows)
 
 **Webhook Configuration**
@@ -162,10 +167,10 @@ interface EnvironmentConfig {
 4. Test automatic deployments
 
 ### Phase 3: Domain Configuration
-1. Configure DNS records for moodovermuscle.com.au
-2. Set up custom domain in Vercel
-3. Verify SSL certificate provisioning
-4. Test domain resolution and HTTPS
+1. Configure DNS records for moodovermuscle.com.au and preview.moodovermuscle.com.au
+2. Set up custom domains in Vercel for both production and preview
+3. Verify SSL certificate provisioning for both domains
+4. Test domain resolution and HTTPS for both environments
 
 ### Phase 4: Workflow Optimization
 1. Set up preview deployments for feature branches

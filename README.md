@@ -269,9 +269,7 @@ When making changes:
 ## Support
 
 For technical issues or questions about the codebase, refer to:
-- `.kiro/steering/` files for development guidance
+- project root .md files for development guidance
 - Next.js documentation for framework questions
 - Tailwind CSS docs for styling
 - shadcn/ui docs for component usage
-# Repository successfully migrated to etrusk
-# SSH authentication configured

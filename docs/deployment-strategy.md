@@ -4,6 +4,29 @@
 
 This document outlines the comprehensive deployment strategy for the MoodOverMuscle fitness website, a Next.js application deployed on Vercel. It covers environment-specific deployment processes, zero-downtime deployment strategies, rollback procedures, and optimization techniques aligned with 2025 best practices.
 
+## Table of Contents
+
+1. [Architecture Overview](#architecture-overview)
+2. [Environment Strategy](#environment-strategy)
+3. [Deployment Process](#deployment-process)
+4. [Environment Management](#environment-management)
+5. [Performance Optimization](#performance-optimization)
+6. [Security Configuration](#security-configuration)
+7. [Monitoring and Alerting](#monitoring-and-alerting)
+8. [Deployment Automation](#deployment-automation)
+9. [Troubleshooting Guide](#troubleshooting-guide)
+10. [Documentation Maintenance](#documentation-maintenance)
+
+---
+
+**Document Information**
+- **Last Updated**: 2025-07-27
+- **Version**: 1.0
+- **Owner**: Development Team
+- **Review Schedule**: Quarterly
+
+---
+
 ## Architecture Overview
 
 ### Technology Stack

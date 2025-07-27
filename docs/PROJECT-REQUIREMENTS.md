@@ -2,10 +2,31 @@
 
 ## Executive Summary
 
-**Project:** MoodOverMuscle Website Enhancement & Optimization  
-**Client:** Emily (Emilia) - Certified Safe Return to Exercise Trainer  
-**Business:** Postnatal fitness services for mothers on the Sunshine Coast, Queensland  
+**Project:** MoodOverMuscle Website Enhancement & Optimization
+**Client:** Emily (Emilia) - Certified Safe Return to Exercise Trainer
+**Business:** Postnatal fitness services for mothers on the Sunshine Coast, Queensland
 **Current Status:** Live website with Next.js framework, seeking optimization and feature enhancements
+
+## Table of Contents
+
+1. [Business Overview](#business-overview)
+2. [Current Website Analysis](#current-website-analysis)
+3. [Functional Requirements](#functional-requirements)
+4. [Design Requirements](#design-requirements)
+5. [Technical Requirements](#technical-requirements)
+6. [Implementation Phases](#implementation-phases)
+7. [Success Metrics & KPIs](#success-metrics--kpis)
+8. [Compliance & Legal Requirements](#compliance--legal-requirements)
+
+---
+
+**Document Information**
+- **Last Updated**: 2025-07-27
+- **Version**: 1.0
+- **Owner**: Product Team
+- **Review Schedule**: Quarterly
+
+---
 
 ---
 

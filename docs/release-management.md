@@ -4,6 +4,30 @@
 
 This document defines the complete release management process for the MoodOverMuscle fitness website, including versioning strategy, release candidate creation, deployment procedures, and post-release activities.
 
+## Table of Contents
+
+1. [Versioning Strategy](#versioning-strategy)
+2. [Release Types](#release-types)
+3. [Release Process](#release-process)
+4. [Release Notes Generation](#release-notes-generation)
+5. [Hotfix Process](#hotfix-process)
+6. [Rollback Procedures](#rollback-procedures)
+7. [Release Communication](#release-communication)
+8. [Release Metrics](#release-metrics)
+9. [Tools and Automation](#tools-and-automation)
+10. [Compliance and Auditing](#compliance-and-auditing)
+11. [Continuous Improvement](#continuous-improvement)
+
+---
+
+**Document Information**
+- **Last Updated**: 2025-07-27
+- **Version**: 1.0
+- **Owner**: Development Team
+- **Review Schedule**: Quarterly
+
+---
+
 ## Versioning Strategy
 
 ### Semantic Versioning (SemVer)

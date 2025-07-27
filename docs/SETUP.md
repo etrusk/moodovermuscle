@@ -1,5 +1,33 @@
 # MoodOverMuscle Development Environment Setup Guide
 
+## Overview
+
+This guide provides step-by-step instructions for setting up the development environment for the MoodOverMuscle fitness website project.
+
+## Table of Contents
+
+1. [Quick Start](#quick-start)
+2. [Detailed Setup](#detailed-setup)
+3. [Testing](#testing)
+4. [Code Quality](#code-quality)
+5. [Deployment](#deployment)
+6. [Troubleshooting](#troubleshooting)
+7. [Performance Monitoring](#performance-monitoring)
+8. [Security](#security)
+9. [Support](#support)
+10. [Next Steps](#next-steps)
+11. [Husky Setup](#husky-setup)
+
+---
+
+**Document Information**
+- **Last Updated**: 2025-07-27
+- **Version**: 1.0
+- **Owner**: Development Team
+- **Review Schedule**: Quarterly
+
+---
+
 ## Quick Start
 
 ### Prerequisites
@@ -191,3 +219,12 @@ For issues or questions:
 3. **Start development**: `pnpm dev`
 4. **Run tests**: `pnpm test`
 5. **Deploy**: Push to main branch for automatic deployment
+## Husky Setup
+
+This project uses [Husky](https://typicode.github.io/husky/) to manage Git hooks. The hooks are configured to automatically lint, format, and test your code before you commit and push.
+
+To enable the hooks, you need to run the following command once after cloning the repository:
+
+```bash
+pnpm exec husky
+```

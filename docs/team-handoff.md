@@ -4,6 +4,32 @@
 
 This document provides comprehensive guidance for onboarding new team members, knowledge transfer procedures, and maintaining project continuity for the MoodOverMuscle fitness website.
 
+## Table of Contents
+
+1. [Project Overview](#project-overview)
+2. [Onboarding Checklist](#onboarding-checklist)
+3. [Knowledge Transfer Procedures](#knowledge-transfer-procedures)
+4. [Project Structure Guide](#project-structure-guide)
+5. [Development Workflow](#development-workflow)
+6. [Deployment Process](#deployment-process)
+7. [Monitoring and Alerting](#monitoring-and-alerting)
+8. [Common Issues and Solutions](#common-issues-and-solutions)
+9. [Documentation Maintenance](#documentation-maintenance)
+10. [Knowledge Transfer Sessions](#knowledge-transfer-sessions)
+11. [Resources and References](#resources-and-references)
+12. [Handoff Checklist](#handoff-checklist)
+13. [Success Metrics](#success-metrics)
+
+---
+
+**Document Information**
+- **Last Updated**: 2025-07-27
+- **Version**: 1.0
+- **Owner**: Development Team
+- **Review Schedule**: Quarterly
+
+---
+
 ## Project Overview
 
 ### Quick Facts

@@ -4,6 +4,32 @@
 
 This document outlines the ongoing maintenance requirements and procedures for the MoodOverMuscle fitness website, ensuring optimal performance, security, and reliability.
 
+## Table of Contents
+
+1. [Maintenance Schedule](#maintenance-schedule)
+2. [Dependency Management](#dependency-management)
+3. [Security Maintenance](#security-maintenance)
+4. [Performance Optimization](#performance-optimization)
+5. [Backup and Disaster Recovery](#backup-and-disaster-recovery)
+6. [Environment Cleanup](#environment-cleanup)
+7. [Documentation Maintenance](#documentation-maintenance)
+8. [Monitoring and Alerting Maintenance](#monitoring-and-alerting-maintenance)
+9. [Capacity Planning](#capacity-planning)
+10. [Maintenance Automation](#maintenance-automation)
+11. [Maintenance Checklists](#maintenance-checklists)
+12. [Troubleshooting Common Issues](#troubleshooting-common-issues)
+13. [Maintenance Communication](#maintenance-communication)
+
+---
+
+**Document Information**
+- **Last Updated**: 2025-07-27
+- **Version**: 1.0
+- **Owner**: DevOps Team
+- **Review Schedule**: Quarterly
+
+---
+
 ## Maintenance Schedule
 
 ### Daily Maintenance (Automated)

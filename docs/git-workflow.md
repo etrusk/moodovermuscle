@@ -4,6 +4,33 @@
 
 This document outlines the comprehensive Git workflow and branching strategy for the MoodOverMuscle fitness website project. The workflow is optimized for Next.js + Vercel deployment with a 3-phase implementation approach, supporting parallel development, quality gates, and continuous deployment.
 
+## Table of Contents
+
+1. [Architecture Overview](#architecture-overview)
+2. [Branching Strategy: Enhanced GitHub Flow](#branching-strategy-enhanced-github-flow)
+3. [Branch Naming Conventions](#branch-naming-conventions)
+4. [Commit Message Standards](#commit-message-standards)
+5. [Pull Request Process](#pull-request-process)
+6. [Environment Branches Structure](#environment-branches-structure)
+7. [Merge Strategies](#merge-strategies)
+8. [Release Management](#release-management)
+9. [Hotfix Process](#hotfix-process)
+10. [CI/CD Pipeline](#cicd-pipeline)
+11. [Team Collaboration Guidelines](#team-collaboration-guidelines)
+12. [Getting Started](#getting-started)
+13. [Troubleshooting](#troubleshooting)
+14. [Summary](#summary)
+
+---
+
+**Document Information**
+- **Last Updated**: 2025-07-27
+- **Version**: 1.0
+- **Owner**: Development Team
+- **Review Schedule**: Quarterly
+
+---
+
 ## Architecture Overview
 
 ```mermaid

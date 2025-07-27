@@ -4,6 +4,31 @@
 
 This comprehensive guide covers the monitoring and observability setup for the MoodOverMuscle fitness website, including application performance monitoring, error tracking, security monitoring, and business metrics tracking.
 
+## Table of Contents
+
+1. [Monitoring Architecture](#monitoring-architecture)
+2. [Application Performance Monitoring (APM)](#application-performance-monitoring-apm)
+3. [Error Tracking and Alerting](#error-tracking-and-alerting)
+4. [Security Monitoring](#security-monitoring)
+5. [Business Metrics Tracking](#business-metrics-tracking)
+6. [Infrastructure Monitoring](#infrastructure-monitoring)
+7. [Log Management](#log-management)
+8. [Alerting and Incident Response](#alerting-and-incident-response)
+9. [Dashboard and Visualization](#dashboard-and-visualization)
+10. [Monitoring Best Practices](#monitoring-best-practices)
+11. [Tools and Configuration](#tools-and-configuration)
+12. [Troubleshooting Guide](#troubleshooting-guide)
+
+---
+
+**Document Information**
+- **Last Updated**: 2025-07-27
+- **Version**: 1.0
+- **Owner**: DevOps Team
+- **Review Schedule**: Quarterly
+
+---
+
 ## Monitoring Architecture
 
 ### Three Pillars of Observability

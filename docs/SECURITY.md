@@ -4,6 +4,29 @@
 
 This document outlines security best practices and implementation strategies for the Mood Over Muscle fitness website, ensuring protection against common web vulnerabilities and compliance with industry standards.
 
+## Table of Contents
+
+1. [Security Architecture](#security-architecture)
+2. [Data Protection](#data-protection)
+3. [API Security](#api-security)
+4. [Security Monitoring](#security-monitoring)
+5. [Compliance & Standards](#compliance--standards)
+6. [Infrastructure Security](#infrastructure-security)
+7. [Incident Response](#incident-response)
+8. [Security Testing](#security-testing)
+9. [Security Tools & Resources](#security-tools--resources)
+10. [Security Training](#security-training)
+
+---
+
+**Document Information**
+- **Last Updated**: 2025-07-27
+- **Version**: 1.0
+- **Owner**: Security Team
+- **Review Schedule**: Quarterly
+
+---
+
 ## Security Architecture
 
 ### 1. Application Security

@@ -4,6 +4,24 @@
 
 This guide outlines performance optimization strategies for the Mood Over Muscle fitness website, ensuring fast load times, smooth interactions, and excellent user experience across all devices.
 
+## Table of Contents
+
+1. [Performance Targets](#performance-targets)
+2. [Optimization Strategies](#optimization-strategies)
+3. [Performance Checklist](#performance-checklist)
+4. [Monitoring & Maintenance](#monitoring--maintenance)
+5. [Performance Resources](#performance-resources)
+
+---
+
+**Document Information**
+- **Last Updated**: 2025-07-27
+- **Version**: 1.0
+- **Owner**: Development Team
+- **Review Schedule**: Quarterly
+
+---
+
 ## Performance Targets
 
 ### Core Web Vitals

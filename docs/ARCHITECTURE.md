@@ -2,15 +2,38 @@
 
 ## Overview
 
-This document outlines the technical architecture for the Mood Over Muscle fitness website, a Next.js 14 application designed for pre and postnatal fitness services.
+This document outlines the technical architecture for the Mood Over Muscle fitness website, a Next.js 15 application designed for pre and postnatal fitness services.
+
+## Table of Contents
+
+1. [Technology Stack](#technology-stack)
+2. [Architecture Patterns](#architecture-patterns)
+3. [Security Architecture](#security-architecture)
+4. [Performance Architecture](#performance-architecture)
+5. [Scalability Design](#scalability-design)
+6. [Development Workflow](#development-workflow)
+7. [Monitoring & Observability](#monitoring--observability)
+8. [Future Considerations](#future-considerations)
+9. [Development Guidelines](#development-guidelines)
+10. [Environment Configuration](#environment-configuration)
+
+---
+
+**Document Information**
+- **Last Updated**: 2025-07-27
+- **Version**: 1.0
+- **Owner**: Development Team
+- **Review Schedule**: Quarterly
+
+---
 
 ## Technology Stack
 
 ### Core Framework
 
-- **Next.js 14**: React framework with App Router
+- **Next.js 15**: React framework with App Router
 - **TypeScript**: Type safety and enhanced developer experience
-- **React 18**: Modern React features including Server Components
+- **React 19**: Modern React features including Server Components
 
 ### Styling & UI
 
@@ -58,7 +81,7 @@ app/
 ### 2. Component Architecture
 
 - **Atomic Design**: Components organized by complexity
-- **Server Components**: Leveraging Next.js 14 server components
+- **Server Components**: Leveraging Next.js 15 server components
 - **Client Components**: Interactive components with 'use client' directive
 
 ### 3. Data Flow

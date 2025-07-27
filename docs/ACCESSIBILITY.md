@@ -4,6 +4,26 @@
 
 This document outlines accessibility best practices and compliance strategies for the Mood Over Muscle fitness website, ensuring WCAG 2.1 AA compliance and inclusive user experience for people with disabilities.
 
+## Table of Contents
+
+1. [Accessibility Standards](#accessibility-standards)
+2. [Accessibility Implementation](#accessibility-implementation)
+3. [Accessibility Tools](#accessibility-tools)
+4. [Accessibility Testing](#accessibility-testing)
+5. [Compliance Standards](#compliance-standards)
+6. [Accessibility Roadmap](#accessibility-roadmap)
+7. [Resources & References](#resources--references)
+
+---
+
+**Document Information**
+- **Last Updated**: 2025-07-27
+- **Version**: 1.0
+- **Owner**: Development Team
+- **Review Schedule**: Quarterly
+
+---
+
 ## Accessibility Standards
 
 ### WCAG 2.1 Compliance

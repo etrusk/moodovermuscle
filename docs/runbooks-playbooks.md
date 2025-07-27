@@ -4,6 +4,30 @@
 
 This document contains operational guides and playbooks for common scenarios, troubleshooting procedures, and incident response for the MoodOverMuscle fitness website.
 
+## Table of Contents
+
+1. [Quick Reference](#quick-reference)
+2. [Incident Response Playbooks](#incident-response-playbooks)
+3. [Troubleshooting Runbooks](#troubleshooting-runbooks)
+4. [Operational Procedures](#operational-procedures)
+5. [Emergency Procedures](#emergency-procedures)
+6. [Monitoring and Alerting](#monitoring-and-alerting)
+7. [Performance Optimization](#performance-optimization)
+8. [Security Procedures](#security-procedures)
+9. [Backup and Recovery](#backup-and-recovery)
+10. [Communication Templates](#communication-templates)
+11. [Tools and Scripts](#tools-and-scripts)
+
+---
+
+**Document Information**
+- **Last Updated**: 2025-07-27
+- **Version**: 1.0
+- **Owner**: DevOps Team
+- **Review Schedule**: Quarterly
+
+---
+
 ## Quick Reference
 
 ### Emergency Contacts

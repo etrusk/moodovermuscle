@@ -1,6 +1,7 @@
 # Security Best Practices Guide
 
 ## Overview
+
 This document outlines security best practices and implementation strategies for the Mood Over Muscle fitness website, ensuring protection against common web vulnerabilities and compliance with industry standards.
 
 ## Security Architecture
@@ -8,17 +9,22 @@ This document outlines security best practices and implementation strategies for
 ### 1. Application Security
 
 #### Input Validation & Sanitization
+
 ```typescript
 // Zod schema validation
 import { z } from 'zod'
 
 const bookingSchema = z.object({
-  name: z.string().min(2).max(50).regex(/^[a-zA-Z\s]+$/),
+  name: z
+    .string()
+    .min(2)
+    .max(50)
+    .regex(/^[a-zA-Z\s]+$/),
   email: z.string().email(),
   phone: z.string().regex(/^\+?[0-9\s-()]{10,}$/),
   classType: z.enum(['prenatal', 'postnatal', 'strength', 'yoga']),
   date: z.date().min(new Date()),
-  message: z.string().max(500).optional()
+  message: z.string().max(500).optional(),
 })
 
 // Server-side validation
@@ -34,12 +40,14 @@ export async function POST(request: Request) {
 ```
 
 #### XSS Prevention
+
 - **React Built-in Protection**: Automatic escaping of JSX
 - **Content Security Policy**: Strict CSP headers
 - **Input Sanitization**: DOMPurify for rich text content
 - **URL Validation**: Safe URL handling
 
 #### SQL Injection Prevention
+
 - **Parameterized Queries**: Using Prisma ORM
 - **Input Validation**: Strict type checking
 - **Query Builder**: Safe database interactions
@@ -47,6 +55,7 @@ export async function POST(request: Request) {
 ### 2. Authentication & Authorization
 
 #### NextAuth.js Implementation
+
 ```typescript
 // app/api/auth/[...nextauth]/route.ts
 import NextAuth from 'next-auth'
@@ -67,7 +76,7 @@ const handler = NextAuth({
     async session({ session, token }) {
       // Send properties to client
       return session
-    }
+    },
   },
   pages: {
     signIn: '/auth/signin',
@@ -81,6 +90,7 @@ const handler = NextAuth({
 ```
 
 #### Role-Based Access Control
+
 ```typescript
 // Middleware for protected routes
 import { NextResponse } from 'next/server'
@@ -88,11 +98,11 @@ import type { NextRequest } from 'next/server'
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get('next-auth.session-token')
-  
+
   if (!token && request.nextpathname.startsWith('/admin')) {
     return NextResponse.redirect(new URL('/auth/signin', request.url))
   }
-  
+
   return NextResponse.next()
 }
 ```
@@ -100,29 +110,31 @@ export function middleware(request: NextRequest) {
 ### 3. HTTPS & SSL Configuration
 
 #### Security Headers
+
 ```typescript
 // next.config.mjs
 const securityHeaders = [
   {
     key: 'X-Content-Type-Options',
-    value: 'nosniff'
+    value: 'nosniff',
   },
   {
     key: 'X-Frame-Options',
-    value: 'DENY'
+    value: 'DENY',
   },
   {
     key: 'X-XSS-Protection',
-    value: '1; mode=block'
+    value: '1; mode=block',
   },
   {
     key: 'Referrer-Policy',
-    value: 'strict-origin-when-cross-origin'
+    value: 'strict-origin-when-cross-origin',
   },
   {
     key: 'Content-Security-Policy',
-    value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' *.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: *.gravatar.com; font-src 'self' data:; connect-src 'self' *.googleapis.com *.analytics.google.com"
-  }
+    value:
+      "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' *.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: *.gravatar.com; font-src 'self' data:; connect-src 'self' *.googleapis.com *.analytics.google.com",
+  },
 ]
 
 const nextConfig = {
@@ -140,12 +152,14 @@ const nextConfig = {
 ### 4. Data Protection
 
 #### Encryption Standards
+
 - **HTTPS**: TLS 1.3 for all communications
 - **Password Hashing**: bcrypt with salt rounds
 - **JWT Tokens**: RS256 algorithm
 - **Database Encryption**: AES-256 for sensitive data
 
 #### Sensitive Data Handling
+
 ```typescript
 // Environment variables validation
 const envSchema = z.object({
@@ -167,6 +181,7 @@ export function sanitizeUser(user: User) {
 ### 5. API Security
 
 #### Rate Limiting
+
 ```typescript
 // Rate limiting middleware
 import rateLimit from 'express-rate-limit'
@@ -181,13 +196,14 @@ const limiter = rateLimit({
 ```
 
 #### API Security Headers
+
 ```typescript
 // API route security
 export async function POST(request: Request) {
   // CORS handling
   const origin = request.headers.get('origin')
   const allowedOrigins = ['https://moodovermuscle.com.au']
-  
+
   if (!allowedOrigins.includes(origin)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
   }
@@ -205,12 +221,14 @@ export async function POST(request: Request) {
 ### 6. Security Monitoring
 
 #### Vulnerability Scanning
+
 - **OWASP ZAP**: Automated security testing
 - **Snyk**: Dependency vulnerability scanning
 - **GitHub Security**: Code scanning alerts
 - **Dependabot**: Automated security updates
 
 #### Logging & Monitoring
+
 ```typescript
 // Security event logging
 export function logSecurityEvent(event: SecurityEvent) {
@@ -220,9 +238,9 @@ export function logSecurityEvent(event: SecurityEvent) {
     userId: event.userId,
     ipAddress: event.ip,
     userAgent: event.userAgent,
-    details: event.details
+    details: event.details,
   }
-  
+
   // Send to security monitoring service
   logger.warn('Security event', logEntry)
 }
@@ -231,6 +249,7 @@ export function logSecurityEvent(event: SecurityEvent) {
 ### 7. Compliance & Standards
 
 #### GDPR Compliance
+
 - **Data Minimization**: Collect only necessary data
 - **Right to Access**: User data export functionality
 - **Right to Erasure**: Data deletion capabilities
@@ -238,6 +257,7 @@ export function logSecurityEvent(event: SecurityEvent) {
 - **Privacy Policy**: Clear data handling practices
 
 #### Accessibility Security
+
 - **Screen Reader Security**: Prevent sensitive data exposure
 - **Keyboard Navigation**: Secure keyboard shortcuts
 - **Focus Management**: Prevent focus hijacking
@@ -245,12 +265,14 @@ export function logSecurityEvent(event: SecurityEvent) {
 ### 8. Infrastructure Security
 
 #### Server Security
+
 - **Vercel Security**: Built-in DDoS protection
 - **Environment Variables**: Secure secret management
 - **Database Security**: Connection encryption
 - **Backup Strategy**: Regular encrypted backups
 
 #### Network Security
+
 - **Firewall Rules**: IP whitelisting for admin access
 - **VPN Access**: Secure admin panel access
 - **SSL/TLS**: Certificate management and renewal
@@ -258,6 +280,7 @@ export function logSecurityEvent(event: SecurityEvent) {
 ### 9. Incident Response
 
 #### Security Incident Plan
+
 1. **Detection**: Automated monitoring alerts
 2. **Assessment**: Impact analysis and classification
 3. **Containment**: Isolate affected systems
@@ -267,6 +290,7 @@ export function logSecurityEvent(event: SecurityEvent) {
 7. **Lessons Learned**: Process improvement
 
 #### Emergency Contacts
+
 - **Security Team**: security@moodovermuscle.com.au
 - **Hosting Provider**: Vercel support
 - **Domain Registrar**: Emergency contact
@@ -275,11 +299,13 @@ export function logSecurityEvent(event: SecurityEvent) {
 ### 10. Security Testing
 
 #### Penetration Testing
+
 - **Quarterly Tests**: External security audits
 - **Annual Reviews**: Comprehensive security assessment
 - **Bug Bounty Program**: Responsible disclosure program
 
 #### Security Checklist
+
 - [ ] Input validation implemented
 - [ ] XSS protection enabled
 - [ ] SQL injection prevention
@@ -294,12 +320,14 @@ export function logSecurityEvent(event: SecurityEvent) {
 ## Security Tools & Resources
 
 ### Development Tools
+
 - **OWASP Cheat Sheets**: Security best practices
 - **Security Headers**: Online security header checker
 - **SSL Labs**: SSL configuration testing
 - **Mozilla Observatory**: Security assessment tool
 
 ### Monitoring Services
+
 - **Sentry**: Error tracking and security monitoring
 - **Cloudflare**: DDoS protection and security
 - **Have I Been Pwned**: Breach monitoring
@@ -308,12 +336,14 @@ export function logSecurityEvent(event: SecurityEvent) {
 ## Security Training
 
 ### Developer Guidelines
+
 - **Secure Coding Practices**: Regular training sessions
 - **Security Reviews**: Code review security checklist
 - **Threat Modeling**: Regular security assessments
 - **Stay Updated**: Security news and advisories
 
 ### User Education
+
 - **Password Security**: Strong password requirements
 - **Phishing Awareness**: User education materials
 - **Privacy Settings**: User control over data

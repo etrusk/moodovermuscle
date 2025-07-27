@@ -1,17 +1,20 @@
 # Performance Optimization Guide
 
 ## Overview
+
 This guide outlines performance optimization strategies for the Mood Over Muscle fitness website, ensuring fast load times, smooth interactions, and excellent user experience across all devices.
 
 ## Performance Targets
 
 ### Core Web Vitals
+
 - **Largest Contentful Paint (LCP)**: < 2.5s
 - **First Input Delay (FID)**: < 100ms
 - **Cumulative Layout Shift (CLS)**: < 0.1
 - **Time to First Byte (TTFB)**: < 200ms
 
 ### User Experience Metrics
+
 - **First Contentful Paint (FCP)**: < 1.8s
 - **Speed Index**: < 3.4s
 - **Time to Interactive (TTI)**: < 3.8s
@@ -22,6 +25,7 @@ This guide outlines performance optimization strategies for the Mood Over Muscle
 ### 1. Image Optimization
 
 #### Next.js Image Component
+
 ```typescript
 import Image from 'next/image'
 
@@ -49,12 +53,14 @@ import Image from 'next/image'
 ```
 
 #### Image Formats
+
 - **WebP**: Primary format with fallbacks
 - **AVIF**: Next-gen format for modern browsers
 - **JPEG**: Fallback for older browsers
 - **Responsive Images**: Multiple sizes for different screen densities
 
 #### CDN Configuration
+
 ```javascript
 // next.config.mjs
 const nextConfig = {
@@ -70,6 +76,7 @@ const nextConfig = {
 ### 2. Code Splitting & Bundle Optimization
 
 #### Dynamic Imports
+
 ```typescript
 // Lazy load heavy components
 const BookingForm = dynamic(() => import('@/components/booking-form'), {
@@ -82,6 +89,7 @@ const ClassesPage = lazy(() => import('./classes/page'))
 ```
 
 #### Bundle Analysis
+
 ```bash
 # Analyze bundle size
 pnpm analyze
@@ -96,6 +104,7 @@ pnpm build --analyze
 ### 3. Font Optimization
 
 #### Next.js Font System
+
 ```typescript
 import { Inter, Playfair_Display } from 'next/font/google'
 
@@ -103,18 +112,19 @@ const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
   preload: true,
-  weight: ['400', '500', '600', '700']
+  weight: ['400', '500', '600', '700'],
 })
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
   display: 'swap',
   preload: true,
-  weight: ['400', '500', '600', '700']
+  weight: ['400', '500', '600', '700'],
 })
 ```
 
 #### Font Loading Strategy
+
 - **Preload critical fonts**: Above-the-fold content
 - **Font-display: swap**: Prevent invisible text
 - **Variable fonts**: Reduce font file sizes
@@ -122,11 +132,12 @@ const playfair = Playfair_Display({
 ### 4. Caching Strategy
 
 #### Next.js Caching
+
 ```typescript
 // Static Generation with ISR
 export async function getStaticProps() {
   const classes = await getClasses()
-  
+
   return {
     props: { classes },
     revalidate: 3600, // Revalidate every hour
@@ -136,7 +147,7 @@ export async function getStaticProps() {
 // API route caching
 export async function GET(request: Request) {
   const data = await getData()
-  
+
   return NextResponse.json(data, {
     headers: {
       'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
@@ -148,6 +159,7 @@ export async function GET(request: Request) {
 ### 5. Database Optimization
 
 #### Query Optimization
+
 ```typescript
 // Prisma query optimization
 const classes = await prisma.class.findMany({
@@ -160,8 +172,8 @@ const classes = await prisma.class.findMany({
       select: {
         name: true,
         image: true,
-      }
-    }
+      },
+    },
   },
   where: {
     isActive: true,
@@ -176,6 +188,7 @@ const classes = await prisma.class.findMany({
 ### 6. CDN & Edge Optimization
 
 #### Vercel Edge Network
+
 - **Global CDN**: Automatic edge caching
 - **Edge Functions**: Server-side rendering at edge
 - **Image Optimization**: Automatic format conversion
@@ -184,6 +197,7 @@ const classes = await prisma.class.findMany({
 ### 7. Monitoring & Analytics
 
 #### Performance Monitoring
+
 ```typescript
 // Next.js Analytics
 import { Analytics } from '@vercel/analytics/react'
@@ -201,11 +215,12 @@ export default function RootLayout({ children }) {
 ```
 
 #### Real User Monitoring
+
 ```typescript
 // Web Vitals tracking
 export function reportWebVitals(metric: NextWebVitalsMetric) {
   console.log(metric)
-  
+
   // Send to analytics service
   if (process.env.NODE_ENV === 'production') {
     // Send to Google Analytics, Sentry, etc.
@@ -216,6 +231,7 @@ export function reportWebVitals(metric: NextWebVitalsMetric) {
 ### 8. Performance Budget
 
 #### Bundle Size Limits
+
 ```javascript
 // next.config.mjs
 const nextConfig = {
@@ -232,6 +248,7 @@ const nextConfig = {
 ```
 
 #### Performance Budget Configuration
+
 ```json
 // budget.json
 [
@@ -258,6 +275,7 @@ const nextConfig = {
 ### 9. Development Tools
 
 #### Performance Analysis
+
 ```bash
 # Lighthouse CI
 npm install -g @lhci/cli
@@ -274,6 +292,7 @@ npm run build --analyze
 ### 10. Performance Testing
 
 #### Load Testing
+
 ```javascript
 // k6 performance test
 import http from 'k6/http'
@@ -295,10 +314,10 @@ export let options = {
 
 export default function () {
   const response = http.get('https://moodovermuscle.com.au/api/classes')
-  
+
   check(response, {
-    'status is 200': (r) => r.status === 200,
-    'response time < 500ms': (r) => r.timings.duration < 500,
+    'status is 200': r => r.status === 200,
+    'response time < 500ms': r => r.timings.duration < 500,
   })
 }
 ```
@@ -306,6 +325,7 @@ export default function () {
 ## Performance Checklist
 
 ### Development Phase
+
 - [ ] Images optimized and responsive
 - [ ] Code splitting implemented
 - [ ] Fonts optimized and preloaded
@@ -314,6 +334,7 @@ export default function () {
 - [ ] Performance budgets set
 
 ### Testing Phase
+
 - [ ] Lighthouse score > 90
 - [ ] Core Web Vitals passing
 - [ ] Load testing completed
@@ -321,6 +342,7 @@ export default function () {
 - [ ] Mobile performance verified
 
 ### Deployment Phase
+
 - [ ] CDN configured
 - [ ] Compression enabled
 - [ ] Monitoring set up
@@ -330,12 +352,14 @@ export default function () {
 ## Monitoring & Maintenance
 
 ### Performance Monitoring Tools
+
 - **Vercel Analytics**: Built-in performance monitoring
 - **Google Analytics**: Web vitals tracking
 - **Sentry**: Performance monitoring and error tracking
 - **Lighthouse CI**: Automated performance testing
 
 ### Regular Audits
+
 - **Weekly**: Lighthouse scores review
 - **Monthly**: Bundle size analysis
 - **Quarterly**: Full performance audit
@@ -344,6 +368,7 @@ export default function () {
 ## Performance Resources
 
 ### Tools & Services
+
 - **Google PageSpeed Insights**: Performance analysis
 - **WebPageTest**: Detailed performance testing
 - **Lighthouse**: Automated audits
@@ -351,6 +376,7 @@ export default function () {
 - **SpeedCurve**: Real user monitoring
 
 ### Documentation
+
 - [Next.js Performance Documentation](https://nextjs.org/docs/basic-features/performance)
 - [Web.dev Performance Guide](https://web.dev/performance/)
 - [Vercel Performance Best Practices](https://vercel.com/docs/concepts/edge-network/compression)

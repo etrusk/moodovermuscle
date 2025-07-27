@@ -1,16 +1,19 @@
 # Accessibility Standards & Compliance Guide
 
 ## Overview
+
 This document outlines accessibility best practices and compliance strategies for the Mood Over Muscle fitness website, ensuring WCAG 2.1 AA compliance and inclusive user experience for people with disabilities.
 
 ## Accessibility Standards
 
 ### WCAG 2.1 Compliance
+
 - **Level A**: Basic accessibility requirements
 - **Level AA**: Standard compliance target
 - **Level AAA**: Enhanced accessibility (where possible)
 
 ### Key Principles (POUR)
+
 - **Perceivable**: Information must be presentable in ways users can perceive
 - **Operable**: Interface components must be operable by all users
 - **Understandable**: Information and UI operation must be understandable
@@ -21,6 +24,7 @@ This document outlines accessibility best practices and compliance strategies fo
 ### 1. Semantic HTML Structure
 
 #### Proper Document Structure
+
 ```html
 <!-- Semantic HTML example -->
 <header>
@@ -36,7 +40,7 @@ This document outlines accessibility best practices and compliance strategies fo
 
 <main>
   <h1>Mood Over Muscle - Prenatal & Postnatal Fitness</h1>
-  
+
   <section aria-labelledby="classes-heading">
     <h2 id="classes-heading">Our Classes</h2>
     <article>
@@ -54,6 +58,7 @@ This document outlines accessibility best practices and compliance strategies fo
 ```
 
 #### Landmark Regions
+
 ```typescript
 // React component with landmarks
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -62,11 +67,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <header role="banner">
         <Navigation />
       </header>
-      
+
       <main id="main-content" role="main">
         {children}
       </main>
-      
+
       <footer role="contentinfo">
         <FooterContent />
       </footer>
@@ -78,6 +83,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 ### 2. Keyboard Navigation
 
 #### Focus Management
+
 ```typescript
 // Custom hook for keyboard navigation
 import { useEffect, useRef } from 'react'
@@ -92,7 +98,7 @@ export function useKeyboardNavigation() {
         const focusableElements = document.querySelectorAll(
           'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
         )
-        
+
         // Implement focus trap for modals
         if (event.shiftKey && document.activeElement === focusableElements[0]) {
           event.preventDefault()
@@ -108,6 +114,7 @@ export function useKeyboardNavigation() {
 ```
 
 #### Skip Links
+
 ```typescript
 // Skip navigation component
 export function SkipLinks() {
@@ -127,6 +134,7 @@ export function SkipLinks() {
 ### 3. Screen Reader Support
 
 #### ARIA Implementation
+
 ```typescript
 // Accessible component example
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -134,11 +142,11 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   ariaDescribedBy?: string
 }
 
-export function AccessibleButton({ 
-  children, 
-  ariaLabel, 
-  ariaDescribedBy, 
-  ...props 
+export function AccessibleButton({
+  children,
+  ariaLabel,
+  ariaDescribedBy,
+  ...props
 }: ButtonProps) {
   return (
     <button
@@ -154,23 +162,27 @@ export function AccessibleButton({
 ```
 
 #### Live Regions
+
 ```typescript
 // Announce dynamic content changes
 export function useAnnouncer() {
-  const announce = (message: string, priority: 'polite' | 'assertive' = 'polite') => {
+  const announce = (
+    message: string,
+    priority: 'polite' | 'assertive' = 'polite'
+  ) => {
     const announcement = document.createElement('div')
     announcement.setAttribute('aria-live', priority)
     announcement.setAttribute('aria-atomic', 'true')
     announcement.className = 'sr-only'
     announcement.textContent = message
-    
+
     document.body.appendChild(announcement)
-    
+
     setTimeout(() => {
       document.body.removeChild(announcement)
     }, 1000)
   }
-  
+
   return { announce }
 }
 ```
@@ -178,18 +190,19 @@ export function useAnnouncer() {
 ### 4. Color & Contrast
 
 #### Color Palette Accessibility
+
 ```css
 /* WCAG 2.1 AA compliant colors */
 :root {
   /* Primary colors with sufficient contrast */
   --primary-600: #2563eb; /* 4.5:1 contrast on white */
   --primary-700: #1d4ed8; /* 7:1 contrast on white */
-  
+
   /* Neutral colors */
   --gray-900: #111827; /* 12.6:1 on white */
   --gray-700: #374151; /* 7.5:1 on white */
   --gray-500: #6b7280; /* 4.5:1 on white */
-  
+
   /* Success/error states */
   --success-600: #059669; /* 4.5:1 on white */
   --error-600: #dc2626; /* 5.7:1 on white */
@@ -197,6 +210,7 @@ export function useAnnouncer() {
 ```
 
 #### Focus Indicators
+
 ```css
 /* High contrast focus styles */
 .focus-visible:focus {
@@ -212,6 +226,7 @@ export function useAnnouncer() {
 ### 5. Form Accessibility
 
 #### Accessible Form Components
+
 ```typescript
 // Accessible form field component
 interface FormFieldProps {
@@ -223,30 +238,30 @@ interface FormFieldProps {
   hint?: string
 }
 
-export function FormField({ 
-  label, 
-  id, 
-  type = 'text', 
-  required, 
-  error, 
-  hint 
+export function FormField({
+  label,
+  id,
+  type = 'text',
+  required,
+  error,
+  hint
 }: FormFieldProps) {
   const errorId = `${id}-error`
   const hintId = `${id}-hint`
-  
+
   return (
     <div className="form-field">
       <label htmlFor={id} className="form-label">
         {label}
         {required && <span aria-label="required">*</span>}
       </label>
-      
+
       {hint && (
         <div id={hintId} className="form-hint">
           {hint}
         </div>
       )}
-      
+
       <input
         id={id}
         type={type}
@@ -255,7 +270,7 @@ export function FormField({
         aria-describedby={`${hint ? hintId : ''} ${error ? errorId : ''}`}
         className={error ? 'form-input error' : 'form-input'}
       />
-      
+
       {error && (
         <div id={errorId} className="form-error" role="alert">
           {error}
@@ -267,6 +282,7 @@ export function FormField({
 ```
 
 #### Error Handling
+
 ```typescript
 // Accessible error messages
 export function FormError({ errors }: { errors: Record<string, string> }) {
@@ -288,6 +304,7 @@ export function FormError({ errors }: { errors: Record<string, string> }) {
 ### 6. Image Accessibility
 
 #### Alt Text Guidelines
+
 ```typescript
 // Image component with accessibility
 interface AccessibleImageProps {
@@ -299,13 +316,13 @@ interface AccessibleImageProps {
   priority?: boolean
 }
 
-export function AccessibleImage({ 
-  src, 
-  alt, 
-  width, 
-  height, 
-  className, 
-  priority = false 
+export function AccessibleImage({
+  src,
+  alt,
+  width,
+  height,
+  className,
+  priority = false
 }: AccessibleImageProps) {
   return (
     <Image
@@ -337,6 +354,7 @@ export function DecorativeImage({ src, ...props }: AccessibleImageProps) {
 ### 7. Navigation & Structure
 
 #### Breadcrumb Navigation
+
 ```typescript
 // Accessible breadcrumb component
 interface BreadcrumbItem {
@@ -368,6 +386,7 @@ export function Breadcrumb({ items }: { items: BreadcrumbItem[] }) {
 ### 8. Responsive Design
 
 #### Mobile Accessibility
+
 ```css
 /* Touch targets minimum 44x44px */
 .touch-target {
@@ -388,6 +407,7 @@ export function Breadcrumb({ items }: { items: BreadcrumbItem[] }) {
 ### 9. Animation & Motion
 
 #### Reduced Motion Support
+
 ```typescript
 // Respect user preferences
 export function useReducedMotion() {
@@ -396,11 +416,11 @@ export function useReducedMotion() {
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
     setReducedMotion(mediaQuery.matches)
-    
+
     const handleChange = (e: MediaQueryListEvent) => {
       setReducedMotion(e.matches)
     }
-    
+
     mediaQuery.addEventListener('change', handleChange)
     return () => mediaQuery.removeEventListener('change', handleChange)
   }, [])
@@ -416,6 +436,7 @@ const animationDuration = reducedMotion ? 0 : 300
 ### 10. Testing Accessibility
 
 #### Automated Testing
+
 ```typescript
 // Jest accessibility tests
 import { axe } from 'jest-axe'
@@ -430,6 +451,7 @@ describe('Accessibility Tests', () => {
 ```
 
 #### Manual Testing Checklist
+
 - [ ] Keyboard navigation works throughout
 - [ ] Focus indicators are visible
 - [ ] Screen reader announces content correctly
@@ -444,18 +466,21 @@ describe('Accessibility Tests', () => {
 ## Accessibility Tools
 
 ### 1. Development Tools
+
 - **axe-core**: Automated accessibility testing
 - **WAVE**: Web accessibility evaluation tool
 - **Lighthouse**: Accessibility audits
 - **Pa11y**: Command-line accessibility testing
 
 ### 2. Browser Extensions
+
 - **axe DevTools**: Chrome/Firefox extension
 - **WAVE Evaluation Tool**: Browser extension
 - **Accessibility Insights**: Microsoft tool
 - **Color Contrast Analyzer**: Color checking tool
 
 ### 3. Screen Readers
+
 - **NVDA**: Windows screen reader
 - **JAWS**: Professional screen reader
 - **VoiceOver**: macOS/iOS screen reader
@@ -464,6 +489,7 @@ describe('Accessibility Tests', () => {
 ## Accessibility Testing
 
 ### 1. Automated Testing
+
 ```bash
 # Run accessibility tests
 npm run test:a11y
@@ -476,6 +502,7 @@ npm run test:html-validate
 ```
 
 ### 2. Manual Testing Process
+
 1. **Keyboard Navigation**: Tab through entire site
 2. **Screen Reader**: Test with NVDA/VoiceOver
 3. **Color Contrast**: Check all color combinations
@@ -484,6 +511,7 @@ npm run test:html-validate
 6. **Form Testing**: Error handling and announcements
 
 ### 3. User Testing
+
 - **User Research**: Include users with disabilities
 - **Feedback Collection**: Accessibility feedback form
 - **Usability Testing**: Task-based testing sessions
@@ -492,6 +520,7 @@ npm run test:html-validate
 ## Compliance Standards
 
 ### WCAG 2.1 Guidelines
+
 - **1.1 Text Alternatives**: Provide text alternatives for non-text content
 - **1.2 Time-based Media**: Provide alternatives for time-based media
 - **1.3 Adaptable**: Create content that can be presented in different ways
@@ -507,6 +536,7 @@ npm run test:html-validate
 - **4.1 Compatible**: Maximize compatibility with current and future user agents
 
 ### Legal Requirements
+
 - **ADA Compliance**: Americans with Disabilities Act
 - **Section 508**: Federal accessibility standards
 - **AODA**: Accessibility for Ontarians with Disabilities Act
@@ -515,6 +545,7 @@ npm run test:html-validate
 ## Accessibility Roadmap
 
 ### Phase 1: Foundation (Current)
+
 - [x] Semantic HTML structure
 - [x] Keyboard navigation
 - [x] Color contrast compliance
@@ -522,6 +553,7 @@ npm run test:html-validate
 - [x] Image alt text
 
 ### Phase 2: Enhancement (Next 3 months)
+
 - [ ] Advanced ARIA implementation
 - [ ] Screen reader optimization
 - [ ] Mobile accessibility improvements
@@ -529,6 +561,7 @@ npm run test:html-validate
 - [ ] User testing with disabled users
 
 ### Phase 3: Advanced (6 months)
+
 - [ ] WCAG 2.1 AAA compliance where possible
 - [ ] Advanced keyboard shortcuts
 - [ ] Voice control support
@@ -538,12 +571,14 @@ npm run test:html-validate
 ## Resources & References
 
 ### Documentation
+
 - [WCAG 2.1 Guidelines](https://www.w3.org/WAI/WCAG21/quickref/)
 - [ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/)
 - [WebAIM Resources](https://webaim.org/resources/)
 - [Inclusive Components](https://inclusive-components.design/)
 
 ### Training
+
 - [Web Accessibility Course](https://web.dev/learn/accessibility/)
 - [Google Accessibility Training](https://developers.google.com/web/fundamentals/accessibility)
 - [Deque University](https://dequeuniversity.com/)

@@ -12,15 +12,18 @@
 ## 1. Business Overview
 
 ### 1.1 Company Background
+
 - **Founder:** Emily (Emilia) - Mother and certified Safe Return to Exercise trainer
 - **Location:** Sunshine Coast, Queensland, Australia
 - **Service Area:** Maroochydore, Mudjimba, Buderim, Coolum, Pacific Paradise
 - **Business Model:** Personal training with group classes, home visits, and online sessions
 
 ### 1.2 Mission Statement
+
 "Building a supportive community for mums through fitness, wellness, and connection - focusing on postnatal recovery, mental wellbeing, and creating the M.O.M.unity where women feel strong, supported, and seen."
 
 ### 1.3 Unique Value Proposition
+
 - **Free First Session:** 100% free with no commitment required
 - **Specialized Expertise:** Certified postnatal exercise specialist with pelvic floor & core restoration focus
 - **Flexible Approach:** Bring baby, messy bun, tired legs - all welcome
@@ -32,6 +35,7 @@
 ## 2. Current Website Analysis
 
 ### 2.1 Technical Architecture
+
 - **Framework:** Next.js 15.2.4 with App Router
 - **Deployment:** Vercel with custom domains
 - **Domains:** moodovermuscle.com.au, preview.moodovermuscle.com.au
@@ -39,6 +43,7 @@
 - **Package Manager:** pnpm
 
 ### 2.2 Current Features
+
 - ✅ Multi-step booking form (3 steps)
 - ✅ Responsive mobile-first design
 - ✅ Performance monitoring (90+ PageSpeed score)
@@ -46,6 +51,7 @@
 - ✅ SSL certificates and domain management
 
 ### 2.3 Content Structure
+
 - **Homepage:** Hero with free session CTA, Emily's story, how it works, gallery, contact
 - **Classes Page:** Service offerings and pricing
 - **Booking System:** Integrated appointment scheduling
@@ -56,6 +62,7 @@
 ## 3. Functional Requirements
 
 ### 3.1 Core Features
+
 1. **Booking & Scheduling System**
    - Multi-step booking form (already implemented)
    - Calendar integration for availability
@@ -82,6 +89,7 @@
    - WhatsApp/phone booking options
 
 ### 3.2 Advanced Features (Future Phase)
+
 1. **Client Portal**
    - Personal progress tracking
    - Session notes and homework
@@ -104,6 +112,7 @@
 ## 4. Design Requirements
 
 ### 4.1 Brand Guidelines
+
 - **Primary Colors:** Rose (#e11d48) to Pink (#ec4899) gradients
 - **Secondary Colors:** Stone (#57534e, #44403c) for text, Green (#22c55e) for CTAs
 - **Typography:** System fonts with emphasis on readability
@@ -111,6 +120,7 @@
 - **Imagery:** Real mums, diverse body types, authentic moments
 
 ### 4.2 User Interface Requirements
+
 - **Accessibility:** WCAG 2.1 compliance
 - **Mobile-first:** Optimized for mobile booking
 - **Loading Speed:** <3 seconds on mobile
@@ -122,18 +132,21 @@
 ## 5. Technical Requirements
 
 ### 5.1 Performance Specifications
+
 - **Page Speed:** 90+ on Google PageSpeed Insights
 - **Core Web Vitals:** All green scores
 - **Mobile Performance:** Optimized for 3G connections
 - **SEO:** Structured data, meta descriptions, alt tags
 
 ### 5.2 Security Requirements
+
 - **SSL:** HTTPS enforcement
 - **Data Protection:** GDPR compliant forms
 - **Payment Security:** Stripe integration when implemented
 - **Backup:** Daily automated backups
 
 ### 5.3 Integration Requirements
+
 - **Email Service:** Mailchimp or similar for newsletters
 - **Calendar:** Google Calendar or Acuity Scheduling
 - **Analytics:** Google Analytics 4, Facebook Pixel
@@ -144,18 +157,21 @@
 ## 6. Implementation Phases
 
 ### Phase 1: Core Enhancement (Weeks 1-4)
+
 - **Technical:** Optimize performance and mobile responsiveness
 - **Features:** Enhance booking system with calendar integration
 - **Content:** Update pricing and service descriptions
 - **Testing:** Cross-browser compatibility and mobile testing
 
 ### Phase 2: Advanced Features (Weeks 5-8)
+
 - **Features:** Client portal with progress tracking
 - **Content:** Blog section and testimonial management
 - **Integration:** Email marketing and social media integration
 - **Testing:** User acceptance testing and performance optimization
 
 ### Phase 7: Optimization & Scaling (Weeks 9-12)
+
 - **Features:** Advanced booking features and client portal
 - **Content:** Enhanced SEO and content strategy
 - **Performance:** Core Web Vitals optimization
@@ -166,12 +182,14 @@
 ## 7. Success Metrics & KPIs
 
 ### 7.1 Website Metrics
+
 - **Conversion Rate:** 15%+ from visitor to booking inquiry
 - **Bounce Rate:** <40% on mobile
 - **Session Duration:** >2 minutes average
 - **Booking Form Completion:** 80%+
 
 ### 7.2 Business Metrics
+
 - **Monthly Leads:** 50+ qualified inquiries
 - **Conversion to Client:** 60% from inquiry to paid session
 - **Client Retention:** 80% after 3 months
@@ -182,12 +200,14 @@
 ## 8. Compliance & Legal Requirements
 
 ### 8.1 Privacy & Data
+
 - **Privacy Policy:** GDPR compliant
 - **Terms of Service:** Clear liability and cancellation policies
 - **Health Disclaimers:** Medical clearance requirements
 - **Photo Releases:** Client consent for testimonials/gallery
 
 ### 8.2 Insurance & Liability
+
 - **Professional Indemnity:** Coverage for training advice
 - **Public Liability:** Studio and mobile training coverage
 - **First Aid:** Current certification maintained

@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { Header } from "@/components/header"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -8,7 +7,6 @@ import { Card, CardContent } from "@/components/ui/card"
 import { ChevronRight, Users, Heart, Calendar, ArrowRight, CheckCircle, Sparkles, MapPin } from "lucide-react"
 
 export default function ClassesPage() {
-  const [isBookingOpen, setIsBookingOpen] = useState(false)
 
   const services = [
     {
@@ -152,7 +150,6 @@ export default function ClassesPage() {
 
                     <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 pt-6 border-t border-stone-100">
                       <Button
-                        onClick={() => setIsBookingOpen(true)}
                         disabled={service.comingSoon}
                         className={`flex-1 lg:flex-none lg:px-8 bg-gradient-to-r ${service.gradient} hover:shadow-xl text-white rounded-full transition-all duration-300 py-6 text-lg font-medium group disabled:opacity-50 disabled:cursor-not-allowed`}
                       >
@@ -194,7 +191,6 @@ export default function ClassesPage() {
 
               <div className="flex flex-col gap-4 md:gap-6 justify-center pt-4 max-w-sm mx-auto md:max-w-none">
                 <Button
-                  onClick={() => setIsBookingOpen(true)}
                   size="lg"
                   className="bg-white text-rose-600 hover:bg-rose-50 shadow-2xl hover:shadow-3xl transition-all duration-300 rounded-full px-8 md:px-12 py-6 md:py-8 text-lg md:text-xl font-bold hover:scale-105 w-full md:w-auto group pulse-glow"
                 >

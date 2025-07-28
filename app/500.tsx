@@ -43,7 +43,7 @@ export default function Custom500() {
             Server Error
           </h2>
           <p className="text-lg text-stone-600 leading-relaxed max-w-lg mx-auto">
-            Hi lovely! Our server is having a little moment. We're working on getting everything back to normal as quickly as possible.
+            Hi lovely! Our server is having a little moment. We&apos;re working on getting everything back to normal as quickly as possible.
           </p>
         </div>
 
@@ -51,12 +51,12 @@ export default function Custom500() {
         <div className="bg-white rounded-3xl p-6 md:p-8 shadow-xl border border-rose-100">
           <h3 className="font-semibold text-stone-800 mb-3">What happened?</h3>
           <p className="text-stone-600 mb-4">
-            This is a temporary server issue on our end. It's not something you did - we're already working on fixing it!
+            This is a temporary server issue on our end. It&apos;s not something you did - we&apos;re already working on fixing it!
           </p>
           <ul className="text-stone-600 space-y-2 text-left">
             <li>• Try refreshing the page in a few minutes</li>
             <li>• Check our social media for updates</li>
-            <li>• If it's urgent, please contact us directly</li>
+            <li>• If it&apos;s urgent, please contact us directly</li>
           </ul>
         </div>
 

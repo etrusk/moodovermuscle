@@ -33,7 +33,7 @@ export default function NotFound() {
             Oops! Page Not Found
           </h2>
           <p className="text-lg text-stone-600 leading-relaxed max-w-lg mx-auto">
-            Hi lovely! It looks like this page has gone for a walk. Don't worry - let's get you back to where you need to be.
+            Hi lovely! It looks like this page has gone for a walk. Don&apos;t worry - let&apos;s get you back to where you need to be.
           </p>
         </div>
 
@@ -44,7 +44,7 @@ export default function NotFound() {
             <span className="font-semibold text-stone-800">M.O.M.unity Support</span>
           </div>
           <p className="text-stone-600">
-            Looking for something specific? You can always head back to our homepage or get in touch - we're here to help!
+            Looking for something specific? You can always head back to our homepage or get in touch - we&apos;re here to help!
           </p>
         </div>
 

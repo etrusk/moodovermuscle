@@ -32,13 +32,13 @@ export function HeroSection({ setIsBookingOpen }: HeroSectionProps) {
               </h1>
 
               <p className="text-xl md:text-2xl lg:text-3xl text-white leading-relaxed max-w-3xl mx-auto font-light animate-fade-in-up delay-400 drop-shadow-lg">
-                Because strength isn't just about muscles – it's about mood, too.
+                Because strength isn&apos;t just about muscles – it&apos;s about mood, too.
               </p>
             </div>
 
             <div className="space-y-4 animate-fade-in-up delay-500">
               <p className="text-lg md:text-xl text-white leading-relaxed max-w-3xl mx-auto drop-shadow-lg">
-                Hi lovely! If you're a mama (or just a woman with a lot on her plate), you're in the right place.
+                Hi lovely! If you&apos;re a mama (or just a woman with a lot on her plate), you&apos;re in the right place.
               </p>
 
               <p className="text-lg md:text-xl text-white leading-relaxed max-w-3xl mx-auto drop-shadow-lg">
@@ -91,7 +91,7 @@ export function HeroSection({ setIsBookingOpen }: HeroSectionProps) {
             </div>
 
             <div className="text-center text-lg md:text-xl text-white font-semibold animate-fade-in-up delay-800 drop-shadow-lg">
-              Let's lift the mood, one muscle at a time.
+              Let&apos;s lift the mood, one muscle at a time.
               <br />
               Join M.O.M.unity - we are stronger together.
             </div>

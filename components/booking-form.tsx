@@ -21,14 +21,13 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
 import { useToast } from "@/components/ui/use-toast"
-import { Calendar, User, X, Sparkles, CheckCircle2, ArrowRight, Heart } from "lucide-react"
+import { X, Sparkles, CheckCircle2, ArrowRight, Heart } from "lucide-react"
 
 interface BookingFormProps {
   isOpen: boolean
@@ -116,7 +115,7 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
     const fieldsToValidate = currentStep === 1
       ? ["name", "email", "phone", "goals"]
       : ["service"]
-    const isValid = await form.trigger(fieldsToValidate as any)
+    const isValid = await form.trigger(fieldsToValidate as ("name" | "email" | "phone" | "goals" | "service")[])
     if (isValid && currentStep < totalSteps) {
       setCurrentStep(currentStep + 1)
     }
@@ -222,7 +221,7 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
                       name="goals"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>What's your main fitness goal? *</FormLabel>
+                          <FormLabel>What&apos;s your main fitness goal? *</FormLabel>
                           <FormControl>
                             <select {...field} className="w-full p-4 border-2 border-stone-200 rounded-xl focus:border-green-500 focus:ring-green-500 bg-white text-lg">
                               <option value="">Choose your goal...</option>
@@ -256,6 +255,9 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
                               key={service.name}
                               className={`relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:scale-105 ${field.value === service.name ? "border-green-500 bg-gradient-to-r from-green-50 to-emerald-50 shadow-lg" : "border-stone-200 bg-white hover:border-green-300 hover:shadow-md"}`}
                               onClick={() => field.onChange(service.name)}
+                              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') field.onChange(service.name) }}
+                              role="button"
+                              tabIndex={0}
                             >
                               {service.popular && <div className="absolute -top-3 left-6 bg-gradient-to-r from-amber-400 to-orange-400 text-amber-900 px-3 py-1 rounded-full text-xs font-bold">Most Popular ⭐</div>}
                               <div className="flex items-center justify-between">
@@ -316,7 +318,7 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
                   name="message"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Anything else you'd like me to know? (Optional)</FormLabel>
+                      <FormLabel>Anything else you&apos;d like me to know? (Optional)</FormLabel>
                       <FormControl>
                         <Textarea placeholder="Any questions, concerns, or things you're excited about? I'd love to hear from you! 💕" {...field} />
                       </FormControl>

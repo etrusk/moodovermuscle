@@ -31,13 +31,13 @@ export function AboutSection({ setIsBookingOpen }: AboutSectionProps) {
                 Meet Your Trainer
               </div>
               <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-stone-900 to-rose-600 bg-clip-text text-transparent leading-tight pb-2">
-                Hi mama, I'm Emily
+                Hi mama, I&apos;m Emily
               </h2>
             </div>
 
             <div className="space-y-6 md:space-y-8 text-stone-600 leading-relaxed">
               <p className="text-lg md:text-xl lg:text-2xl font-light">
-                I'm a proud mum of a little tornado named Max and a Certified Safe Return to Exercise trainer.
+                I&apos;m a proud mum of a little tornado named Max and a Certified Safe Return to Exercise trainer.
               </p>
 
               <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8">
@@ -80,7 +80,7 @@ export function AboutSection({ setIsBookingOpen }: AboutSectionProps) {
                     </p>
                     <p className="font-semibold text-stone-700 text-sm md:text-base flex items-center gap-2">
                       <CheckCircle className="h-3 w-3 stroke-1 text-rose-500" />
-                      I'm a mum too - I get it!
+                      I&apos;m a mum too - I get it!
                     </p>
                   </div>
                 </div>
@@ -88,8 +88,8 @@ export function AboutSection({ setIsBookingOpen }: AboutSectionProps) {
 
               <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl md:rounded-3xl p-6 md:p-8 border border-amber-100 shadow-lg hover:shadow-xl transition-shadow">
                 <p className="text-base md:text-lg text-stone-700 font-medium">
-                  💕 "I created MoodOverMuscle because I know how isolating motherhood can feel. Let's lift the
-                  mood, one squat (or stretch) at a time. You don't have to do it alone – M.O.M.unity got your back
+                  💕 "I created MoodOverMuscle because I know how isolating motherhood can feel. Let&apos;s lift the
+                  mood, one squat (or stretch) at a time. You don&apos;t have to do it alone – M.O.M.unity got your back
                   (and your core)."
                 </p>
               </div>

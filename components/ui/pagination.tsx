@@ -55,7 +55,9 @@ const PaginationLink = ({
       className
     )}
     {...props}
-  />
+  >
+    <span className="sr-only">Go to page</span>
+  </a>
 )
 PaginationLink.displayName = "PaginationLink"
 

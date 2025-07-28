@@ -21,7 +21,7 @@ export function FinalCtaSection({ setIsBookingOpen }: FinalCtaSectionProps) {
               Ready to Transform Your Life?
             </h2>
             <p className="text-lg md:text-xl lg:text-2xl text-rose-100 leading-relaxed font-light max-w-3xl mx-auto">
-              Join our amazing M.O.M.unity who've already started their transformation. Your first session is
+              Join our amazing M.O.M.unity who&apos;ve already started their transformation. Your first session is
               completely FREE with no strings attached!
             </p>
           </div>
@@ -34,7 +34,7 @@ export function FinalCtaSection({ setIsBookingOpen }: FinalCtaSectionProps) {
                 <span className="font-bold text-rose-100">100% FREE First Session</span>
               </div>
               <p className="text-rose-200 text-sm">
-                No payment, no commitment, just come and see what we're about!
+                No payment, no commitment, just come and see what we&apos;re about!
               </p>
             </div>
 

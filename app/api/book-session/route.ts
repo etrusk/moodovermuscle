@@ -13,6 +13,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: 'Booking submitted successfully!', data: formData }, { status: 200 });
   } catch (error) {
     console.error('Error processing booking form:', error);
-    return NextResponse.json({ message: 'Failed to submit booking.', error: (error as any).message }, { status: 500 });
+    return NextResponse.json({ message: 'Failed to submit booking.', error: (error as Error).message }, { status: 500 });
   }
 }

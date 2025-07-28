@@ -54,7 +54,7 @@ export default function Error({ error, reset }: ErrorProps) {
             Something went wrong
           </h1>
           <p className="text-lg text-stone-600 leading-relaxed max-w-lg mx-auto">
-            Hi lovely! We've hit a little bump in the road. Don't worry - these things happen, and we're here to help get you back on track.
+            Hi lovely! We&apos;ve hit a little bump in the road. Don&apos;t worry - these things happen, and we&apos;re here to help get you back on track.
           </p>
         </div>
 
@@ -77,7 +77,7 @@ export default function Error({ error, reset }: ErrorProps) {
         <div className="bg-white rounded-3xl p-6 md:p-8 shadow-xl border border-rose-100">
           <h3 className="font-semibold text-stone-800 mb-3">What can you do?</h3>
           <ul className="text-stone-600 space-y-2 text-left">
-            <li>• Try refreshing the page - sometimes that's all it takes!</li>
+            <li>• Try refreshing the page - sometimes that&apos;s all it takes!</li>
             <li>• Check your internet connection</li>
             <li>• If the problem persists, please contact us</li>
           </ul>

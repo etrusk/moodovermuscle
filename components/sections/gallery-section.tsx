@@ -1,7 +1,7 @@
-"use client"
+'use client'
 
-import { Instagram } from "lucide-react"
-import Image from "next/image"
+import { Instagram } from 'lucide-react'
+import Image from 'next/image'
 
 export function GallerySection() {
   return (
@@ -19,34 +19,41 @@ export function GallerySection() {
 
         <div className="max-w-4xl mx-auto mb-12 text-center">
           <p className="text-lg text-stone-700 leading-relaxed">
-            Hi Mama! I see you..Between the nappies, meetings, bedtime chaos and reheated coffee, we know carving
-            out time for yourself feels like a luxury. But here&apos;s a little secret: moving your body isn't just about
-            squats or stretchy pants – it&apos;s your daily dose of sanity, strength and self-care.
+            Hi Mama! I see you..Between the nappies, meetings, bedtime chaos and
+            reheated coffee, we know carving out time for yourself feels like a
+            luxury. But here&apos;s a little secret: moving your body isn&apos;t
+            just about squats or stretchy pants – it&apos;s your daily dose of
+            sanity, strength and self-care.
           </p>
           <p className="text-lg text-stone-700 leading-relaxed mt-4">
-            At MoodOverMuscle, we believe movement is medicine – for your physical body and your mental health.
-            This is your space to rebuild from the inside out, safely and sustainably. No "bouncing back", no
-            six-pack pressure. Just real support for real women. Whether you&apos;re postpartum, peri-menopausal, or just
-            overdue for "you-time" – you&apos;re in the right place.
+            At MoodOverMuscle, we believe movement is medicine – for your
+            physical body and your mental health. This is your space to rebuild
+            from the inside out, safely and sustainably. No &quot;bouncing
+            back&quot;, no six-pack pressure. Just real support for real women.
+            Whether you&apos;re postpartum, peri-menopausal, or just overdue for
+            &quot;you-time&quot; – you&apos;re in the right place.
           </p>
         </div>
 
         {/* Mobile Gallery - 2 columns */}
         <div className="grid gap-4 grid-cols-2 md:hidden">
           {[
-            { src: "/images/gallery-1.jpeg", alt: "M.O.M.unity group celebrating" },
-            { src: "/images/gallery-5.jpeg", alt: "Outdoor fitness class" },
-            { src: "/images/gallery-9.jpeg", alt: "Mums and bubs group" },
-            { src: "/images/gallery-4.jpeg", alt: "High five celebration" },
-            { src: "/images/gallery-2.jpeg", alt: "Sunset workout" },
-            { src: "/images/gallery-10.jpeg", alt: "Energetic workout" },
+            {
+              src: '/images/gallery-1.jpeg',
+              alt: 'M.O.M.unity group celebrating',
+            },
+            { src: '/images/gallery-5.jpeg', alt: 'Outdoor fitness class' },
+            { src: '/images/gallery-9.jpeg', alt: 'Mums and bubs group' },
+            { src: '/images/gallery-4.jpeg', alt: 'High five celebration' },
+            { src: '/images/gallery-2.jpeg', alt: 'Sunset workout' },
+            { src: '/images/gallery-10.jpeg', alt: 'Energetic workout' },
           ].map((image, index) => (
             <div
               key={index}
               className="relative group overflow-hidden rounded-2xl hover:scale-105 transition-transform duration-500"
             >
               <Image
-                src={image.src || "/placeholder.svg"}
+                src={image.src || '/placeholder.svg'}
                 width={200}
                 height={200}
                 alt={image.alt}
@@ -63,23 +70,31 @@ export function GallerySection() {
         {/* Desktop Gallery */}
         <div className="hidden md:grid gap-6 md:gap-8 grid-cols-3 lg:grid-cols-4 max-w-7xl mx-auto">
           {[
-            { src: "/images/gallery-1.jpeg", alt: "M.O.M.unity group celebrating", span: "md:col-span-2" },
-            { src: "/images/gallery-5.jpeg", alt: "Outdoor fitness class" },
-            { src: "/images/gallery-9.jpeg", alt: "Mums and bubs group" },
-            { src: "/images/gallery-4.jpeg", alt: "High five celebration" },
-            { src: "/images/gallery-2.jpeg", alt: "Sunset workout", span: "md:col-span-2" },
-            { src: "/images/gallery-10.jpeg", alt: "Energetic workout" },
-            { src: "/images/gallery-6.jpeg", alt: "Emilia portrait" },
-            { src: "/images/gallery-7.jpeg", alt: "Workout in progress" },
+            {
+              src: '/images/gallery-1.jpeg',
+              alt: 'M.O.M.unity group celebrating',
+              span: 'md:col-span-2',
+            },
+            { src: '/images/gallery-5.jpeg', alt: 'Outdoor fitness class' },
+            { src: '/images/gallery-9.jpeg', alt: 'Mums and bubs group' },
+            { src: '/images/gallery-4.jpeg', alt: 'High five celebration' },
+            {
+              src: '/images/gallery-2.jpeg',
+              alt: 'Sunset workout',
+              span: 'md:col-span-2',
+            },
+            { src: '/images/gallery-10.jpeg', alt: 'Energetic workout' },
+            { src: '/images/gallery-6.jpeg', alt: 'Emilia portrait' },
+            { src: '/images/gallery-7.jpeg', alt: 'Workout in progress' },
           ].map((image, index) => (
             <div
               key={index}
               className={`relative group overflow-hidden rounded-3xl hover:scale-105 transition-transform duration-500 ${
-                image.span || ""
+                image.span || ''
               }`}
             >
               <Image
-                src={image.src || "/placeholder.svg"}
+                src={image.src || '/placeholder.svg'}
                 width={400}
                 height={300}
                 alt={image.alt}

@@ -1,8 +1,8 @@
-"use client"
+'use client'
 
-import { Button } from "@/components/ui/button"
-import { CheckCircle, ChevronRight, Sparkles } from "lucide-react"
-import Image from "next/image"
+import { Button } from '@/components/ui/button'
+import { CheckCircle, ChevronRight, Sparkles } from 'lucide-react'
+import Image from 'next/image'
 
 interface AboutSectionProps {
   setIsBookingOpen: (isOpen: boolean) => void
@@ -37,7 +37,8 @@ export function AboutSection({ setIsBookingOpen }: AboutSectionProps) {
 
             <div className="space-y-6 md:space-y-8 text-stone-600 leading-relaxed">
               <p className="text-lg md:text-xl lg:text-2xl font-light">
-                I&apos;m a proud mum of a little tornado named Max and a Certified Safe Return to Exercise trainer.
+                I&apos;m a proud mum of a little tornado named Max and a
+                Certified Safe Return to Exercise trainer.
               </p>
 
               <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8">
@@ -58,13 +59,15 @@ export function AboutSection({ setIsBookingOpen }: AboutSectionProps) {
               </div>
 
               <p className="text-base md:text-lg">
-                With a background in yoga, Pilates, and fitness training, I help women feel strong, supported, and
-                seen.
+                With a background in yoga, Pilates, and fitness training, I help
+                women feel strong, supported, and seen.
               </p>
 
               <div className="bg-gradient-to-r from-rose-50 to-pink-50 rounded-2xl md:rounded-3xl p-6 md:p-8 border border-rose-100 shadow-lg hover:shadow-xl transition-shadow">
                 <div className="space-y-3 md:space-y-4">
-                  <h3 className="font-bold text-stone-800 text-lg md:text-xl">Why Mums Choose Me:</h3>
+                  <h3 className="font-bold text-stone-800 text-lg md:text-xl">
+                    Why Mums Choose Me:
+                  </h3>
                   <div className="space-y-2 md:space-y-3">
                     <p className="font-semibold text-stone-700 text-sm md:text-base flex items-center gap-2">
                       <CheckCircle className="h-3 w-3 stroke-1 text-rose-500" />
@@ -88,9 +91,10 @@ export function AboutSection({ setIsBookingOpen }: AboutSectionProps) {
 
               <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl md:rounded-3xl p-6 md:p-8 border border-amber-100 shadow-lg hover:shadow-xl transition-shadow">
                 <p className="text-base md:text-lg text-stone-700 font-medium">
-                  💕 "I created MoodOverMuscle because I know how isolating motherhood can feel. Let&apos;s lift the
-                  mood, one squat (or stretch) at a time. You don&apos;t have to do it alone – M.O.M.unity got your back
-                  (and your core)."
+                  💕 &quot;I created MoodOverMuscle because I know how isolating
+                  motherhood can feel. Let&apos;s lift the mood, one squat (or
+                  stretch) at a time. You don&apos;t have to do it alone –
+                  M.O.M.unity got your back (and your core).&quot;
                 </p>
               </div>
             </div>

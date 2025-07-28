@@ -25,8 +25,9 @@ This document outlines the comprehensive testing strategy for the MoodOverMuscle
 ---
 
 **Document Information**
-- **Last Updated**: 2025-07-27
-- **Version**: 1.0
+
+- **Last Updated**: 2025-07-28
+- **Version**: 1.1.0
 - **Owner**: QA Team
 - **Review Schedule**: Quarterly
 
@@ -53,11 +54,11 @@ This document outlines the comprehensive testing strategy for the MoodOverMuscle
 
 ### Core Testing Tools
 
-- **Unit Testing**: Jest + React Testing Library
-- **E2E Testing**: Playwright
-- **Accessibility Testing**: jest-axe (automated WCAG compliance)
-- **API Mocking**: Mock Service Worker (MSW)
-- **Test Data**: @faker-js/faker for realistic data generation
+- **Unit Testing**: Jest (`^29.7.0`) + React Testing Library (`^16.0.0`)
+- **E2E Testing**: Playwright (`^1.54.1`)
+- **Accessibility Testing**: jest-axe (`^10.0.0`)
+- **API Mocking**: Mock Service Worker (MSW) (`^2.10.4`)
+- **Test Data**: @faker-js/faker (`^8.4.1`) for realistic data generation
 - **Coverage**: Jest built-in coverage reporting
 
 ### New Tool Additions
@@ -78,13 +79,15 @@ pnpm add -D jest-axe @faker-js/faker msw
 ### The Hardcoded Strings Problem
 
 **❌ Problematic Pattern:**
+
 ```typescript
 // Brittle test that breaks when copy changes
 expect(screen.getByText(/book your free session/i)).toBeInTheDocument()
-expect(screen.getByText("Click me")).toBeInTheDocument()
+expect(screen.getByText('Click me')).toBeInTheDocument()
 ```
 
 **✅ Improved Pattern:**
+
 ```typescript
 // __tests__/constants/test-strings.ts
 export const TEST_STRINGS = {
@@ -101,7 +104,7 @@ export const TEST_STRINGS = {
   VALIDATION: {
     REQUIRED_FIELD: /required/i,
     INVALID_EMAIL: /valid email/i,
-  }
+  },
 } as const
 
 // Usage in tests
@@ -199,11 +202,11 @@ describe('BookingForm Accessibility', () => {
 
   it('should support keyboard navigation', () => {
     render(<BookingForm isOpen={true} onClose={jest.fn()} />)
-    
+
     // Test tab order
     const firstInput = screen.getByLabelText(/name/i)
     const secondInput = screen.getByLabelText(/email/i)
-    
+
     firstInput.focus()
     userEvent.tab()
     expect(secondInput).toHaveFocus()
@@ -211,10 +214,10 @@ describe('BookingForm Accessibility', () => {
 
   it('should announce form errors to screen readers', async () => {
     render(<BookingForm isOpen={true} onClose={jest.fn()} />)
-    
+
     const submitButton = screen.getByRole('button', { name: /continue/i })
     userEvent.click(submitButton)
-    
+
     await waitFor(() => {
       const errorMessage = screen.getByRole('alert')
       expect(errorMessage).toBeInTheDocument()
@@ -224,10 +227,10 @@ describe('BookingForm Accessibility', () => {
 
   it('should have proper focus management in modal', () => {
     render(<BookingForm isOpen={true} onClose={jest.fn()} />)
-    
+
     const modal = screen.getByRole('dialog')
     expect(modal).toHaveAttribute('aria-modal', 'true')
-    
+
     // Focus should be trapped within modal
     const focusableElements = within(modal).getAllByRole('button')
     expect(focusableElements.length).toBeGreaterThan(0)
@@ -269,24 +272,18 @@ export const handlers = [
   // Booking API endpoints
   http.post('/api/bookings', async ({ request }) => {
     const booking = await request.json()
-    
+
     // Simulate validation
     if (!booking.email) {
-      return HttpResponse.json(
-        { error: 'Email is required' },
-        { status: 400 }
-      )
+      return HttpResponse.json({ error: 'Email is required' }, { status: 400 })
     }
-    
+
     return HttpResponse.json(createMockBooking(booking))
   }),
 
   // Error scenarios
   http.post('/api/bookings/error', () => {
-    return HttpResponse.json(
-      { error: 'Server error' },
-      { status: 500 }
-    )
+    return HttpResponse.json({ error: 'Server error' }, { status: 500 })
   }),
 
   // Network timeout simulation
@@ -323,7 +320,9 @@ export interface MockUser {
   goals: string
 }
 
-export const createMockUser = (overrides: Partial<MockUser> = {}): MockUser => ({
+export const createMockUser = (
+  overrides: Partial<MockUser> = {}
+): MockUser => ({
   id: faker.string.uuid(),
   name: faker.person.fullName(),
   email: faker.internet.email(),
@@ -348,12 +347,24 @@ export interface MockBooking {
   status: 'pending' | 'confirmed' | 'cancelled'
 }
 
-export const createMockBooking = (overrides: Partial<MockBooking> = {}): MockBooking => ({
+export const createMockBooking = (
+  overrides: Partial<MockBooking> = {}
+): MockBooking => ({
   id: faker.string.uuid(),
   user: createMockUser(),
-  service: faker.helpers.arrayElement(['1-on-1-training', 'group-class', 'online-session']),
+  service: faker.helpers.arrayElement([
+    '1-on-1-training',
+    'group-class',
+    'online-session',
+  ]),
   date: faker.date.future().toISOString().split('T')[0],
-  time: faker.helpers.arrayElement(['09:00', '10:00', '11:00', '14:00', '15:00']),
+  time: faker.helpers.arrayElement([
+    '09:00',
+    '10:00',
+    '11:00',
+    '14:00',
+    '15:00',
+  ]),
   status: 'pending',
   ...overrides,
 })
@@ -368,7 +379,7 @@ export const createMockApiResponse = <T>(
   options: { delay?: number; status?: number } = {}
 ) => {
   const { delay = 0, status = 200 } = options
-  
+
   return new Promise<T>((resolve, reject) => {
     setTimeout(() => {
       if (status >= 400) {
@@ -382,13 +393,13 @@ export const createMockApiResponse = <T>(
 
 // Usage in tests
 const mockBookingService = {
-  createBooking: jest.fn().mockImplementation((data) =>
-    createMockApiResponse(createMockBooking(data))
-  ),
-  
-  createBookingWithError: jest.fn().mockImplementation(() =>
-    createMockApiResponse(null, { status: 500 })
-  ),
+  createBooking: jest
+    .fn()
+    .mockImplementation(data => createMockApiResponse(createMockBooking(data))),
+
+  createBookingWithError: jest
+    .fn()
+    .mockImplementation(() => createMockApiResponse(null, { status: 500 })),
 }
 ```
 
@@ -428,7 +439,9 @@ await waitFor(() => {
 
 // ✅ DO: Test accessibility attributes
 expect(screen.getByRole('button')).toHaveAccessibleName('Submit booking form')
-expect(screen.getByRole('alert')).toHaveTextContent('Form submitted successfully')
+expect(screen.getByRole('alert')).toHaveTextContent(
+  'Form submitted successfully'
+)
 
 // ✅ DO: Test semantic meaning
 const submitButton = screen.getByRole('button', { name: /submit/i })
@@ -446,11 +459,11 @@ describe('BookingForm User Experience', () => {
   it('should guide user through booking process', async () => {
     const user = userEvent.setup()
     render(<BookingForm isOpen={true} onClose={jest.fn()} />)
-    
+
     // Step 1: User sees form and understands what to do
     expect(screen.getByRole('heading', { level: 2 }))
       .toHaveTextContent(TEST_STRINGS.BOOKING.FORM_TITLE)
-    
+
     // Step 2: User fills out required information
     await user.type(
       screen.getByLabelText(/name/i),
@@ -460,14 +473,14 @@ describe('BookingForm User Experience', () => {
       screen.getByLabelText(/email/i),
       TEST_USER_DATA.VALID_USER.email
     )
-    
+
     // Step 3: User receives feedback on their actions
     const continueButton = screen.getByRole('button', { name: /continue/i })
     expect(continueButton).toBeEnabled()
-    
+
     // Step 4: User progresses through form
     await user.click(continueButton)
-    
+
     await waitFor(() => {
       expect(screen.getByText(TEST_STRINGS.BOOKING.STEP_TWO_TITLE))
         .toBeInTheDocument()
@@ -477,18 +490,18 @@ describe('BookingForm User Experience', () => {
   it('should provide clear error feedback', async () => {
     const user = userEvent.setup()
     render(<BookingForm isOpen={true} onClose={jest.fn()} />)
-    
+
     // User tries to submit without required fields
     const continueButton = screen.getByRole('button', { name: /continue/i })
     await user.click(continueButton)
-    
+
     // User sees clear error messages
     await waitFor(() => {
       const errorAlert = screen.getByRole('alert')
       expect(errorAlert).toBeInTheDocument()
       expect(errorAlert).toHaveTextContent(TEST_STRINGS.VALIDATION.REQUIRED_FIELD)
     })
-    
+
     // Error is associated with the problematic field
     const nameInput = screen.getByLabelText(/name/i)
     expect(nameInput).toHaveAttribute('aria-invalid', 'true')
@@ -514,20 +527,20 @@ describe('BookingForm Error Handling', () => {
         return HttpResponse.error()
       })
     )
-    
+
     const user = userEvent.setup()
     render(<BookingForm isOpen={true} onClose={jest.fn()} />)
-    
+
     // Fill form and submit
     await fillValidBookingForm(user)
     await user.click(screen.getByRole('button', { name: /submit/i }))
-    
+
     // User sees error message
     await waitFor(() => {
       expect(screen.getByRole('alert'))
         .toHaveTextContent(/network error.*try again/i)
     })
-    
+
     // Form remains in submittable state
     expect(screen.getByRole('button', { name: /submit/i })).toBeEnabled()
   })
@@ -536,7 +549,7 @@ describe('BookingForm Error Handling', () => {
     server.use(
       http.post('/api/bookings', () => {
         return HttpResponse.json(
-          { 
+          {
             error: 'Invalid email format',
             field: 'email'
           },
@@ -544,13 +557,13 @@ describe('BookingForm Error Handling', () => {
         )
       })
     )
-    
+
     const user = userEvent.setup()
     render(<BookingForm isOpen={true} onClose={jest.fn()} />)
-    
+
     await fillValidBookingForm(user)
     await user.click(screen.getByRole('button', { name: /submit/i }))
-    
+
     await waitFor(() => {
       const emailInput = screen.getByLabelText(/email/i)
       expect(emailInput).toHaveAttribute('aria-invalid', 'true')
@@ -565,16 +578,16 @@ describe('BookingForm Error Handling', () => {
         return new Promise(() => {})
       })
     )
-    
+
     const user = userEvent.setup()
     render(<BookingForm isOpen={true} onClose={jest.fn()} />)
-    
+
     await fillValidBookingForm(user)
     await user.click(screen.getByRole('button', { name: /submit/i }))
-    
+
     // User sees loading state
     expect(screen.getByRole('button', { name: /submitting/i })).toBeDisabled()
-    
+
     // After timeout, user sees error
     await waitFor(() => {
       expect(screen.getByRole('alert'))
@@ -591,11 +604,11 @@ describe('BookingForm Validation', () => {
   it('should validate email format', async () => {
     const user = userEvent.setup()
     render(<BookingForm isOpen={true} onClose={jest.fn()} />)
-    
+
     const emailInput = screen.getByLabelText(/email/i)
     await user.type(emailInput, 'invalid-email')
     await user.tab() // Trigger blur validation
-    
+
     await waitFor(() => {
       expect(emailInput).toHaveAttribute('aria-invalid', 'true')
       expect(emailInput).toHaveAccessibleDescription(/valid email/i)
@@ -605,11 +618,11 @@ describe('BookingForm Validation', () => {
   it('should validate phone number format', async () => {
     const user = userEvent.setup()
     render(<BookingForm isOpen={true} onClose={jest.fn()} />)
-    
+
     const phoneInput = screen.getByLabelText(/phone/i)
     await user.type(phoneInput, '123') // Too short
     await user.tab()
-    
+
     await waitFor(() => {
       expect(phoneInput).toHaveAttribute('aria-invalid', 'true')
       expect(phoneInput).toHaveAccessibleDescription(/valid phone number/i)
@@ -619,14 +632,14 @@ describe('BookingForm Validation', () => {
   it('should prevent booking past dates', async () => {
     const user = userEvent.setup()
     render(<BookingForm isOpen={true} onClose={jest.fn()} />)
-    
+
     // Navigate to date selection step
     await fillValidUserInfo(user)
     await user.click(screen.getByRole('button', { name: /continue/i }))
-    
+
     const dateInput = screen.getByLabelText(/date/i)
     await user.type(dateInput, '2020-01-01') // Past date
-    
+
     await waitFor(() => {
       expect(dateInput).toHaveAttribute('aria-invalid', 'true')
       expect(dateInput).toHaveAccessibleDescription(/future date/i)
@@ -642,12 +655,12 @@ describe('BookingForm Boundary Conditions', () => {
   it('should handle maximum name length', async () => {
     const user = userEvent.setup()
     render(<BookingForm isOpen={true} onClose={jest.fn()} />)
-    
+
     const longName = 'a'.repeat(101) // Assuming 100 char limit
     const nameInput = screen.getByLabelText(/name/i)
-    
+
     await user.type(nameInput, longName)
-    
+
     expect(nameInput).toHaveValue('a'.repeat(100)) // Truncated
     expect(screen.getByText(/100.*characters/i)).toBeInTheDocument()
   })
@@ -655,10 +668,10 @@ describe('BookingForm Boundary Conditions', () => {
   it('should handle special characters in input', async () => {
     const user = userEvent.setup()
     render(<BookingForm isOpen={true} onClose={jest.fn()} />)
-    
+
     const nameInput = screen.getByLabelText(/name/i)
     await user.type(nameInput, "O'Connor-Smith")
-    
+
     expect(nameInput).toHaveValue("O'Connor-Smith")
     expect(nameInput).toHaveAttribute('aria-invalid', 'false')
   })
@@ -666,18 +679,18 @@ describe('BookingForm Boundary Conditions', () => {
   it('should handle rapid form submissions', async () => {
     const user = userEvent.setup()
     render(<BookingForm isOpen={true} onClose={jest.fn()} />)
-    
+
     await fillValidBookingForm(user)
-    
+
     const submitButton = screen.getByRole('button', { name: /submit/i })
-    
+
     // Rapid clicks should not cause multiple submissions
     await user.click(submitButton)
     await user.click(submitButton)
     await user.click(submitButton)
-    
+
     expect(submitButton).toBeDisabled()
-    
+
     // Only one API call should be made
     await waitFor(() => {
       expect(mockApiCall).toHaveBeenCalledTimes(1)
@@ -720,7 +733,7 @@ import { runAccessibilityTests } from '../utils/accessibility'
 
 describe('ComponentName', () => {
   // Existing tests...
-  
+
   it('should have no accessibility violations', async () => {
     const { container } = render(<ComponentName />)
     await runAccessibilityTests(container)
@@ -748,13 +761,28 @@ import { createMockBooking } from '../mocks/factories/booking-factory'
 ```typescript
 // __tests__/utils/form-helpers.ts
 export const fillValidBookingForm = async (user: UserEvent) => {
-  await user.type(screen.getByLabelText(/name/i), TEST_USER_DATA.VALID_USER.name)
-  await user.type(screen.getByLabelText(/email/i), TEST_USER_DATA.VALID_USER.email)
-  await user.type(screen.getByLabelText(/phone/i), TEST_USER_DATA.VALID_USER.phone)
-  await user.selectOptions(screen.getByLabelText(/goals/i), TEST_USER_DATA.VALID_USER.goals)
+  await user.type(
+    screen.getByLabelText(/name/i),
+    TEST_USER_DATA.VALID_USER.name
+  )
+  await user.type(
+    screen.getByLabelText(/email/i),
+    TEST_USER_DATA.VALID_USER.email
+  )
+  await user.type(
+    screen.getByLabelText(/phone/i),
+    TEST_USER_DATA.VALID_USER.phone
+  )
+  await user.selectOptions(
+    screen.getByLabelText(/goals/i),
+    TEST_USER_DATA.VALID_USER.goals
+  )
 }
 
-export const expectFormValidationError = async (fieldName: string, errorMessage: RegExp) => {
+export const expectFormValidationError = async (
+  fieldName: string,
+  errorMessage: RegExp
+) => {
   const field = screen.getByLabelText(new RegExp(fieldName, 'i'))
   await waitFor(() => {
     expect(field).toHaveAttribute('aria-invalid', 'true')
@@ -772,7 +800,7 @@ export const renderWithBookingContext = (
   options: { initialBookingState?: Partial<BookingState> } = {}
 ) => {
   const { initialBookingState = {} } = options
-  
+
   const Wrapper = ({ children }: { children: React.ReactNode }) => (
     <BookingProvider initialState={initialBookingState}>
       <ThemeProvider>
@@ -780,7 +808,7 @@ export const renderWithBookingContext = (
       </ThemeProvider>
     </BookingProvider>
   )
-  
+
   return render(ui, { wrapper: Wrapper })
 }
 ```
@@ -806,7 +834,7 @@ describe('Button Component - WRONG APPROACH', () => {
     expect(screen.getByRole('button')).toHaveClass('bg-destructive')
     expect(screen.getByRole('button')).toHaveClass('text-destructive-foreground')
   })
-  
+
   test('renders button with text', () => {
     render(<Button>Click me</Button>) // Hardcoded string
     expect(screen.getByText('Click me')).toBeInTheDocument()
@@ -822,35 +850,35 @@ describe('Button Component - CORRECT APPROACH', () => {
         {TEST_STRINGS.BUTTONS.DELETE}
       </Button>
     )
-    
+
     // Accessibility testing
     await runAccessibilityTests(container)
-    
+
     const button = screen.getByRole('button', { name: TEST_STRINGS.BUTTONS.DELETE })
-    
+
     // Test user interaction
     await userEvent.click(button)
     expect(handleClick).toHaveBeenCalledTimes(1)
-    
+
     // Test semantic meaning for destructive actions
     expect(button).toHaveAttribute('aria-describedby')
     const description = screen.getByText(/this action cannot be undone/i)
     expect(description).toBeInTheDocument()
   })
-  
+
   test('should support keyboard navigation', () => {
     render(<Button>{TEST_STRINGS.BUTTONS.SUBMIT}</Button>)
-    
+
     const button = screen.getByRole('button')
     button.focus()
-    
+
     expect(button).toHaveFocus()
     expect(button).toHaveAttribute('tabindex', '0')
   })
-  
+
   test('should indicate disabled state to assistive technology', () => {
     render(<Button disabled>{TEST_STRINGS.BUTTONS.SUBMIT}</Button>)
-    
+
     const button = screen.getByRole('button')
     expect(button).toBeDisabled()
     expect(button).toHaveAttribute('aria-disabled', 'true')
@@ -867,14 +895,14 @@ describe('BookingForm - WRONG APPROACH', () => {
     render(<BookingForm isOpen={true} onClose={jest.fn()} />)
     expect(screen.getByText('Book your free session')).toBeInTheDocument() // Hardcoded
   })
-  
+
   test('closes when clicking outside', () => {
     const mockOnClose = jest.fn()
     render(<BookingForm isOpen={true} onClose={mockOnClose} />)
-    
+
     const backdrop = screen.getByRole('dialog').parentElement
     fireEvent.click(backdrop!) // Using fireEvent instead of userEvent
-    
+
     expect(mockOnClose).toHaveBeenCalled()
   })
 })
@@ -886,25 +914,25 @@ describe('BookingForm - CORRECT APPROACH', () => {
     const { container } = render(
       <BookingForm isOpen={true} onClose={mockOnClose} />
     )
-    
+
     // Accessibility testing
     await runAccessibilityTests(container)
-    
+
     const modal = screen.getByRole('dialog')
     expect(modal).toHaveAttribute('aria-modal', 'true')
     expect(modal).toHaveAttribute('aria-labelledby')
-    
+
     // Focus management
     expect(modal).toHaveFocus()
-    
+
     // Screen reader announcements
     expect(screen.getByRole('heading', { level: 1 }))
       .toHaveTextContent(TEST_STRINGS.BOOKING.MODAL_TITLE)
   })
-  
+
   test('should handle form submission with proper error handling', async () => {
     const user = userEvent.setup()
-    
+
     // Mock API error
     server.use(
       http.post('/api/bookings', () => {
@@ -914,32 +942,32 @@ describe('BookingForm - CORRECT APPROACH', () => {
         )
       })
     )
-    
+
     render(<BookingForm isOpen={true} onClose={jest.fn()} />)
-    
+
     // Fill form with valid data
     await fillValidBookingForm(user)
-    
+
     // Submit form
     await user.click(screen.getByRole('button', { name: TEST_STRINGS.BUTTONS.SUBMIT }))
-    
+
     // Verify error handling
     await waitFor(() => {
       const errorAlert = screen.getByRole('alert')
       expect(errorAlert).toHaveTextContent(/email already exists/i)
       expect(errorAlert).toHaveAttribute('aria-live', 'polite')
     })
-    
+
     // Form should remain in editable state for user to fix
     const emailInput = screen.getByLabelText(/email/i)
     expect(emailInput).toHaveAttribute('aria-invalid', 'true')
     expect(emailInput).toHaveFocus() // Focus moves to problematic field
   })
-  
+
   test('should support keyboard-only navigation', async () => {
     const user = userEvent.setup()
     render(<BookingForm isOpen={true} onClose={jest.fn()} />)
-    
+
     // Tab through all form elements
     const formElements = [
       screen.getByLabelText(/name/i),
@@ -948,7 +976,7 @@ describe('BookingForm - CORRECT APPROACH', () => {
       screen.getByLabelText(/goals/i),
       screen.getByRole('button', { name: TEST_STRINGS.BUTTONS.CONTINUE }),
     ]
-    
+
     for (const element of formElements) {
       await user.tab()
       expect(element).toHaveFocus()
@@ -965,16 +993,16 @@ describe('BookingService - WRONG APPROACH', () => {
   test('calls API with correct parameters', async () => {
     const mockFetch = jest.fn().mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({ id: '123' })
+      json: () => Promise.resolve({ id: '123' }),
     })
     global.fetch = mockFetch
-    
+
     await bookingService.create({ name: 'John' })
-    
+
     expect(mockFetch).toHaveBeenCalledWith('/api/bookings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: 'John' })
+      body: JSON.stringify({ name: 'John' }),
     })
   })
 })
@@ -983,45 +1011,45 @@ describe('BookingService - WRONG APPROACH', () => {
 describe('BookingService - CORRECT APPROACH', () => {
   test('should create booking successfully', async () => {
     const bookingData = createMockBooking({
-      user: createMockUser({ name: 'Sarah Wilson' })
+      user: createMockUser({ name: 'Sarah Wilson' }),
     })
-    
+
     server.use(
       http.post('/api/bookings', () => {
         return HttpResponse.json(bookingData)
       })
     )
-    
+
     const result = await bookingService.create({
       name: 'Sarah Wilson',
       email: 'sarah@example.com',
-      service: '1-on-1-training'
+      service: '1-on-1-training',
     })
-    
+
     expect(result).toMatchObject({
       id: expect.any(String),
       user: expect.objectContaining({
-        name: 'Sarah Wilson'
+        name: 'Sarah Wilson',
       }),
-      status: 'pending'
+      status: 'pending',
     })
   })
-  
+
   test('should handle network failures gracefully', async () => {
     server.use(
       http.post('/api/bookings', () => {
         return HttpResponse.error()
       })
     )
-    
+
     await expect(
       bookingService.create({ name: 'John', email: 'john@example.com' })
     ).rejects.toThrow(/network error/i)
   })
-  
+
   test('should retry failed requests', async () => {
     let attemptCount = 0
-    
+
     server.use(
       http.post('/api/bookings', () => {
         attemptCount++
@@ -1031,12 +1059,12 @@ describe('BookingService - CORRECT APPROACH', () => {
         return HttpResponse.json(createMockBooking())
       })
     )
-    
+
     const result = await bookingService.create({
       name: 'John',
-      email: 'john@example.com'
+      email: 'john@example.com',
     })
-    
+
     expect(result).toBeDefined()
     expect(attemptCount).toBe(3) // Retried twice before success
   })
@@ -1114,12 +1142,19 @@ const customJestConfig = {
     {
       displayName: 'unit',
       testMatch: ['<rootDir>/__tests__/**/*.test.{js,jsx,ts,tsx}'],
-      testPathIgnorePatterns: ['<rootDir>/__tests__/**/*.accessibility.test.{js,jsx,ts,tsx}'],
+      testPathIgnorePatterns: [
+        '<rootDir>/__tests__/**/*.accessibility.test.{js,jsx,ts,tsx}',
+      ],
     },
     {
       displayName: 'accessibility',
-      testMatch: ['<rootDir>/__tests__/**/*.accessibility.test.{js,jsx,ts,tsx}'],
-      setupFilesAfterEnv: ['<rootDir>/jest.setup.js', '<rootDir>/__tests__/setup/accessibility.setup.js'],
+      testMatch: [
+        '<rootDir>/__tests__/**/*.accessibility.test.{js,jsx,ts,tsx}',
+      ],
+      setupFilesAfterEnv: [
+        '<rootDir>/jest.setup.js',
+        '<rootDir>/__tests__/setup/accessibility.setup.js',
+      ],
     },
   ],
 }
@@ -1224,13 +1259,13 @@ Element.prototype.scrollIntoView = jest.fn()
 const originalWarn = console.warn
 global.console = {
   ...console,
-  warn: jest.fn((message) => {
+  warn: jest.fn(message => {
     // Allow accessibility-related warnings to show in tests
     if (message.includes('accessibility') || message.includes('a11y')) {
       originalWarn(message)
     }
   }),
-  error: jest.fn((message) => {
+  error: jest.fn(message => {
     // Fail tests on accessibility errors
     if (message.includes('accessibility') || message.includes('a11y')) {
       throw new Error(`Accessibility error: ${message}`)
@@ -1294,31 +1329,31 @@ on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'pnpm'
-      
+
       - name: Install dependencies
         run: pnpm install
-      
+
       - name: Run unit tests
         run: pnpm test:ci
-      
+
       - name: Run accessibility tests
         run: pnpm test -- --testNamePattern="accessibility"
-      
+
       - name: Upload coverage
         uses: codecov/codecov-action@v3
         with:
           file: ./coverage/lcov.info
-      
+
       - name: Run E2E tests
         run: pnpm test:e2e
-      
+
       - name: Accessibility audit
         run: pnpm lighthouse:ci
 ```
@@ -1352,6 +1387,7 @@ jobs:
 ## Resources & References
 
 ### Documentation
+
 - [Jest Documentation](https://jestjs.io/docs/getting-started)
 - [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
 - [jest-axe Documentation](https://github.com/nickcolley/jest-axe)
@@ -1360,12 +1396,14 @@ jobs:
 - [Playwright Documentation](https://playwright.dev/docs/intro)
 
 ### Accessibility Resources
+
 - [WCAG 2.1 Guidelines](https://www.w3.org/WAI/WCAG21/quickref/)
 - [ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/)
 - [WebAIM Testing Guide](https://webaim.org/articles/screenreader_testing/)
 - [Inclusive Components](https://inclusive-components.design/)
 
 ### Testing Best Practices
+
 - [Testing Library Guiding Principles](https://testing-library.com/docs/guiding-principles)
 - [Common Testing Mistakes](https://kentcdodds.com/blog/common-mistakes-with-react-testing-library)
 - [Accessibility Testing Guide](https://web.dev/accessibility-testing/)

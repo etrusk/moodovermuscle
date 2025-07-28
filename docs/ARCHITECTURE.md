@@ -20,8 +20,9 @@ This document outlines the technical architecture for the Mood Over Muscle fitne
 ---
 
 **Document Information**
-- **Last Updated**: 2025-07-27
-- **Version**: 1.0
+
+- **Last Updated**: 2025-07-28
+- **Version**: 1.1.0
 - **Owner**: Development Team
 - **Review Schedule**: Quarterly
 
@@ -50,8 +51,6 @@ This document outlines the technical architecture for the Mood Over Muscle fitne
 ### Data & APIs
 
 - **Next.js API Routes**: Backend API endpoints
-- **Prisma** (future): Database ORM for PostgreSQL
-- **React Query** (future): Data fetching and caching
 
 ### Performance & Monitoring
 
@@ -95,7 +94,6 @@ app/
 
 ### Authentication & Authorization
 
-- **NextAuth.js** (future): Authentication system
 - **Role-based Access Control**: Different user permissions
 - **JWT Tokens**: Secure session management
 
@@ -178,8 +176,9 @@ pnpm build
 
 ### Phase 2 Enhancements
 
-- **Database Integration**: PostgreSQL with Prisma
-- **User Authentication**: NextAuth.js implementation
+- **Database Integration**: PostgreSQL with Prisma (unimplemented)
+- **User Authentication**: NextAuth.js implementation (unimplemented)
+- **Data Fetching/Caching**: React Query (unimplemented)
 - **Payment Processing**: Stripe integration
 - **Content Management**: Headless CMS integration
 

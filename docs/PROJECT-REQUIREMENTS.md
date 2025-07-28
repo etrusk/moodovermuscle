@@ -21,8 +21,9 @@
 ---
 
 **Document Information**
-- **Last Updated**: 2025-07-27
-- **Version**: 1.0
+
+- **Last Updated**: 2025-07-28
+- **Version**: 1.1.0
 - **Owner**: Product Team
 - **Review Schedule**: Quarterly
 
@@ -62,6 +63,7 @@
 - **Domains:** moodovermuscle.com.au, preview.moodovermuscle.com.au
 - **Styling:** Tailwind CSS 3.4.17 with shadcn/ui components
 - **Package Manager:** pnpm
+- **Project Status**: MVP Phase (v0.1.0)
 
 ### 2.2 Current Features
 

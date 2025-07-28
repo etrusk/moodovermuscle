@@ -2,6 +2,7 @@
 
 import type React from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Home, ArrowLeft, Heart } from "lucide-react"
 
@@ -13,7 +14,7 @@ export default function NotFound() {
         <div className="flex justify-center mb-8">
           <div className="relative">
             <div className="absolute -inset-3 bg-gradient-to-r from-rose-400 to-pink-400 rounded-full blur-xl opacity-40"></div>
-            <img
+            <Image
               src="/images/logo.png"
               width={80}
               height={80}

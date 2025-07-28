@@ -2,6 +2,8 @@
 
 import type React from "react"
 import { useEffect } from "react"
+import Image from "next/image"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { RefreshCw, Home, AlertTriangle } from "lucide-react"
 
@@ -29,7 +31,7 @@ export default function Error({ error, reset }: ErrorProps) {
         <div className="flex justify-center mb-8">
           <div className="relative">
             <div className="absolute -inset-3 bg-gradient-to-r from-rose-400 to-pink-400 rounded-full blur-xl opacity-40"></div>
-            <img
+            <Image
               src="/images/logo.png"
               width={80}
               height={80}
@@ -96,10 +98,10 @@ export default function Error({ error, reset }: ErrorProps) {
             variant="outline"
             className="border-2 border-rose-200 text-rose-600 hover:bg-rose-50 rounded-full px-8 py-4 text-lg font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
           >
-            <a href="/">
+            <Link href="/">
               <Home className="mr-2 h-4 w-4" />
               Back to Home
-            </a>
+            </Link>
           </Button>
         </div>
 

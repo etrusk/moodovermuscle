@@ -82,6 +82,12 @@
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;

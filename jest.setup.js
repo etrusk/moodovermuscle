@@ -1,6 +1,12 @@
 // jest.setup.js
 import '@testing-library/jest-dom'
 
+// Mock fetch globally
+Object.defineProperty(window, 'fetch', {
+  writable: true,
+  value: jest.fn(),
+});
+
 // Mock next/router
 jest.mock('next/router', () => ({
   useRouter() {

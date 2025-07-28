@@ -23,6 +23,27 @@ yarn-error.log*
 # vercel
 .vercel
 
+# Test Coverage and Results
+/coverage/
+/test-results/
+/playwright-report/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# General Log Files
+*.log
+
+# Additional IDE/Editor Files
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

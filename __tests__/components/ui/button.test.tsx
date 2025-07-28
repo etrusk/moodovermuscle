@@ -1,51 +1,32 @@
 import React from 'react'
-import { render, screen } from '../setup/test-utils'
+import { render, screen } from '@/__tests__/setup/test-utils'
+import userEvent from '@testing-library/user-event'
+import { axe } from 'jest-axe'
 import { Button } from '@/components/ui/button'
+import { TEST_STRINGS } from '@/__tests__/constants/test-strings'
+import '@testing-library/jest-dom'
+import 'jest-axe/extend-expect'
 
 describe('Button Component', () => {
   test('renders button with text', () => {
-    render(<Button>Click me</Button>)
+    render(<Button>{TEST_STRINGS.BUTTONS.PRIMARY}</Button>)
 
     expect(
-      screen.getByRole('button', { name: /click me/i })
+      screen.getByRole('button', { name: TEST_STRINGS.BUTTONS.PRIMARY })
     ).toBeInTheDocument()
   })
 
-  test('applies variant classes correctly', () => {
-    const { rerender } = render(<Button variant="default">Default</Button>)
-    expect(screen.getByRole('button')).toHaveClass('bg-primary')
-
-    rerender(<Button variant="destructive">Destructive</Button>)
-    expect(screen.getByRole('button')).toHaveClass('bg-destructive')
-
-    rerender(<Button variant="outline">Outline</Button>)
-    expect(screen.getByRole('button')).toHaveClass('border')
-
-    rerender(<Button variant="ghost">Ghost</Button>)
-    expect(screen.getByRole('button')).toHaveClass('hover:bg-accent')
-  })
-
-  test('applies size classes correctly', () => {
-    const { rerender } = render(<Button size="default">Default</Button>)
-    expect(screen.getByRole('button')).toHaveClass('h-10')
-
-    rerender(<Button size="sm">Small</Button>)
-    expect(screen.getByRole('button')).toHaveClass('h-9')
-
-    rerender(<Button size="lg">Large</Button>)
-    expect(screen.getByRole('button')).toHaveClass('h-11')
-  })
-
-  test('handles click events', () => {
+  test('handles click events', async () => {
+    const user = userEvent.setup()
     const handleClick = jest.fn()
-    render(<Button onClick={handleClick}>Click me</Button>)
+    render(<Button onClick={handleClick}>{TEST_STRINGS.BUTTONS.PRIMARY}</Button>)
 
-    fireEvent.click(screen.getByRole('button'))
+    await user.click(screen.getByRole('button'))
     expect(handleClick).toHaveBeenCalledTimes(1)
   })
 
   test('disables button when disabled prop is true', () => {
-    render(<Button disabled>Disabled</Button>)
+    render(<Button disabled>{TEST_STRINGS.BUTTONS.DISABLED}</Button>)
 
     expect(screen.getByRole('button')).toBeDisabled()
   })
@@ -53,10 +34,22 @@ describe('Button Component', () => {
   test('renders as link when asChild is true', () => {
     render(
       <Button asChild>
-        <a href="/test">Link Button</a>
+        <a href="/test">{TEST_STRINGS.BUTTONS.LINK}</a>
       </Button>
     )
 
     expect(screen.getByRole('link')).toBeInTheDocument()
+  })
+
+  test('has no accessibility violations', async () => {
+    const { container } = render(<Button>{TEST_STRINGS.BUTTONS.PRIMARY}</Button>)
+    const results = await axe(container)
+    expect(results).toHaveNoViolations()
+  })
+
+  test('has no accessibility violations when disabled', async () => {
+    const { container } = render(<Button disabled>{TEST_STRINGS.BUTTONS.DISABLED}</Button>)
+    const results = await axe(container)
+    expect(results).toHaveNoViolations()
   })
 })

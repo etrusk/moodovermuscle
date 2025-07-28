@@ -1,15 +1,19 @@
 export const TEST_STRINGS = {
   BOOKING: {
     FORM_TITLE: /let's get to know you/i,
+    SUCCESS_MESSAGE: 'Booking successful!',
   },
   LABELS: {
     NAME: /name/i,
     EMAIL: /email/i,
+    PHONE: /phone/i,
   },
   BUTTONS: {
     PRIMARY: 'Click me',
     DISABLED: 'Disabled',
     LINK: 'Link',
+    CONTINUE: /continue/i,
+    SUBMIT: /submit/i,
   },
 } as const
 

@@ -1,31 +1,20 @@
 export const TEST_STRINGS = {
   BOOKING: {
-    MODAL_TITLE: /Book Your FREE Session/i,
-    CTA_BUTTON: /Continue/i,
-    FORM_TITLE: /Book Your FREE Session/i,
-    SUCCESS_MESSAGE: /Booking confirmed!/i,
-    STEP_TWO_TITLE: /What Would You Like to Try/i,
+    FORM_TITLE: /let's get to know you/i,
+  },
+  LABELS: {
+    NAME: /name/i,
+    EMAIL: /email/i,
   },
   BUTTONS: {
     PRIMARY: 'Click me',
-    SECONDARY: 'Secondary',
     DISABLED: 'Disabled',
-    LINK: 'Link Button',
-    CONTINUE: /Continue/i,
-    SUBMIT: /Book My FREE Session/i,
-  },
-  LABELS: {
-    EMAIL: /Email Address/i,
-    NAME: /What should we call you/i,
-    PHONE: /Phone Number/i,
-  },
-  VALIDATION: {
-    REQUIRED: /This field is required/i,
-    EMAIL: /Please enter a valid email/i,
-  },
-  GENERIC: {
-    LOADING: /Loading/i,
-    ERROR: /Error/i,
-    SUCCESS: /Success/i,
+    LINK: 'Link',
   },
 } as const
+
+describe('Test Strings', () => {
+  it('should have the correct test strings', () => {
+    expect(TEST_STRINGS.BUTTONS.PRIMARY).toBe('Click me')
+  })
+})

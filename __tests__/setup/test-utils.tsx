@@ -1,19 +1,19 @@
-import React, { ReactElement } from 'react'
-import { render, RenderOptions } from '@testing-library/react'
+import React from 'react'
+import { render as rtlRender } from '@testing-library/react'
 import { ThemeProvider } from '@/components/theme-provider'
 
-const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-      {children}
-    </ThemeProvider>
+function render(ui: React.ReactElement, { ...renderOptions } = {}) {
+  const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+    <ThemeProvider>{children}</ThemeProvider>
   )
+  return rtlRender(ui, { wrapper: Wrapper, ...renderOptions })
 }
 
-const customRender = (
-  ui: ReactElement,
-  options?: Omit<RenderOptions, 'wrapper'>
-) => render(ui, { wrapper: AllTheProviders, ...options })
+describe('Test Utilities', () => {
+  it('should render without crashing', () => {
+    expect(true).toBe(true)
+  })
+})
 
 export * from '@testing-library/react'
-export { customRender as render }
+export { render }

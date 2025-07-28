@@ -3,22 +3,197 @@ import { TextEncoder, TextDecoder } from 'util'
 global.TextEncoder = TextEncoder
 global.TextDecoder = TextDecoder
 
+// Polyfill BroadcastChannel for Node.js environment
+if (typeof global.BroadcastChannel === 'undefined') {
+  global.BroadcastChannel = class BroadcastChannel {
+    constructor(name) {
+      this.name = name
+    }
+
+    postMessage(_message) {
+      // Mock implementation for tests
+    }
+
+    close() {
+      // Mock implementation for tests
+    }
+
+    addEventListener(_type, _listener) {
+      // Mock implementation for tests
+    }
+
+    removeEventListener(_type, _listener) {
+      // Mock implementation for tests
+    }
+  }
+}
+
+// Polyfill TransformStream for Node.js environment
+if (typeof global.TransformStream === 'undefined') {
+  global.TransformStream = class TransformStream {
+    constructor(_transformer = {}) {
+      this.readable = new ReadableStream()
+      this.writable = new WritableStream()
+    }
+  }
+}
+
+// Polyfill ReadableStream for Node.js environment
+if (typeof global.ReadableStream === 'undefined') {
+  global.ReadableStream = class ReadableStream {
+    constructor(_underlyingSource = {}) {
+      this.locked = false
+    }
+
+    getReader() {
+      return {
+        read: () => Promise.resolve({ done: true, value: undefined }),
+        releaseLock: () => {},
+        cancel: () => Promise.resolve(),
+      }
+    }
+
+    cancel() {
+      return Promise.resolve()
+    }
+  }
+}
+
+// Polyfill WritableStream for Node.js environment
+if (typeof global.WritableStream === 'undefined') {
+  global.WritableStream = class WritableStream {
+    constructor(_underlyingSink = {}) {
+      this.locked = false
+    }
+
+    getWriter() {
+      return {
+        write: () => Promise.resolve(),
+        close: () => Promise.resolve(),
+        abort: () => Promise.resolve(),
+        releaseLock: () => {},
+      }
+    }
+
+    abort() {
+      return Promise.resolve()
+    }
+  }
+}
+
 // Polyfill Response for Node.js environment
 if (typeof global.Response === 'undefined') {
   global.Response = class Response {
-    constructor(body, init) {
+    constructor(body, init = {}) {
       this.body = body
-      this.status = init?.status || 200
-      this.statusText = init?.statusText || 'OK'
-      this.headers = new Map(Object.entries(init?.headers || {}))
+      this.status = init.status || 200
+      this.statusText = init.statusText || 'OK'
+      this.headers = new Map(Object.entries(init.headers || {}))
+      this.ok = this.status >= 200 && this.status < 300
+      this.redirected = false
+      this.type = 'basic'
+      this.url = ''
     }
 
     json() {
-      return Promise.resolve(JSON.parse(this.body))
+      return Promise.resolve(
+        typeof this.body === 'string' ? JSON.parse(this.body) : this.body
+      )
     }
 
     text() {
-      return Promise.resolve(this.body)
+      return Promise.resolve(
+        typeof this.body === 'string' ? this.body : JSON.stringify(this.body)
+      )
+    }
+
+    arrayBuffer() {
+      return Promise.resolve(new ArrayBuffer(0))
+    }
+
+    blob() {
+      return Promise.resolve(new Blob([this.body]))
+    }
+
+    clone() {
+      return new Response(this.body, {
+        status: this.status,
+        statusText: this.statusText,
+        headers: Object.fromEntries(this.headers),
+      })
+    }
+  }
+}
+
+// Polyfill Request for Node.js environment
+if (typeof global.Request === 'undefined') {
+  global.Request = class Request {
+    constructor(input, init = {}) {
+      this.url = typeof input === 'string' ? input : input.url
+      this.method = init.method || 'GET'
+      this.headers = new Map(Object.entries(init.headers || {}))
+      this.body = init.body || null
+    }
+
+    json() {
+      return Promise.resolve(
+        typeof this.body === 'string' ? JSON.parse(this.body) : this.body
+      )
+    }
+
+    text() {
+      return Promise.resolve(
+        typeof this.body === 'string' ? this.body : JSON.stringify(this.body)
+      )
+    }
+
+    clone() {
+      return new Request(this.url, {
+        method: this.method,
+        headers: Object.fromEntries(this.headers),
+        body: this.body,
+      })
+    }
+  }
+}
+
+// Polyfill Headers for Node.js environment
+if (typeof global.Headers === 'undefined') {
+  global.Headers = class Headers {
+    constructor(init = {}) {
+      this.map = new Map(Object.entries(init))
+    }
+
+    get(name) {
+      return this.map.get(name.toLowerCase())
+    }
+
+    set(name, value) {
+      this.map.set(name.toLowerCase(), value)
+    }
+
+    has(name) {
+      return this.map.has(name.toLowerCase())
+    }
+
+    delete(name) {
+      this.map.delete(name.toLowerCase())
+    }
+
+    entries() {
+      return this.map.entries()
+    }
+
+    keys() {
+      return this.map.keys()
+    }
+
+    values() {
+      return this.map.values()
+    }
+
+    [Symbol.iterator]() {
+      return this.map[Symbol.iterator]()
     }
   }
 }
@@ -119,15 +294,5 @@ global.console = {
   error: jest.fn(),
 }
 
-// Temporarily disable MSW to test other functionality
-// import { server } from './__tests__/setup/server'
-
-// // Establish API mocking before all tests.
-// beforeAll(() => server.listen())
-
-// // Reset any request handlers that we may add during the tests,
-// // so they don't affect other tests.
-// afterEach(() => server.resetHandlers())
-
-// // Clean up after the tests are finished.
-// afterAll(() => server.close())
+// MSW setup is now handled in a separate file (__tests__/setup/msw-setup.js)
+// This ensures polyfills are loaded before MSW is imported

@@ -8,10 +8,12 @@ const createJestConfig = nextJest({
 const customJestConfig: Config = {
   coverageProvider: 'v8',
   testEnvironment: 'jsdom',
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  setupFilesAfterEnv: [
+    '<rootDir>/jest.setup.js',
+    '<rootDir>/__tests__/setup/msw-setup.js'
+  ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
-    '^msw/node$': '<rootDir>/node_modules/msw/lib/node/index.js',
   },
   testPathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/node_modules/'],
   collectCoverageFrom: [
@@ -34,8 +36,11 @@ const customJestConfig: Config = {
     },
   },
   transformIgnorePatterns: [
-    '/node_modules/(?!(msw|@mswjs|@bundled-es-modules)/)',
+    '/node_modules/(?!(msw|@mswjs)/)',
   ],
+  testEnvironmentOptions: {
+    customExportConditions: ['node', 'node-addons'],
+  },
 }
 
 export default createJestConfig(customJestConfig)

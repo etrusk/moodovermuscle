@@ -70,3 +70,5 @@ public/placeholder*
 *_IMPLEMENTATION*.md
 test-*.txt
 temp-*.md
+
+/lib/generated/prisma

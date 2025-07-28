@@ -17,6 +17,10 @@
     "react/prop-types": "off",
     "jsx-a11y/anchor-is-valid": "off"
   },
+  "ignorePatterns": [
+    "lib/generated/prisma/**/*.js",
+    "lib/generated/prisma/**/*.ts"
+  ],
   "settings": {
     "react": {
       "version": "detect"

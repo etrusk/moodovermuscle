@@ -34,6 +34,7 @@ type SidebarContext = {
   setOpenMobile: (open: boolean) => void
   isMobile: boolean
   toggleSidebar: () => void
+  sidebarId: string
 }
 
 const SidebarContext = React.createContext<SidebarContext | null>(null)
@@ -67,6 +68,7 @@ const SidebarProvider = React.forwardRef<
     },
     ref
   ) => {
+    const sidebarId = React.useId()
     const isMobile = useIsMobile()
     const [openMobile, setOpenMobile] = React.useState(false)
 
@@ -74,6 +76,26 @@ const SidebarProvider = React.forwardRef<
     // We use openProp and setOpenProp for control from outside the component.
     const [_open, _setOpen] = React.useState(defaultOpen)
     const open = openProp ?? _open
+
+    React.useEffect(() => {
+      // This effect should only run on the client, after hydration.
+      // It reads the cookie and sets the initial state of the sidebar.
+      // This might cause a flicker on the initial load, which can be avoided
+      // by reading the cookie on the server and passing the `defaultOpen` prop.
+      if (typeof window !== "undefined" && openProp === undefined) {
+        try {
+          const cookieValue = document.cookie
+            .split("; ")
+            .find((row) => row.startsWith(`${SIDEBAR_COOKIE_NAME}=`))
+            ?.split("=")[1]
+
+          if (cookieValue !== undefined) _setOpen(cookieValue === "true")
+        } catch (error) {
+          console.error("Failed to parse sidebar cookie:", error)
+        }
+      }
+    }, [openProp])
+
     const setOpen = React.useCallback(
       (value: boolean | ((value: boolean) => boolean)) => {
         const openState = typeof value === "function" ? value(open) : value
@@ -84,7 +106,7 @@ const SidebarProvider = React.forwardRef<
         }
 
         // This sets the cookie to keep the sidebar state.
-        document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
+        document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}; SameSite=Lax; Secure`
       },
       [setOpenProp, open]
     )
@@ -125,13 +147,27 @@ const SidebarProvider = React.forwardRef<
         openMobile,
         setOpenMobile,
         toggleSidebar,
+        sidebarId,
       }),
-      [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
+      [
+        state,
+        open,
+        setOpen,
+        isMobile,
+        openMobile,
+        setOpenMobile,
+        toggleSidebar,
+        sidebarId,
+      ]
     )
 
     return (
       <SidebarContext.Provider value={contextValue}>
         <TooltipProvider delayDuration={0}>
+          {/* Visually hidden component for screen reader announcements */}
+          <div className="sr-only" aria-live="polite">
+            {state === "expanded" ? "Sidebar expanded" : "Sidebar collapsed"}
+          </div>
           <div
             style={
               {
@@ -175,11 +211,13 @@ const Sidebar = React.forwardRef<
     },
     ref
   ) => {
-    const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
+    const { isMobile, state, openMobile, setOpenMobile, sidebarId } =
+      useSidebar()
 
     if (collapsible === "none") {
       return (
         <div
+          id={sidebarId}
           className={cn(
             "flex h-full w-[--sidebar-width] flex-col bg-sidebar text-sidebar-foreground",
             className
@@ -196,6 +234,7 @@ const Sidebar = React.forwardRef<
       return (
         <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
           <SheetContent
+            id={sidebarId}
             data-sidebar="sidebar"
             data-mobile="true"
             className="w-[--sidebar-width] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
@@ -214,6 +253,7 @@ const Sidebar = React.forwardRef<
 
     return (
       <div
+        id={sidebarId}
         ref={ref}
         className="group peer hidden md:block text-sidebar-foreground"
         data-state={state}
@@ -263,11 +303,13 @@ const SidebarTrigger = React.forwardRef<
   React.ElementRef<typeof Button>,
   React.ComponentProps<typeof Button>
 >(({ className, onClick, ...props }, ref) => {
-  const { toggleSidebar } = useSidebar()
+  const { toggleSidebar, open, sidebarId } = useSidebar()
 
   return (
     <Button
       ref={ref}
+      aria-controls={sidebarId}
+      aria-expanded={open}
       data-sidebar="trigger"
       variant="ghost"
       size="icon"
@@ -288,16 +330,17 @@ SidebarTrigger.displayName = "SidebarTrigger"
 const SidebarRail = React.forwardRef<
   HTMLButtonElement,
   React.ComponentProps<"button">
->(({ className, ...props }, ref) => {
-  const { toggleSidebar } = useSidebar()
+>(({ className, onClick, ...props }, ref) => {
+  const { toggleSidebar, open, sidebarId } = useSidebar()
 
   return (
     <button
       ref={ref}
       data-sidebar="rail"
       aria-label="Toggle Sidebar"
-      tabIndex={-1}
-      onClick={toggleSidebar}
+      aria-controls={sidebarId}
+      aria-expanded={open}
+      tabIndex={0}
       title="Toggle Sidebar"
       className={cn(
         "absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] hover:after:bg-sidebar-border group-data-[side=left]:-right-4 group-data-[side=right]:left-0 sm:flex",
@@ -308,6 +351,10 @@ const SidebarRail = React.forwardRef<
         "[[data-side=right][data-collapsible=offcanvas]_&]:-left-2",
         className
       )}
+      onClick={(event) => {
+        onClick?.(event)
+        toggleSidebar()
+      }}
       {...props}
     />
   )

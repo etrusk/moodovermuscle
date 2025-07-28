@@ -1,4 +1,62 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-pnpm test
+# --- Pre-push Hook ---
+# This hook runs before a push to ensure code quality.
+# It includes type checking, linting, testing, and build validation.
+
+# Function to print colored messages
+print_info() {
+  # (macOS compatibility)
+  if command -v tput >/dev/null && tput setaf 1 >/dev/null 2>&1; then
+    echo "$(tput setaf 6)INFO: $1$(tput sgr0)"
+  else
+    echo "INFO: $1"
+  fi
+}
+
+print_error() {
+  if command -v tput >/dev/null && tput setaf 1 >/dev/null 2>&1; then
+    echo "$(tput setaf 1)ERROR: $1$(tput sgr0)"
+  else
+    echo "ERROR: $1"
+  fi
+}
+
+print_success() {
+    if command -v tput >/dev/null && tput setaf 1 >/dev/null 2>&1; then
+        echo "$(tput setaf 2)$1$(tput sgr0)"
+    else
+        echo "$1"
+    fi
+}
+
+# Exit immediately if a command exits with a non-zero status.
+set -e
+
+# --- Running checks ---
+print_info "Running pre-push hook..."
+
+# 1. Run Type Checking
+print_info "Running type checking..."
+pnpm type-check || { print_error "Type checking failed."; exit 1; }
+print_success "Type checking passed."
+
+# 2. Run Linting
+print_info "Running linter..."
+pnpm lint || { print_error "Linting failed."; exit 1; }
+print_success "Linting passed."
+
+# 3. Run Tests
+print_info "Running tests..."
+pnpm test || { print_error "Tests failed."; exit 1; }
+print_success "Tests passed."
+
+# 4. Run Build Validation
+print_info "Running build validation..."
+pnpm build-validate || { print_error "Build validation failed."; exit 1; }
+print_success "Build validation passed."
+
+print_success "All pre-push checks passed. Pushing to remote..."
+
+exit 0

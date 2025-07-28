@@ -2,20 +2,17 @@
 
 ## Overview
 
-This document outlines the comprehensive deployment strategy for the MoodOverMuscle fitness website, a Next.js application deployed on Vercel. It covers environment-specific deployment processes, zero-downtime deployment strategies, rollback procedures, and optimization techniques aligned with 2025 best practices.
+This document outlines the deployment strategy for the MoodOverMuscle fitness website, a Next.js application deployed on Vercel. It focuses on a two-environment model (Production and Preview) to support a fast and reliable continuous deployment pipeline.
 
 ## Table of Contents
 
-1. [Architecture Overview](#architecture-overview)
-2. [Environment Strategy](#environment-strategy)
-3. [Deployment Process](#deployment-process)
-4. [Environment Management](#environment-management)
-5. [Performance Optimization](#performance-optimization)
-6. [Security Configuration](#security-configuration)
-7. [Monitoring and Alerting](#monitoring-and-alerting)
-8. [Deployment Automation](#deployment-automation)
-9. [Troubleshooting Guide](#troubleshooting-guide)
-10. [Documentation Maintenance](#documentation-maintenance)
+1. [Environment Strategy](#1-environment-strategy)
+2. [Deployment Process](#2-deployment-process)
+3. [Performance Optimization](#3-performance-optimization)
+4. [Security Configuration](#4-security-configuration)
+5. [Monitoring and Alerting](#5-monitoring-and-alerting)
+6. [Deployment Automation](#6-deployment-automation)
+7. [Troubleshooting Guide](#7-troubleshooting-guide)
 
 ---
 
@@ -27,343 +24,68 @@ This document outlines the comprehensive deployment strategy for the MoodOverMus
 
 ---
 
-## Architecture Overview
+## 1. Environment Strategy
 
-### Technology Stack
-- **Frontend Framework**: Next.js 15.2.4 (App Router)
-- **Deployment Platform**: Vercel
-- **Package Manager**: pnpm
-- **Build Tool**: Next.js Build System
-- **CDN**: Vercel Edge Network
-- **Monitoring**: Vercel Analytics & Speed Insights
+Our deployment strategy is centered around a two-environment model, powered by Vercel.
 
-### Infrastructure Components
-- **Primary Domain**: `moodovermuscle.com.au`
-- **CDN Distribution**: Global Vercel Edge Network
-- **SSL Certificate**: Automatic Let's Encrypt via Vercel
-- **DNS Provider**: Cloudflare (recommended)
-
-## Environment Strategy
-
-### Environment Overview
-
-| Environment | Branch | URL | Purpose | Auto-deploy |
-|-------------|---------|-----|---------|-------------|
-| Production | `main` | https://moodovermuscle.com.au | Live site | ✅ |
-| Staging | `develop` | https://staging.moodovermuscle.com.au | Pre-production testing | ✅ |
-| Preview | PR branches | `*.vercel.app` | Feature testing | ✅ |
-| Development | Local | http://localhost:3000 | Local development | ❌ |
+| Environment | Trigger | URL | Purpose |
+|-------------|------------------|------------------------------------|-----------------------|
+| **Production** | Push to `main` | https://moodovermuscle.com.au | The live customer-facing website. |
+| **Preview** | Pull Request | `[branch-name].vercel.app` | Isolated environments for testing and reviewing new features. |
 
 ### Environment Configuration
 
-#### Production Environment
-```bash
-# Environment Variables
-NEXT_PUBLIC_ENV=production
-NEXT_PUBLIC_SITE_URL=https://moodovermuscle.com.au
-NEXT_PUBLIC_ENABLE_ANALYTICS=true
-NEXT_PUBLIC_ENABLE_DEBUG_MODE=false
-```
+Vercel automatically manages environment variables for production and preview deployments.
 
-#### Staging Environment
-```bash
-# Environment Variables
-NEXT_PUBLIC_ENV=staging
-NEXT_PUBLIC_SITE_URL=https://staging.moodovermuscle.com.au
-NEXT_PUBLIC_ENABLE_ANALYTICS=true
-NEXT_PUBLIC_ENABLE_DEBUG_MODE=true
-```
+- **Production**: Uses `production` environment variables defined in `vercel.json` and the Vercel dashboard.
+- **Preview**: Uses `preview` environment variables, inheriting from production where not specified.
 
-## Deployment Process
+## 2. Deployment Process
 
-### Pre-deployment Checklist
+### Automated Deployments with Vercel
 
-#### Code Quality Gates
-- [ ] All tests pass (`pnpm test:ci`)
-- [ ] Type checking passes (`pnpm type-check`)
-- [ ] Linting passes (`pnpm lint`)
-- [ ] Build validation passes (`pnpm build-validate`)
-- [ ] Lighthouse CI passes (`pnpm lighthouse:ci`)
-
-#### Security Checks
-- [ ] No sensitive data in environment variables
-- [ ] Dependencies scanned for vulnerabilities
-- [ ] Security headers configured
-- [ ] SSL certificate valid
-
-#### Performance Checks
-- [ ] Bundle size analysis completed
-- [ ] Core Web Vitals within acceptable ranges
-- [ ] Image optimization verified
-- [ ] CDN configuration validated
-
-### Deployment Pipeline
-
-#### 1. Automated CI/CD Pipeline
-```yaml
-# Triggered on push to main/develop branches
-on:
-  push:
-    branches: [main, develop]
-  pull_request:
-    branches: [main, develop]
-```
-
-#### 2. Build Process
-```bash
-# Automated build steps
-pnpm install --frozen-lockfile
-pnpm type-check
-pnpm lint
-pnpm test:ci
-pnpm build
-pnpm build-validate
-```
-
-#### 3. Deployment Steps
-```bash
-# Vercel deployment
-vercel --prod --token=$VERCEL_TOKEN
-```
-
-### Zero-Downtime Deployment Strategy
-
-#### Blue-Green Deployment Pattern
-1. **Build Phase**: Create new deployment artifact
-2. **Validation Phase**: Run health checks on new deployment
-3. **Traffic Switch**: Gradually shift traffic using Vercel's edge network
-4. **Monitoring Phase**: Monitor error rates and performance metrics
-5. **Cleanup Phase**: Remove old deployment if successful
-
-#### Feature Flag Deployment
-```javascript
-// Example feature flag implementation
-const features = {
-  newBookingSystem: process.env.NEXT_PUBLIC_ENABLE_NEW_BOOKING === 'true',
-  enhancedAnalytics: process.env.NEXT_PUBLIC_ENABLE_ENHANCED_ANALYTICS === 'true'
-};
-```
+1.  **Pull Request**: When a pull request is opened, Vercel automatically builds the changes and deploys them to a unique **Preview URL**.
+2.  **CI Checks**: Our GitHub Actions workflow runs a series of checks (linting, testing, build validation) on the PR.
+3.  **Merge**: Once the PR is approved and all checks pass, it is merged into `main`.
+4.  **Production Deployment**: The merge to `main` triggers a production deployment on Vercel.
 
 ### Rollback Procedures
 
-#### Automatic Rollback Triggers
-- Error rate > 1% for 5 minutes
-- Page load time > 3 seconds
-- Core Web Vitals degradation > 20%
-- Critical functionality failures
+Vercel provides instant rollbacks with a single click.
 
-#### Manual Rollback Process
-```bash
-# Immediate rollback to previous deployment
-vercel rollback production --token=$VERCEL_TOKEN
+1.  Navigate to the **Deployments** tab in the Vercel dashboard.
+2.  Select the deployment you want to restore.
+3.  Click the **Redeploy** button.
 
-# Or via Vercel dashboard
-# Go to Deployments → Select previous deployment → Promote to Production
-```
+## 3. Performance Optimization
 
-#### Rollback Verification
-1. Verify rollback deployment is active
-2. Run health checks on rolled-back version
-3. Monitor error rates for 15 minutes
-4. Notify stakeholders of rollback completion
+### Build & CDN
+- **Build Optimization**: Handled automatically by Next.js and Vercel.
+- **CDN**: Vercel’s Edge Network provides global content delivery.
+- **Image Optimization**: Automatic image optimization with Next.js.
 
-## Environment Management
-
-### Environment Variables Management
-
-#### Production Secrets
-```bash
-# Set via Vercel dashboard
-vercel env add NEXT_PUBLIC_SITE_URL production
-vercel env add CONTACT_FORM_ENDPOINT production
-```
-
-#### Environment Variable Validation
-```javascript
-// scripts/validate-env.js
-const requiredEnvVars = [
-  'NEXT_PUBLIC_SITE_URL',
-  'NEXT_PUBLIC_ENV',
-  'NEXT_PUBLIC_ENABLE_ANALYTICS'
-];
-```
-
-### Database Migration Strategy
-
-#### Migration Process
-1. **Backup**: Create database backup before migration
-2. **Staging**: Test migration on staging environment
-3. **Production**: Apply migration during low-traffic window
-4. **Verification**: Validate migration success
-5. **Rollback**: Prepare rollback script if needed
-
-#### Migration Scripts
-```sql
--- Example migration template
--- migrations/001_add_user_preferences.sql
-BEGIN;
--- Migration logic here
-COMMIT;
-```
-
-## Performance Optimization
-
-### Build Optimization
-
-#### Bundle Analysis
-```bash
-# Analyze bundle size
-pnpm build
-pnpm analyze
-```
-
-#### Code Splitting Strategy
-- Route-based code splitting (automatic with Next.js)
-- Component-level lazy loading
-- Third-party library optimization
-
-### CDN Configuration
-
-#### Vercel Edge Network
-- Automatic global CDN distribution
-- Static asset caching (images, CSS, JS)
-- API route edge caching
-- ISR (Incremental Static Regeneration)
-
-#### Cache Headers Configuration
-```javascript
-// next.config.mjs
-module.exports = {
-  async headers() {
-    return [
-      {
-        source: '/images/(.*)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable'
-          }
-        ]
-      }
-    ];
-  }
-};
-```
-
-## Security Configuration
+## 4. Security Configuration
 
 ### Security Headers
-```javascript
-// Security headers configured in vercel.json
-"headers": [
-  {
-    "source": "/(.*)",
-    "headers": [
-      { "key": "X-Content-Type-Options", "value": "nosniff" },
-      { "key": "X-Frame-Options", "value": "DENY" },
-      { "key": "X-XSS-Protection", "value": "1; mode=block" },
-      { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains; preload" }
-    ]
-  }
-]
-```
+Security headers are configured in `vercel.json` to protect against common web vulnerabilities.
 
-### SSL/TLS Configuration
-- Automatic SSL certificate provisioning
-- TLS 1.3 support
-- HSTS enabled
-- Certificate auto-renewal
+### SSL/TLS
+Vercel automatically provisions and renews SSL certificates for all domains.
 
-## Monitoring and Alerting
+## 5. Monitoring and Alerting
 
-### Application Monitoring
-- **Vercel Analytics**: Built-in performance monitoring
-- **Speed Insights**: Core Web Vitals tracking
-- **Error Tracking**: Sentry integration (optional)
+-   **Vercel Analytics**: Provides real-time performance and usage metrics.
+-   **GitHub Actions**: Monitors build and test failures.
+-   **Husky Hooks**: The `pre-push` hook runs quality checks before code is pushed, preventing broken builds.
 
-### Infrastructure Monitoring
-- **Uptime Monitoring**: Vercel status page
-- **Performance Monitoring**: Lighthouse CI
-- **Security Monitoring**: Dependabot alerts
+## 6. Deployment Automation
 
-## Deployment Automation
+The entire deployment process is automated through the **Vercel for GitHub** integration and our **GitHub Actions CI/CD workflow**.
 
-### GitHub Actions Workflow
-```yaml
-# .github/workflows/deploy.yml
-name: Deploy to Production
-on:
-  push:
-    branches: [main]
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm build
-      - uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prod'
-```
+## 7. Troubleshooting Guide
 
-### Deployment Scripts
-```json
-// package.json scripts
-{
-  "scripts": {
-    "pre-deploy": "pnpm run type-check && pnpm run build-validate && pnpm run build",
-    "deploy:staging": "vercel --staging",
-    "deploy:production": "vercel --prod"
-  }
-}
-```
-
-## Troubleshooting Guide
-
-### Common Deployment Issues
-
-#### Build Failures
-1. **Memory Issues**: Increase build memory limit
-2. **Dependency Conflicts**: Check package.json versions
-3. **TypeScript Errors**: Run `pnpm type-check`
-4. **Missing Environment Variables**: Verify all required vars
-
-#### Performance Issues
-1. **Slow Build Times**: Check bundle size, optimize imports
-2. **High Memory Usage**: Review image sizes, implement lazy loading
-3. **Slow API Responses**: Check database queries, implement caching
-
-### Emergency Procedures
-
-#### Incident Response
-1. **Immediate**: Assess impact and severity
-2. **Communication**: Notify stakeholders via incident channel
-3. **Investigation**: Identify root cause
-4. **Resolution**: Implement fix or rollback
-5. **Post-mortem**: Document lessons learned
-
-#### Contact Information
-- **Primary**: Development team Slack
-- **Secondary**: Email to dev@moodovermuscle.com.au
-- **Emergency**: Phone/SMS to on-call engineer
-
-## Documentation Maintenance
-
-### Update Schedule
-- **Monthly**: Review and update deployment procedures
-- **Quarterly**: Security audit and dependency updates
-- **Annually**: Complete strategy review and optimization
-
-### Change Management
-- All changes documented in CHANGELOG.md
-- Deployment procedures versioned in Git
-- Regular team training on new procedures
+- **Build Failures**: Check the Vercel deployment logs and GitHub Actions output for errors.
+- **Performance Issues**: Use Vercel's Speed Insights to identify and address performance bottlenecks.
 
 ---
 

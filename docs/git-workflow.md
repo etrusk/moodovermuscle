@@ -1,25 +1,21 @@
-# MoodOverMuscle Git Workflow & Branching Strategy
+# MoodOverMuscle Git Workflow: Simplified GitHub Flow
 
 ## Overview
 
-This document outlines the comprehensive Git workflow and branching strategy for the MoodOverMuscle fitness website project. The workflow is optimized for Next.js + Vercel deployment with a 3-phase implementation approach, supporting parallel development, quality gates, and continuous deployment.
+This document outlines the simplified and effective Git workflow for the MoodOverMuscle fitness website project. The workflow is based on **GitHub Flow**, optimized for Vercel deployments, and designed for continuous delivery, enabling rapid development and deployment while ensuring code quality.
 
 ## Table of Contents
 
-1. [Architecture Overview](#architecture-overview)
-2. [Branching Strategy: Enhanced GitHub Flow](#branching-strategy-enhanced-github-flow)
-3. [Branch Naming Conventions](#branch-naming-conventions)
-4. [Commit Message Standards](#commit-message-standards)
-5. [Pull Request Process](#pull-request-process)
-6. [Environment Branches Structure](#environment-branches-structure)
-7. [Merge Strategies](#merge-strategies)
-8. [Release Management](#release-management)
-9. [Hotfix Process](#hotfix-process)
-10. [CI/CD Pipeline](#cicd-pipeline)
-11. [Team Collaboration Guidelines](#team-collaboration-guidelines)
-12. [Getting Started](#getting-started)
-13. [Troubleshooting](#troubleshooting)
-14. [Summary](#summary)
+1. [Branching Strategy: GitHub Flow](#1-branching-strategy-github-flow)
+2. [Branch Naming Conventions](#2-branch-naming-conventions)
+3. [Commit Message Standards](#3-commit-message-standards)
+4. [Pull Request Process](#4-pull-request-process)
+5. [Branch Protection Rules](#5-branch-protection-rules)
+6. [Merge Strategy](#6-merge-strategy)
+7. [Hotfix Process](#7-hotfix-process)
+8. [CI/CD Pipeline](#8-cicd-pipeline)
+9. [Team Collaboration Guidelines](#9-team-collaboration-guidelines)
+10. [Getting Started](#10-getting-started)
 
 ---
 
@@ -31,43 +27,38 @@ This document outlines the comprehensive Git workflow and branching strategy for
 
 ---
 
-## Architecture Overview
+## 1. Branching Strategy: GitHub Flow
+
+The project follows **GitHub Flow**, a lightweight, branch-based workflow. The `main` branch is always deployable, and all new development is done on feature branches.
 
 ```mermaid
 graph TD
-    A[main] --> B[staging]
-    B --> C[develop]
-    C --> D[feature/xxx]
-    C --> E[bugfix/xxx]
-    C --> F[hotfix/xxx]
-    A --> G[release/v1.x.x]
-    G --> H[hotfix/xxx-prod]
+    A[main] --> B[feature/xxx]
+    B --> C[Pull Request]
+    C --> A
+    A --> D[Production Deployment]
     
     style A fill:#ff6b6b,stroke:#c92a2a
-    style B fill:#ffd43b,stroke:#fab005
-    style C fill:#51cf66,stroke:#2f9e44
-    style G fill:#339af0,stroke:#1864ab
-    style H fill:#ff6b6b,stroke:#c92a2a
+    style B fill:#51cf66,stroke:#2f9e44
+    style C fill:#ffd43b,stroke:#fab005
+    style D fill:#339af0,stroke:#1864ab
 ```
 
-## 1. Branching Strategy: Enhanced GitHub Flow
-
-### Core Branches
+### Core Branch
 
 | Branch | Purpose | Environment | Auto Deploy | Protection |
 |--------|---------|-------------|-------------|------------|
-| `main` | Production code | Production | ✅ Vercel Prod | ✅ Required reviews |
-| `staging` | Pre-production testing | Staging | ✅ Vercel Staging | ✅ Required reviews |
-| `develop` | Integration branch | Preview | ✅ Vercel Preview | ✅ Required reviews |
+| `main` | Production-ready code | Production | ✅ Vercel Prod | ✅ Required reviews |
 
 ### Supporting Branches
 
+All new work is done on descriptive branches, based off `main`.
+
 | Branch Type | Pattern | Base Branch | Purpose |
 |-------------|---------|-------------|---------|
-| Feature | `feature/[ticket]-[description]` | `develop` | New features |
-| Bugfix | `bugfix/[ticket]-[description]` | `develop` | Bug fixes |
-| Hotfix | `hotfix/[ticket]-[description]` | `main` | Production fixes |
-| Release | `release/v[major].[minor].[patch]` | `main` | Release preparation |
+| Feature | `feature/[ticket]-[description]` | `main` | New features |
+| Bugfix | `bugfix/[ticket]-[description]` | `main` | Non-urgent bug fixes |
+| Hotfix | `hotfix/[ticket]-[description]` | `main` | Urgent production fixes |
 
 ## 2. Branch Naming Conventions
 
@@ -90,12 +81,6 @@ hotfix/MOM-300-fix-payment-gateway
 hotfix/MOM-301-urgent-security-patch
 ```
 
-### Release Branches
-```
-release/v1.0.0
-release/v1.1.0
-release/v1.2.0
-```
 
 ## 3. Commit Message Standards
 
@@ -211,242 +196,106 @@ Explanation of the fix
 - [ ] **Documentation**: Updated README and comments
 
 #### Required Approvals
-- **Feature branches**: 2 approvals (1 technical + 1 product)
-- **Bugfix branches**: 1 approval (technical)
-- **Hotfix branches**: 1 approval (emergency process)
-- **Release branches**: 3 approvals (technical + product + QA)
+- **All branches**: 1 approval from a team member.
+- **Hotfix branches**: 1 approval, but can be merged by the author in an emergency.
 
-## 5. Environment Branches Structure
+## 5. Branch Protection Rules
 
-### Development Flow
+#### `main` Branch
+- **Required Approvals**: 1
+- **Required Status Checks**:
+  - `lint-and-typecheck`
+  - `test`
+  - `build`
+  - `size-check`
+  - `lighthouse`
+- **Restrict force pushes**: Enabled
+- **Require branches to be up-to-date**: Enabled
 
-```mermaid
-graph LR
-    A[Local Development] --> B[Feature Branch]
-    B --> C[Pull Request]
-    C --> D[Develop Branch]
-    D --> E[Staging Branch]
-    E --> F[Main Branch]
-    F --> G[Production]
-    
-    style A fill:#74c0fc,stroke:#339af0
-    style B fill:#51cf66,stroke:#2f9e44
-    style C fill:#ffd43b,stroke:#fab005
-    style D fill:#51cf66,stroke:#2f9e44
-    style E fill:#ffd43b,stroke:#fab005
-    style F fill:#ff6b6b,stroke:#c92a2a
-    style G fill:#ff6b6b,stroke:#c92a2a
-```
+## 6. Merge Strategy
 
-### Branch Protection Rules
+**Squash and Merge** is the recommended merge strategy. This practice keeps the `main` branch history clean and focused, with each commit representing a complete feature or fix.
 
-#### Main Branch
-- Require pull request reviews: 2
-- Require status checks: ✅
-- Require branches to be up to date: ✅
-- Include administrators: ✅
-- Restrict pushes: ✅
-
-#### Staging Branch
-- Require pull request reviews: 1
-- Require status checks: ✅
-- Require branches to be up to date: ✅
-
-#### Develop Branch
-- Require pull request reviews: 1
-- Require status checks: ✅
-
-## 6. Merge Strategies
-
-### When to Use Each Strategy
-
-| Strategy | Use Case | Command | Example |
-|----------|----------|---------|---------|
-| **Merge Commit** | Preserving history | `git merge --no-ff` | Feature integration |
-| **Squash** | Clean history | `git merge --squash` | Small feature branches |
-| **Rebase** | Linear history | `git rebase` | Personal branches |
-
-### Merge Strategy Decision Tree
-
-```mermaid
-graph TD
-    A[Branch Type] --> B{Feature Branch?}
-    B -->|Yes| C{Multiple Commits?}
-    C -->|Yes| D[Squash Merge]
-    C -->|No| E[Merge Commit]
-    B -->|No| F{Hotfix Branch?}
-    F -->|Yes| G[Merge Commit]
-    F -->|No| H[Rebase]
-```
-
-## 7. Release Management
-
-### Semantic Versioning
-- **MAJOR**: Breaking changes (v1.0.0 → v2.0.0)
-- **MINOR**: New features (v1.0.0 → v1.1.0)
-- **PATCH**: Bug fixes (v1.0.0 → v1.0.1)
-
-### Release Process
-
-#### Phase 1: Core Enhancement (v1.0.x)
-- Performance optimization
-- Mobile responsiveness
-- Booking system enhancements
-
-#### Phase 2: Advanced Features (v1.1.x)
-- Client portal
-- Blog section
-- Advanced booking features
-
-#### Phase 3: Scaling (v1.2.x)
-- E-commerce integration
-- Community features
-- Advanced analytics
-
-### Release Checklist
-- [ ] All features tested on staging
-- [ ] Performance benchmarks met
-- [ ] Security scan passed
-- [ ] Accessibility audit completed
-- [ ] SEO validation passed
-- [ ] Backup verification completed
-- [ ] Rollback plan documented
-
-## 8. Hotfix Process
+## 7. Hotfix Process
 
 ### Emergency Fix Workflow
 
 ```mermaid
 graph LR
-    A[Production Issue] --> B[Create Hotfix Branch]
-    B --> C[Fix & Test]
-    C --> D[PR to Main]
+    A[Production Issue] --> B[Create Hotfix Branch from main]
+    B --> C[Implement & Test Fix]
+    C --> D[PR to main]
     D --> E[Deploy to Production]
-    E --> F[Merge to Develop]
     
     style A fill:#ff6b6b,stroke:#c92a2a
     style B fill:#ffd43b,stroke:#fab005
     style C fill:#51cf66,stroke:#2f9e44
     style D fill:#ff6b6b,stroke:#c92a2a
     style E fill:#ff6b6b,stroke:#c92a2a
-    style F fill:#51cf66,stroke:#2f9e44
 ```
 
 ### Hotfix Process Steps
-1. **Identify Issue**: Critical production bug
-2. **Create Branch**: `hotfix/MOM-XXX-description`
-3. **Implement Fix**: Minimal, targeted change
-4. **Test Fix**: Verify on staging
-5. **Deploy**: Direct to production
-6. **Merge Back**: Ensure develop has fix
+1.  **Identify Issue**: A critical bug is reported on production.
+2.  **Create Branch**: Create a `hotfix` branch directly from `main`.
+3.  **Implement Fix**: Write the code to fix the bug.
+4.  **Test**: Thoroughly test the fix in a preview environment.
+5.  **Deploy**: Merge the PR into `main`, which automatically deploys to production.
 
 ### Hotfix Criteria
 - **Security vulnerabilities**
-- **Payment processing issues**
-- **Booking system failures**
-- **Critical UI bugs affecting conversions**
+- **Data corruption issues**
+- **Critical functionality failures (e.g., payment, booking)**
 
-## 9. CI/CD Pipeline
+## 8. CI/CD Pipeline
 
-### GitHub Actions Workflow
+The CI/CD pipeline is managed by GitHub Actions and Vercel.
 
-```yaml
-name: CI/CD Pipeline
-on:
-  push:
-    branches: [main, staging, develop]
-  pull_request:
-    branches: [main, staging, develop]
+### GitHub Actions Workflow (`.github/workflows/ci.yml`)
+- **Triggers**: Pushes and pull requests to `main`.
+- **Jobs**:
+    - `lint-and-typecheck`: Ensures code quality.
+    - `test`: Runs unit and integration tests.
+    - `build`: Validates that the application builds successfully.
+    - `size-check`: Monitors the application's bundle size.
+    - `lighthouse`: Audits performance, accessibility, and SEO.
 
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v2
-      - name: Run tests
-        run: |
-          pnpm install
-          pnpm run type-check
-          pnpm run lint
-          pnpm run build-validate
-```
+### Vercel Deployments
+- **Production**: Every push to `main` is automatically deployed to production.
+- **Preview**: Every pull request creates a unique preview deployment.
 
-### Deployment Pipeline
-1. **Feature Branch**: Vercel Preview Deployment
-2. **Develop Branch**: Vercel Preview Deployment
-3. **Staging Branch**: Vercel Staging Deployment
-4. **Main Branch**: Vercel Production Deployment
-
-## 10. Team Collaboration Guidelines
+## 9. Team Collaboration Guidelines
 
 ### Daily Workflow
-1. **Morning**: Pull latest from `develop`
-2. **Development**: Work on feature branch
-3. **Testing**: Test on local environment
-4. **PR**: Create pull request with template
-5. **Review**: Code review and approval
-6. **Deploy**: Merge and deploy to staging
+1.  **Sync**: Pull the latest changes from `main`.
+2.  **Branch**: Create a new feature or bugfix branch.
+3.  **Develop**: Implement and test changes locally.
+4.  **Commit**: Use conventional commit messages.
+5.  **Push**: Push the branch to GitHub.
+6.  **Pull Request**: Open a PR against `main` for review.
 
-### Communication Channels
-- **GitHub Issues**: Bug reports and feature requests
-- **Pull Requests**: Code reviews and discussions
-- **Slack/Discord**: Daily communication
-- **Weekly Sync**: Sprint planning and retrospectives
+## 10. Getting Started
 
-### Code Review Guidelines
-- **Be constructive**: Provide helpful feedback
-- **Be specific**: Point to exact lines
-- **Be timely**: Review within 24 hours
-- **Be respectful**: Focus on code, not person
-
-## 11. Getting Started
-
-### Initial Setup
 ```bash
-# Clone repository
+# 1. Clone the repository
 git clone https://github.com/etrusk/moodovermuscle.git
 cd moodovermuscle
 
-# Install dependencies
+# 2. Install dependencies
 pnpm install
 
-# Create feature branch
-git checkout -b feature/MOM-123-description
+# 3. Create a feature branch from main
+git checkout main
+git pull
+git checkout -b feature/MOM-123-new-feature-name
 
-# Make changes and commit
+# 4. Make changes, commit, and push
 git add .
-git commit -m "feat(scope): description"
+git commit -m "feat(new-feature): implement new functionality"
+git push origin feature/MOM-123-new-feature-name
 
-# Push and create PR
-git push origin feature/MOM-123-description
+# 5. Open a Pull Request in GitHub
 ```
-
-### Branch Setup Commands
-```bash
-# Set up branch protection (admin only)
-git branch -u origin/develop develop
-git branch -u origin/staging staging
-git branch -u origin/main main
-```
-
-## 12. Troubleshooting
-
-### Common Issues
-- **Merge conflicts**: Use `git mergetool` or VS Code merge editor
-- **Failed builds**: Check Vercel deployment logs
-- **Missing dependencies**: Run `pnpm install`
-- **Type errors**: Run `pnpm run type-check`
-
-### Emergency Contacts
-- **Technical Lead**: [Contact info]
-- **DevOps**: [Contact info]
-- **Product Owner**: [Contact info]
-
----
 
 ## Summary
 
-This Git workflow is designed to support the MoodOverMuscle project's 3-phase implementation approach while maintaining code quality, enabling parallel development, and ensuring smooth deployments. The workflow scales from solo development to team collaboration and supports continuous deployment requirements.
-
-For questions or clarifications, please refer to the project documentation or contact the technical team.
+This simplified GitHub Flow is designed for efficiency and speed, ensuring that the `main` branch is always stable and deployable. By leveraging feature branches and Vercel's preview deployments, we can develop, review, and deploy with confidence.

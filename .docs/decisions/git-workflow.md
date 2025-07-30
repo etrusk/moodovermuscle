@@ -20,6 +20,7 @@ This document outlines the simplified and effective Git workflow for the MoodOve
 ---
 
 **Document Information**
+
 - **Last Updated**: 2025-07-27
 - **Version**: 1.0
 - **Owner**: Development Team
@@ -37,7 +38,7 @@ graph TD
     B --> C[Pull Request]
     C --> A
     A --> D[Production Deployment]
-    
+
     style A fill:#ff6b6b,stroke:#c92a2a
     style B fill:#51cf66,stroke:#2f9e44
     style C fill:#ffd43b,stroke:#fab005
@@ -46,23 +47,24 @@ graph TD
 
 ### Core Branch
 
-| Branch | Purpose | Environment | Auto Deploy | Protection |
-|--------|---------|-------------|-------------|------------|
-| `main` | Production-ready code | Production | ✅ Vercel Prod | ✅ Required reviews |
+| Branch | Purpose               | Environment | Auto Deploy    | Protection          |
+| ------ | --------------------- | ----------- | -------------- | ------------------- |
+| `main` | Production-ready code | Production  | ✅ Vercel Prod | ✅ Required reviews |
 
 ### Supporting Branches
 
 All new work is done on descriptive branches, based off `main`.
 
-| Branch Type | Pattern | Base Branch | Purpose |
-|-------------|---------|-------------|---------|
-| Feature | `feature/[ticket]-[description]` | `main` | New features |
-| Bugfix | `bugfix/[ticket]-[description]` | `main` | Non-urgent bug fixes |
-| Hotfix | `hotfix/[ticket]-[description]` | `main` | Urgent production fixes |
+| Branch Type | Pattern                          | Base Branch | Purpose                 |
+| ----------- | -------------------------------- | ----------- | ----------------------- |
+| Feature     | `feature/[ticket]-[description]` | `main`      | New features            |
+| Bugfix      | `bugfix/[ticket]-[description]`  | `main`      | Non-urgent bug fixes    |
+| Hotfix      | `hotfix/[ticket]-[description]`  | `main`      | Urgent production fixes |
 
 ## 2. Branch Naming Conventions
 
 ### Feature Branches
+
 ```
 feature/MOM-123-add-calendar-integration
 feature/MOM-124-client-portal-dashboard
@@ -70,21 +72,23 @@ feature/MOM-125-blog-section
 ```
 
 ### Bugfix Branches
+
 ```
 bugfix/MOM-200-fix-mobile-booking-form
 bugfix/MOM-201-resolve-calendar-bug
 ```
 
 ### Hotfix Branches
+
 ```
 hotfix/MOM-300-fix-payment-gateway
 hotfix/MOM-301-urgent-security-patch
 ```
 
-
 ## 3. Commit Message Standards
 
 ### Conventional Commits Format
+
 ```
 <type>(<scope>): <subject>
 
@@ -94,6 +98,7 @@ hotfix/MOM-301-urgent-security-patch
 ```
 
 ### Types
+
 - **feat**: New feature
 - **fix**: Bug fix
 - **docs**: Documentation changes
@@ -105,6 +110,7 @@ hotfix/MOM-301-urgent-security-patch
 - **ci**: CI/CD changes
 
 ### Scopes
+
 - **booking**: Booking system
 - **calendar**: Calendar integration
 - **ui**: User interface
@@ -114,6 +120,7 @@ hotfix/MOM-301-urgent-security-patch
 - **deps**: Dependencies
 
 ### Examples
+
 ```
 feat(booking): add calendar integration with Google Calendar API
 
@@ -139,19 +146,24 @@ Fixes MOM-200
 ### PR Templates
 
 #### Feature PR Template
+
 ```markdown
 ## 🎯 Ticket Reference
+
 Fixes: MOM-XXX
 
 ## 📋 Description
+
 Brief description of the feature
 
 ## 🧪 Testing Instructions
+
 1. Navigate to [URL]
 2. Test [specific functionality]
 3. Verify [expected behavior]
 
 ## ✅ Checklist
+
 - [ ] Code follows style guidelines
 - [ ] Self-review completed
 - [ ] Tests added/updated
@@ -160,32 +172,40 @@ Brief description of the feature
 - [ ] Accessibility checked
 
 ## 📸 Screenshots
+
 [Add relevant screenshots]
 
 ## 🚨 Breaking Changes
+
 [Note any breaking changes]
 ```
 
 #### Bugfix PR Template
+
 ```markdown
 ## 🐛 Bug Description
+
 Brief description of the bug
 
 ## 🔧 Solution
+
 Explanation of the fix
 
 ## 🧪 Testing
+
 - [ ] Bug reproduction steps verified
 - [ ] Fix tested on staging
 - [ ] Regression testing completed
 
 ## 📊 Impact
+
 [Note any potential side effects]
 ```
 
 ### Review Requirements
 
 #### Code Review Checklist
+
 - [ ] **Functionality**: Does it work as expected?
 - [ ] **Performance**: No performance regressions
 - [ ] **Security**: No security vulnerabilities
@@ -196,12 +216,14 @@ Explanation of the fix
 - [ ] **Documentation**: Updated README and comments
 
 #### Required Approvals
+
 - **All branches**: 1 approval from a team member.
 - **Hotfix branches**: 1 approval, but can be merged by the author in an emergency.
 
 ## 5. Branch Protection Rules
 
 #### `main` Branch
+
 - **Required Approvals**: 1
 - **Required Status Checks**:
   - `lint-and-typecheck`
@@ -226,7 +248,7 @@ graph LR
     B --> C[Implement & Test Fix]
     C --> D[PR to main]
     D --> E[Deploy to Production]
-    
+
     style A fill:#ff6b6b,stroke:#c92a2a
     style B fill:#ffd43b,stroke:#fab005
     style C fill:#51cf66,stroke:#2f9e44
@@ -235,6 +257,7 @@ graph LR
 ```
 
 ### Hotfix Process Steps
+
 1.  **Identify Issue**: A critical bug is reported on production.
 2.  **Create Branch**: Create a `hotfix` branch directly from `main`.
 3.  **Implement Fix**: Write the code to fix the bug.
@@ -242,6 +265,7 @@ graph LR
 5.  **Deploy**: Merge the PR into `main`, which automatically deploys to production.
 
 ### Hotfix Criteria
+
 - **Security vulnerabilities**
 - **Data corruption issues**
 - **Critical functionality failures (e.g., payment, booking)**
@@ -251,21 +275,24 @@ graph LR
 The CI/CD pipeline is managed by GitHub Actions and Vercel.
 
 ### GitHub Actions Workflow (`.github/workflows/ci.yml`)
+
 - **Triggers**: Pushes and pull requests to `main`.
 - **Jobs**:
-    - `lint-and-typecheck`: Ensures code quality.
-    - `test`: Runs unit and integration tests.
-    - `build`: Validates that the application builds successfully.
-    - `size-check`: Monitors the application's bundle size.
-    - `lighthouse`: Audits performance, accessibility, and SEO.
+  - `lint-and-typecheck`: Ensures code quality.
+  - `test`: Runs unit and integration tests.
+  - `build`: Validates that the application builds successfully.
+  - `size-check`: Monitors the application's bundle size.
+  - `lighthouse`: Audits performance, accessibility, and SEO.
 
 ### Vercel Deployments
+
 - **Production**: Every push to `main` is automatically deployed to production.
 - **Preview**: Every pull request creates a unique preview deployment.
 
 ## 9. Team Collaboration Guidelines
 
 ### Daily Workflow
+
 1.  **Sync**: Pull the latest changes from `main`.
 2.  **Branch**: Create a new feature or bugfix branch.
 3.  **Develop**: Implement and test changes locally.

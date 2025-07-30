@@ -20,6 +20,7 @@ This document outlines security best practices and implementation strategies for
 ---
 
 **Document Information**
+
 - **Last Updated**: 2025-07-27
 - **Version**: 1.0
 - **Owner**: Security Team

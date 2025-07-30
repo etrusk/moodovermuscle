@@ -17,6 +17,7 @@ This document outlines the deployment strategy for the MoodOverMuscle fitness we
 ---
 
 **Document Information**
+
 - **Last Updated**: 2025-07-27
 - **Version**: 1.0
 - **Owner**: Development Team
@@ -28,10 +29,10 @@ This document outlines the deployment strategy for the MoodOverMuscle fitness we
 
 Our deployment strategy is centered around a two-environment model, powered by Vercel.
 
-| Environment | Trigger | URL | Purpose |
-|-------------|------------------|------------------------------------|-----------------------|
-| **Production** | Push to `main` | https://moodovermuscle.com.au | The live customer-facing website. |
-| **Preview** | Pull Request | `[branch-name].vercel.app` | Isolated environments for testing and reviewing new features. |
+| Environment    | Trigger        | URL                           | Purpose                                                       |
+| -------------- | -------------- | ----------------------------- | ------------------------------------------------------------- |
+| **Production** | Push to `main` | https://moodovermuscle.com.au | The live customer-facing website.                             |
+| **Preview**    | Pull Request   | `[branch-name].vercel.app`    | Isolated environments for testing and reviewing new features. |
 
 ### Environment Configuration
 
@@ -60,6 +61,7 @@ Vercel provides instant rollbacks with a single click.
 ## 3. Performance Optimization
 
 ### Build & CDN
+
 - **Build Optimization**: Handled automatically by Next.js and Vercel.
 - **CDN**: Vercel’s Edge Network provides global content delivery.
 - **Image Optimization**: Automatic image optimization with Next.js.
@@ -67,16 +69,18 @@ Vercel provides instant rollbacks with a single click.
 ## 4. Security Configuration
 
 ### Security Headers
+
 Security headers are configured in `vercel.json` to protect against common web vulnerabilities.
 
 ### SSL/TLS
+
 Vercel automatically provisions and renews SSL certificates for all domains.
 
 ## 5. Monitoring and Alerting
 
--   **Vercel Analytics**: Provides real-time performance and usage metrics.
--   **GitHub Actions**: Monitors build and test failures.
--   **Husky Hooks**: The `pre-push` hook runs quality checks before code is pushed, preventing broken builds.
+- **Vercel Analytics**: Provides real-time performance and usage metrics.
+- **GitHub Actions**: Monitors build and test failures.
+- **Husky Hooks**: The `pre-push` hook runs quality checks before code is pushed, preventing broken builds.
 
 ## 6. Deployment Automation
 

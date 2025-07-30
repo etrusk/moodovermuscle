@@ -4,10 +4,10 @@ import { Button } from '@/components/ui/button'
 import { CheckCircle, ChevronRight, Sparkles } from 'lucide-react'
 
 interface HeroSectionProps {
-  setIsBookingOpen: (isOpen: boolean) => void
+  onBookSessionClick: () => void
 }
 
-export function HeroSection({ setIsBookingOpen }: HeroSectionProps) {
+export function HeroSection({ onBookSessionClick }: HeroSectionProps) {
   return (
     <section
       className="section-height section-white w-full overflow-hidden relative bg-cover bg-center bg-no-repeat"
@@ -87,7 +87,7 @@ export function HeroSection({ setIsBookingOpen }: HeroSectionProps) {
             {/* CTA Buttons */}
             <div className="flex flex-col gap-3 md:gap-4 max-w-sm mx-auto lg:max-w-none lg:mx-0 animate-fade-in-up delay-600">
               <Button
-                onClick={() => setIsBookingOpen(true)}
+                onClick={onBookSessionClick}
                 size="lg"
                 className="bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white shadow-2xl hover:shadow-3xl transition-all duration-300 rounded-full px-6 md:px-10 py-5 md:py-7 text-lg md:text-xl font-bold hover:scale-105 w-full group pulse-glow"
               >

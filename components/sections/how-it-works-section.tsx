@@ -1,13 +1,15 @@
-"use client"
+'use client'
 
-import { Button } from "@/components/ui/button"
-import { Calendar } from "lucide-react"
+import { Button } from '@/components/ui/button'
+import { Calendar } from 'lucide-react'
 
 interface HowItWorksSectionProps {
-  setIsBookingOpen: (isOpen: boolean) => void
+  onBookSessionClick: () => void
 }
 
-export function HowItWorksSection({ setIsBookingOpen }: HowItWorksSectionProps) {
+export function HowItWorksSection({
+  onBookSessionClick,
+}: HowItWorksSectionProps) {
   return (
     <section className="section-height section-pink w-full">
       <div className="container px-4 md:px-6 max-w-7xl mx-auto section-inner mobile-px">
@@ -23,35 +25,37 @@ export function HowItWorksSection({ setIsBookingOpen }: HowItWorksSectionProps) 
 
         <div className="text-center mb-12">
           <p className="text-lg md:text-xl text-stone-700 max-w-3xl mx-auto">
-            Bringing feel-good fitness to your doorstep—from Maroochydore and Mudjimba to Buderim and Coolum—Mood
-            Over Muscle is your local Sunshine Coast M.O.M.unity.
+            Bringing feel-good fitness to your doorstep—from Maroochydore and
+            Mudjimba to Buderim and Coolum—Mood Over Muscle is your local
+            Sunshine Coast M.O.M.unity.
           </p>
         </div>
 
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 max-w-6xl mx-auto">
           {[
             {
-              step: "1",
-              title: "FREE Discovery Session",
+              step: '1',
+              title: 'FREE Discovery Session',
               description:
-                "We chat about your goals, challenges, and what you want to achieve. No pressure, just understanding.",
+                'We chat about your goals, challenges, and what you want to achieve. No pressure, just understanding.',
             },
             {
-              step: "2",
-              title: "Personalized Plan",
-              description: "I create a program specifically for you - your fitness level, schedule, and life circumstances.",
+              step: '2',
+              title: 'Personalized Plan',
+              description:
+                'I create a program specifically for you - your fitness level, schedule, and life circumstances.',
             },
             {
-              step: "3",
-              title: "Start Your Journey",
+              step: '3',
+              title: 'Start Your Journey',
               description:
                 "Begin with supportive guidance, whether 1-on-1, in small groups, or online. You're never alone!",
             },
             {
-              step: "4",
-              title: "Transform & Thrive",
+              step: '4',
+              title: 'Transform & Thrive',
               description:
-                "Watch as you become stronger, more confident, and connected with an amazing community of mums.",
+                'Watch as you become stronger, more confident, and connected with an amazing community of mums.',
             },
           ].map((step, index) => (
             <div
@@ -66,15 +70,19 @@ export function HowItWorksSection({ setIsBookingOpen }: HowItWorksSectionProps) 
                   <div className="hidden lg:block absolute top-8 left-full w-full h-0.5 bg-gradient-to-r from-rose-200 to-transparent"></div>
                 )}
               </div>
-              <h3 className="text-xl font-bold text-stone-900 mb-3">{step.title}</h3>
-              <p className="text-stone-600 leading-relaxed">{step.description}</p>
+              <h3 className="text-xl font-bold text-stone-900 mb-3">
+                {step.title}
+              </h3>
+              <p className="text-stone-600 leading-relaxed">
+                {step.description}
+              </p>
             </div>
           ))}
         </div>
 
         <div className="text-center mt-16">
           <Button
-            onClick={() => setIsBookingOpen(true)}
+            onClick={onBookSessionClick}
             className="bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white rounded-full px-8 py-4 text-lg font-medium shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
           >
             Start Step 1: Book Your FREE Session

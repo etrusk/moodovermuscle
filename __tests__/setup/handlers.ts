@@ -31,4 +31,21 @@ export const handlers = [
       }
     )
   }),
+  // Simulate network failure for specific test email
+  http.post('/api/book-session', async ({ request }) => {
+    const body = (await request.json()) as BookingRequestBody
+    if (body.email === 'network@example.com') {
+      throw new Error('Network error: failed to connect')
+    }
+    // Fallback to success if not network scenario
+    return new HttpResponse(
+      JSON.stringify({ message: TEST_STRINGS.BOOKING.SUCCESS_MESSAGE }),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    )
+  }),
 ]

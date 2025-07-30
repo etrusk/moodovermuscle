@@ -180,14 +180,14 @@ describe('Booking Form Component Integration Tests', () => {
 
   it('should validate required fields before submission', async () => {
     render(<BookingForm isOpen={true} onClose={() => {}} />)
-
-    // Try to submit without filling required fields
-    const submitButton = screen.getByRole('button', { name: /book my free session/i })
-    await user.click(submitButton)
-
-    // Should show validation errors without calling API
+  
+    // Try to proceed without filling required fields
+    const continueButton = screen.getByTestId('booking-form-continue-button')
+    await user.click(continueButton)
+  
+    // Should not call API on validation error
     expect(mockFetch).not.toHaveBeenCalled()
-    
+  
     // Check for validation messages
     await waitFor(() => {
       expect(screen.getByText(/name is required/i) || screen.getByText(/required/i)).toBeInTheDocument()
@@ -306,6 +306,10 @@ describe('Booking Form Component Integration Tests', () => {
 
   it('should handle form accessibility', async () => {
     render(<BookingForm isOpen={true} onClose={() => {}} />)
+
+    // Navigate to service selection step
+    const continueButton = screen.getByTestId('booking-form-continue-button')
+    await user.click(continueButton)
 
     // Check that form elements are properly labeled
     expect(screen.getByTestId('name-input')).toBeInTheDocument()

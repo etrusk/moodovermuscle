@@ -1,143 +1,229 @@
-# Orchestration Workflow
+# Agentic Orchestration Workflow
 
-## 1. Immediate Setup
+## Core Principles
 
-- Environment: `git status`, `git branch`, `pnpm dev`
-- Restore session: `source .docs/session-restore.sh`
-- Branch:
-  - `git checkout main && git pull`
-  - `git checkout -b feat/[task-name]`
-  - `git push -u origin feat/[task-name]`
-- Update [`.docs/current-task.md`](.docs/current-task.md:1)
+### 1. Documentation-First Approach
+- **Always consult relevant documentation before starting work**
+- Validate task scope against existing specifications
+- Ensure understanding of system constraints and architecture
+- Reference `.docs/current-task.md` for active scope and acceptance criteria
 
-## 2. Key Commands
+### 2. Task Decomposition
+- **Break complex tasks into small, coherent, well-defined units**
+- Each task should have clear acceptance criteria
+- Tasks must be atomic and independently testable
+- Delegate specialized work to appropriate modes
 
-| Phase    | Commands                                                              |
-| -------- | --------------------------------------------------------------------- |
-| RED      | `pnpm test:watch` → `git add . && git commit -m "test:…" && git push` |
-| GREEN    | `pnpm test` → `git add . && git commit -m "feat:…" && git push`       |
-| REFACTOR | `pnpm test` → `git add . && git commit -m "refactor:…" && git push`   |
+### 3. Test-Driven Development
+- **Tests come first in the development cycle**
+- Follow RED → GREEN → REFACTOR pattern religiously
+- Maintain comprehensive test coverage across all layers
+- Validate both functionality and non-functional requirements
 
-### Quality Gates
+### 4. Continuous Integration
+- **Frequent commits and pushes for rapid feedback**
+- Atomic commits with clear, descriptive messages
+- Push after each RED/GREEN/REFACTOR cycle
+- Maintain short-lived feature branches
 
-```bash
-pnpm lint
-pnpm type-check
-pnpm test
-pnpm test:e2e
-pnpm test:a11y
-pnpm build
-pnpm analyze
-```
+### 5. Quality Gates
+- **Automated validation at every step**
+- Never bypass quality checks
+- Address issues immediately when detected
+- Maintain high code quality standards
 
-## 3. Quality Gate Specifics
+## Workflow Patterns
 
-- Linting: `pnpm lint --fix` (`.eslintrc.json`)
-- Type checking: `pnpm type-check` (`tsconfig.json`)
-- Security scan: `pnpm audit` or `npm audit --audit-level=high`
-- Performance: `npx lighthouse http://localhost:3000 --view`
-- Bundle analysis: `pnpm analyze` (rollup-plugin-visualizer)
-- Accessibility: `pnpm test:a11y`
+### Phase 1: Task Initialization
+**Objective**: Establish context and prepare for development
 
-## 4. Documentation Integration
+**Validation Checkpoints**:
+- [ ] Current environment status verified
+- [ ] Relevant documentation consulted
+- [ ] Task scope clearly defined
+- [ ] Feature branch created and tracked
+- [ ] Session state restored if applicable
 
-Update if changes:
+**Key Activities**:
+- Review `.docs/current-task.md` for scope and acceptance criteria
+- Consult `.docs/architecture.md` for system constraints
+- Check `.docs/test-strategy.md` for testing patterns
+- Establish feature branch with descriptive naming
 
-- [`.docs/current-task.md`](.docs/current-task.md:1): scope, tickets, branch
-- [`.docs/architecture.md`](.docs/architecture.md:1): design diagrams, ADRs
-- [`.docs/api-spec.md`](.docs/api-spec.md:1): endpoint contracts, mock data
-- [`.docs/test-strategy.md`](.docs/test-strategy.md:1): new test cases, patterns
-- [`.docs/debt.md`](.docs/debt.md:1): notes on tech debt, decisions
+### Phase 2: Test-First Development
+**Objective**: Implement functionality through TDD cycles
 
-## 5. Validation Checklist
+**RED Phase**:
+- Write failing tests that capture requirements
+- Ensure tests fail for the right reasons
+- Commit failing tests with clear test descriptions
+- Validate test coverage and quality
 
-- [ ] Environment & branch set up
-- [ ] RED/GREEN/REFACTOR cycles & atomic commits
-- [ ] Tests, security & perf checks passed
+**GREEN Phase**:
+- Implement minimal code to make tests pass
+- Focus on functionality over optimization
+- Commit working implementation
+- Run full test suite to ensure no regressions
+
+**REFACTOR Phase**:
+- Clean up code while maintaining test coverage
+- Extract patterns and improve design
+- Commit refactored code
+- Validate performance and maintainability
+
+### Phase 3: Quality Validation
+**Objective**: Ensure code meets all quality standards
+
+**Automated Quality Gates**:
+- Linting and code style validation
+- Type checking and static analysis
+- Security vulnerability scanning
+- Performance benchmarking
+- Accessibility compliance testing
+- Build verification
+
+**Manual Quality Gates**:
+- Code review readiness assessment
+- Documentation completeness check
+- Integration testing validation
+- User experience verification
+
+### Phase 4: Documentation Maintenance
+**Objective**: Keep documentation synchronized with implementation
+
+**Documentation Updates Required**:
+- `.docs/current-task.md`: Progress tracking and completion status
+- `.docs/architecture.md`: Design changes and architectural decisions
+- `.docs/api-spec.md`: Interface modifications and contract updates
+- `.docs/test-strategy.md`: New testing patterns and coverage updates
+- `.docs/debt.md`: Technical debt tracking and resolution notes
+
+### Phase 5: Integration and Cleanup
+**Objective**: Merge changes and maintain clean workspace
+
+**Integration Checklist**:
+- [ ] All quality gates passed
 - [ ] Documentation updated
-- [ ] Cleanup & merge complete
+- [ ] Code review completed
+- [ ] Integration tests validated
+- [ ] Performance benchmarks met
+
+**Cleanup Protocol**:
+- Merge feature branch using appropriate strategy
+- Delete feature branch after successful merge
+- Update main branch documentation
+- Clean temporary files and artifacts
+- Archive completed task documentation
+
+## Mode Delegation Strategies
+
+### Strategic Mode Selection
+- **Architect Mode**: High-level planning, system design, workflow orchestration
+- **Code Mode**: Implementation, refactoring, feature development
+- **Debug Mode**: Issue investigation, error analysis, troubleshooting
+- **Ask Mode**: Research, documentation queries, technical clarification
+
+### Delegation Patterns
+- Start complex tasks in **Architect** mode for planning
+- Switch to **Code** mode for implementation phases
+- Use **Debug** mode when quality gates fail
+- Leverage **Ask** mode for technical research and clarification
+
+### Context Handoff
+- Provide clear task boundaries when delegating
+- Include relevant documentation references
+- Specify acceptance criteria and quality requirements
+- Maintain session continuity across mode switches
+
+## Continuous Feedback Loops
+
+### Development Feedback
+- Hot reload for immediate visual feedback
+- Test watching for continuous validation
+- Automated quality checks on every commit
+- Performance monitoring during development
+
+### Quality Feedback
+- Immediate linting and type checking
+- Automated security scanning
+- Performance regression detection
+- Accessibility compliance monitoring
+
+### Documentation Feedback
+- Specification drift detection
+- Documentation completeness validation
+- Architecture decision tracking
+- Technical debt accumulation monitoring
+
+## Failure Recovery Patterns
+
+### Test Failures
+- Analyze failure root cause before fixing
+- Update tests if requirements changed
+- Maintain test quality and coverage
+- Document test patterns for reuse
+
+### Quality Gate Failures
+- Address issues immediately
+- Never bypass quality checks
+- Update tooling configuration if needed
+- Learn from failures to prevent recurrence
+
+### Integration Issues
+- Isolate problematic changes
+- Use feature flags for gradual rollout
+- Maintain rollback capabilities
+- Document resolution for future reference
+
+### Documentation Drift
+- Regular documentation audits
+- Automated documentation validation
+- Clear ownership and update responsibilities
+- Version control for documentation changes
+
+## Agile/Lean/TDD Integration
+
+### Lean Principles
+- Eliminate waste through automation
+- Optimize value stream flow
+- Build quality in from the start
+- Deliver working software frequently
+
+### Agile Practices
+- Iterative development cycles
+- Continuous stakeholder feedback
+- Adaptive planning and execution
+- Sustainable development pace
+
+### TDD Excellence
+- Test-first mentality
+- Comprehensive test coverage
+- Refactoring discipline
+- Design emergence through testing
+
+## Success Metrics
+
+### Development Velocity
+- Time from task start to completion
+- Number of quality gate failures
+- Rework frequency and causes
+- Documentation maintenance overhead
+
+### Quality Indicators
+- Test coverage percentage
+- Defect escape rate
+- Performance regression frequency
+- Security vulnerability count
+
+### Process Health
+- Documentation freshness
+- Technical debt accumulation rate
+- Mode delegation effectiveness
+- Workflow adherence compliance
 
 ---
 
-## 6. Common Failure Scenarios & Recovery
-
-- Test failures:
-  - Symptoms: failing `pnpm test` or snapshot mismatches
-  - Recovery: run `pnpm test -- --updateSnapshot`, inspect errors, fix assertions
-- Lint/type errors:
-  - Commands: `pnpm lint` / `pnpm type-check`
-  - Recovery: auto-fix with `--fix`, adjust types, install missing deps
-- Merge conflicts:
-  - Detection: `git merge` errors
-  - Recovery: `git merge --abort` → rebase onto main (`git pull --rebase`) → resolve conflicts, `git add`, `git rebase --continue`
-- CI pipeline failures:
-  - View logs in CI dashboard (e.g., GitHub Actions)
-  - Reproduce locally: `pnpm build && pnpm test`
-- Deployment issues:
-  - Check Vercel logs (`vercel logs`)
-  - Rollback: revert PR, redeploy main
-
-## 7. Mode-specific Delegation Patterns
-
-| Mode         | Use Case                                        | Example                       |
-| ------------ | ----------------------------------------------- | ----------------------------- |
-| code         | Writing or refactoring code                     | Implement feature functions   |
-| debug        | Investigating failures or adding logs           | Trace intermittent bug        |
-| ask          | Answering questions or researching tech options | Determine best package choice |
-| architect    | Designing high-level system components          | Plan API endpoints            |
-| orchestrator | Coordinating multi-step workflows               | Trigger build, tests, deploy  |
-
-- Choose mode based on step: start with `architect` for design, `code` for implementation, `debug` for failures.
-- Example: During TDD, switch between `code` and `debug` modes for red/green fixes.
-
-## 8. Documentation Update Examples
-
-- API change: After modifying `/app/api/book-session`, update [`.docs/api-spec.md`](.docs/api-spec.md:1) section:
-
-  ```md
-  ### POST /api/book-session
-
-  - Request: `{ date, goals, experience }`
-  - Response: `{ success: boolean, id: number }`
-  ```
-
-- New component: Update [`.docs/test-strategy.md`](.docs/test-strategy.md:1) with:
-
-  ```md
-  ## BookingForm Component Tests
-
-  - Snapshot test
-  - Form validation scenarios
-  ```
-
-- Architecture tweak: Add ADR to [`.docs/architecture.md`](.docs/architecture.md:1):
-
-  ```md
-  ## ADR-005: GraphQL vs REST decision
-
-  - Chosen REST for simplicity
-  ```
-
-## 9. Troubleshooting & Quick Fixes
-
-- Next.js hot reload not updating:
-  - `pnpm dev -- --turbo` or restart server
-- Environment variables not loading:
-  - Verify `.env.local` exists; run `source .env.local`
-- Prisma migrate errors:
-  - `npx prisma migrate resolve --applied [migration]`
-- Booking API returns 500:
-  - Check handlers in [`__tests__/setup/server.ts`](__tests__/setup/server.ts:1)
-
-## 10. Integration with Project Tools
-
-- Build validation: `node scripts/build-validation.js`
-- Health checks: `node scripts/health-check.js`
-- Test error scenarios: `node scripts/test-error-scenarios.js`
-- Domain verification: `node scripts/verify-domain.js`
-- Lint-staged hooks: run `pnpm lint-staged`
-
----
-
-**Version:** 1.2.0
-**Last Updated:** 2025-07-30
+**Workflow Version**: 2.0.0  
+**Focus**: Agentic Task Orchestration  
+**Last Updated**: 2025-07-30  
+**Principles**: Documentation-First • Test-Driven • Quality-Focused • Continuously Integrated

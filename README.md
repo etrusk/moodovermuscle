@@ -53,6 +53,8 @@ pnpm run health-check       # Comprehensive site health monitoring
 pnpm run build-validate     # Validate build environment consistency
 pnpm run test-errors        # Test error scenarios and recovery
 pnpm run pre-deploy         # Full validation pipeline before deployment
+pnpm test                  # Run Jest unit & integration tests  
+pnpm test:e2e             # Run Playwright end-to-end tests
 ```
 
 ## Project Structure

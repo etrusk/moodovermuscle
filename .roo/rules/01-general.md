@@ -9,3 +9,7 @@
 - Functionality and simplicity preferred over complexity
 - Prototyping, agile approach preferred over waterfall, but specs and planning are important too
 - MoodOverMuscle is one word
+
+# Dev Workflow
+
+- ALWAYS consult - /.docs/orchestration-workflow.md - when starting and finishing any task, to ensure all guidelines were followed.

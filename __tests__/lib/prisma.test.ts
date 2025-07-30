@@ -20,7 +20,8 @@ describe('prisma client instance', () => {
   })
 
   it('reuses global prisma instance in non-production', () => {
-    process.env.NODE_ENV = 'development'
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(process.env as any).NODE_ENV = 'development'
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { prisma: prisma2 } = require('@/lib/prisma')
     expect(prisma2).toBe(prisma)

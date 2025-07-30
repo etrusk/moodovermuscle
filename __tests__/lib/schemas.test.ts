@@ -1,4 +1,5 @@
 import { bookingSchema } from '@/lib/schemas'
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 describe('bookingSchema validation', () => {
   const validData = {
@@ -46,7 +47,7 @@ describe('bookingSchema validation', () => {
   })
 
   it('fails when service is missing', () => {
-    const dataWithoutService = { ...validData } as any
+    const dataWithoutService = { ...validData } as any; // eslint-disable-line @typescript-eslint/no-explicit-any
     delete dataWithoutService.service
     const result = bookingSchema.safeParse(dataWithoutService)
     expect(result.success).toBe(false)
@@ -83,7 +84,7 @@ describe('bookingSchema validation', () => {
   })
 
   it('fails when date is missing', () => {
-    const dataWithoutDate = { ...validData } as any
+    const dataWithoutDate = { ...validData } as any; // eslint-disable-line @typescript-eslint/no-explicit-any
     delete dataWithoutDate.date
     const result = bookingSchema.safeParse(dataWithoutDate)
     expect(result.success).toBe(false)
@@ -93,7 +94,7 @@ describe('bookingSchema validation', () => {
   })
 
   it('fails when time is missing', () => {
-    const dataWithoutTime = { ...validData } as any
+    const dataWithoutTime = { ...validData } as any; // eslint-disable-line @typescript-eslint/no-explicit-any
     delete dataWithoutTime.time
     const result = bookingSchema.safeParse(dataWithoutTime)
     expect(result.success).toBe(false)

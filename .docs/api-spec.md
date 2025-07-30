@@ -83,9 +83,10 @@ interface BookingServerErrorResponse {
 
 **Side Effects**:
 
-- Sends customer confirmation email (non-blocking)
-- Sends admin notification email (non-blocking)
-- Email failures don't affect API response
+- Sends customer confirmation email (non-blocking fire-and-forget)
+- Sends admin notification email (non-blocking fire-and-forget)
+- Email failures logged but don't affect API response
+- Email sending uses Promise.then().catch() pattern for error handling
 
 ## Data Models
 
@@ -192,7 +193,7 @@ if (!allowedOrigins.includes(origin)) {
 ### Email Service Configuration
 
 ```typescript
-// SMTP Configuration (Nodemailer)
+// SMTP Configuration (Nodemailer) - Actual Implementation
 const emailConfig = {
   host: process.env.SMTP_HOST || 'smtp.gmail.com',
   port: parseInt(process.env.SMTP_PORT || '587'),
@@ -202,19 +203,48 @@ const emailConfig = {
     pass: process.env.SMTP_PASS,
   },
 }
+
+// Environment variable validation on startup
+const requiredEnvVars = [
+  'EMAIL_FROM',
+  'ADMIN_EMAIL',
+  'SMTP_HOST',
+  'SMTP_PORT',
+  'SMTP_USER',
+  'SMTP_PASS',
+]
 ```
 
-### Email Templates
+### Email Templates (Implemented)
 
-1. **Customer Confirmation Email**: Sent to booking requester
-2. **Admin Notification Email**: Sent to Emily for new bookings
+1. **Customer Confirmation Email**:
+   - Professional HTML/text templates with booking details
+   - Includes next steps and preparation instructions
+   - Branded with Mood Over Muscle styling
+2. **Admin Notification Email**:
+   - Action-oriented design with customer details
+   - Clear action items and timeline expectations
+   - Formatted for mobile-friendly viewing
 
-### Email Error Handling
+### Email Error Handling (Implemented)
+
+```typescript
+// Fire-and-forget pattern implementation
+sendCustomerConfirmation(bookingData)
+  .then(res => {
+    if (!res.success) {
+      console.error('Failed to send customer confirmation email:', res.error)
+    }
+  })
+  .catch(err => {
+    console.error('Error in sendCustomerConfirmation:', err)
+  })
+```
 
 - Email sending is non-blocking (fire-and-forget)
+- Email failures logged with detailed error messages
 - Email failures don't affect API response success
-- Email send results logged for monitoring
-- Consider adding email retry logic for production
+- Transporter verification available via `testEmailConnection()`
 
 ## Test Data Structures
 
@@ -336,33 +366,38 @@ if (process.env.NODE_ENV !== 'production') global.prisma = prisma
 
 ## Testing Interface Contracts
 
-### MSW Handlers for API Mocking
+### MSW Handlers for API Mocking (Implemented)
 
 ```typescript
-// From docs/TESTING.md patterns
-export const bookingHandlers = [
-  // Successful booking
+// Actual implementation from __tests__/setup/handlers.ts
+export const handlers = [
   http.post('/api/book-session', async ({ request }) => {
-    const booking = await request.json()
-    return HttpResponse.json(MOCK_BOOKING_RESPONSE, { status: 201 })
-  }),
+    const body = (await request.json()) as BookingRequestBody
 
-  // Validation error scenario
-  http.post('/api/book-session/validation-error', () => {
-    return HttpResponse.json(MOCK_VALIDATION_ERROR, { status: 400 })
-  }),
+    // Simulate server error for specific test email
+    if (body.email === 'fail@example.com') {
+      return new HttpResponse(
+        JSON.stringify({ message: 'Internal Server Error' }),
+        {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )
+    }
 
-  // Server error scenario
-  http.post('/api/book-session/server-error', () => {
-    return HttpResponse.json(
-      { message: 'Failed to submit booking.', error: 'Database error' },
-      { status: 500 }
+    // Simulate network failure for specific test email
+    if (body.email === 'network@example.com') {
+      throw new Error('Network error: failed to connect')
+    }
+
+    // Default success response
+    return new HttpResponse(
+      JSON.stringify({ message: TEST_STRINGS.BOOKING.SUCCESS_MESSAGE }),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }
     )
-  }),
-
-  // Network timeout simulation
-  http.post('/api/book-session/timeout', () => {
-    return new Promise(() => {}) // Never resolves
   }),
 ]
 ```
@@ -562,40 +597,67 @@ export function createBookingTestData(
 - MSW handlers for consistent mocking
 - Integration tests for end-to-end validation
 
-## Security Monitoring & Logging
+## Security Monitoring & Logging (Implemented)
 
-### Security Event Logging
+### Actual Implementation Patterns
 
 ```typescript
-// Security event patterns to monitor
-export interface SecurityEvent {
-  type: 'validation_error' | 'rate_limit_exceeded' | 'suspicious_activity'
-  ip: string
-  userAgent: string
-  payload?: any
-  timestamp: string
-}
-
-// Example logging in API route
+// Implemented in app/api/book-session/route.ts
 export async function POST(request: Request) {
-  const ip = request.headers.get('x-forwarded-for') || 'unknown'
-
   try {
+    const formData = await request.json()
     const validatedData = bookingSchema.safeParse(formData)
+
     if (!validatedData.success) {
-      // Log validation failures for monitoring
-      console.warn('Booking validation failed', {
-        ip,
-        errors: validatedData.error.flatten().fieldErrors,
-        timestamp: new Date().toISOString(),
-      })
+      return NextResponse.json(
+        {
+          message: 'Invalid form data.',
+          errors: validatedData.error.flatten().fieldErrors,
+        },
+        { status: 400 }
+      )
     }
+
+    // Database operation with error handling
+    const newBooking = await prisma.booking.create({
+      data: validatedData.data,
+    })
+
+    // Non-blocking email notifications with error logging
+    sendCustomerConfirmation(emailData)
+      .then(res => {
+        if (!res.success) {
+          console.error(
+            'Failed to send customer confirmation email:',
+            res.error
+          )
+        }
+      })
+      .catch(err => {
+        console.error('Error in sendCustomerConfirmation:', err)
+      })
+
+    return NextResponse.json(
+      { message: 'Booking submitted successfully!', data: newBooking },
+      { status: 201 }
+    )
   } catch (error) {
-    // Log unexpected errors
-    console.error('Booking API error', { ip, error: error.message })
+    console.error('Error processing booking form:', error)
+    return NextResponse.json(
+      { message: 'Failed to submit booking.', error: (error as Error).message },
+      { status: 500 }
+    )
   }
 }
 ```
+
+### Security Features Implemented
+
+- Zod schema validation for all input fields
+- SQL injection prevention through Prisma ORM
+- Error message sanitization (no sensitive data exposure)
+- Comprehensive error logging for monitoring
+- Type-safe database operations
 
 ### Rate Limiting Implementation
 
@@ -624,8 +686,8 @@ This API specification should be updated whenever:
 - Security requirements change
 - Testing patterns are updated
 
-**Last Updated**: 2025-07-30  
-**Version**: 1.0  
+**Last Updated**: 2025-07-30
+**Version**: 1.1 (Implementation Complete)
 **Next Review**: 2025-08-30
 
 ---

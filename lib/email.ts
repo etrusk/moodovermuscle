@@ -1,6 +1,20 @@
 import nodemailer from 'nodemailer'
 
 // Email configuration
+// Validate required environment variables for email service configuration
+const requiredEnvVars = [
+  'EMAIL_FROM',
+  'ADMIN_EMAIL',
+  'SMTP_HOST',
+  'SMTP_PORT',
+  'SMTP_USER',
+  'SMTP_PASS',
+]
+requiredEnvVars.forEach(name => {
+  if (!process.env[name]) {
+    throw new Error(`Missing environment variable for email service: ${name}`)
+  }
+})
 const emailConfig = {
   host: process.env.SMTP_HOST || 'smtp.gmail.com',
   port: parseInt(process.env.SMTP_PORT || '587'),

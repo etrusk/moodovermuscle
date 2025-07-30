@@ -54,6 +54,17 @@ export async function POST(request: Request) {
       goals,
       experience,
     })
+      .then(res => {
+        if (!res.success) {
+          console.error(
+            'Failed to send customer confirmation email:',
+            res.error
+          )
+        }
+      })
+      .catch(err => {
+        console.error('Error in sendCustomerConfirmation:', err)
+      })
 
     sendAdminNotification({
       customerName: name,
@@ -64,6 +75,14 @@ export async function POST(request: Request) {
       goals,
       experience,
     })
+      .then(res => {
+        if (!res.success) {
+          console.error('Failed to send admin notification email:', res.error)
+        }
+      })
+      .catch(err => {
+        console.error('Error in sendAdminNotification:', err)
+      })
 
     return NextResponse.json(
       { message: 'Booking submitted successfully!', data: newBooking },

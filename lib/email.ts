@@ -29,7 +29,7 @@ const emailConfig = {
 const transporter = nodemailer.createTransport(emailConfig)
 
 // Email templates
-const createCustomerConfirmationEmail = (booking: {
+export const createCustomerConfirmationEmail = (booking: {
   customerName: string
   customerEmail: string
   sessionType: string
@@ -141,7 +141,7 @@ const createCustomerConfirmationEmail = (booking: {
   return { subject, html, text }
 }
 
-const createAdminNotificationEmail = (booking: {
+export const createAdminNotificationEmail = (booking: {
   customerName: string
   customerEmail: string
   sessionType: string

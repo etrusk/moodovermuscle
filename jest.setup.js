@@ -1,7 +1,11 @@
-import { TextEncoder, TextDecoder } from 'util'
+import { TextEncoder, TextDecoder } from 'util';
 
-global.TextEncoder = TextEncoder
-global.TextDecoder = TextDecoder
+if (typeof setImmediate === 'undefined') {
+  global.setImmediate = (callback, ...args) => setTimeout(callback, 0, ...args);
+}
+
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
 
 // Polyfill BroadcastChannel for Node.js environment
 if (typeof global.BroadcastChannel === 'undefined') {
@@ -218,10 +222,25 @@ import '@testing-library/jest-dom'
 import 'jest-axe/extend-expect'
 
 // Mock fetch globally
-Object.defineProperty(window, 'fetch', {
-  writable: true,
-  value: jest.fn(),
-})
+// Mock fetch globally
+global.fetch = jest.fn();
+
+// Mock nodemailer transporter for tests
+jest.mock('nodemailer', () => {
+  const sendMail = jest.fn().mockImplementation(() =>
+    Promise.resolve({ messageId: `test-message-id-${Math.random()}` })
+  );
+
+  return {
+    __esModule: true,
+    default: {
+      createTransport: jest.fn().mockReturnValue({
+        sendMail,
+        verify: jest.fn().mockResolvedValue(true),
+      }),
+    },
+  };
+});
 
 // Mock next/router
 jest.mock('next/router', () => ({

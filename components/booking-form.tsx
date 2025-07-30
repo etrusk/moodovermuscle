@@ -523,7 +523,7 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
               {currentStep < totalSteps ? (
                 <Button
                   type="button"
-                  onClick={nextStep}
+                  onClick={async () => await nextStep()}
                   className="flex-1"
                   data-testid="booking-form-continue-button"
                 >

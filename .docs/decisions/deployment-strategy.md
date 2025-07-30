@@ -41,6 +41,13 @@ Vercel automatically manages environment variables for production and preview de
 - **Production**: Uses `production` environment variables defined in `vercel.json` and the Vercel dashboard.
 - **Preview**: Uses `preview` environment variables, inheriting from production where not specified.
 
+#### Database Configuration
+
+- **Neon PostgreSQL**: Serverless PostgreSQL database optimized for Vercel deployments
+- **Connection String**: `DATABASE_URL` environment variable contains Neon connection string
+- **Connection Pooling**: Neon handles connection pooling automatically for serverless functions
+- **Branch Databases**: Neon supports database branching for preview deployments (future consideration)
+
 ## 2. Deployment Process
 
 ### Automated Deployments with Vercel
@@ -63,8 +70,9 @@ Vercel provides instant rollbacks with a single click.
 ### Build & CDN
 
 - **Build Optimization**: Handled automatically by Next.js and Vercel.
-- **CDN**: Vercel’s Edge Network provides global content delivery.
+- **CDN**: Vercel's Edge Network provides global content delivery.
 - **Image Optimization**: Automatic image optimization with Next.js.
+- **Database Performance**: Neon's serverless architecture eliminates cold starts and provides automatic scaling.
 
 ## 4. Security Configuration
 

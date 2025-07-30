@@ -1,0 +1,337 @@
+import { POST } from '@/app/api/book-session/route';
+import { NextRequest } from 'next/server';
+import { testDb, setupIntegrationTest, teardownIntegrationTest, createTestBookingData } from '../setup/test-db';
+
+// Mock the email module
+jest.mock('@/lib/email');
+
+// Import the mocked functions to control them in tests
+import { sendCustomerConfirmation, sendAdminNotification } from '@/lib/email';
+
+const mockSendCustomerConfirmation = sendCustomerConfirmation as jest.Mock;
+const mockSendAdminNotification = sendAdminNotification as jest.Mock;
+
+function makeJsonRequest(data: Record<string, unknown>): NextRequest {
+  return new NextRequest('http://localhost/api/book-session', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  })
+}
+
+describe('Error Scenarios Integration Tests', () => {
+  beforeEach(async () => {
+    await setupIntegrationTest()
+    // Reset mocks
+    mockSendCustomerConfirmation.mockReset()
+    mockSendAdminNotification.mockReset()
+  })
+
+  afterAll(async () => {
+    await teardownIntegrationTest()
+  })
+
+  describe('Database Constraint Violations', () => {
+    it('should handle invalid email format', async () => {
+      const invalidData = createTestBookingData({
+        email: 'not-an-email'
+      })
+      
+      const req = makeJsonRequest(invalidData)
+      const response = await POST(req)
+      
+      expect(response.status).toBe(400)
+      const responseData = await response.json()
+      expect(responseData.message).toBe('Invalid form data.')
+      expect(responseData.errors).toBeDefined()
+    })
+
+    it('should handle missing required fields', async () => {
+      const incompleteData = {
+        name: 'Test User'
+        // Missing email, service, date, time
+      }
+      
+      const req = makeJsonRequest(incompleteData)
+      const response = await POST(req)
+      
+      expect(response.status).toBe(400)
+      const responseData = await response.json()
+      expect(responseData.message).toBe('Invalid form data.')
+      expect(responseData.errors).toBeDefined()
+    })
+
+    it('should handle invalid service type', async () => {
+      const invalidData = createTestBookingData({
+        service: 'Invalid Service That Does Not Exist'
+      })
+      
+      const req = makeJsonRequest(invalidData)
+      const response = await POST(req)
+      
+      expect(response.status).toBe(400)
+      const responseData = await response.json()
+      expect(responseData.message).toBe('Invalid form data.')
+      expect(responseData.errors).toBeDefined()
+    })
+
+    it('should handle invalid date format', async () => {
+      const invalidData = createTestBookingData({
+        date: 'not-a-date' as any // eslint-disable-line @typescript-eslint/no-explicit-any
+      })
+      
+      const req = makeJsonRequest(invalidData)
+      const response = await POST(req)
+      
+      expect(response.status).toBe(400)
+      const responseData = await response.json()
+      expect(responseData.message).toBe('Invalid form data.')
+    })
+
+    it('should handle extremely long field values', async () => {
+      const longString = 'a'.repeat(1000)
+      const invalidData = createTestBookingData({
+        name: longString,
+        message: longString
+      })
+      
+      const req = makeJsonRequest(invalidData)
+      const response = await POST(req)
+      
+      expect(response.status).toBe(400)
+      const responseData = await response.json()
+      expect(responseData.message).toBe('Invalid form data.')
+    })
+  })
+
+  describe('Email Service Failures', () => {
+    it('should handle customer email failure gracefully', async () => {
+      // Mock customer email to fail
+      mockSendCustomerConfirmation.mockResolvedValue({ 
+        success: false, 
+        error: 'SMTP connection failed' 
+      })
+      mockSendAdminNotification.mockResolvedValue({ 
+        success: true, 
+        messageId: 'admin-success' 
+      })
+      
+      const testData = createTestBookingData()
+      const req = makeJsonRequest(testData)
+      
+      const response = await POST(req)
+      
+      // Should still create booking even if customer email fails
+      expect(response.status).toBe(201)
+      const responseData = await response.json()
+      expect(responseData.message).toBe('Booking submitted successfully!')
+      
+      // Verify booking was created in database
+      const createdBooking = await testDb.booking.findUnique({
+        where: { id: responseData.data.id }
+      })
+      expect(createdBooking).toBeTruthy()
+    })
+
+    it('should handle admin email failure gracefully', async () => {
+      // Mock admin email to fail
+      mockSendCustomerConfirmation.mockResolvedValue({ 
+        success: true, 
+        messageId: 'customer-success' 
+      })
+      mockSendAdminNotification.mockResolvedValue({ 
+        success: false, 
+        error: 'Admin email address invalid' 
+      })
+      
+      const testData = createTestBookingData()
+      const req = makeJsonRequest(testData)
+      
+      const response = await POST(req)
+      
+      // Should still create booking even if admin email fails
+      expect(response.status).toBe(201)
+      const responseData = await response.json()
+      expect(responseData.message).toBe('Booking submitted successfully!')
+    })
+
+    it('should handle both email failures gracefully', async () => {
+      // Mock both emails to fail
+      mockSendCustomerConfirmation.mockResolvedValue({ 
+        success: false, 
+        error: 'Customer email failed' 
+      })
+      mockSendAdminNotification.mockResolvedValue({ 
+        success: false, 
+        error: 'Admin email failed' 
+      })
+      
+      const testData = createTestBookingData()
+      const req = makeJsonRequest(testData)
+      
+      const response = await POST(req)
+      
+      // Should still create booking even if both emails fail
+      expect(response.status).toBe(201)
+      const responseData = await response.json()
+      expect(responseData.message).toBe('Booking submitted successfully!')
+    })
+
+    it('should handle email service timeout', async () => {
+      // Mock email to timeout
+      mockSendCustomerConfirmation.mockImplementation(() => 
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Timeout')), 100)
+        )
+      )
+      mockSendAdminNotification.mockResolvedValue({ 
+        success: true, 
+        messageId: 'admin-success' 
+      })
+      
+      const testData = createTestBookingData()
+      const req = makeJsonRequest(testData)
+      
+      const response = await POST(req)
+      
+      // Should handle timeout gracefully
+      expect(response.status).toBe(201)
+    })
+  })
+
+  describe('Database Connection Issues', () => {
+    it('should handle database connection failure', async () => {
+      // Temporarily disconnect the test database
+      await testDb.$disconnect()
+      
+      const testData = createTestBookingData()
+      const req = makeJsonRequest(testData)
+      
+      const response = await POST(req)
+      
+      expect(response.status).toBe(500)
+      const responseData = await response.json()
+      expect(responseData.message).toBe('Failed to submit booking.')
+      expect(responseData.error).toBeDefined()
+      
+      // Reconnect for cleanup
+      await testDb.$connect()
+    })
+  })
+
+  describe('Malformed Request Handling', () => {
+    it('should handle non-JSON request body', async () => {
+      const req = new NextRequest('http://localhost/api/book-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: 'not-json-data',
+      })
+      
+      const response = await POST(req)
+      
+      expect(response.status).toBe(400)
+      const responseData = await response.json()
+      expect(responseData.message).toBe('Invalid form data.')
+    })
+
+    it('should handle empty request body', async () => {
+      const req = new NextRequest('http://localhost/api/book-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: '',
+      })
+      
+      const response = await POST(req)
+      
+      expect(response.status).toBe(400)
+    })
+
+    it('should handle request with wrong content type', async () => {
+      const req = new NextRequest('http://localhost/api/book-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain',
+        },
+        body: JSON.stringify(createTestBookingData()),
+      })
+      
+      const response = await POST(req)
+      
+      // Should still work as long as body is valid JSON
+      expect([200, 201, 400]).toContain(response.status)
+    })
+  })
+
+  describe('Concurrent Request Handling', () => {
+    it('should handle multiple simultaneous bookings', async () => {
+      const bookingPromises = Array.from({ length: 5 }, (_, i) => {
+        const testData = createTestBookingData({
+          name: `Concurrent User ${i}`,
+          email: `concurrent-${i}-${Date.now()}@example.com`
+        })
+        const req = makeJsonRequest(testData)
+        return POST(req)
+      })
+      
+      const responses = await Promise.all(bookingPromises)
+      
+      // All should succeed
+      responses.forEach(response => {
+        expect(response.status).toBe(201)
+      })
+      
+      // Verify all bookings were created with unique IDs
+      const responseData = await Promise.all(
+        responses.map(response => response.json())
+      )
+      
+      const bookingIds = responseData.map(data => data.data.id)
+      const uniqueIds = new Set(bookingIds)
+      expect(uniqueIds.size).toBe(bookingIds.length)
+    })
+  })
+
+  describe('Data Validation Edge Cases', () => {
+    it('should handle special characters in names', async () => {
+      const testData = createTestBookingData({
+        name: "O'Connor-Smith & Associates"
+      })
+      
+      const req = makeJsonRequest(testData)
+      const response = await POST(req)
+      
+      expect(response.status).toBe(201)
+      const responseData = await response.json()
+      
+      const createdBooking = await testDb.booking.findUnique({
+        where: { id: responseData.data.id }
+      })
+      expect(createdBooking?.name).toBe("O'Connor-Smith & Associates")
+    })
+
+    it('should handle unicode characters', async () => {
+      const testData = createTestBookingData({
+        name: 'José María González',
+        message: 'Looking forward to the session! 🏋️‍♀️💪'
+      })
+      
+      const req = makeJsonRequest(testData)
+      const response = await POST(req)
+      
+      expect(response.status).toBe(201)
+      const responseData = await response.json()
+      
+      const createdBooking = await testDb.booking.findUnique({
+        where: { id: responseData.data.id }
+      })
+      expect(createdBooking?.name).toBe('José María González')
+      expect(createdBooking?.message).toBe('Looking forward to the session! 🏋️‍♀️💪')
+    })
+  })
+})

@@ -9,7 +9,7 @@ MoodOverMuscle is a Next.js-based web application for a personal training busine
 - **Framework**: Next.js 15 (App Router)
 - **Language**: TypeScript
 - **UI**: React + Tailwind CSS + shadcn/ui
-- **Database**: PostgreSQL with Prisma ORM
+- **Database**: Neon PostgreSQL with Prisma ORM
 - **Deployment**: Vercel
 - **Email**: Nodemailer (SMTP)
 - **Testing**: Jest + React Testing Library + Playwright
@@ -157,7 +157,7 @@ sendCustomerConfirmation(bookingData)
 
 - **Build**: Next.js static generation + serverless functions
 - **CDN**: Global edge network for static assets
-- **Database**: PostgreSQL connection via connection pooling
+- **Database**: Neon PostgreSQL with serverless connection pooling
 - **Environment**: Production, Preview, Development branches
 
 ### Key Constraints

@@ -20,15 +20,17 @@ The booking system requires persistent storage for customer booking data. We nee
 
 ## Considered Options
 
-### Option 1: PostgreSQL + Prisma (Chosen)
+### Option 1: Neon PostgreSQL + Prisma (Chosen)
 
 - **Pros**:
   - Excellent TypeScript integration
   - Type-safe database access
   - Easy migrations and schema evolution
   - Great developer experience
-  - Production-ready with connection pooling
+  - Serverless PostgreSQL with automatic scaling
+  - Built-in connection pooling optimized for serverless
   - Supports complex queries when needed
+  - Seamless Vercel integration
 - **Cons**:
   - Learning curve for Prisma-specific patterns
   - Additional abstraction layer
@@ -58,13 +60,15 @@ The booking system requires persistent storage for customer booking data. We nee
 
 ## Decision
 
-We chose **PostgreSQL + Prisma** for the following reasons:
+We chose **Neon PostgreSQL + Prisma** for the following reasons:
 
 1. **Type Safety**: Prisma generates TypeScript types from schema
 2. **Developer Experience**: Excellent tooling and migration system
-3. **Production Ready**: Robust for Vercel deployment with connection pooling
-4. **Future Flexibility**: Easy to add relations and complex queries
-5. **Migration Management**: Automated migration generation and application
+3. **Serverless Optimized**: Neon's serverless PostgreSQL perfect for Vercel deployment
+4. **Connection Pooling**: Built-in connection pooling eliminates cold start issues
+5. **Future Flexibility**: Easy to add relations and complex queries
+6. **Migration Management**: Automated migration generation and application
+7. **Vercel Integration**: Native integration with Vercel's serverless functions
 
 ## Schema Design Decisions
 
@@ -128,7 +132,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = env("DATABASE_URL")  # Neon PostgreSQL connection string
 }
 ```
 

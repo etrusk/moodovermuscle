@@ -355,6 +355,21 @@ npm run test:performance
 npm run test:e2e
 ```
 
+#### Database Testing with Neon PostgreSQL
+
+- **Production Mirroring**: Test database should use Neon PostgreSQL to match production
+- **Connection Pooling**: Tests should verify serverless connection handling
+- **Environment Variables**: Test DATABASE_URL format matches Neon connection strings
+- **Migration Testing**: Verify Prisma migrations work with Neon's PostgreSQL version
+- **Performance Testing**: Test database operations under serverless constraints
+
+```bash
+# Neon-specific test setup
+export DATABASE_URL="postgresql://test_user:test_pass@localhost:5432/test_db?sslmode=require"
+npm run prisma:migrate:reset
+npm run test:integration
+```
+
 ### Test Constants & String Management
 
 ```typescript
@@ -381,6 +396,8 @@ export const TEST_STRINGS = {
 - Session scheduling and availability
 - Email notification delivery
 - Database transaction integrity
+- **Neon PostgreSQL Integration**: Test database operations with serverless constraints
+- **Connection Pooling**: Verify proper connection handling in serverless environment
 
 ### Accessibility Compliance Areas
 
@@ -396,7 +413,8 @@ export const TEST_STRINGS = {
 - Core Web Vitals tracking (LCP < 2.5s, FID < 100ms, CLS < 0.1)
 - Bundle size monitoring and budgets
 - API response time validation
-- Database query optimization
+- **Neon Database Performance**: Test query performance with serverless PostgreSQL
+- **Connection Latency**: Monitor database connection times in serverless environment
 - Image optimization verification
 
 ## Error Handling & Edge Cases
@@ -405,7 +423,8 @@ export const TEST_STRINGS = {
 
 - Network failure scenarios with MSW
 - API timeout handling
-- Database connection issues
+- **Neon Database Connection Issues**: Test serverless database connection failures
+- **Connection Pool Exhaustion**: Test behavior when Neon connection limits reached
 - Payment processing failures
 - Email delivery failures
 

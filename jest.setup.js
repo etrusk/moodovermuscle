@@ -95,6 +95,15 @@ if (typeof global.Response === 'undefined') {
       this.url = ''
     }
 
+    static json(data, init) {
+      const body = JSON.stringify(data)
+      const headers = {
+        ...init?.headers,
+        'Content-Type': 'application/json',
+      }
+      return new Response(body, { ...init, headers })
+    }
+
     json() {
       return Promise.resolve(
         typeof this.body === 'string' ? JSON.parse(this.body) : this.body
@@ -129,28 +138,34 @@ if (typeof global.Response === 'undefined') {
 if (typeof global.Request === 'undefined') {
   global.Request = class Request {
     constructor(input, init = {}) {
-      this.url = typeof input === 'string' ? input : input.url
+      const url = typeof input === 'string' ? input : input.url
+      try {
+        this.url = url
+      } catch {
+        // This can fail if the input is a NextRequest, which has a read-only URL.
+        // In such cases, we can ignore the error.
+      }
       this.method = init.method || 'GET'
-      this.headers = new Map(Object.entries(init.headers || {}))
+      this.headers = new Headers(init.headers)
       this.body = init.body || null
     }
 
     json() {
       return Promise.resolve(
-        typeof this.body === 'string' ? JSON.parse(this.body) : this.body
+        typeof this.body === 'string' ? JSON.parse(this.body) : this.body,
       )
     }
 
     text() {
       return Promise.resolve(
-        typeof this.body === 'string' ? this.body : JSON.stringify(this.body)
+        typeof this.body === 'string' ? this.body : JSON.stringify(this.body),
       )
     }
 
     clone() {
       return new Request(this.url, {
         method: this.method,
-        headers: Object.fromEntries(this.headers),
+        headers: this.headers,
         body: this.body,
       })
     }

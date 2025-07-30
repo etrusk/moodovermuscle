@@ -52,6 +52,7 @@ interface BookingFormProps {
 
 export function BookingForm({ isOpen, onClose }: BookingFormProps) {
   const [currentStep, setCurrentStep] = useState(1)
+  const [isCalendarOpen, setCalendarOpen] = useState(false)
   const { toast } = useToast()
 
   const form = useForm<z.infer<typeof bookingSchema>>({
@@ -65,7 +66,7 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
       time: '',
       message: '',
       goals: '',
-      experience: '',
+      experience: undefined,
     },
   })
 
@@ -176,7 +177,10 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[95vh] overflow-y-auto p-0 border-0 shadow-2xl rounded-3xl">
+      <DialogContent
+        className="max-w-2xl max-h-[95vh] overflow-y-auto p-0 border-0 shadow-2xl rounded-3xl"
+        data-testid="booking-form-dialog"
+      >
         <DialogHeader className="relative bg-gradient-to-br from-green-500 via-emerald-500 to-teal-600 text-white rounded-t-3xl overflow-hidden p-8">
           <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent"></div>
           <div className="absolute top-4 left-4 bg-amber-400 text-amber-900 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
@@ -189,6 +193,7 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
               size="sm"
               className="absolute top-4 right-4 text-white hover:bg-white/20 bg-black/20 rounded-full w-10 h-10 p-0 backdrop-blur-sm z-50 flex items-center justify-center"
               aria-label="Close"
+              data-testid="booking-form-close-button"
             >
               <X className="h-5 w-5 stroke-2" />
             </Button>
@@ -229,9 +234,13 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-8 p-8"
+            data-testid="booking-form"
           >
             {currentStep === 1 && (
-              <div className="space-y-6 animate-fade-in-up">
+              <div
+                className="space-y-6 animate-fade-in-up"
+                data-testid="booking-form-step-1"
+              >
                 <div className="grid gap-6">
                   <FormField
                     control={form.control}
@@ -243,7 +252,11 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
                           What should we call you? *
                         </FormLabel>
                         <FormControl>
-                          <Input placeholder="Your beautiful name" {...field} />
+                          <Input
+                            placeholder="Your beautiful name"
+                            {...field}
+                            data-testid="name-input"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -261,6 +274,7 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
                               type="email"
                               placeholder="your.email@example.com"
                               {...field}
+                              data-testid="email-input"
                             />
                           </FormControl>
                           <FormMessage />
@@ -278,6 +292,7 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
                               type="tel"
                               placeholder="Your phone number"
                               {...field}
+                              data-testid="phone-input"
                             />
                           </FormControl>
                           <FormMessage />
@@ -291,12 +306,13 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
-                          What&apos;s your main fitness goal? *
+                          What's your main fitness goal? *
                         </FormLabel>
                         <FormControl>
                           <select
                             {...field}
                             className="w-full p-4 border-2 border-stone-200 rounded-xl focus:border-green-500 focus:ring-green-500 bg-white text-lg"
+                            data-testid="goals-select"
                           >
                             <option value="">Choose your goal...</option>
                             <option value="weight-loss">
@@ -325,7 +341,10 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
               </div>
             )}
             {currentStep === 2 && (
-              <div className="space-y-6 animate-fade-in-up">
+              <div
+                className="space-y-6 animate-fade-in-up"
+                data-testid="booking-form-step-2"
+              >
                 <FormField
                   control={form.control}
                   name="service"
@@ -347,6 +366,7 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
                               }}
                               role="button"
                               tabIndex={0}
+                              data-testid={`service-option-${service.name.replace(/\s+/g, '-')}`}
                             >
                               {service.popular && (
                                 <div className="absolute -top-3 left-6 bg-gradient-to-r from-amber-400 to-orange-400 text-amber-900 px-3 py-1 rounded-full text-xs font-bold">
@@ -384,7 +404,10 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
               </div>
             )}
             {currentStep === 3 && (
-              <div className="space-y-6 animate-fade-in-up">
+              <div
+                className="space-y-6 animate-fade-in-up"
+                data-testid="booking-form-step-3"
+              >
                 <div className="grid gap-6 md:grid-cols-2">
                   <FormField
                     control={form.control}
@@ -392,7 +415,7 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <FormLabel>Preferred Date *</FormLabel>
-                        <Popover>
+                        <Popover open={isCalendarOpen} onOpenChange={setCalendarOpen}>
                           <PopoverTrigger asChild>
                             <FormControl>
                               <Button
@@ -401,6 +424,7 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
                                   'w-full pl-3 text-left font-normal min-h-[3.5rem] h-auto',
                                   !field.value && 'text-muted-foreground'
                                 )}
+                                data-testid="date-picker-trigger"
                               >
                                 {field.value ? (
                                   format(field.value, 'PPP')
@@ -411,11 +435,18 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
                               </Button>
                             </FormControl>
                           </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
+                          <PopoverContent
+                            className="w-auto p-0"
+                            align="start"
+                            data-testid="date-picker-content"
+                          >
                             <Calendar
                               mode="single"
                               selected={field.value}
-                              onSelect={field.onChange}
+                              onSelect={date => {
+                                field.onChange(date)
+                                setCalendarOpen(false)
+                              }}
                               disabled={date => {
                                 const tomorrow = new Date()
                                 tomorrow.setDate(tomorrow.getDate() + 1)
@@ -441,6 +472,7 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
                           <select
                             {...field}
                             className="w-full p-4 border-2 border-stone-200 rounded-xl focus:border-green-500 focus:ring-green-500 bg-white"
+                            data-testid="time-select"
                           >
                             <option value="">Select time...</option>
                             {timeSlots.map(time => (
@@ -461,12 +493,13 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Anything else you&apos;d like me to know? (Optional)
+                        Anything else you'd like me to know? (Optional)
                       </FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder="Any questions, concerns, or things you're excited about? I'd love to hear from you! 💕"
                           {...field}
+                          data-testid="message-textarea"
                         />
                       </FormControl>
                       <FormMessage />
@@ -482,16 +515,28 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
                   variant="outline"
                   onClick={prevStep}
                   className="flex-1"
+                  data-testid="booking-form-back-button"
                 >
                   Back
                 </Button>
               )}
               {currentStep < totalSteps ? (
-                <Button type="button" onClick={nextStep} className="flex-1">
+                <Button
+                  type="button"
+                  onClick={nextStep}
+                  className="flex-1"
+                  data-testid="booking-form-continue-button"
+                >
                   Continue <ArrowRight className="ml-2 h-5 w-5 stroke-1" />
                 </Button>
               ) : (
-                <Button type="submit" className="flex-1" disabled={isSubmitting} aria-busy={isSubmitting}>
+                <Button
+                  type="submit"
+                  className="flex-1"
+                  disabled={isSubmitting}
+                  aria-busy={isSubmitting}
+                  data-testid="booking-form-submit-button"
+                >
                   {isSubmitting ? (
                     <>
                       <Loader2 className="animate-spin mr-2 h-4 w-4" />

@@ -1,17 +1,21 @@
-import nodemailer from 'nodemailer'
-import { sendCustomerConfirmation, sendAdminNotification } from '@/lib/email'
-
-jest.mock('nodemailer')
-
-const mockSendMail = jest.fn()
-
-beforeAll(() => {
-  // @ts-expect-error mock createTransport return type intentional
-  nodemailer.createTransport.mockReturnValue({ sendMail: mockSendMail })
+jest.mock('nodemailer', () => {
+  const mockSendMail = jest.fn()
+  return {
+    createTransport: jest.fn(() => ({
+      sendMail: mockSendMail,
+    })),
+    __mockSendMail: mockSendMail,
+  }
 })
 
+import { sendCustomerConfirmation, sendAdminNotification } from '@/lib/email'
+import nodemailer from 'nodemailer'
+
+const mockSendMail = (nodemailer as any).__mockSendMail
+
 beforeEach(() => {
-  mockSendMail.mockReset()
+  mockSendMail.mockClear()
+  mockSendMail.mockResolvedValue({ messageId: 'default-id' })
 })
 
 describe('sendCustomerConfirmation', () => {

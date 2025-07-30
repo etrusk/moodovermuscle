@@ -30,6 +30,9 @@ const customJestConfig: Config = {
     '!**/jest.setup.js',
     '!**/__tests__/mocks/**',
     '!**/__tests__/constants/**',
+    '!**/lib/generated/**',
+    '!**/prisma/**',
+    '!**/e2e/**',
   ],
   coverageThreshold: {
     global: {

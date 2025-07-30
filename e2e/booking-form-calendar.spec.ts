@@ -15,27 +15,26 @@ test.describe('Booking Form Calendar', () => {
     await bookSessionButton.click()
 
     // Fill out step 1 form fields to enable Continue button
-    await page.getByPlaceholder('Your beautiful name').fill('Test User')
-    await page
-      .getByPlaceholder('your.email@example.com')
-      .fill('test@example.com')
-    await page.getByPlaceholder('Your phone number').fill('0412345678')
-    await page.selectOption('select', 'weight-loss')
+    await page.getByTestId('name-input').fill('Test User')
+    await page.getByTestId('email-input').fill('test@example.com')
+    await page.getByTestId('phone-input').fill('0412345678')
+    await page.getByTestId('goals-select').selectOption('weight-loss')
 
     // Click Continue to go to step 2
-    await page.getByRole('button', { name: 'Continue' }).click()
+    await page.getByTestId('booking-form-continue-button').click()
 
     // Select a service in step 2
-    await page.getByText('1-on-1 Personal Training').click()
+    await page.getByTestId('service-option-1-on-1-Personal-Training').click()
 
     // Click Continue to go to step 3 (calendar step)
-    await page.getByRole('button', { name: 'Continue' }).click()
+    await page.getByTestId('booking-form-continue-button').click()
 
     // Wait for the calendar step to render
-    await expect(page.getByText('Preferred Date *')).toBeVisible()
+    await expect(page.getByTestId('booking-form-step-3')).toBeVisible()
 
     // Open the calendar
-    await page.click('text=Pick a date')
+    await page.getByTestId('date-picker-trigger').click()
+    await expect(page.getByTestId('date-picker-content')).toBeVisible()
 
     // Get today's date information
     const today = new Date()
@@ -51,13 +50,13 @@ test.describe('Booking Form Calendar', () => {
 
     // Verify that a past date is disabled
     // This will click the back button on the calendar to go to the previous month
-    await page.getByRole('button', { name: /previous month/i }).click()
+    await page.getByTestId('calendar-prev-button').click()
     const pastDateButton = page.getByRole('button', { name: '15' }) // Arbitrary past date
     await expect(pastDateButton).toBeDisabled()
 
     // Verify that tomorrow's date is enabled and selectable
     // This will click the forward button on the calendar to go back to the current month
-    await page.getByRole('button', { name: /next month/i }).click()
+    await page.getByTestId('calendar-next-button').click()
     const tomorrowButton = page.getByRole('button', {
       name: tomorrowDate.getDate().toString(),
     })

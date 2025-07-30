@@ -217,14 +217,6 @@ if (typeof global.Headers === 'undefined') {
   }
 }
 
-// jest.setup.js
-import '@testing-library/jest-dom'
-import 'jest-axe/extend-expect'
-
-// Mock fetch globally
-// Mock fetch globally
-global.fetch = jest.fn();
-
 // Mock nodemailer transporter for tests
 jest.mock('nodemailer', () => {
   const sendMail = jest.fn().mockImplementation(() =>
@@ -242,95 +234,9 @@ jest.mock('nodemailer', () => {
   };
 });
 
-// Mock next/router
-jest.mock('next/router', () => ({
-  useRouter() {
-    return {
-      route: '/',
-      pathname: '',
-      query: {},
-      asPath: '',
-      push: jest.fn(),
-      replace: jest.fn(),
-      reload: jest.fn(),
-      back: jest.fn(),
-      prefetch: jest.fn(),
-      beforePopState: jest.fn(),
-      events: {
-        on: jest.fn(),
-        off: jest.fn(),
-        emit: jest.fn(),
-      },
-    }
-  },
-}))
-
-// Mock next/navigation
-jest.mock('next/navigation', () => ({
-  useRouter() {
-    return {
-      push: jest.fn(),
-      replace: jest.fn(),
-      back: jest.fn(),
-      forward: jest.fn(),
-      refresh: jest.fn(),
-      prefetch: jest.fn(),
-    }
-  },
-  useSearchParams() {
-    return {
-      get: jest.fn(),
-    }
-  },
-  usePathname() {
-    return ''
-  },
-}))
-
-// Mock window.matchMedia (only in jsdom environment)
-if (typeof window !== 'undefined') {
-  Object.defineProperty(window, 'matchMedia', {
-    writable: true,
-    value: jest.fn().mockImplementation(query => ({
-      matches: false,
-      media: query,
-      onchange: null,
-      addListener: jest.fn(),
-      removeListener: jest.fn(),
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
-      dispatchEvent: jest.fn(),
-    })),
-  })
-}
-
-// Mock IntersectionObserver
-global.IntersectionObserver = class IntersectionObserver {
-  constructor() {}
-  disconnect() {}
-  observe() {}
-  unobserve() {}
-}
-
-// Mock ResizeObserver
-global.ResizeObserver = class ResizeObserver {
-  constructor() {}
-  disconnect() {}
-  observe() {}
-  unobserve() {}
-}
-
-// Mock scrollIntoView (only in jsdom environment)
-if (typeof Element !== 'undefined') {
-  Element.prototype.scrollIntoView = jest.fn()
-}
-
 // Mock console methods to reduce noise in tests
 global.console = {
   ...console,
   warn: jest.fn(),
   error: jest.fn(),
 }
-
-// MSW setup is now handled in a separate file (__tests__/setup/msw-setup.js)
-// This ensures polyfills are loaded before MSW is imported

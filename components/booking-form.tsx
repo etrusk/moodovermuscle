@@ -55,14 +55,14 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
   const [isCalendarOpen, setCalendarOpen] = useState(false)
   const { toast } = useToast()
 
-  const form = useForm<z.infer<typeof bookingSchema>>({
+  const form = useForm({
     resolver: zodResolver(bookingSchema),
     defaultValues: {
       name: '',
       email: '',
       phone: '',
-      service: '',
-      date: undefined,
+      service: '' as unknown as z.infer<typeof bookingSchema>['service'],
+      date: undefined as unknown as Date,
       time: '',
       message: '',
       goals: '',

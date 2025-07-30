@@ -5,7 +5,15 @@ import { sendCustomerConfirmation, sendAdminNotification } from '@/lib/email'
 
 export async function POST(request: Request) {
   try {
-    const formData = await request.json()
+    let formData
+    try {
+      formData = await request.json()
+    } catch {
+      return NextResponse.json(
+        { message: 'Invalid form data.' },
+        { status: 400 }
+      )
+    }
     const validatedData = bookingSchema.safeParse(formData)
 
     if (!validatedData.success) {
@@ -34,13 +42,13 @@ export async function POST(request: Request) {
       data: {
         name,
         email,
-        phone,
+        phone: phone ?? null,
         service,
-        date: date,
+        date,
         time,
-        message,
+        message: message ?? null,
         goals,
-        experience,
+        experience: experience ?? null,
       },
     })
 
@@ -56,10 +64,7 @@ export async function POST(request: Request) {
     })
       .then(res => {
         if (!res.success) {
-          console.error(
-            'Failed to send customer confirmation email:',
-            res.error
-          )
+          console.error('Failed to send customer confirmation email:', res.error)
         }
       })
       .catch(err => {

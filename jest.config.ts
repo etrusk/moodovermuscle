@@ -10,12 +10,16 @@ const customJestConfig: Config = {
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: [
     '<rootDir>/jest.setup.js',
-    '<rootDir>/__tests__/setup/msw-setup.js'
+    '<rootDir>/__tests__/setup/msw-setup.js',
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
   },
-  testPathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/node_modules/'],
+  testPathIgnorePatterns: [
+    '<rootDir>/.next/',
+    '<rootDir>/node_modules/',
+    '<rootDir>/e2e/',
+  ],
   collectCoverageFrom: [
     '**/*.{js,jsx,ts,tsx}',
     '!**/*.d.ts',
@@ -35,9 +39,7 @@ const customJestConfig: Config = {
       statements: 80,
     },
   },
-  transformIgnorePatterns: [
-    '/node_modules/(?!(msw|@mswjs)/)',
-  ],
+  transformIgnorePatterns: ['/node_modules/(?!(msw|@mswjs)/)'],
   testEnvironmentOptions: {
     customExportConditions: ['node', 'node-addons'],
   },

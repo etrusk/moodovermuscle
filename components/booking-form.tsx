@@ -407,9 +407,12 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
                               mode="single"
                               selected={field.value}
                               onSelect={field.onChange}
-                              disabled={date =>
-                                date < new Date(new Date().setHours(0, 0, 0, 0))
-                              }
+                              disabled={date => {
+                                const tomorrow = new Date()
+                                tomorrow.setDate(tomorrow.getDate() + 1)
+                                tomorrow.setHours(0, 0, 0, 0)
+                                return date < tomorrow
+                              }}
                               initialFocus
                               className="rounded-md border"
                             />

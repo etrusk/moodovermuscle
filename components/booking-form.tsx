@@ -306,7 +306,7 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
-                          What's your main fitness goal? *
+                          What&apos;s your main fitness goal? *
                         </FormLabel>
                         <FormControl>
                           <select
@@ -493,7 +493,7 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Anything else you'd like me to know? (Optional)
+                        Anything else you&apos;d like me to know? (Optional)
                       </FormLabel>
                       <FormControl>
                         <Textarea

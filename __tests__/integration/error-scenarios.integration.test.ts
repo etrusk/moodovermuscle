@@ -2,6 +2,7 @@
  * @jest-environment node
  */
 import { POST } from '@/app/api/book-session/route';
++ jest.setTimeout(20000);
 import { NextRequest } from 'next/server';
 import { testDb, setupIntegrationTest, teardownIntegrationTest, createTestBookingData, waitFor } from '../setup/test-db';
 

@@ -107,4 +107,15 @@ describe('API POST /api/book-session', () => {
     expect(json).toHaveProperty('message', 'Failed to submit booking.')
     expect(json).toHaveProperty('error')
   })
+  it('returns 400 when JSON body is invalid', async () => {
+    const req = new NextRequest('http://localhost/api/book-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: 'not-a-json',
+    });
+    const res = await POST(req);
+    expect(res.status).toBe(400);
+    const json = await res.json();
+    expect(json).toHaveProperty('message', 'Invalid form data.');
+  });
 })

@@ -41,6 +41,7 @@ import {
   ArrowRight,
   Heart,
   CalendarIcon,
+  Loader2,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -68,6 +69,8 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
     },
   })
 
+  const { formState: { isSubmitting } } = form
+  
   const totalSteps = 3
 
   const services = [
@@ -127,7 +130,8 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
       })
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+        const errorData = await response.json().catch(() => ({ message: response.statusText }))
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`)
       }
 
       toast({
@@ -137,12 +141,17 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
       })
       onClose()
       form.reset()
-    } catch (error) {
+    } catch (error: unknown) {
+      const err = error instanceof Error ? error : new Error('')
       console.error('Error submitting booking:', error)
+      const isNetworkError = error instanceof TypeError
       toast({
-        title: 'Booking Failed',
-        description:
-          'There was an error booking your session. Please try again.',
+        title: isNetworkError ? 'Network Error' : 'Booking Failed',
+        description: isNetworkError
+          ? 'Network error occurred. Check your connection and try again.'
+          : err.message && err.message !== ''
+          ? err.message
+          : 'Server error. Please try again later.',
         variant: 'destructive',
       })
     }
@@ -482,8 +491,15 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
                   Continue <ArrowRight className="ml-2 h-5 w-5 stroke-1" />
                 </Button>
               ) : (
-                <Button type="submit" className="flex-1">
-                  Book My FREE Session! 🎉
+                <Button type="submit" className="flex-1" disabled={isSubmitting} aria-busy={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="animate-spin mr-2 h-4 w-4" />
+                      Booking...
+                    </>
+                  ) : (
+                    'Book My FREE Session! 🎉'
+                  )}
                 </Button>
               )}
             </DialogFooter>

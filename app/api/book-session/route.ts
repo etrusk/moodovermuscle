@@ -2,8 +2,33 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { bookingSchema } from '@/lib/schemas'
 import { sendCustomerConfirmation, sendAdminNotification } from '@/lib/email'
+import {
+  RATE_LIMIT_WINDOW,
+  RATE_LIMIT_MAX,
+  rateLimitStore,
+} from '@/lib/rate-limit'
 
 export async function POST(request: Request) {
+  // Rate limiting per IP via x-forwarded-for header only
+  const forwarded = request.headers.get('x-forwarded-for')
+  if (forwarded) {
+    const ip = forwarded.split(',')[0]
+    const now = Date.now()
+    const prev = rateLimitStore[ip]
+    if (prev && now - prev.firstRequest < RATE_LIMIT_WINDOW) {
+      if (prev.count >= RATE_LIMIT_MAX) {
+        console.warn(`Rate limit exceeded for IP ${ip}`)
+        return NextResponse.json(
+          { message: 'Too many requests. Please try again later.' },
+          { status: 429 }
+        )
+      }
+      rateLimitStore[ip] = { count: prev.count + 1, firstRequest: prev.firstRequest }
+    } else {
+      rateLimitStore[ip] = { count: 1, firstRequest: now }
+    }
+  }
+  
   try {
     let formData
     try {

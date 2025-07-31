@@ -1,4 +1,4 @@
-import { POST } from '@/app/api/book-session/route'
+import { POST, RATE_LIMIT_MAX, rateLimitStore } from '@/app/api/book-session/route'
 import { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
@@ -108,14 +108,57 @@ describe('API POST /api/book-session', () => {
     expect(json).toHaveProperty('error')
   })
   it('returns 400 when JSON body is invalid', async () => {
-    const req = new NextRequest('http://localhost/api/book-session', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: 'not-a-json',
+      const req = new NextRequest('http://localhost/api/book-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: 'not-a-json',
+      });
+      const res = await POST(req);
+      expect(res.status).toBe(400);
+      const json = await res.json();
+      expect(json).toHaveProperty('message', 'Invalid form data.');
     });
-    const res = await POST(req);
-    expect(res.status).toBe(400);
-    const json = await res.json();
-    expect(json).toHaveProperty('message', 'Invalid form data.');
+
+  it('returns 429 when rate limit exceeded', async () => {
+    const ip = '1.2.3.4';
+    // Clear any existing record for IP
+    delete rateLimitStore[ip];
+    const validData = {
+      name: 'Rate Test',
+      email: 'rate@example.com',
+      phone: '0412345678',
+      service: '1-on-1 Personal Training',
+      date: new Date().toISOString(),
+      time: '10:00 AM',
+      goals: 'community',
+      experience: 'Beginner',
+      message: '',
+    };
+    // Send max allowed requests
+    for (let i = 0; i < RATE_LIMIT_MAX; i++) {
+      const req = new NextRequest('http://localhost/api/book-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-forwarded-for': ip,
+        },
+        body: JSON.stringify(validData),
+      });
+      const res = await POST(req);
+      expect(res.status).toBe(201);
+    }
+    // Sixth request should be rate limited
+    const req6 = new NextRequest('http://localhost/api/book-session', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-forwarded-for': ip,
+      },
+      body: JSON.stringify(validData),
+    });
+    const res6 = await POST(req6);
+    expect(res6.status).toBe(429);
+    const json6 = await res6.json();
+    expect(json6).toHaveProperty('message', 'Too many requests. Please try again later.');
   });
 })

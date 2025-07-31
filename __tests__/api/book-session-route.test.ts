@@ -1,8 +1,5 @@
-import {
-  POST,
-  RATE_LIMIT_MAX,
-  rateLimitStore,
-} from '@/app/api/book-session/route'
+import { POST } from '@/app/api/book-session/route'
+import { RATE_LIMIT_MAX, rateLimitStore } from '@/lib/rate-limit'
 import { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'

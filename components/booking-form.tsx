@@ -23,7 +23,6 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogClose,
 } from '@/components/ui/dialog'
 import {
   Form,
@@ -35,7 +34,6 @@ import {
 } from '@/components/ui/form'
 import { useToast } from '@/components/ui/use-toast'
 import {
-  X,
   Sparkles,
   CheckCircle2,
   ArrowRight,
@@ -70,8 +68,10 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
     },
   })
 
-  const { formState: { isSubmitting } } = form
-  
+  const {
+    formState: { isSubmitting },
+  } = form
+
   const totalSteps = 3
 
   const services = [
@@ -131,8 +131,12 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
       })
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: response.statusText }))
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`)
+        const errorData = await response
+          .json()
+          .catch(() => ({ message: response.statusText }))
+        throw new Error(
+          errorData.message || `HTTP error! status: ${response.status}`
+        )
       }
 
       toast({
@@ -151,8 +155,8 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
         description: isNetworkError
           ? 'Network error occurred. Check your connection and try again.'
           : err.message && err.message !== ''
-          ? err.message
-          : 'Server error. Please try again later.',
+            ? err.message
+            : 'Server error. Please try again later.',
         variant: 'destructive',
       })
     }
@@ -187,17 +191,6 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
             <Sparkles className="h-3 w-3 stroke-1" />
             100% FREE Session
           </div>
-          <DialogClose asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="absolute top-4 right-4 text-white hover:bg-white/20 bg-black/20 rounded-full w-10 h-10 p-0 backdrop-blur-sm z-50 flex items-center justify-center"
-              aria-label="Close"
-              data-testid="booking-form-close-button"
-            >
-              <X className="h-5 w-5 stroke-2" />
-            </Button>
-          </DialogClose>
           <div className="relative z-10 pt-8">
             <div className="flex items-center gap-3 mb-4">
               <div className="bg-white/20 rounded-full p-2">
@@ -415,7 +408,10 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <FormLabel>Preferred Date *</FormLabel>
-                        <Popover open={isCalendarOpen} onOpenChange={setCalendarOpen}>
+                        <Popover
+                          open={isCalendarOpen}
+                          onOpenChange={setCalendarOpen}
+                        >
                           <PopoverTrigger asChild>
                             <FormControl>
                               <Button

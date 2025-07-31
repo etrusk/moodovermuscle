@@ -70,7 +70,6 @@
 - **Blockers**: E2E test flakiness preventing deployment confidence
 - **Blockers**: Pre-push hook disabled, compromising quality gates
 - **Workflow Update**: Enforced mandatory subtask completion protocol in orchestrator instructions
-- **Workflow Update**: Pre-push hook disabled temporarily; comprehensive root cause fixes prioritized
 - **Next Milestone**: Reliable test infrastructure enabling confident releases
 
 ## Context

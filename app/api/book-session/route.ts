@@ -132,4 +132,3 @@ export async function POST(request: Request) {
     )
   }
 }
-export { RATE_LIMIT_MAX, rateLimitStore }

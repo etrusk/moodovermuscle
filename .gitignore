@@ -71,4 +71,3 @@ public/placeholder*
 test-*.txt
 temp-*.md
 
-/lib/generated/prisma

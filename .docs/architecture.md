@@ -199,7 +199,7 @@ sendCustomerConfirmation(bookingData)
 
 ### Vercel Platform
 
-- **Build**: Next.js static generation + serverless functions
+- **Build**: `prisma generate && next build` (generates Prisma Client) then Next.js static generation + serverless functions
 - **CDN**: Global edge network for static assets
 - **Database**: Neon PostgreSQL with serverless connection pooling
 - **Environment**: Production, Preview, Development branches

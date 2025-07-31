@@ -3,7 +3,6 @@
 import type React from 'react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { format } from 'date-fns'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { bookingSchema } from '@/lib/schemas'
@@ -23,7 +22,6 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogClose,
 } from '@/components/ui/dialog'
 import {
   Form,
@@ -35,7 +33,6 @@ import {
 } from '@/components/ui/form'
 import { useToast } from '@/components/ui/use-toast'
 import {
-  X,
   Sparkles,
   CheckCircle2,
   ArrowRight,
@@ -70,8 +67,10 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
     },
   })
 
-  const { formState: { isSubmitting } } = form
-  
+  const {
+    formState: { isSubmitting },
+  } = form
+
   const totalSteps = 3
 
   const services = [
@@ -131,8 +130,12 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
       })
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: response.statusText }))
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`)
+        const errorData = await response
+          .json()
+          .catch(() => ({ message: response.statusText }))
+        throw new Error(
+          errorData.message || `HTTP error! status: ${response.status}`
+        )
       }
 
       toast({
@@ -151,8 +154,8 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
         description: isNetworkError
           ? 'Network error occurred. Check your connection and try again.'
           : err.message && err.message !== ''
-          ? err.message
-          : 'Server error. Please try again later.',
+            ? err.message
+            : 'Server error. Please try again later.',
         variant: 'destructive',
       })
     }
@@ -178,54 +181,45 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
-        className="max-w-2xl max-h-[95vh] overflow-y-auto p-0 border-0 shadow-2xl rounded-3xl"
+        className="max-w-2xl max-h-[95vh] overflow-y-auto p-0 border-0 shadow-2xl rounded-3xl overflow-hidden"
         data-testid="booking-form-dialog"
       >
-        <DialogHeader className="relative bg-gradient-to-br from-green-500 via-emerald-500 to-teal-600 text-white rounded-t-3xl overflow-hidden p-8">
-          <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent"></div>
-          <div className="absolute top-4 left-4 bg-amber-400 text-amber-900 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
-            <Sparkles className="h-3 w-3 stroke-1" />
-            100% FREE Session
-          </div>
-          <DialogClose asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="absolute top-4 right-4 text-white hover:bg-white/20 bg-black/20 rounded-full w-10 h-10 p-0 backdrop-blur-sm z-50 flex items-center justify-center"
-              aria-label="Close"
-              data-testid="booking-form-close-button"
-            >
-              <X className="h-5 w-5 stroke-2" />
-            </Button>
-          </DialogClose>
-          <div className="relative z-10 pt-8">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="bg-white/20 rounded-full p-2">
-                <Sparkles className="h-6 w-6 stroke-1" />
-              </div>
-              <div>
-                <DialogTitle className="text-2xl md:text-3xl font-bold">
-                  Book Your FREE Session
-                </DialogTitle>
-                <DialogDescription className="text-green-100 text-sm">
-                  No payment required • No commitment • Just come and try!
-                </DialogDescription>
-              </div>
+        <DialogHeader className="bg-gradient-to-br from-green-500 via-emerald-500 to-teal-600 text-white">
+          <div className="relative p-8">
+            <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent"></div>
+            <div className="absolute top-4 left-4 bg-amber-400 text-amber-900 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+              <Sparkles className="h-3 w-3 stroke-1" />
+              100% FREE Session
             </div>
-            <div className="mt-6">
-              <div className="flex justify-between text-xs text-green-100 mb-2">
-                <span>
-                  Step {currentStep} of {totalSteps}
-                </span>
-                <span>
-                  {Math.round((currentStep / totalSteps) * 100)}% Complete
-                </span>
+            <div className="relative z-10 pt-8">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="bg-white/20 rounded-full p-2">
+                  <Sparkles className="h-6 w-6 stroke-1" />
+                </div>
+                <div>
+                  <DialogTitle className="text-2xl md:text-3xl font-bold">
+                    Book Your FREE Session
+                  </DialogTitle>
+                  <DialogDescription className="text-green-100 text-sm">
+                    No payment required • No commitment • Just come and try!
+                  </DialogDescription>
+                </div>
               </div>
-              <div className="w-full bg-white/20 rounded-full h-2">
-                <div
-                  className="bg-gradient-to-r from-amber-400 to-yellow-300 h-2 rounded-full transition-all duration-500 ease-out"
-                  style={{ width: `${(currentStep / totalSteps) * 100}%` }}
-                ></div>
+              <div className="mt-6">
+                <div className="flex justify-between text-xs text-green-100 mb-2">
+                  <span>
+                    Step {currentStep} of {totalSteps}
+                  </span>
+                  <span>
+                    {Math.round((currentStep / totalSteps) * 100)}% Complete
+                  </span>
+                </div>
+                <div className="w-full bg-white/20 rounded-full h-2">
+                  <div
+                    className="bg-gradient-to-r from-amber-400 to-yellow-300 h-2 rounded-full transition-all duration-500 ease-out"
+                    style={{ width: `${(currentStep / totalSteps) * 100}%` }}
+                  ></div>
+                </div>
               </div>
             </div>
           </div>
@@ -415,7 +409,10 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <FormLabel>Preferred Date *</FormLabel>
-                        <Popover open={isCalendarOpen} onOpenChange={setCalendarOpen}>
+                        <Popover
+                          open={isCalendarOpen}
+                          onOpenChange={setCalendarOpen}
+                        >
                           <PopoverTrigger asChild>
                             <FormControl>
                               <Button
@@ -427,7 +424,11 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
                                 data-testid="date-picker-trigger"
                               >
                                 {field.value ? (
-                                  format(field.value, 'PPP')
+                                  field.value.toLocaleDateString('en-US', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric',
+                                  })
                                 ) : (
                                   <span>Pick a date</span>
                                 )}

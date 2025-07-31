@@ -1,6 +1,11 @@
-import { POST } from '@/app/api/book-session/route'
+import {
+  POST,
+  RATE_LIMIT_MAX,
+  rateLimitStore,
+} from '@/app/api/book-session/route'
 import { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
 
 // Mock Prisma
 jest.mock('@/lib/prisma', () => ({
@@ -26,15 +31,19 @@ jest.mock('@/lib/prisma', () => ({
 
 // Mock email functions
 jest.mock('@/lib/email', () => ({
-  sendCustomerConfirmation: jest.fn().mockResolvedValue({ success: true, messageId: 'mock-id' }),
-  sendAdminNotification: jest.fn().mockResolvedValue({ success: true, messageId: 'mock-id' }),
+  sendCustomerConfirmation: jest
+    .fn()
+    .mockResolvedValue({ success: true, messageId: 'mock-id' }),
+  sendAdminNotification: jest
+    .fn()
+    .mockResolvedValue({ success: true, messageId: 'mock-id' }),
 }))
 
 jest.spyOn(NextResponse, 'json').mockImplementation((body, init) => {
   return {
     status: init?.status || 200,
     json: () => Promise.resolve(body),
-  } as any
+  } as NextResponse
 })
 
 function makeJsonRequest(data: Record<string, unknown>): NextRequest {
@@ -71,13 +80,13 @@ describe('API POST /api/book-session', () => {
     }
     const req = makeJsonRequest(validData)
     const res = await POST(req)
-    
+
     // Debug: log the response if it's not 201
     if (res.status !== 201) {
       const json = await res.json()
       console.log('Validation errors:', json)
     }
-    
+
     expect(res.status).toBe(201)
     const json = await res.json()
     expect(json).toHaveProperty('message', 'Booking submitted successfully!')
@@ -86,9 +95,11 @@ describe('API POST /api/book-session', () => {
 
   test('returns 500 on server exception', async () => {
     // Mock Prisma to throw an error
-    const { prisma } = require('@/lib/prisma')
-    prisma.booking.create.mockRejectedValueOnce(new Error('Database connection failed'))
-    
+    const mockCreate = prisma.booking.create as jest.MockedFunction<
+      typeof prisma.booking.create
+    >
+    mockCreate.mockRejectedValueOnce(new Error('Database connection failed'))
+
     const validData = {
       name: 'Error Case',
       email: 'error@example.com',
@@ -112,10 +123,56 @@ describe('API POST /api/book-session', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: 'not-a-json',
-    });
-    const res = await POST(req);
-    expect(res.status).toBe(400);
-    const json = await res.json();
-    expect(json).toHaveProperty('message', 'Invalid form data.');
-  });
+    })
+    const res = await POST(req)
+    expect(res.status).toBe(400)
+    const json = await res.json()
+    expect(json).toHaveProperty('message', 'Invalid form data.')
+  })
+
+  it('returns 429 when rate limit exceeded', async () => {
+    const ip = '1.2.3.4'
+    // Clear any existing record for IP
+    delete rateLimitStore[ip]
+    const validData = {
+      name: 'Rate Test',
+      email: 'rate@example.com',
+      phone: '0412345678',
+      service: '1-on-1 Personal Training',
+      date: new Date().toISOString(),
+      time: '10:00 AM',
+      goals: 'community',
+      experience: 'Beginner',
+      message: '',
+    }
+    // Send max allowed requests
+    for (let i = 0; i < RATE_LIMIT_MAX; i++) {
+      const req = new NextRequest('http://localhost/api/book-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-forwarded-for': ip,
+        },
+        body: JSON.stringify(validData),
+      })
+      const res = await POST(req)
+      expect(res.status).toBe(201)
+    }
+    // Sixth request should be rate limited
+    const req6 = new NextRequest('http://localhost/api/book-session', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-forwarded-for': ip,
+      },
+      body: JSON.stringify(validData),
+    })
+    const res6 = await POST(req6)
+    expect(res6.status).toBe(429)
+    const json6 = await res6.json()
+    expect(json6).toHaveProperty(
+      'message',
+      'Too many requests. Please try again later.'
+    )
+  })
 })

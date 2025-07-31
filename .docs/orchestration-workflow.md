@@ -186,17 +186,35 @@
 
 ### Test Failures
 
+**Critical Tests (MUST be fixed immediately)**:
+
 - Analyze failure root cause before fixing
 - Update tests if requirements changed
 - Maintain test quality and coverage
 - Document test patterns for reuse
 
+**Integration Tests (Can be temporarily tracked)**:
+
+- Document failing tests in `.docs/failing-tests.md`
+- Assign priority and timeline for resolution
+- Track in sprint planning and retrospectives
+- Never delete tests without fixing underlying issues
+
 ### Quality Gate Failures
 
-- Address issues immediately
-- Never bypass quality checks
-- Update tooling configuration if needed
-- Learn from failures to prevent recurrence
+**Critical Quality Gates (Never bypass)**:
+
+- Type checking failures
+- Linting errors
+- Critical test failures
+- Build failures
+- Security vulnerabilities
+
+**Non-Critical Quality Gates (Can be temporarily bypassed with tracking)**:
+
+- Integration test failures (with documentation)
+- Performance regressions (with monitoring)
+- Non-critical accessibility issues (with remediation plan)
 
 ### Integration Issues
 
@@ -230,10 +248,11 @@
 
 ### TDD Excellence
 
-- Test-first mentality
-- Comprehensive test coverage
-- Refactoring discipline
-- Design emergence through testing
+- **Test-first mentality** for new features
+- **Comprehensive critical test coverage** for core business logic
+- **Refactoring discipline** while maintaining green critical tests
+- **Design emergence through testing** with staged test execution
+- **Pragmatic test management** with categorized test suites
 
 ## Success Metrics
 

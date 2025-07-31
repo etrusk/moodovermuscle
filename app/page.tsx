@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, Suspense } from 'react'
+import { useState } from 'react'
 import { Header } from '@/components/header'
 import { BookingForm } from '@/components/booking-form'
 import { HeroSection } from '@/components/sections/hero-section'
@@ -10,7 +10,6 @@ import { HowItWorksSection } from '@/components/sections/how-it-works-section'
 import { GallerySection } from '@/components/sections/gallery-section'
 import { LocationContactSection } from '@/components/sections/location-contact-section'
 import { FinalCtaSection } from '@/components/sections/final-cta-section'
-import { Skeleton } from '@/components/ui/skeleton'
 
 export default function Home() {
   const [isBookingOpen, setIsBookingOpen] = useState(false)

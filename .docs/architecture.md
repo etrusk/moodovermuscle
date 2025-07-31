@@ -178,6 +178,23 @@ sendCustomerConfirmation(bookingData)
 - **Real-time Metrics**: Live performance data and historical trends
 - **User Experience Insights**: Detailed analytics on user interactions and page performance
 
+## Security Architecture
+
+### Rate Limiting
+
+**Implementation Strategy**: Implemented in-memory rate limiting for the `/api/book-session` endpoint to prevent abuse.
+
+- **Technology**: In-memory store (Map) to track requests per IP address.
+- **Limits**: 5 requests per minute per IP address.
+- **Error Handling**: Returns a 429 "Too Many Requests" status code when the limit is exceeded.
+- **Logging**: Logs a warning to the console when an IP address is rate-limited.
+
+### Security Architecture Benefits
+
+- **Abuse Prevention**: Protects the booking endpoint from simple denial-of-service attacks.
+- **Resource Protection**: Prevents the server from being overloaded with requests from a single client.
+- **Low Complexity**: In-memory solution is simple to implement and maintain for the current scale.
+
 ## Deployment Architecture
 
 ### Vercel Platform
@@ -266,6 +283,16 @@ sendCustomerConfirmation(bookingData)
 - **Type-Safe**: End-to-end TypeScript coverage with Zod validation
 - **Progressive Enhancement**: Works without JavaScript
 - **Mobile-First**: Responsive design approach
+
+#### Rate Limiting: In-Memory vs. Redis
+
+- **Decision**: Use a simple in-memory rate limiter instead of a more complex solution like Redis.
+- **Rationale**:
+  - The current scale of the application does not warrant the complexity and overhead of an external dependency like Redis.
+  - An in-memory solution is sufficient to protect against basic abuse and can be easily scaled or replaced if needed in the future.
+  - Vercel's serverless environment would require a managed Redis instance, adding cost and complexity.
+- **Alternative Considered**: Redis-based rate limiting (rejected due to complexity and cost).
+- **Benefits**: Simplicity, no external dependencies, and sufficient for current needs.
 - **Fire-and-Forget**: Non-blocking email service for optimal UX
 - **Atomic Commits**: TDD workflow with frequent, small commits
 

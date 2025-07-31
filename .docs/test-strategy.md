@@ -571,3 +571,40 @@ jest.mock('@/lib/prisma', () => ({
 - **Apply targeted ESLint disables**: Only disable rules where necessary
 - **Test mock initialization**: Verify mocks work correctly before relying on them
 - **Document hoisting workarounds**: Clear comments explaining why `require()` is used
+
+### Security Testing Patterns
+
+#### Rate Limiting Testing
+
+- **Integration Testing**: Verify the rate limiting logic by sending multiple requests from the same IP address.
+- **Normal Scenario**: Ensure that a single request is successful.
+- **Rate Limit Exceeded**: Send more requests than the allowed limit and assert that a 429 status code is returned.
+- **Timer Reset**: Wait for the rate limit window to expire and ensure that a new request is successful.
+
+```typescript
+// Example of rate limit testing in an integration test
+describe('Rate Limiting', () => {
+  it('should allow a single request', async () => {
+    const response = await fetch('/api/book-session', {
+      method: 'POST',
+      body: JSON.stringify(validBookingData),
+    })
+    expect(response.status).toBe(201)
+  })
+
+  it('should block requests that exceed the rate limit', async () => {
+    const promises = []
+    for (let i = 0; i < 6; i++) {
+      promises.push(
+        fetch('/api/book-session', {
+          method: 'POST',
+          body: JSON.stringify(validBookingData),
+        })
+      )
+    }
+    const responses = await Promise.all(promises)
+    const lastResponse = responses[responses.length - 1]
+    expect(lastResponse.status).toBe(429)
+  })
+})
+```

@@ -529,3 +529,29 @@ npm run type-check        # TypeScript compilation
 - **Monthly**: Update MSW handlers with new API scenarios
 - **Quarterly**: Review e2e test coverage and accessibility patterns
 - **Per Release**: Full test suite validation and performance review
+
+### Jest Mock Hoisting Patterns (Updated 2025-07-31)
+
+#### Integration Test Database Mocking
+
+```typescript
+// Correct pattern for Jest mock hoisting with dynamic imports
+jest.mock('@/lib/prisma', () => ({
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  prisma: require('../setup/test-db').testDb,
+}))
+```
+
+**Key Insights**:
+
+- Jest hoists `jest.mock()` calls, causing issues with ES6 imports in mock factories
+- Use `require()` within mock factory functions to avoid hoisting reference errors
+- ESLint disable comments are necessary for `@typescript-eslint/no-var-requires` rule
+- This pattern ensures proper test database initialization in integration tests
+
+#### Mock Factory Best Practices
+
+- **Use `require()` for dynamic imports**: Avoids Jest hoisting issues
+- **Apply targeted ESLint disables**: Only disable rules where necessary
+- **Test mock initialization**: Verify mocks work correctly before relying on them
+- **Document hoisting workarounds**: Clear comments explaining why `require()` is used

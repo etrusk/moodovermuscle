@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 import { POST } from '@/app/api/book-session/route'
-;+jest.setTimeout(20000)
+jest.setTimeout(20000)
 import { NextRequest } from 'next/server'
 import { testDb } from '../setup/test-db'
 import { createTestBookingData } from '../setup/test-db-data'
@@ -37,7 +37,7 @@ function makeJsonRequest(data: Record<string, unknown>): NextRequest {
   })
 }
 
-describe.skip('Error Scenarios Integration Tests', () => {
+describe('Error Scenarios Integration Tests', () => {
   beforeEach(async () => {
     await setupIntegrationTest()
     // Reset mocks
@@ -135,6 +135,14 @@ describe.skip('Error Scenarios Integration Tests', () => {
       })
 
       const testData = createTestBookingData()
+      testDb.booking.create.mockResolvedValue({
+        ...testData,
+        id: 'mock-id-customer-fail',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        phone: null,
+        message: null,
+      })
       const req = makeJsonRequest(testData)
 
       const response = await POST(req)
@@ -145,9 +153,7 @@ describe.skip('Error Scenarios Integration Tests', () => {
       expect(responseData.message).toBe('Booking submitted successfully!')
 
       // Verify booking was created in database
-      expect(testDb.booking.findUnique).toHaveBeenCalledWith({
-        where: { id: responseData.data.id },
-      })
+      expect(testDb.booking.create).toHaveBeenCalled()
     })
 
     it('should handle admin email failure gracefully', async () => {
@@ -162,6 +168,14 @@ describe.skip('Error Scenarios Integration Tests', () => {
       })
 
       const testData = createTestBookingData()
+      testDb.booking.create.mockResolvedValue({
+        ...testData,
+        id: 'mock-id-admin-fail',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        phone: null,
+        message: null,
+      })
       const req = makeJsonRequest(testData)
 
       const response = await POST(req)
@@ -170,6 +184,8 @@ describe.skip('Error Scenarios Integration Tests', () => {
       expect(response.status).toBe(201)
       const responseData = await response.json()
       expect(responseData.message).toBe('Booking submitted successfully!')
+      // Verify booking was created
+      expect(testDb.booking.create).toHaveBeenCalled()
     })
 
     it('should handle both email failures gracefully', async () => {
@@ -184,6 +200,14 @@ describe.skip('Error Scenarios Integration Tests', () => {
       })
 
       const testData = createTestBookingData()
+      testDb.booking.create.mockResolvedValue({
+        ...testData,
+        id: 'mock-id-both-fail',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        phone: null,
+        message: null,
+      })
       const req = makeJsonRequest(testData)
 
       const response = await POST(req)
@@ -192,6 +216,8 @@ describe.skip('Error Scenarios Integration Tests', () => {
       expect(response.status).toBe(201)
       const responseData = await response.json()
       expect(responseData.message).toBe('Booking submitted successfully!')
+      // Verify booking was created
+      expect(testDb.booking.create).toHaveBeenCalled()
     })
 
     it('should handle email service timeout', async () => {
@@ -208,19 +234,31 @@ describe.skip('Error Scenarios Integration Tests', () => {
       })
 
       const testData = createTestBookingData()
+      testDb.booking.create.mockResolvedValue({
+        ...testData,
+        id: 'mock-id-timeout',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        phone: null,
+        message: null,
+      })
       const req = makeJsonRequest(testData)
 
       const response = await POST(req)
 
       // Should handle timeout gracefully
       expect(response.status).toBe(201)
+      // Verify booking was created
+      expect(testDb.booking.create).toHaveBeenCalled()
     })
   })
 
   describe('Database Connection Issues', () => {
     it('should handle database connection failure', async () => {
-      // Temporarily disconnect the test database
-      await testDb.$disconnect()
+      // Mock the create method to throw an error
+      testDb.booking.create.mockRejectedValue(
+        new Error('Database connection failed')
+      )
 
       const testData = createTestBookingData()
       const req = makeJsonRequest(testData)
@@ -230,10 +268,7 @@ describe.skip('Error Scenarios Integration Tests', () => {
       expect(response.status).toBe(500)
       const responseData = await response.json()
       expect(responseData.message).toBe('Failed to submit booking.')
-      expect(responseData.error).toBeDefined()
-
-      // Reconnect for cleanup
-      await testDb.$connect()
+      expect(responseData.error).toContain('Database connection failed')
     })
   })
 

@@ -40,6 +40,18 @@ This document tracks technical debt across the MoodOverMuscle project, providing
 - **Impact**: Reduced deployment complexity and configuration errors
 - **Lessons Learned**: Early validation prevents runtime configuration issues
 
+### Recently Resolved Debt (2025-07-31)
+
+#### ✅ Jest Mock Hoisting Issues (RESOLVED)
+
+- **Resolution**: Fixed Jest mock hoisting errors in integration tests
+- **Actions Taken**:
+  - Applied ESLint disable comments for necessary `require()` statements in Jest mock factories
+  - Resolved testDb reference errors by using `require()` within mock factory functions
+  - Ensured pre-push hook tests pass reliably with proper mock initialization
+- **Impact**: Restored pre-push hook functionality and test reliability
+- **Lessons Learned**: Jest hoisting behavior requires careful handling of dynamic imports in mock factories
+
 ### Current High Priority Debt
 
 #### Email Template Management (Medium)
@@ -360,7 +372,7 @@ module.exports = {
 
 ---
 
-**Last Updated**: 2025-07-30 (Post-Implementation Review)
+**Last Updated**: 2025-07-31 (Jest Mock Hoisting Resolution)
 **Review Schedule**: Weekly assessment, Monthly planning
 **Owner**: Development Team
 **Stakeholders**: Product Team, Engineering Leadership

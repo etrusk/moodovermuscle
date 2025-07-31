@@ -66,11 +66,15 @@
 - **Email Service**: SMTP/Nodemailer integration complete ✅
 - **Analytics**: Not implemented (planned) 📋
 
-### Current Branch Strategy
+### Branch Strategy
 
-- **Branch**: `main` (continuing direct commits for rapid prototyping)
-- **Quality Focus**: Test pyramid implementation and E2E reliability
-- **Next Phase**: Feature branches for analytics and admin dashboard
+- **`main` Branch (Production)**: Represents the stable, live version. Direct commits are prohibited. Merges trigger production deployments on Vercel.
+- **Feature Branches (`feat/<task-name>`)**: All development happens in isolated branches created from `main`. Pushing to a feature branch automatically deploys a Vercel Preview Environment.
+- **Pull Requests & Quality Gates**:
+  - **Vercel Preview**: A link to a live preview is posted in every PR for review.
+  - **Automated Checks**: Linting, type-checking, unit, and integration tests run automatically.
+  - **Client Acceptance Gate**: For significant changes, **Emily's approval is a mandatory quality gate**. She will review the Vercel preview and provide sign-off in the PR.
+  - **Merge Strategy**: Once all checks pass and approval is given, the PR is squashed and merged into `main`, and the feature branch is deleted.
 
 ### Progress Tracking
 

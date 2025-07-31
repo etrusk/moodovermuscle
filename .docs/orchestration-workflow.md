@@ -329,11 +329,14 @@ pnpm lighthouse          # Performance audit
 git checkout -b feat/feature-name
 # ... development with TDD cycles ...
 git add . && git commit -m "feat: description"
-git push origin feat/feature-name  # Triggers critical tests only
+git push origin feat/feature-name  # Triggers Vercel Preview deployment and critical tests
 
-# Pre-release validation
-pnpm test:full            # All tests must pass
-git checkout main && git merge feat/feature-name
+# Pull Request & Validation
+# 1. Open a PR from feat/feature-name to main
+# 2. Automated checks (tests, linting) run
+# 3. Vercel Preview link is posted for review
+# 4. Client (Emily) provides approval on the PR
+# 5. After approval, squash and merge the PR
 ```
 
 ## Integration with Project Documentation

@@ -37,7 +37,6 @@
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
     "@prisma/client": "^6.12.0",
-    "prisma": "^6.12.0",
     "@radix-ui/react-accordion": "latest",
     "@radix-ui/react-alert-dialog": "latest",
     "@radix-ui/react-aspect-ratio": "latest",
@@ -79,6 +78,7 @@
     "next": "15.2.4",
     "next-themes": "latest",
     "nodemailer": "^7.0.5",
+    "prisma": "^6.12.0",
     "react": "^19",
     "react-day-picker": "latest",
     "react-dom": "^19",
@@ -92,6 +92,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.10.2",
     "@commitlint/cli": "^19.0.0",
     "@commitlint/config-conventional": "^19.0.0",
     "@faker-js/faker": "^8.4.1",

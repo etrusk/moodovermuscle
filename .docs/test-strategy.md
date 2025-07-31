@@ -433,6 +433,15 @@ export const TEST_STRINGS = {
 - **Connection Latency**: Monitor database connection times in serverless environment
 - Image optimization verification
 
+### Mobile Experience Testing
+
+- **Strategy**: A comprehensive mobile audit strategy has been defined to ensure a high-quality user experience on mobile devices.
+- **Documentation**: For a detailed breakdown of the mobile testing methodology, device matrix, performance targets, and implementation plan, please refer to the [Mobile Experience Audit Strategy](mobile-audit-strategy.md).
+- **Key Areas**:
+  - Touch-friendly interactions and target sizes.
+  - Responsive behavior of all components, especially the booking form and calendar.
+  - Mobile-specific performance and accessibility compliance (WCAG 2.1 AA).
+
 ## Error Handling & Edge Cases
 
 ### Network & System Failures

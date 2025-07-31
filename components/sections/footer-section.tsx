@@ -1,9 +1,9 @@
-"use client"
+'use client'
 
-import { Button } from "@/components/ui/button"
-import { Instagram } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
+import { Button } from '@/components/ui/button'
+import { Instagram } from 'lucide-react'
+import Image from 'next/image'
+import Link from 'next/link'
 
 export function FooterSection() {
   return (
@@ -19,8 +19,8 @@ export function FooterSection() {
               className="rounded-full shadow-lg mx-auto md:mx-0 hover:scale-110 transition-transform"
             />
             <p className="text-stone-400 leading-relaxed text-base md:text-lg">
-              Building a supportive community for mums on the Sunshine Coast through fitness, wellness, and
-              connection.
+              Building a supportive community for mums on the Sunshine Coast
+              through fitness, wellness, and connection.
             </p>
             <div className="flex items-center gap-4 justify-center md:justify-start">
               <p className="text-stone-400 text-sm">
@@ -69,12 +69,15 @@ export function FooterSection() {
               <Button
                 size="sm"
                 variant="ghost"
+                aria-label="Visit Instagram"
                 className="text-stone-400 hover:text-white hover:bg-white/10 rounded-full p-3 hover:scale-110 transition-all"
               >
                 <Instagram className="h-4 md:h-5 w-4 md:w-5 stroke-1" />
               </Button>
             </div>
-            <p className="text-stone-400 text-base md:text-lg">© 2025 MoodOverMuscle. All rights reserved.</p>
+            <p className="text-stone-400 text-base md:text-lg">
+              © 2025 MoodOverMuscle. All rights reserved.
+            </p>
           </div>
         </div>
       </div>

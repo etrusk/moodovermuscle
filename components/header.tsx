@@ -77,6 +77,7 @@ export function Header({ onBookSessionClick }: HeaderProps) {
           variant="ghost"
           size="sm"
           className="md:hidden ml-auto hover:bg-rose-50 transition-colors"
+          aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
           {isMobileMenuOpen ? (

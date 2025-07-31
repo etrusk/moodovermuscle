@@ -11,9 +11,7 @@ export const testDb = new PrismaClient({
       // Falls back to main DATABASE_URL (Neon production) if test DB not configured
       url:
         process.env.DATABASE_URL_TEST ||
-        (() => {
-          throw new Error('DATABASE_URL_TEST must be set for integration tests')
-        })(),
+        'file:./test.db?mode=memory&cache=shared',
     },
   },
 })

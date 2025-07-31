@@ -1,18 +1,22 @@
-"use client"
+'use client'
 
-import * as React from "react"
-import { ChevronLeft, ChevronRight } from "lucide-react"
-import { DayPicker } from "react-day-picker"
+import * as React from 'react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { DayPicker } from 'react-day-picker'
 
-import { cn } from "@/lib/utils"
-import { buttonVariants } from "@/components/ui/button"
+import { cn } from '@/lib/utils'
+import { buttonVariants } from '@/components/ui/button'
 
-export type CalendarProps = React.ComponentProps<typeof DayPicker>
+export type CalendarProps = React.ComponentProps<typeof DayPicker> & {
+  onSelect?: React.ComponentProps<typeof DayPicker>['onDayClick']
+}
 
 function Calendar({
   className,
   classNames,
   showOutsideDays = true,
+  onSelect,
+  onMonthChange,
   ...props
 }: CalendarProps) {
   return (
@@ -59,16 +63,26 @@ function Calendar({
           const { orientation } = props
           if (orientation === 'left') {
             return (
-              <ChevronLeft className="h-4 w-4" data-testid="calendar-prev-button" />
+              <ChevronLeft
+                className="h-4 w-4"
+                data-testid="calendar-prev-button"
+              />
             )
           }
-          return <ChevronRight className="h-4 w-4" data-testid="calendar-next-button" />
+          return (
+            <ChevronRight
+              className="h-4 w-4"
+              data-testid="calendar-next-button"
+            />
+          )
         },
       }}
+      onDayClick={onSelect}
+      onMonthChange={onMonthChange}
       {...props}
     />
   )
 }
-Calendar.displayName = "Calendar"
+Calendar.displayName = 'Calendar'
 
 export { Calendar }

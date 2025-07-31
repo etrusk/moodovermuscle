@@ -25,7 +25,9 @@ describe('Calendar Component Integration Tests', () => {
     })
     const dateCell = dateCells.find(cell => !cell.getAttribute('data-outside'))
     if (!dateCell) throw new Error('Valid date cell not found')
-    await user.click(dateCell)
+    const button = dateCell.querySelector('button')
+    if (!button) throw new Error('Date button not found')
+    await user.click(button)
     expect(onSelect).toHaveBeenCalled()
   })
 
@@ -40,7 +42,9 @@ describe('Calendar Component Integration Tests', () => {
       cell => !cell.getAttribute('data-outside')
     )
     if (!disabledDate) throw new Error('Disabled date cell not found')
-    await user.click(disabledDate)
+    const disabledButton = disabledDate.querySelector('button')
+    if (!disabledButton) throw new Error('Disabled date button not found')
+    await user.click(disabledButton)
     expect(onSelect).not.toHaveBeenCalled()
   })
 

@@ -3,15 +3,17 @@
  */
 import { POST } from '@/app/api/book-session/route'
 import { NextRequest } from 'next/server'
-import {
-  testDb
-} from '../setup/test-db'
+import { testDb } from '../setup/test-db'
 import { createTestBookingData } from '../setup/test-db-data'
-import { setupIntegrationTest, teardownIntegrationTest, waitFor } from '../setup/test-helpers'
+import {
+  setupIntegrationTest,
+  teardownIntegrationTest,
+  waitFor,
+} from '../setup/test-helpers'
 jest.setTimeout(15000)
 
-// Mock the prisma client to use the test database
 jest.mock('@/lib/prisma', () => ({
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   prisma: require('../setup/test-db').testDb,
 }))
 // Mock the prisma client

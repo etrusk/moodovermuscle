@@ -1,27 +1,31 @@
 /**
  * @jest-environment node
  */
-import { POST } from '@/app/api/book-session/route';
-+ jest.setTimeout(20000);
-import { NextRequest } from 'next/server';
-import { testDb } from '../setup/test-db';
-import { createTestBookingData } from '../setup/test-db-data';
-import { setupIntegrationTest, teardownIntegrationTest, waitFor } from '../setup/test-helpers';
+import { POST } from '@/app/api/book-session/route'
+;+jest.setTimeout(20000)
+import { NextRequest } from 'next/server'
+import { testDb } from '../setup/test-db'
+import { createTestBookingData } from '../setup/test-db-data'
+import {
+  setupIntegrationTest,
+  teardownIntegrationTest,
+  waitFor,
+} from '../setup/test-helpers'
 
 // Mock the prisma client to use the test database
-jest.mock('@/lib/prisma', () => {
-  const { testDb } = require('../setup/test-db')
-  return { prisma: testDb }
-})
+jest.mock('@/lib/prisma', () => ({
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  prisma: require('../setup/test-db').testDb,
+}))
 // Mock the prisma client
 // Mock the email module
-jest.mock('@/lib/email');
+jest.mock('@/lib/email')
 
 // Import the mocked functions to control them in tests
-import { sendCustomerConfirmation, sendAdminNotification } from '@/lib/email';
+import { sendCustomerConfirmation, sendAdminNotification } from '@/lib/email'
 
-const mockSendCustomerConfirmation = sendCustomerConfirmation as jest.Mock;
-const mockSendAdminNotification = sendAdminNotification as jest.Mock;
+const mockSendCustomerConfirmation = sendCustomerConfirmation as jest.Mock
+const mockSendAdminNotification = sendAdminNotification as jest.Mock
 
 function makeJsonRequest(data: Record<string, unknown>): NextRequest {
   return new NextRequest('http://localhost/api/book-session', {
@@ -48,12 +52,12 @@ describe.skip('Error Scenarios Integration Tests', () => {
   describe('Database Constraint Violations', () => {
     it('should handle invalid email format', async () => {
       const invalidData = createTestBookingData({
-        email: 'not-an-email'
+        email: 'not-an-email',
       })
-      
+
       const req = makeJsonRequest(invalidData)
       const response = await POST(req)
-      
+
       expect(response.status).toBe(400)
       const responseData = await response.json()
       expect(responseData.message).toBe('Invalid form data.')
@@ -62,13 +66,13 @@ describe.skip('Error Scenarios Integration Tests', () => {
 
     it('should handle missing required fields', async () => {
       const incompleteData = {
-        name: 'Test User'
+        name: 'Test User',
         // Missing email, service, date, time
       }
-      
+
       const req = makeJsonRequest(incompleteData)
       const response = await POST(req)
-      
+
       expect(response.status).toBe(400)
       const responseData = await response.json()
       expect(responseData.message).toBe('Invalid form data.')
@@ -77,12 +81,12 @@ describe.skip('Error Scenarios Integration Tests', () => {
 
     it('should handle invalid service type', async () => {
       const invalidData = createTestBookingData({
-        service: 'Invalid Service That Does Not Exist'
+        service: 'Invalid Service That Does Not Exist',
       })
-      
+
       const req = makeJsonRequest(invalidData)
       const response = await POST(req)
-      
+
       expect(response.status).toBe(400)
       const responseData = await response.json()
       expect(responseData.message).toBe('Invalid form data.')
@@ -91,12 +95,12 @@ describe.skip('Error Scenarios Integration Tests', () => {
 
     it('should handle invalid date format', async () => {
       const invalidData = createTestBookingData({
-        date: 'not-a-date' as any // eslint-disable-line @typescript-eslint/no-explicit-any
+        date: 'not-a-date' as any, // eslint-disable-line @typescript-eslint/no-explicit-any
       })
-      
+
       const req = makeJsonRequest(invalidData)
       const response = await POST(req)
-      
+
       expect(response.status).toBe(400)
       const responseData = await response.json()
       expect(responseData.message).toBe('Invalid form data.')
@@ -106,12 +110,12 @@ describe.skip('Error Scenarios Integration Tests', () => {
       const longString = 'a'.repeat(1000)
       const invalidData = createTestBookingData({
         name: longString,
-        message: longString
+        message: longString,
       })
-      
+
       const req = makeJsonRequest(invalidData)
       const response = await POST(req)
-      
+
       expect(response.status).toBe(400)
       const responseData = await response.json()
       expect(responseData.message).toBe('Invalid form data.')
@@ -121,25 +125,25 @@ describe.skip('Error Scenarios Integration Tests', () => {
   describe('Email Service Failures', () => {
     it('should handle customer email failure gracefully', async () => {
       // Mock customer email to fail
-      mockSendCustomerConfirmation.mockResolvedValue({ 
-        success: false, 
-        error: 'SMTP connection failed' 
+      mockSendCustomerConfirmation.mockResolvedValue({
+        success: false,
+        error: 'SMTP connection failed',
       })
-      mockSendAdminNotification.mockResolvedValue({ 
-        success: true, 
-        messageId: 'admin-success' 
+      mockSendAdminNotification.mockResolvedValue({
+        success: true,
+        messageId: 'admin-success',
       })
-      
+
       const testData = createTestBookingData()
       const req = makeJsonRequest(testData)
-      
+
       const response = await POST(req)
-      
+
       // Should still create booking even if customer email fails
       expect(response.status).toBe(201)
       const responseData = await response.json()
       expect(responseData.message).toBe('Booking submitted successfully!')
-      
+
       // Verify booking was created in database
       expect(testDb.booking.findUnique).toHaveBeenCalledWith({
         where: { id: responseData.data.id },
@@ -148,20 +152,20 @@ describe.skip('Error Scenarios Integration Tests', () => {
 
     it('should handle admin email failure gracefully', async () => {
       // Mock admin email to fail
-      mockSendCustomerConfirmation.mockResolvedValue({ 
-        success: true, 
-        messageId: 'customer-success' 
+      mockSendCustomerConfirmation.mockResolvedValue({
+        success: true,
+        messageId: 'customer-success',
       })
-      mockSendAdminNotification.mockResolvedValue({ 
-        success: false, 
-        error: 'Admin email address invalid' 
+      mockSendAdminNotification.mockResolvedValue({
+        success: false,
+        error: 'Admin email address invalid',
       })
-      
+
       const testData = createTestBookingData()
       const req = makeJsonRequest(testData)
-      
+
       const response = await POST(req)
-      
+
       // Should still create booking even if admin email fails
       expect(response.status).toBe(201)
       const responseData = await response.json()
@@ -170,20 +174,20 @@ describe.skip('Error Scenarios Integration Tests', () => {
 
     it('should handle both email failures gracefully', async () => {
       // Mock both emails to fail
-      mockSendCustomerConfirmation.mockResolvedValue({ 
-        success: false, 
-        error: 'Customer email failed' 
+      mockSendCustomerConfirmation.mockResolvedValue({
+        success: false,
+        error: 'Customer email failed',
       })
-      mockSendAdminNotification.mockResolvedValue({ 
-        success: false, 
-        error: 'Admin email failed' 
+      mockSendAdminNotification.mockResolvedValue({
+        success: false,
+        error: 'Admin email failed',
       })
-      
+
       const testData = createTestBookingData()
       const req = makeJsonRequest(testData)
-      
+
       const response = await POST(req)
-      
+
       // Should still create booking even if both emails fail
       expect(response.status).toBe(201)
       const responseData = await response.json()
@@ -192,21 +196,22 @@ describe.skip('Error Scenarios Integration Tests', () => {
 
     it('should handle email service timeout', async () => {
       // Mock email to timeout
-      mockSendCustomerConfirmation.mockImplementation(() => 
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Timeout')), 100)
-        )
+      mockSendCustomerConfirmation.mockImplementation(
+        () =>
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Timeout')), 100)
+          )
       )
-      mockSendAdminNotification.mockResolvedValue({ 
-        success: true, 
-        messageId: 'admin-success' 
+      mockSendAdminNotification.mockResolvedValue({
+        success: true,
+        messageId: 'admin-success',
       })
-      
+
       const testData = createTestBookingData()
       const req = makeJsonRequest(testData)
-      
+
       const response = await POST(req)
-      
+
       // Should handle timeout gracefully
       expect(response.status).toBe(201)
     })
@@ -216,17 +221,17 @@ describe.skip('Error Scenarios Integration Tests', () => {
     it('should handle database connection failure', async () => {
       // Temporarily disconnect the test database
       await testDb.$disconnect()
-      
+
       const testData = createTestBookingData()
       const req = makeJsonRequest(testData)
-      
+
       const response = await POST(req)
-      
+
       expect(response.status).toBe(500)
       const responseData = await response.json()
       expect(responseData.message).toBe('Failed to submit booking.')
       expect(responseData.error).toBeDefined()
-      
+
       // Reconnect for cleanup
       await testDb.$connect()
     })
@@ -241,9 +246,9 @@ describe.skip('Error Scenarios Integration Tests', () => {
         },
         body: 'not-json-data',
       })
-      
+
       const response = await POST(req)
-      
+
       expect(response.status).toBe(400)
       const responseData = await response.json()
       expect(responseData.message).toBe('Invalid form data.')
@@ -257,9 +262,9 @@ describe.skip('Error Scenarios Integration Tests', () => {
         },
         body: '',
       })
-      
+
       const response = await POST(req)
-      
+
       expect(response.status).toBe(400)
     })
 
@@ -271,9 +276,9 @@ describe.skip('Error Scenarios Integration Tests', () => {
         },
         body: JSON.stringify(createTestBookingData()),
       })
-      
+
       const response = await POST(req)
-      
+
       // Should still work as long as body is valid JSON
       expect([200, 201, 400, 500]).toContain(response.status)
     })
@@ -284,23 +289,25 @@ describe.skip('Error Scenarios Integration Tests', () => {
       const bookingPromises = Array.from({ length: 3 }, (_, i) => {
         const testData = createTestBookingData({
           name: `Concurrent User ${i}`,
-          email: `concurrent-${i}-${Date.now()}@example.com`
+          email: `concurrent-${i}-${Date.now()}@example.com`,
         })
         const req = makeJsonRequest(testData)
         return POST(req)
       })
-      
+
       const responses = await Promise.all(bookingPromises)
-      
+
       // Most should succeed, but some may fail due to database connection limits
-      const successfulResponses = responses.filter(response => response.status === 201)
+      const successfulResponses = responses.filter(
+        response => response.status === 201
+      )
       expect(successfulResponses.length).toBeGreaterThan(0)
-      
+
       // Verify all bookings were created with unique IDs
       const responseData = await Promise.all(
         responses.map(response => response.json())
       )
-      
+
       const bookingIds = responseData.map(data => data.data.id)
       const uniqueIds = new Set(bookingIds)
       expect(uniqueIds.size).toBe(bookingIds.length)
@@ -310,15 +317,15 @@ describe.skip('Error Scenarios Integration Tests', () => {
   describe('Data Validation Edge Cases', () => {
     it.skip('should handle special characters in names', async () => {
       const testData = createTestBookingData({
-        name: "O'Connor-Smith & Associates"
+        name: "O'Connor-Smith & Associates",
       })
-      
+
       const req = makeJsonRequest(testData)
       const response = await POST(req)
-      
+
       expect([201, 500]).toContain(response.status)
       const responseData = await response.json()
-      
+
       const createdBooking = await waitFor(() =>
         testDb.booking.findUnique({
           where: { id: responseData.data.id },
@@ -330,22 +337,24 @@ describe.skip('Error Scenarios Integration Tests', () => {
     it.skip('should handle unicode characters', async () => {
       const testData = createTestBookingData({
         name: 'José María González',
-        message: 'Looking forward to the session! 🏋️‍♀️💪'
+        message: 'Looking forward to the session! 🏋️‍♀️💪',
       })
-      
+
       const req = makeJsonRequest(testData)
       const response = await POST(req)
-      
+
       expect([201, 500]).toContain(response.status)
       const responseData = await response.json()
-      
+
       const createdBooking = await waitFor(() =>
         testDb.booking.findUnique({
           where: { id: responseData.data.id },
         })
       )
       expect(createdBooking?.name).toBe('José María González')
-      expect(createdBooking?.message).toBe('Looking forward to the session! 🏋️‍♀️💪')
+      expect(createdBooking?.message).toBe(
+        'Looking forward to the session! 🏋️‍♀️💪'
+      )
     })
   })
 })

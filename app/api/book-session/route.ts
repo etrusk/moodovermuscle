@@ -23,12 +23,15 @@ export async function POST(request: Request) {
           { status: 429 }
         )
       }
-      rateLimitStore[ip] = { count: prev.count + 1, firstRequest: prev.firstRequest }
+      rateLimitStore[ip] = {
+        count: prev.count + 1,
+        firstRequest: prev.firstRequest,
+      }
     } else {
       rateLimitStore[ip] = { count: 1, firstRequest: now }
     }
   }
-  
+
   try {
     let formData
     try {
@@ -89,7 +92,10 @@ export async function POST(request: Request) {
     })
       .then(res => {
         if (!res.success) {
-          console.error('Failed to send customer confirmation email:', res.error)
+          console.error(
+            'Failed to send customer confirmation email:',
+            res.error
+          )
         }
       })
       .catch(err => {
@@ -126,3 +132,4 @@ export async function POST(request: Request) {
     )
   }
 }
+export { RATE_LIMIT_MAX, rateLimitStore }

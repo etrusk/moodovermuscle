@@ -5,7 +5,7 @@ import {
   createAdminNotificationEmail,
   testEmailConnection,
 } from '@/lib/email'
-import { createTestBookingData } from '../setup/test-db'
+import { createTestBookingData } from '../setup/test-db-data'
 
 // Helper to transform booking data to email format
 function transformBookingForEmail(

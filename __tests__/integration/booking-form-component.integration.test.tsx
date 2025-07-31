@@ -2,7 +2,7 @@ import React from 'react'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { BookingForm } from '@/components/booking-form'
-import { setupIntegrationTest, teardownIntegrationTest } from '../setup/test-db'
+import { setupIntegrationTest, teardownIntegrationTest } from '../setup/test-helpers'
 
 // Mock the email functions but allow real API calls
 jest.mock('@/lib/email', () => ({

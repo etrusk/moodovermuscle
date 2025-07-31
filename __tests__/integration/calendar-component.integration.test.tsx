@@ -9,7 +9,7 @@ describe('Calendar Component Integration Tests', () => {
   tomorrow.setDate(today.getDate() + 1)
 
   it('renders calendar and navigation buttons', () => {
-    render(<Calendar mode="single" selected={undefined} onSelect={() => {}} />)
+    render(<Calendar mode="single" selected={undefined} onDayClick={() => {}} />)
     const prevButton = screen.getByTestId('calendar-prev-button')
     const nextButton = screen.getByTestId('calendar-next-button')
     expect(prevButton).toBeInTheDocument()
@@ -18,8 +18,8 @@ describe('Calendar Component Integration Tests', () => {
 
   it('calls onSelect when a valid date is clicked', async () => {
     const user = userEvent.setup()
-    const onSelect = jest.fn()
-    render(<Calendar mode="single" selected={undefined} onSelect={onSelect} />)
+    const onDayClick = jest.fn()
+    render(<Calendar mode="single" selected={undefined} onDayClick={onDayClick} />)
     const dateCells = screen.getAllByRole('gridcell', {
       name: tomorrow.getDate().toString(),
     })
@@ -28,13 +28,20 @@ describe('Calendar Component Integration Tests', () => {
     const button = dateCell.querySelector('button')
     if (!button) throw new Error('Date button not found')
     await user.click(button)
-    expect(onSelect).toHaveBeenCalled()
+    expect(onDayClick).toHaveBeenCalled()
   })
 
   it('does not call onSelect for disabled dates', async () => {
     const user = userEvent.setup()
-    const onSelect = jest.fn()
-    render(<Calendar mode="single" selected={undefined} onSelect={onSelect} />)
+    const onDayClick = jest.fn()
+    render(
+      <Calendar
+        mode="single"
+        selected={undefined}
+        onDayClick={onDayClick}
+        disabled={[today]}
+      />
+    )
     const disabledCells = screen.getAllByRole('gridcell', {
       name: today.getDate().toString(),
     })
@@ -45,7 +52,7 @@ describe('Calendar Component Integration Tests', () => {
     const disabledButton = disabledDate.querySelector('button')
     if (!disabledButton) throw new Error('Disabled date button not found')
     await user.click(disabledButton)
-    expect(onSelect).not.toHaveBeenCalled()
+    expect(onDayClick).not.toHaveBeenCalled()
   })
 
   it('navigates months when prev and next clicked', async () => {
@@ -55,7 +62,7 @@ describe('Calendar Component Integration Tests', () => {
       <Calendar
         mode="single"
         selected={undefined}
-        onSelect={() => {}}
+        onDayClick={() => {}}
         onMonthChange={onMonthChange}
       />
     )

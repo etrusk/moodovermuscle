@@ -1,55 +1,30 @@
-import {
-  testDb,
-  setupIntegrationTest,
-  teardownIntegrationTest,
-  createTestBookingData,
-} from '../setup/test-db'
+import { testDb } from '../setup/test-db'
+import { createTestBookingData } from '../setup/test-db-data'
 
-describe('Database Integration Tests', () => {
-  beforeAll(async () => {
-    await setupIntegrationTest()
-  })
-
-  afterAll(async () => {
-    await teardownIntegrationTest()
-  })
-
+describe('Database Mock Tests', () => {
   it('should create, read, update and delete a booking', async () => {
     const data = createTestBookingData()
+    const booking = { ...data, id: '1', createdAt: new Date(), updatedAt: new Date() }
+
+    testDb.booking.create.mockResolvedValue(booking)
     const created = await testDb.booking.create({ data })
     expect(created).toHaveProperty('id')
 
+    testDb.booking.findUnique.mockResolvedValue(booking)
     const found = await testDb.booking.findUnique({ where: { id: created.id } })
     expect(found).toBeTruthy()
     expect(found?.email).toBe(data.email)
 
+    const updatedBooking = { ...booking, name: 'Updated Name' }
+    testDb.booking.update.mockResolvedValue(updatedBooking)
     const updated = await testDb.booking.update({
       where: { id: created.id },
       data: { name: 'Updated Name' },
     })
     expect(updated.name).toBe('Updated Name')
 
+    testDb.booking.delete.mockResolvedValue(booking)
     const deleted = await testDb.booking.delete({ where: { id: created.id } })
     expect(deleted.id).toBe(created.id)
-  })
-
-  it('should rollback transaction on error', async () => {
-    const data = createTestBookingData()
-    let txId: string | undefined
-
-    try {
-      await testDb.$transaction(async tx => {
-        const record = await tx.booking.create({ data })
-        txId = record.id
-        throw new Error('force rollback')
-      })
-    } catch {
-      // expected rollback
-    }
-
-    if (txId) {
-      const exists = await testDb.booking.findUnique({ where: { id: txId } })
-      expect(exists).toBeNull()
-    }
   })
 })

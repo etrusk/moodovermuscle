@@ -9,9 +9,13 @@ export const testDb = new PrismaClient({
     db: {
       // Prefer test-specific DATABASE_URL_TEST for isolated testing
       // Falls back to main DATABASE_URL (Neon production) if test DB not configured
-      url: process.env.DATABASE_URL_TEST || process.env.DATABASE_URL
-    }
-  }
+      url:
+        process.env.DATABASE_URL_TEST ||
+        (() => {
+          throw new Error('DATABASE_URL_TEST must be set for integration tests')
+        })(),
+    },
+  },
 })
 
 // Helper to clean up test data
@@ -21,9 +25,9 @@ export async function cleanupTestData() {
     await testDb.booking.deleteMany({
       where: {
         email: {
-          contains: 'test-integration'
-        }
-      }
+          contains: 'test-integration',
+        },
+      },
     })
   } catch (error) {
     console.warn('Cleanup failed:', error)
@@ -42,7 +46,7 @@ export function createTestBookingData(overrides = {}) {
     goals: 'community',
     experience: 'Beginner',
     message: 'Integration test booking',
-    ...overrides
+    ...overrides,
   }
 }
 
@@ -55,7 +59,10 @@ export async function teardownIntegrationTest() {
   await cleanupTestData()
   await testDb.$disconnect()
 }
-export async function waitFor<T>(fn: () => Promise<T>, { timeout = 15000, interval = 100 } = {}): Promise<T> {
+export async function waitFor<T>(
+  fn: () => Promise<T>,
+  { timeout = 15000, interval = 100 } = {}
+): Promise<T> {
   const startTime = Date.now()
   while (Date.now() - startTime < timeout) {
     try {

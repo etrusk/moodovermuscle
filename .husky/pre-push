@@ -1,5 +1,3 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
 
 # --- Pre-push Hook ---
 # This hook runs before a push to ensure code quality.

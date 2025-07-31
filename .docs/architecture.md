@@ -151,6 +151,33 @@ sendCustomerConfirmation(bookingData)
   .catch(err => console.error('Email error:', err))
 ```
 
+## Performance Monitoring Architecture
+
+### Core Web Vitals Tracking
+
+**Implementation Strategy**: Leveraged Vercel's built-in Analytics and SpeedInsights tools instead of custom implementation
+
+- **Vercel Analytics**: Comprehensive user behavior tracking via [`@vercel/analytics`](../app/layout.tsx:15)
+- **Speed Insights**: Core Web Vitals monitoring via [`@vercel/speed-insights`](../app/layout.tsx:16)
+- **Real-time Dashboard**: Professional-grade monitoring interface in Vercel console
+- **Automated Alerts**: Built-in notification system for performance regressions
+
+### Performance Monitoring Benefits
+
+- **Zero Maintenance Overhead**: No custom performance tracking code to maintain
+- **Industry Standards**: Follows Google's Core Web Vitals specifications (LCP, FID, CLS)
+- **Scalability**: Built-in infrastructure handles traffic scaling automatically
+- **Integration**: Seamless integration with existing Vercel deployment pipeline
+- **Professional Grade**: Enterprise-level monitoring capabilities with zero custom code
+
+### Monitoring Coverage
+
+- **Largest Contentful Paint (LCP)**: Page loading performance
+- **First Input Delay (FID)**: Interactivity measurement
+- **Cumulative Layout Shift (CLS)**: Visual stability tracking
+- **Real-time Metrics**: Live performance data and historical trends
+- **User Experience Insights**: Detailed analytics on user interactions and page performance
+
 ## Deployment Architecture
 
 ### Vercel Platform
@@ -159,6 +186,7 @@ sendCustomerConfirmation(bookingData)
 - **CDN**: Global edge network for static assets
 - **Database**: Neon PostgreSQL with serverless connection pooling
 - **Environment**: Production, Preview, Development branches
+- **Analytics**: Built-in Vercel Analytics and SpeedInsights for performance monitoring
 
 ### Key Constraints
 
@@ -180,6 +208,14 @@ sendCustomerConfirmation(bookingData)
 - Error handling and user feedback systems
 
 ### Implementation Insights
+
+#### Performance Monitoring Implementation
+
+- **Strategic Decision**: Leveraged existing Vercel Analytics and SpeedInsights instead of custom implementation
+- **Architecture Benefit**: Reduced code complexity and maintenance overhead
+- **Performance Monitoring**: Professional-grade Core Web Vitals tracking (LCP, FID, CLS) with zero custom code
+- **Operational Advantage**: Real-time dashboard and automated alerts via Vercel platform
+- **Quality Impact**: Maintained comprehensive monitoring while simplifying the codebase
 
 #### Email Service Design Decisions
 
@@ -234,6 +270,18 @@ sendCustomerConfirmation(bookingData)
 - **Atomic Commits**: TDD workflow with frequent, small commits
 
 ### Key Architectural Decisions
+
+#### Performance Monitoring: Vercel Built-in Tools vs Custom Implementation
+
+- **Decision**: Leverage Vercel Analytics and SpeedInsights instead of custom Core Web Vitals tracking
+- **Rationale**:
+  - Eliminates redundant implementation and reduces code complexity
+  - Zero maintenance overhead compared to custom solution
+  - Professional-grade monitoring with industry-standard accuracy
+  - Real-time dashboard and automated alerts included
+- **Alternative Considered**: Custom Core Web Vitals implementation (rejected due to unnecessary complexity)
+- **Implementation**: Existing [`@vercel/analytics`](../app/layout.tsx:15) and [`@vercel/speed-insights`](../app/layout.tsx:16) components
+- **Benefits**: Reduced codebase complexity while maintaining comprehensive monitoring capabilities
 
 #### Email Service Choice: Nodemailer + SMTP
 

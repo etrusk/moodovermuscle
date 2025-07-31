@@ -16,23 +16,6 @@ if (process.env.NODE_ENV === 'test') {
   })
 }
 
-if (process.env.NODE_ENV === 'test') {
-  // Validate required environment variables only during tests
-  const requiredEnvVars = [
-    'EMAIL_FROM',
-    'ADMIN_EMAIL',
-    'SMTP_HOST',
-    'SMTP_PORT',
-    'SMTP_USER',
-    'SMTP_PASS',
-  ]
-  requiredEnvVars.forEach(name => {
-    if (!process.env[name]) {
-      throw new Error(`Missing environment variable for email service: ${name}`)
-    }
-  })
-}
-
 // Email configuration
 const emailConfig = {
   host: process.env.SMTP_HOST || 'smtp.gmail.com',

@@ -28,7 +28,7 @@ interface SchedulingStepProps {
 export function SchedulingStep({ isLoading = false }: SchedulingStepProps) {
   const { form } = useBookingForm()
   const [isCalendarOpen, setCalendarOpen] = useState(false)
-  const [calendarLoading, setCalendarLoading] = useState(false)
+  const { calendarLoading, setCalendarLoading } = useBookingForm()
 
   const handleCalendarToggle = (open: boolean) => {
     if (open) {
@@ -43,7 +43,7 @@ export function SchedulingStep({ isLoading = false }: SchedulingStepProps) {
     if (isCalendarOpen) {
       setCalendarLoading(false)
     }
-  }, [isCalendarOpen])
+  }, [isCalendarOpen, setCalendarLoading])
 
   return (
     <div

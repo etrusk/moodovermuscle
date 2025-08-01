@@ -1,6 +1,5 @@
 import { POST } from '@/app/api/book-session/route'
 import { RATE_LIMIT_MAX, rateLimitStore } from '@/lib/rate-limit'
-import { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
@@ -43,11 +42,15 @@ jest.spyOn(NextResponse, 'json').mockImplementation((body, init) => {
   } as NextResponse
 })
 
-function makeJsonRequest(data: Record<string, unknown>): NextRequest {
-  return new NextRequest('http://localhost/api/book-session', {
+function makeJsonRequest(
+  data: Record<string, unknown>,
+  headers: Record<string, string> = {}
+): Request {
+  return new Request('http://localhost/api/book-session', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      ...headers,
     },
     body: JSON.stringify(data),
   })
@@ -116,7 +119,7 @@ describe('API POST /api/book-session', () => {
     expect(json).toHaveProperty('error')
   })
   it('returns 400 when JSON body is invalid', async () => {
-    const req = new NextRequest('http://localhost/api/book-session', {
+    const req = new Request('http://localhost/api/book-session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: 'not-a-json',
@@ -144,26 +147,12 @@ describe('API POST /api/book-session', () => {
     }
     // Send max allowed requests
     for (let i = 0; i < RATE_LIMIT_MAX; i++) {
-      const req = new NextRequest('http://localhost/api/book-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-forwarded-for': ip,
-        },
-        body: JSON.stringify(validData),
-      })
+      const req = makeJsonRequest(validData, { 'x-forwarded-for': ip })
       const res = await POST(req)
       expect(res.status).toBe(201)
     }
     // Sixth request should be rate limited
-    const req6 = new NextRequest('http://localhost/api/book-session', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-forwarded-for': ip,
-      },
-      body: JSON.stringify(validData),
-    })
+    const req6 = makeJsonRequest(validData, { 'x-forwarded-for': ip })
     const res6 = await POST(req6)
     expect(res6.status).toBe(429)
     const json6 = await res6.json()

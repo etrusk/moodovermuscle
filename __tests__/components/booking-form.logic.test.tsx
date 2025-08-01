@@ -15,7 +15,9 @@ describe('BookingForm navigation and validation logic', () => {
     render(<BookingForm isOpen={true} onClose={mockOnClose} />)
     await user.click(screen.getByTestId('booking-form-continue-button'))
 
-    expect(await screen.findByText('Name must be at least 2 characters.')).toBeInTheDocument()
+    expect(
+      await screen.findByText('Name must be at least 2 characters.')
+    ).toBeInTheDocument()
     expect(screen.getByText('Email is required.')).toBeInTheDocument()
     expect(screen.getByText('Goal is required.')).toBeInTheDocument()
   })
@@ -27,7 +29,10 @@ describe('BookingForm navigation and validation logic', () => {
     await user.type(screen.getByTestId('name-input'), 'John Doe')
     await user.type(screen.getByTestId('email-input'), 'john@example.com')
     await user.type(screen.getByTestId('phone-input'), '0412345678')
-    await user.selectOptions(screen.getByTestId('goals-select'), 'strength')
+    await user.click(screen.getByTestId('goals-select-trigger'))
+    await user.click(
+      await screen.findByRole('option', { name: 'Build strength & energy' })
+    )
 
     await user.click(screen.getByTestId('booking-form-continue-button'))
 
@@ -41,12 +46,17 @@ describe('BookingForm navigation and validation logic', () => {
     await user.type(screen.getByTestId('name-input'), 'John Doe')
     await user.type(screen.getByTestId('email-input'), 'john@example.com')
     await user.type(screen.getByTestId('phone-input'), '0412345678')
-    await user.selectOptions(screen.getByTestId('goals-select'), 'strength')
+    await user.click(screen.getByTestId('goals-select-trigger'))
+    await user.click(
+      await screen.findByRole('option', { name: 'Build strength & energy' })
+    )
     await user.click(screen.getByTestId('booking-form-continue-button'))
     // at step2, click continue without selecting service
     await user.click(screen.getByTestId('booking-form-continue-button'))
 
-    expect(await screen.findByText('Please select a valid service.')).toBeInTheDocument()
+    expect(
+      await screen.findByText('Please select a valid service.')
+    ).toBeInTheDocument()
   })
 
   it.skip('advances to step 3 after selecting service', async () => {
@@ -56,10 +66,15 @@ describe('BookingForm navigation and validation logic', () => {
     await user.type(screen.getByTestId('name-input'), 'John Doe')
     await user.type(screen.getByTestId('email-input'), 'john@example.com')
     await user.type(screen.getByTestId('phone-input'), '0412345678')
-    await user.selectOptions(screen.getByTestId('goals-select'), 'strength')
+    await user.click(screen.getByTestId('goals-select-trigger'))
+    await user.click(
+      await screen.findByRole('option', { name: 'Build strength & energy' })
+    )
     await user.click(screen.getByTestId('booking-form-continue-button'))
     // step2 select service
-    await user.click(screen.getByTestId('service-option-1-on-1-Personal-Training'))
+    await user.click(
+      screen.getByTestId('service-option-1-on-1-Personal-Training')
+    )
     await user.click(screen.getByTestId('booking-form-continue-button'))
 
     expect(await screen.findByTestId('booking-form-step-3')).toBeInTheDocument()
@@ -72,10 +87,15 @@ describe('BookingForm navigation and validation logic', () => {
     await user.type(screen.getByTestId('name-input'), 'John Doe')
     await user.type(screen.getByTestId('email-input'), 'john@example.com')
     await user.type(screen.getByTestId('phone-input'), '0412345678')
-    await user.selectOptions(screen.getByTestId('goals-select'), 'strength')
+    await user.click(screen.getByTestId('goals-select-trigger'))
+    await user.click(
+      await screen.findByRole('option', { name: 'Build strength & energy' })
+    )
     await user.click(screen.getByTestId('booking-form-continue-button'))
     // step2
-    await user.click(screen.getByTestId('service-option-1-on-1-Personal-Training'))
+    await user.click(
+      screen.getByTestId('service-option-1-on-1-Personal-Training')
+    )
     await user.click(screen.getByTestId('booking-form-continue-button'))
     // step3 submit without date/time
     await user.click(screen.getByTestId('booking-form-submit-button'))
@@ -92,7 +112,10 @@ describe('BookingForm navigation and validation logic', () => {
     await user.type(screen.getByTestId('name-input'), 'John Doe')
     await user.type(screen.getByTestId('email-input'), 'john@example.com')
     await user.type(screen.getByTestId('phone-input'), '0412345678')
-    await user.selectOptions(screen.getByTestId('goals-select'), 'strength')
+    await user.click(screen.getByTestId('goals-select-trigger'))
+    await user.click(
+      await screen.findByRole('option', { name: 'Build strength & energy' })
+    )
     await user.click(screen.getByTestId('booking-form-continue-button'))
 
     // Now on step2

@@ -14,19 +14,16 @@ interface BookingWizardProps {
 export function BookingWizard({ onClose }: BookingWizardProps) {
   const totalSteps = 3
   const [currentStep, setCurrentStep] = useState(1)
-  const [isStepLoading, setIsStepLoading] = useState(false)
-  const { validateStep, submitForm, isSubmitting } = useBookingForm()
+  const { validateStep, submitForm, form, loadingStates } = useBookingForm()
 
   const [submissionSuccess, setSubmissionSuccess] = useState(false)
   const [submissionError, setSubmissionError] = useState<string | null>(null)
 
   const handleNext = async () => {
-    setIsStepLoading(true)
     const isValid = await validateStep(currentStep)
     if (isValid && currentStep < totalSteps) {
-      setCurrentStep(prevStep => prevStep + 1)
+      setCurrentStep(prev => prev + 1)
     }
-    setIsStepLoading(false)
   }
 
   const handlePrevious = () => {
@@ -35,7 +32,6 @@ export function BookingWizard({ onClose }: BookingWizardProps) {
     }
   }
 
-  const { form } = useBookingForm()
   const handleSubmit = async (data: BookingFormData) => {
     try {
       const result = await submitForm(data)
@@ -75,18 +71,27 @@ export function BookingWizard({ onClose }: BookingWizardProps) {
           <WizardHeader
             currentStep={currentStep}
             totalSteps={totalSteps}
-            isLoading={isStepLoading || isSubmitting}
+            isLoading={
+              loadingStates.stepTransition || loadingStates.formSubmission
+            }
           />
           <div className="p-8">
-            <WizardSteps currentStep={currentStep} isLoading={isStepLoading || isSubmitting} />
+            <WizardSteps
+              currentStep={currentStep}
+              isLoading={
+                loadingStates.stepTransition || loadingStates.formSubmission
+              }
+            />
             <WizardNavigation
               currentStep={currentStep}
               totalSteps={totalSteps}
               onNext={handleNext}
               onPrevious={handlePrevious}
-              isNextLoading={isStepLoading}
-              isSubmitLoading={isSubmitting}
-              canProceed={!isStepLoading && !isSubmitting}
+              isNextLoading={loadingStates.stepTransition}
+              isSubmitLoading={loadingStates.formSubmission}
+              canProceed={
+                !loadingStates.stepTransition && !loadingStates.formSubmission
+              }
             />
           </div>
         </>

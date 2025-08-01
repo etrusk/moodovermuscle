@@ -2,75 +2,71 @@ import React from 'react'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Calendar } from '@/components/ui/calendar'
+import { addMonths, format } from 'date-fns'
 
 describe('Calendar Component Integration Tests', () => {
   const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
   const tomorrow = new Date()
   tomorrow.setDate(today.getDate() + 1)
+  tomorrow.setHours(0, 0, 0, 0)
 
   it('renders calendar and navigation buttons', () => {
-    render(<Calendar mode="single" selected={undefined} onDayClick={() => {}} />)
-    const prevButton = screen.getByTestId('calendar-prev-button')
-    const nextButton = screen.getByTestId('calendar-next-button')
+    render(<Calendar mode="single" />)
+    const prevButton = screen.getByRole('button', { name: /previous month/i })
+    const nextButton = screen.getByRole('button', { name: /next month/i })
     expect(prevButton).toBeInTheDocument()
     expect(nextButton).toBeInTheDocument()
   })
 
   it('calls onSelect when a valid date is clicked', async () => {
     const user = userEvent.setup()
-    const onDayClick = jest.fn()
-    render(<Calendar mode="single" selected={undefined} onDayClick={onDayClick} />)
-    const dateCells = screen.getAllByRole('gridcell', {
-      name: tomorrow.getDate().toString(),
+    const onSelect = jest.fn()
+    render(<Calendar mode="single" onSelect={onSelect} />)
+
+    const dateCell = screen.getByRole('gridcell', {
+      name: format(tomorrow, 'd'),
     })
-    const dateCell = dateCells.find(cell => !cell.getAttribute('data-outside'))
-    if (!dateCell) throw new Error('Valid date cell not found')
-    const button = dateCell.querySelector('button')
-    if (!button) throw new Error('Date button not found')
-    await user.click(button)
-    expect(onDayClick).toHaveBeenCalled()
+    const dateButton = dateCell.querySelector('button')
+    if (!dateButton) throw new Error('Date button not found')
+    await user.click(dateButton)
+
+    expect(onSelect).toHaveBeenCalled()
+    const selectedDate = onSelect.mock.calls[0][0]
+    expect(selectedDate.toDateString()).toBe(tomorrow.toDateString())
   })
 
   it('does not call onSelect for disabled dates', async () => {
     const user = userEvent.setup()
-    const onDayClick = jest.fn()
-    render(
-      <Calendar
-        mode="single"
-        selected={undefined}
-        onDayClick={onDayClick}
-        disabled={[today]}
-      />
-    )
-    const disabledCells = screen.getAllByRole('gridcell', {
-      name: today.getDate().toString(),
+    const onSelect = jest.fn()
+    render(<Calendar mode="single" onSelect={onSelect} disabled={[today]} />)
+
+    const disabledCell = screen.getByRole('gridcell', {
+      name: format(today, 'd'),
     })
-    const disabledDate = disabledCells.find(
-      cell => !cell.getAttribute('data-outside')
-    )
-    if (!disabledDate) throw new Error('Disabled date cell not found')
-    const disabledButton = disabledDate.querySelector('button')
+    const disabledButton = disabledCell.querySelector('button')
     if (!disabledButton) throw new Error('Disabled date button not found')
+
+    expect(disabledButton).toBeDisabled()
     await user.click(disabledButton)
-    expect(onDayClick).not.toHaveBeenCalled()
+    expect(onSelect).not.toHaveBeenCalled()
   })
 
   it('navigates months when prev and next clicked', async () => {
     const user = userEvent.setup()
     const onMonthChange = jest.fn()
-    render(
-      <Calendar
-        mode="single"
-        selected={undefined}
-        onDayClick={() => {}}
-        onMonthChange={onMonthChange}
-      />
-    )
-    const nextButton = screen.getByTestId('calendar-next-button')
+    render(<Calendar mode="single" onMonthChange={onMonthChange} />)
+
+    const nextButton = screen.getByRole('button', { name: /next month/i })
     await user.click(nextButton)
-    expect(onMonthChange).toHaveBeenCalled()
-    const prevButton = screen.getByTestId('calendar-prev-button')
+
+    const nextMonth = addMonths(today, 1)
+    expect(onMonthChange).toHaveBeenCalledWith(nextMonth)
+
+    const prevButton = screen.getByRole('button', { name: /previous month/i })
     await user.click(prevButton)
+    expect(onMonthChange).toHaveBeenCalledWith(today)
     expect(onMonthChange).toHaveBeenCalledTimes(2)
   })
 })

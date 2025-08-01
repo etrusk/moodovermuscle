@@ -28,6 +28,7 @@
 - **Impact**: Potential untested loading UI regressions
 - **Priority**: Medium
 - **Target Resolution**: Add unit and integration tests for loading states
+- **Status**: In Progress
 
 ### E2E Test Coverage
 

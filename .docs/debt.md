@@ -82,6 +82,13 @@
 
 ## Test Coverage Debt
 
+### Loading State Coverage
+
+- **Issue**: New `isLoading` and loading state props introduced across components not yet covered by existing tests
+- **Impact**: Potential untested loading UI regressions
+- **Priority**: Medium
+- **Target Resolution**: Add unit and integration tests for loading states
+
 ### E2E Test Coverage
 
 - **Issue**: Limited E2E coverage for error scenarios

@@ -39,15 +39,16 @@ const services: Service[] = [
   },
 ]
 
-interface ServiceSelectionStepProps {}
+interface ServiceSelectionStepProps {
+  isLoading?: boolean
+}
 
-export function ServiceSelectionStep(_: ServiceSelectionStepProps) {
+export function ServiceSelectionStep({ isLoading = false }: ServiceSelectionStepProps) {
   const { isSubmitting } = useBookingForm()
+  const loading = isLoading || isSubmitting
+
   return (
-    <div
-      className="space-y-6 animate-fade-in-up"
-      data-testid="booking-form-step-2"
-    >
+    <div className="space-y-6 animate-fade-in-up" data-testid="booking-form-step-2">
       <FormField
         name="service"
         render={({ field }) => (
@@ -60,15 +61,16 @@ export function ServiceSelectionStep(_: ServiceSelectionStepProps) {
                 {services.map(service => (
                   <div
                     key={service.name}
-                    className={`${isSubmitting ? 'opacity-50 pointer-events-none ' : ''}relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:scale-105 ${
+                    className={`${loading ? 'opacity-50 pointer-events-none ' : ''}relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:scale-105 ${
                       field.value === service.name
                         ? 'border-green-500 bg-gradient-to-r from-green-50 to-emerald-50 shadow-lg'
                         : 'border-stone-200 bg-white hover:border-green-300 hover:shadow-md'
                     }`}
-                    onClick={() => field.onChange(service.name)}
+                    onClick={() => !loading && field.onChange(service.name)}
                     onKeyDown={e => {
-                      if (e.key === 'Enter' || e.key === ' ')
+                      if (!loading && (e.key === 'Enter' || e.key === ' ')) {
                         field.onChange(service.name)
+                      }
                     }}
                     role="button"
                     tabIndex={0}

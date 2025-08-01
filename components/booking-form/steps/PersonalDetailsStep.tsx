@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import { useBookingForm } from '../BookingFormProvider'
 import {
   FormField,
   FormItem,
@@ -11,14 +12,16 @@ import {
 import { Input } from '@/components/ui/input'
 import { Heart } from 'lucide-react'
 
-interface PersonalDetailsStepProps {}
+interface PersonalDetailsStepProps {
+  isLoading?: boolean
+}
 
-export function PersonalDetailsStep(_: PersonalDetailsStepProps) {
+export function PersonalDetailsStep({ isLoading = false }: PersonalDetailsStepProps) {
+  const { isSubmitting } = useBookingForm()
+  const loading = isLoading || isSubmitting
+
   return (
-    <div
-      className="space-y-6 animate-fade-in-up"
-      data-testid="booking-form-step-1"
-    >
+    <div className="space-y-6 animate-fade-in-up" data-testid="booking-form-step-1">
       <div className="grid gap-6">
         <FormField
           name="name"
@@ -32,6 +35,7 @@ export function PersonalDetailsStep(_: PersonalDetailsStepProps) {
                 <Input
                   placeholder="Your beautiful name"
                   {...field}
+                  disabled={loading}
                   data-testid="name-input"
                 />
               </FormControl>
@@ -50,6 +54,7 @@ export function PersonalDetailsStep(_: PersonalDetailsStepProps) {
                     type="email"
                     placeholder="your.email@example.com"
                     {...field}
+                    disabled={loading}
                     data-testid="email-input"
                   />
                 </FormControl>
@@ -67,6 +72,7 @@ export function PersonalDetailsStep(_: PersonalDetailsStepProps) {
                     type="tel"
                     placeholder="Your phone number"
                     {...field}
+                    disabled={loading}
                     data-testid="phone-input"
                   />
                 </FormControl>
@@ -79,23 +85,20 @@ export function PersonalDetailsStep(_: PersonalDetailsStepProps) {
           name="goals"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>What&apos;s your main fitness goal? *</FormLabel>
+              <FormLabel>What's your main fitness goal? *</FormLabel>
               <FormControl>
                 <select
                   {...field}
+                  disabled={loading}
                   className="w-full p-4 border-2 border-stone-200 rounded-xl focus:border-green-500 focus:ring-green-500 bg-white text-lg"
                   data-testid="goals-select"
                 >
                   <option value="">Choose your goal...</option>
-                  <option value="weight-loss">
-                    Lose weight & feel confident
-                  </option>
+                  <option value="weight-loss">Lose weight & feel confident</option>
                   <option value="strength">Build strength & energy</option>
                   <option value="postnatal">Postnatal recovery</option>
                   <option value="community">Find my mum tribe</option>
-                  <option value="mental-health">
-                    Improve mental wellbeing
-                  </option>
+                  <option value="mental-health">Improve mental wellbeing</option>
                   <option value="other">Something else amazing</option>
                 </select>
               </FormControl>

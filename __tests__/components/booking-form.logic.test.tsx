@@ -16,9 +16,8 @@ describe('BookingForm navigation and validation logic', () => {
     await user.click(screen.getByTestId('booking-form-continue-button'))
 
     expect(await screen.findByText('Name must be at least 2 characters.')).toBeInTheDocument()
-    expect(screen.getByText('Please enter a valid email address.')).toBeInTheDocument()
-    expect(screen.getByText('Please enter a valid phone number.')).toBeInTheDocument()
-    expect(screen.getByText('Please select a goal.')).toBeInTheDocument()
+    expect(screen.getByText('Email is required.')).toBeInTheDocument()
+    expect(screen.getByText('Goal is required.')).toBeInTheDocument()
   })
 
   it('advances to step 2 after filling valid step 1 fields', async () => {

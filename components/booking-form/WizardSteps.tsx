@@ -7,16 +7,17 @@ import { SchedulingStep } from './steps/SchedulingStep'
 
 interface WizardStepsProps {
   currentStep: number
+  isLoading?: boolean
 }
 
-export function WizardSteps({ currentStep }: WizardStepsProps) {
+export function WizardSteps({ currentStep, isLoading = false }: WizardStepsProps) {
   switch (currentStep) {
     case 1:
-      return <PersonalDetailsStep />
+      return <PersonalDetailsStep isLoading={isLoading} />
     case 2:
-      return <ServiceSelectionStep />
+      return <ServiceSelectionStep isLoading={isLoading} />
     case 3:
-      return <SchedulingStep />
+      return <SchedulingStep isLoading={isLoading} />
     default:
       return null
   }

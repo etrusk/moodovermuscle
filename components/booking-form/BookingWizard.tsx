@@ -84,7 +84,7 @@ export function BookingWizard({ onClose }: BookingWizardProps) {
             isLoading={isStepLoading || isSubmitting}
           />
           <div className="p-8">
-            <WizardSteps currentStep={currentStep} />
+            <WizardSteps currentStep={currentStep} isLoading={isStepLoading || isSubmitting} />
             <WizardNavigation
               currentStep={currentStep}
               totalSteps={totalSteps}

@@ -1,41 +1,6 @@
 # Technical Debt
 
-## Current Failing Tests (5 tests as of 2025-08-01)
-
-
-### Integration Tests - Calendar Component
-
-- **File**: `__tests__/integration/calendar-component.integration.test.tsx`
-- **Status**: 🟡 MEDIUM PRIORITY
-- **Count**: 4 failing tests
-- **Root Cause**: react-day-picker library behavior changes
-
-**Resolution Plan**:
-
-- [ ] Update calendar test interactions for new library version
-- [ ] Verify date picker accessibility compliance
-- [ ] Update test data attributes
-- **Estimated Effort**: 2-3 hours
-- **Target Resolution**: Next sprint
-
-### Component Tests - Booking Form
-
-- **File**: `__tests__/components/booking-form.test.tsx`
-- **Status**: 🟡 MEDIUM PRIORITY
-- **Count**: 1 failing test
-- **Root Cause**: UI changes removed/modified close button accessibility
-
-**Failing Test**:
-
-- `calls onClose when form is closed` - Cannot find close button with label "Close"
-
-**Resolution Plan**:
-
-- [ ] Update test to use correct selector for close button
-- [ ] Verify close button has proper accessibility label
-- [ ] Update test expectations to match new UI
-- **Estimated Effort**: 1 hour
-- **Target Resolution**: Next sprint
+## Current Failing Tests (0 tests as of 2025-08-01)
 
 ## Performance Debt
 
@@ -100,6 +65,14 @@
 
 ## Resolved Debt
 
+### Integration Tests - Calendar Component ✅
+
+- **File**: `__tests__/integration/calendar-component.integration.test.tsx`
+- **Issue**: 4 integration tests for the Calendar Component were failing due to library updates.
+- **Resolution**: Refactored tests to use robust, accessibility-focused selectors (`getByRole`) instead of brittle `data-testid` attributes. Aligned event handlers with the current `react-day-picker` API.
+- **Date Resolved**: 2025-08-01
+- **Status**: Complete - All 4 integration tests passing.
+
 ### Mobile Accessibility Violations ✅
 
 - **Issue**: WCAG 2.1 AA compliance violations
@@ -122,6 +95,7 @@
 - **Status**: Complete - Professional monitoring active
 
 ### Integration Tests - Booking Form Component ✅
+
 - **File**: `__tests__/integration/booking-form-component.integration.test.tsx`
 - **Issue**: All 11 integration tests for the Booking Form Component are now passing
 - **Resolution**: Fixed UI/selector issues from component decomposition; resolved form architecture conflicts; fixed React Hook Form integration; resolved form submission API call pipeline
@@ -129,11 +103,20 @@
 - **Status**: Complete - All 11 integration tests passing
 
 ### Integration Tests - Booking Form Component ✅
+
 - **File**: `__tests__/integration/booking-form-component.integration.test.tsx`
 - **Issue**: All 11 integration tests for the Booking Form Component are now passing
 - **Resolution**: Fixed UI/selector issues from component decomposition; resolved form architecture conflicts; fixed React Hook Form integration; resolved form submission API call pipeline
 - **Date Resolved**: 2025-08-01
 - **Status**: Complete - All 11 integration tests passing
+
+### Component Tests - Booking Form ✅
+
+- **File**: `__tests__/components/booking-form.test.tsx`
+- **Issue**: 1 component test failing due to duplicate close button causing selector ambiguity
+- **Resolution**: Removed redundant close button; updated test to use accessible selector for close button
+- **Date Resolved**: 2025-08-01
+- **Status**: Complete - Test passing
 
 ## Debt Management Process
 

@@ -17,14 +17,6 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
         className="max-w-2xl max-h-[95vh] overflow-y-auto p-0 border-0 shadow-2xl rounded-3xl overflow-hidden"
         data-testid="booking-form-dialog"
       >
-        <button
-          type="button"
-          aria-label="Close"
-          onClick={onClose}
-          className="absolute top-4 right-4 text-white z-10"
-        >
-          ×
-        </button>
         <BookingFormProvider onClose={onClose}>
           <BookingWizard onClose={onClose} />
         </BookingFormProvider>

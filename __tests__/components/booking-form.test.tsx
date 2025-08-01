@@ -49,7 +49,7 @@ describe('BookingForm Component', () => {
     render(<BookingForm isOpen={true} onClose={mockOnClose} />)
 
     // Click the close button
-    const closeButton = screen.getByLabelText('Close')
+    const closeButton = screen.getByRole('button', { name: /close/i })
     await user.click(closeButton)
 
     expect(mockOnClose).toHaveBeenCalledTimes(1)

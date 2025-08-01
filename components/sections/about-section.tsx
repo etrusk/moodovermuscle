@@ -17,9 +17,13 @@ export function AboutSection({ onBookSessionClick }: AboutSectionProps) {
             <div className="absolute -inset-6 md:-inset-8 bg-gradient-to-r from-rose-200/40 to-pink-200/40 rounded-3xl blur-3xl"></div>
             <Image
               src="/images/emily-portrait.jpeg"
+              alt="Emily, founder of MoodOverMuscle"
               width={600}
               height={700}
-              alt="Emily, founder of MoodOverMuscle"
+              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 50vw"
+              priority
+              placeholder="blur"
+              blurDataURL="/placeholder.svg"
               className="relative rounded-3xl object-cover shadow-3xl w-full aspect-[4/5] hover:scale-105 transition-transform duration-700"
             />
           </div>
@@ -44,16 +48,22 @@ export function AboutSection({ onBookSessionClick }: AboutSectionProps) {
               <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8">
                 <Image
                   src="/images/sre-accredited-circle-rgb.png"
+                  alt="Safe Return to Exercise Certified"
                   width={96}
                   height={96}
-                  alt="Safe Return to Exercise Certified"
+                  loading="lazy"
+                  placeholder="blur"
+                  blurDataURL="/placeholder.svg"
                   className="w-24 h-24 object-contain"
                 />
                 <Image
                   src="/images/ausactive-logo.jpeg"
+                  alt="AUSactive Trainer"
                   width={96}
                   height={96}
-                  alt="AUSactive Trainer"
+                  loading="lazy"
+                  placeholder="blur"
+                  blurDataURL="/placeholder.svg"
                   className="w-24 h-24 object-contain"
                 />
               </div>

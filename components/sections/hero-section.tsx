@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { CheckCircle, ChevronRight, Sparkles } from 'lucide-react'
+import Image from 'next/image'
 
 interface HeroSectionProps {
   onBookSessionClick: () => void
@@ -9,10 +10,14 @@ interface HeroSectionProps {
 
 export function HeroSection({ onBookSessionClick }: HeroSectionProps) {
   return (
-    <section
-      className="section-height section-white w-full overflow-hidden relative bg-cover bg-center bg-no-repeat"
-      style={{ backgroundImage: 'url(/images/mom-group.jpeg)' }}
-    >
+    <section className="section-height section-white w-full overflow-hidden relative">
+      <Image
+        src="/images/mom-group.jpeg"
+        alt="Group of mothers exercising"
+        fill
+        priority
+        className="absolute inset-0 object-cover object-center"
+      />
       <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/60 to-black/70"></div>
       <div className="container relative z-10 px-4 md:px-6 max-w-7xl mx-auto section-inner mobile-px">
         <div className="grid gap-8 md:gap-12 items-center">

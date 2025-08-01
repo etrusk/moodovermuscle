@@ -1,0 +1,40 @@
+import React from 'react'
+import { render, screen } from '@/__tests__/setup/test-utils'
+import {
+  BookingFormProvider,
+  useBookingForm,
+} from '@/components/booking-form/BookingFormProvider'
+
+describe('BookingFormProvider Loading States', () => {
+  const Consumer = () => {
+    const { loadingStates } = useBookingForm()
+    return (
+      <div>
+        <span data-testid="stepTransition">
+          {String(loadingStates.stepTransition)}
+        </span>
+        <span data-testid="formSubmission">
+          {String(loadingStates.formSubmission)}
+        </span>
+        <span data-testid="calendarLoading">
+          {String(loadingStates.calendarLoading)}
+        </span>
+        <span data-testid="fieldValidation">
+          {JSON.stringify(loadingStates.fieldValidation)}
+        </span>
+      </div>
+    )
+  }
+
+  it('provides default loading states as false/empty', () => {
+    render(
+      <BookingFormProvider onClose={() => {}}>
+        <Consumer />
+      </BookingFormProvider>
+    )
+    expect(screen.getByTestId('stepTransition')).toHaveTextContent('false')
+    expect(screen.getByTestId('formSubmission')).toHaveTextContent('false')
+    expect(screen.getByTestId('calendarLoading')).toHaveTextContent('false')
+    expect(screen.getByTestId('fieldValidation')).toHaveTextContent('{}')
+  })
+})

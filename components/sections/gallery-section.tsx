@@ -54,9 +54,13 @@ export function GallerySection() {
             >
               <Image
                 src={image.src || '/placeholder.svg'}
+                alt={image.alt}
                 width={200}
                 height={200}
-                alt={image.alt}
+                sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                loading="lazy"
+                placeholder="blur"
+                blurDataURL="/placeholder.svg"
                 className="w-full aspect-square object-cover transition-all duration-700 group-hover:scale-110 shadow-lg"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -95,9 +99,13 @@ export function GallerySection() {
             >
               <Image
                 src={image.src || '/placeholder.svg'}
+                alt={image.alt}
                 width={400}
                 height={300}
-                alt={image.alt}
+                sizes="(max-width: 768px) 50vw, (max-width: 1024px) 25vw, 20vw"
+                loading="lazy"
+                placeholder="blur"
+                blurDataURL="/placeholder.svg"
                 className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 shadow-xl"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>

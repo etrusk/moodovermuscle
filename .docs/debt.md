@@ -1,379 +1,205 @@
-# Technical Debt Management
-
-## Overview
+# Technical Debt
 
-This document tracks technical debt across the MoodOverMuscle project, providing prioritization frameworks and resolution strategies to maintain code quality while supporting rapid development cycles.
+## Current Failing Tests (12 tests as of 2025-07-31)
 
-## Current Technical Debt Inventory
+### Integration Tests - Booking Form Component
 
-### Recently Resolved Debt (2025-07-30)
+- **File**: `__tests__/integration/booking-form-component.integration.test.tsx`
+- **Status**: 🔴 HIGH PRIORITY
+- **Count**: 7 failing tests
+- **Root Cause**: Recent UI/UX changes broke test expectations
 
-#### ✅ Documentation Consolidation (RESOLVED)
+**Failing Tests**:
 
-- **Resolution**: Completed comprehensive update of `.docs/` structure
-- **Actions Taken**:
-  - Updated `architecture.md` with email service and database schema insights
-  - Enhanced `api-spec.md` with complete implementation details
-  - Improved `test-strategy.md` with actual testing patterns
-  - Created ADRs for key architectural decisions
-- **Impact**: Eliminated knowledge fragmentation, improved developer onboarding
-- **Lessons Learned**: Regular documentation updates during implementation prevent debt accumulation
+1. `should disable submit button during form submission` - Button not being disabled
+2. `should validate required fields before submission` - Validation message text mismatch
+3. `should handle date and time selection` - Calendar date selection failing
+4. `should call onClose after successful submission` - Confirmation message not found
+5. `should handle different service types` - Mock fetch not being called
+6. `should handle form accessibility` - Missing test data attributes
+7. `should maintain form state during validation errors` - Step navigation failing
 
-#### ✅ Test Environment Configuration (RESOLVED)
-
-- **Resolution**: Standardized MSW setup with comprehensive test suite
-- **Actions Taken**:
-  - Implemented robust Jest + MSW + Playwright testing architecture
-  - Created reusable test utilities and constants
-  - Established 80% coverage thresholds with automated enforcement
-  - Added accessibility testing integration
-- **Impact**: Reliable test environment supporting TDD workflow
-- **Lessons Learned**: Investment in test infrastructure pays dividends in development velocity
+**Resolution Plan**:
 
-#### ✅ Environment Variable Management (RESOLVED)
-
-- **Resolution**: Centralized email service configuration with validation
-- **Actions Taken**:
-  - Implemented startup validation for required environment variables
-  - Documented all email service configuration requirements
-  - Created clear separation between development and production configs
-- **Impact**: Reduced deployment complexity and configuration errors
-- **Lessons Learned**: Early validation prevents runtime configuration issues
+- [ ] Update test selectors to match new component structure
+- [ ] Fix mock setup for API calls
+- [ ] Update validation message expectations
+- [ ] Add missing test data attributes to components
+- **Estimated Effort**: 4-6 hours
+- **Target Resolution**: Next sprint
 
-### Recently Resolved Debt (2025-07-31)
+### Integration Tests - Calendar Component
 
-#### ✅ Jest Mock Hoisting Issues (RESOLVED)
+- **File**: `__tests__/integration/calendar-component.integration.test.tsx`
+- **Status**: 🟡 MEDIUM PRIORITY
+- **Count**: 4 failing tests
+- **Root Cause**: react-day-picker library behavior changes
 
-- **Resolution**: Fixed Jest mock hoisting errors in integration tests
-- **Actions Taken**:
-  - Applied ESLint disable comments for necessary `require()` statements in Jest mock factories
-  - Resolved testDb reference errors by using `require()` within mock factory functions
-  - Ensured pre-push hook tests pass reliably with proper mock initialization
-- **Impact**: Restored pre-push hook functionality and test reliability
-- **Lessons Learned**: Jest hoisting behavior requires careful handling of dynamic imports in mock factories
+**Resolution Plan**:
 
-### Current High Priority Debt
+- [ ] Update calendar test interactions for new library version
+- [ ] Verify date picker accessibility compliance
+- [ ] Update test data attributes
+- **Estimated Effort**: 2-3 hours
+- **Target Resolution**: Next sprint
 
-#### Email Template Management (Medium)
+### Component Tests - Booking Form
 
-- **Issue**: HTML/text email templates managed in code without template engine
-- **Impact**: Difficult to maintain and update email designs
-- **Location**: `lib/email.ts` - template creation functions
-- **Effort**: 1-2 developer days
-- **Risk**: Medium - maintenance overhead for email updates
-- **Resolution Strategy**: Consider template engine (Handlebars, React Email) for complex emails
+- **File**: `__tests__/components/booking-form.test.tsx`
+- **Status**: 🟡 MEDIUM PRIORITY
+- **Count**: 1 failing test
+- **Root Cause**: UI changes removed/modified close button accessibility
 
-#### Performance Monitoring (Medium)
+**Failing Test**:
 
-- **Issue**: No automated performance monitoring for Core Web Vitals
-- **Impact**: Performance regressions may go unnoticed
-- **Location**: Build pipeline, deployment process
-- **Effort**: 1 developer day
-- **Risk**: Medium - user experience degradation
-- **Resolution Strategy**: Implement Lighthouse CI with performance budgets
+- `calls onClose when form is closed` - Cannot find close button with label "Close"
 
-### Medium Priority Debt
+**Resolution Plan**:
 
-#### Bundle Size Optimization (Medium)
+- [ ] Update test to use correct selector for close button
+- [ ] Verify close button has proper accessibility label
+- [ ] Update test expectations to match new UI
+- **Estimated Effort**: 1 hour
+- **Target Resolution**: Next sprint
 
-- **Issue**: Bundle size monitoring exists but lacks automated thresholds
-- **Impact**: Performance degradation risk over time
-- **Location**: `next.config.mjs`, build pipeline
-- **Effort**: 1 developer day
-- **Risk**: Low-Medium - gradual performance impact
-- **Resolution Strategy**: Implement automated bundle size checks with CI/CD gates
+## Performance Debt
 
-#### Database Schema Evolution (Medium)
+### Image Optimization
 
-- **Issue**: Recent Prisma migrations added without comprehensive testing
-- **Impact**: Potential data migration issues in production
-- **Location**: `prisma/migrations/`, `prisma/schema.prisma`
-- **Effort**: 0.5 developer days
-- **Risk**: Medium - data integrity concerns
-- **Resolution Strategy**: Add migration testing and rollback procedures
+- **Issue**: Image optimization not fully implemented across all components
+- **Impact**: Slower page loads on mobile devices, poor Core Web Vitals
+- **Priority**: Medium
+- **Resolution Timeline**: Next sprint
+- **Status**: Tracked
 
-#### Error Handling Consistency (Medium)
+### Bundle Size Optimization
 
-- **Issue**: Inconsistent error handling patterns across components
-- **Impact**: Poor user experience, debugging difficulty
-- **Location**: Various components and API routes
-- **Effort**: 2-3 developer days
-- **Risk**: Low-Medium - user experience impact
-- **Resolution Strategy**: Establish error handling patterns and refactor incrementally
+- **Issue**: Potential for tree-shaking improvements
+- **Impact**: Larger JavaScript bundles than necessary
+- **Priority**: Low
+- **Resolution Timeline**: Ongoing incremental improvement
+- **Status**: Monitored via size-check CI
 
-### Low Priority Debt
+## Test Coverage Debt
 
-#### Dependency Update Lag (Low)
+### E2E Test Coverage
 
-- **Issue**: Some non-security dependencies are several minor versions behind
-- **Impact**: Missing features, potential compatibility issues
-- **Location**: `package.json`, `pnpm-lock.yaml`
-- **Effort**: 1-2 developer days
-- **Risk**: Low - mostly feature and performance improvements
-- **Resolution Strategy**: Scheduled dependency update cycles
-
-#### Component Documentation (Low)
-
-- **Issue**: Limited component-level documentation and examples
-- **Impact**: Reduced development efficiency for component reuse
-- **Location**: `components/` directory
-- **Effort**: Ongoing effort
-- **Risk**: Low - primarily affects developer productivity
-- **Resolution Strategy**: Add component documentation as part of regular development
-
-## Debt Prioritization Framework
-
-### Priority Matrix
-
-| Priority     | Impact | Effort     | Risk        | Timeline       |
-| ------------ | ------ | ---------- | ----------- | -------------- |
-| **Critical** | High   | Any        | High        | Immediate      |
-| **High**     | High   | Low-Medium | Medium-High | Next Sprint    |
-| **Medium**   | Medium | Low-Medium | Medium      | Next 2 Sprints |
-| **Low**      | Low    | Any        | Low         | Backlog        |
+- **Issue**: Limited E2E coverage for error scenarios
+- **Impact**: Potential regression risks in edge cases
+- **Priority**: Low
+- **Resolution Timeline**: Ongoing incremental improvement
+- **Status**: In Progress
 
-### Risk Assessment Criteria
+### Accessibility Test Automation
 
-#### High Risk Debt
+- **Issue**: Some accessibility tests require manual verification
+- **Impact**: Risk of accessibility regressions
+- **Priority**: Medium
+- **Resolution Timeline**: Q1 2025
+- **Status**: Planned
 
-- Affects production stability
-- Impacts security
-- Blocks other development work
-- Creates cascading failures
+## Infrastructure Debt
 
-#### Medium Risk Debt
+### Database Indexing
 
-- Affects development velocity
-- Impacts user experience
-- Creates maintenance burden
-- Potential for future escalation
+- **Issue**: Missing indexes for common query patterns
+- **Impact**: Potential performance issues as data grows
+- **Priority**: Low (current scale doesn't require)
+- **Resolution Timeline**: When performance metrics indicate need
+- **Status**: Monitored
 
-#### Low Risk Debt
+### Monitoring and Alerting
 
-- Minor performance impact
-- Cosmetic or convenience issues
-- Easy to work around
-- Limited scope of impact
+- **Issue**: Limited custom monitoring beyond Vercel defaults
+- **Impact**: Potential delayed detection of issues
+- **Priority**: Low
+- **Resolution Timeline**: Future consideration
+- **Status**: Acceptable (Vercel monitoring sufficient for current scale)
 
-## Resolution Strategies
+## Resolved Debt
 
-### Immediate Actions (This Sprint)
+### Mobile Accessibility Violations ✅
 
-#### Documentation Consolidation
+- **Issue**: WCAG 2.1 AA compliance violations
+- **Resolution**: Comprehensive accessibility fixes implemented
+- **Date Resolved**: 2025-01-31
+- **Status**: Complete - Zero violations achieved
 
-```bash
-# Consolidation plan
-1. Audit existing docs/ directory
-2. Extract essential content to .docs/ structure
-3. Remove duplicate/outdated content
-4. Update references and links
-5. Establish documentation ownership
-```
+### Email Service Reliability ✅
 
-#### Test Environment Stabilization
+- **Issue**: Email failures blocking booking flow
+- **Resolution**: Fire-and-forget pattern implemented
+- **Date Resolved**: 2025-07-30
+- **Status**: Complete - Non-blocking email sending
 
-```bash
-# Test environment improvement plan
-1. Document MSW setup requirements
-2. Create standardized test utilities
-3. Add environment validation scripts
-4. Update CI/CD configuration
-```
+### Performance Monitoring ✅
 
-### Near-term Actions (Next 2 Sprints)
+- **Issue**: No Core Web Vitals monitoring
+- **Resolution**: Vercel Analytics and SpeedInsights integrated
+- **Date Resolved**: 2025-07-31
+- **Status**: Complete - Professional monitoring active
 
-#### Error Handling Standardization
+## Debt Management Process
 
-```typescript
-// Standard error handling pattern
-interface AppError {
-  message: string
-  code: string
-  statusCode: number
-  details?: any
-}
+### Classification System
 
-// Standard error component
-const ErrorBoundary = ({ error, reset }: ErrorProps) => {
-  // Consistent error logging and user messaging
-}
-```
+- **Critical**: Blocks deployments, security issues, data corruption
+- **High**: Significantly impacts user experience or development velocity
+- **Medium**: Performance concerns, maintainability issues
+- **Low**: Nice-to-have improvements, minor optimizations
 
-#### Bundle Size Monitoring
+### Tracking Workflow
 
-```javascript
-// Bundle size threshold configuration
-module.exports = {
-  bundleAnalyzer: {
-    enabled: process.env.ANALYZE === 'true',
-    openAnalyzer: false,
-  },
-  // Add size limits
-  experimental: {
-    bundlePagesExternals: true,
-  },
-}
-```
+1. **Identification**: Non-critical quality gate failures logged here
+2. **Assessment**: Impact analysis and priority assignment
+3. **Planning**: Resolution timeline and resource allocation
+4. **Execution**: Implementation and verification
+5. **Resolution**: Move to resolved section with completion date
 
-### Long-term Actions (Backlog)
+### Quality Gates Integration
 
-#### Component Documentation
+- **Critical Gates**: Must pass - no bypass allowed
+- **Non-Critical Gates**: Can bypass but must be tracked here
+- **Regular Review**: Sprint planning includes debt review
+- **Impact Assessment**: Each item includes business impact analysis
 
-- Add Storybook for component documentation
-- Implement component usage examples
-- Create design system documentation
+### Resolution Priorities
 
-#### Performance Optimization
+1. **Security vulnerabilities**: Immediate attention
+2. **User experience blockers**: Next sprint
+3. **Development velocity issues**: Planned sprints
+4. **Performance optimizations**: Ongoing improvement
+5. **Nice-to-have features**: Backlog consideration
 
-- Implement advanced caching strategies
-- Add performance budgets to CI/CD
-- Create performance monitoring dashboard
+## Monitoring and Alerts
 
-## Debt Prevention Strategies
+### Test Failure Tracking
 
-### Code Review Checklist
+- **Automated Detection**: CI/CD pipeline reports failing tests
+- **Documentation Requirement**: All bypassed failures must be documented here
+- **Resolution Tracking**: Clear timelines and accountability
+- **Regular Review**: Weekly debt review in development workflow
 
-- [ ] Does this change introduce new technical debt?
-- [ ] Are error handling patterns consistent?
-- [ ] Is documentation updated appropriately?
-- [ ] Are tests comprehensive and maintainable?
-- [ ] Does bundle size impact stay within limits?
+### Performance Debt Monitoring
 
-### Automated Quality Gates
+- **Lighthouse CI**: Automated performance budget enforcement
+- **Bundle Size**: Continuous monitoring via size-check
+- **Core Web Vitals**: Real-time monitoring via Vercel SpeedInsights
+- **Database Performance**: Query performance tracked via Prisma
 
-```yaml
-# GitHub Actions quality gates
-- name: Bundle Size Check
-  run: pnpm build && pnpm analyze --check-size-limit
+## Notes
 
-- name: Technical Debt Scan
-  run: |
-    # Check for TODO/FIXME comments
-    # Validate documentation completeness
-    # Check dependency freshness
-```
+### Philosophy
 
-### Regular Debt Review Process
+- Failing tests should never be deleted without fixing underlying issues
+- Test skipping is temporary and must be tracked with clear resolution timeline
+- All technical debt requires impact assessment and resolution planning
+- Regular review prevents debt accumulation and ensures timely resolution
 
-#### Weekly Debt Assessment (15 minutes)
+### Best Practices
 
-- Review new TODOs and FIXMEs in codebase
-- Assess impact of recent changes on debt levels
-- Identify quick wins for debt reduction
-
-#### Monthly Debt Planning (1 hour)
-
-- Review debt inventory
-- Update priorities based on business impact
-- Plan debt reduction work for upcoming sprints
-
-#### Quarterly Debt Strategy (2 hours)
-
-- Complete debt audit
-- Assess prevention strategy effectiveness
-- Plan major debt reduction initiatives
-
-## Debt Metrics and Tracking
-
-### Key Metrics
-
-- **Debt Items by Priority**: Track distribution of debt severity
-- **Resolution Time**: Average time to resolve debt items
-- **Prevention Effectiveness**: New debt introduction rate
-- **Impact Metrics**: Performance, stability, and velocity impacts
-
-### Tracking Template
-
-```markdown
-## Debt Item: [Title]
-
-**Priority**: High/Medium/Low
-**Impact**: [Business/Technical impact]
-**Effort**: [Time estimate]
-**Risk**: [Risk assessment]
-**Owner**: [Responsible team member]
-**Created**: [Date]
-**Target Resolution**: [Date]
-
-### Description
-
-[Detailed description of the debt]
-
-### Resolution Plan
-
-[Steps to resolve the debt]
-
-### Success Criteria
-
-[How to know the debt is resolved]
-```
-
-## Communication and Stakeholder Management
-
-### Debt Reporting
-
-- **Weekly**: Include debt status in sprint reports
-- **Monthly**: Provide debt trend analysis to stakeholders
-- **Quarterly**: Present debt strategy and investment needs
-
-### Stakeholder Education
-
-- Explain technical debt impact on business outcomes
-- Provide clear ROI calculations for debt reduction work
-- Communicate prevention strategies and their benefits
-
-## Implementation Insights from Booking System
-
-### Debt Prevention Strategies That Worked
-
-1. **Documentation-First Approach**: Updating docs during implementation prevented knowledge debt
-2. **Comprehensive Testing**: TDD approach with 80% coverage prevented quality debt
-3. **Architectural Decisions**: ADRs captured context and rationale for future reference
-4. **Environment Validation**: Early validation prevented configuration debt
-
-### New Debt Introduced
-
-#### Technical Debt from Implementation Choices
-
-1. **Email Template Complexity**: HTML/text templates in code create maintenance overhead
-2. **Manual Migration Testing**: Database migrations lack automated rollback testing
-3. **Missing Rate Limiting**: API endpoints vulnerable to abuse without rate limiting
-4. **Performance Monitoring Gap**: No automated Core Web Vitals tracking
-
-### Future Optimization Opportunities
-
-#### Performance Enhancements
-
-- **Database Indexing**: Add indexes for common query patterns (email, date, createdAt)
-- **Caching Strategy**: Implement Redis caching for frequently accessed data
-- **Image Optimization**: Optimize gallery images with Next.js Image component
-- **Bundle Splitting**: Implement dynamic imports for non-critical components
-
-#### User Experience Improvements
-
-- **Progressive Web App**: Add PWA capabilities for mobile users
-- **Offline Support**: Cache booking form for offline completion
-- **Real-time Updates**: WebSocket integration for live booking status
-- **Advanced Validation**: Real-time email/phone validation during input
-
-#### Business Intelligence
-
-- **Analytics Integration**: Google Analytics 4 for user behavior tracking
-- **Email Metrics**: Open rates, click-through rates for email effectiveness
-- **Booking Analytics**: Conversion funnel analysis and optimization
-- **A/B Testing**: Framework for testing booking flow improvements
-
-### Debt Metrics from Implementation
-
-- **Documentation Debt**: Reduced from High to Zero through systematic updates
-- **Test Debt**: Eliminated through comprehensive test suite implementation
-- **Configuration Debt**: Resolved through environment variable validation
-- **Architecture Debt**: Minimized through ADR documentation and clear patterns
-
----
-
-**Last Updated**: 2025-07-31 (Jest Mock Hoisting Resolution)
-**Review Schedule**: Weekly assessment, Monthly planning
-**Owner**: Development Team
-**Stakeholders**: Product Team, Engineering Leadership
-**Next Review**: 2025-08-06 (Weekly assessment of new debt items)
+- Document context and root cause for all debt items
+- Include estimated effort and realistic timelines
+- Prioritize based on user impact and business value
+- Use debt as learning opportunities for process improvement
+- Celebrate debt resolution to maintain team motivation

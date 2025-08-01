@@ -1,61 +1,19 @@
-# Architecture
+# System Architecture
 
-## System Overview
+## Tech Stack
 
-MoodOverMuscle is a Next.js-based web application for a personal training business, focusing on mums returning to fitness. Built as a JAMstack application with serverless functions.
-
-## Core Technology Stack
-
-- **Framework**: Next.js 15 (App Router)
-- **Language**: TypeScript
-- **UI**: React + Tailwind CSS + shadcn/ui
+- **Framework**: Next.js 14 (App Router)
 - **Database**: Neon PostgreSQL with Prisma ORM
-- **Deployment**: Vercel
-- **Email**: Nodemailer (SMTP)
-- **Testing**: Jest + React Testing Library + Playwright
-
-## Application Architecture
-
-### Frontend Structure
-
-```
-app/                    # Next.js App Router
-├── layout.tsx         # Root layout with providers
-├── page.tsx           # Homepage with all sections
-├── classes/           # Classes page
-└── api/               # API routes (serverless functions)
-
-components/
-├── sections/          # Page sections (Hero, About, etc.)
-├── ui/               # Reusable UI components (shadcn/ui)
-└── booking-form.tsx  # Main booking form component
-```
-
-### Key Components
-
-- **Hero Section**: Value proposition and main CTA
-- **About Section**: Personal story and credentials
-- **How It Works**: Process explanation
-- **Gallery**: Visual content showcase
-- **Booking Form**: Session booking with validation
-- **Footer**: Contact info and final CTA
-
-### Data Flow
-
-1. User fills booking form (3-step wizard with React Hook Form)
-2. Client-side validation (Zod schema + real-time feedback)
-3. Form submission to `/api/book-session` endpoint
-4. Server-side validation (Zod schema safeParse)
-5. Data stored in PostgreSQL via Prisma ORM
-6. Non-blocking email notifications (fire-and-forget pattern)
-   - Customer confirmation email
-   - Admin notification email
-7. Success response to client with booking data
-8. Client shows success toast and resets form
+- **Styling**: Tailwind CSS + shadcn/ui components
+- **Email**: Nodemailer with Gmail SMTP
+- **Testing**: Jest + React Testing Library + Playwright + MSW
+- **Performance**: Vercel Analytics + SpeedInsights
+- **Deployment**: Vercel with GitHub integration
+- **Security**: Built-in Next.js security + rate limiting
 
 ## Database Design
 
-### Core Entities
+### Schema Architecture
 
 ```prisma
 model Booking {
@@ -74,262 +32,135 @@ model Booking {
 }
 ```
 
-### Schema Evolution
+### Key Design Decisions
 
-- **Initial Migration** (`20250728050257_init`): Basic booking structure
-- **Enhancement Migration** (`20250728050543_add_goals_and_experience_to_booking`): Added goals and experience fields for better customer profiling
-- **Prisma Client Generation**: Custom output to `lib/generated/prisma` for organized code structure
+- **CUID Primary Keys**: Better for distributed systems, sortable by creation time
+- **Nullable Fields**: Flexible schema for optional user input (phone, message, goals, experience)
+- **Time Storage**: DateTime for precise dates, String for user-selected time slots
+- **Audit Trail**: Automatic createdAt/updatedAt timestamps
 
-## API Design
+## Core Components
 
-### Endpoints
+### Booking System
 
-- `POST /api/book-session`: Handle booking form submissions with email notifications
-- Future: Authentication, user management, class scheduling
+- **Multi-step Wizard**: Progressive form with validation at each step
+- **Calendar Integration**: Date/time selection with availability checking
+- **Email Notifications**: Automated confirmations via Nodemailer + SMTP
+- **Rate Limiting**: In-memory IP-based protection (5 requests/minute)
 
-### Response Patterns
+### Email Architecture
 
-```typescript
-// Success Response (201)
-{
-  message: "Booking submitted successfully!",
-  data: {
-    id: string,
-    name: string,
-    email: string,
-    phone: string | null,
-    service: string,
-    date: string,
-    time: string,
-    message: string | null,
-    goals: string | null,
-    experience: string | null,
-    createdAt: string,
-    updatedAt: string
-  }
-}
+- **Fire-and-forget Pattern**: Non-blocking email sending
+- **Provider Flexibility**: SMTP-agnostic (Gmail dev, professional SMTP production)
+- **Error Resilience**: Email failures don't break booking flow
+- **Template Management**: HTML/text templates in code
 
-// Validation Error Response (400)
-{
-  message: "Invalid form data.",
-  errors: {
-    [field: string]: string[]
-  }
-}
+### Performance Monitoring
 
-// Server Error Response (500)
-{
-  message: "Failed to submit booking.",
-  error: string
-}
-```
-
-### Email Service Architecture
-
-#### SMTP Configuration
-
-- **Provider**: Nodemailer with SMTP transport
-- **Configuration**: Environment-based for production flexibility
-- **Security**: Environment variable validation on startup
-- **Error Handling**: Non-blocking fire-and-forget pattern
-
-#### Email Templates
-
-1. **Customer Confirmation**: Professional HTML/text email with booking details
-2. **Admin Notification**: Action-oriented email with customer information and next steps
-
-#### Implementation Pattern
-
-```typescript
-// Non-blocking email sending
-sendCustomerConfirmation(bookingData)
-  .then(res => {
-    if (!res.success) {
-      console.error('Email failed:', res.error)
-    }
-  })
-  .catch(err => console.error('Email error:', err))
-```
-
-## Performance Monitoring Architecture
-
-### Core Web Vitals Tracking
-
-**Implementation Strategy**: Leveraged Vercel's built-in Analytics and SpeedInsights tools instead of custom implementation
-
-- **Vercel Analytics**: Comprehensive user behavior tracking via [`@vercel/analytics`](../app/layout.tsx:15)
-- **Speed Insights**: Core Web Vitals monitoring via [`@vercel/speed-insights`](../app/layout.tsx:16)
-- **Real-time Dashboard**: Professional-grade monitoring interface in Vercel console
-- **Automated Alerts**: Built-in notification system for performance regressions
-
-### Performance Monitoring Benefits
-
-- **Zero Maintenance Overhead**: No custom performance tracking code to maintain
-- **Industry Standards**: Follows Google's Core Web Vitals specifications (LCP, FID, CLS)
-- **Scalability**: Built-in infrastructure handles traffic scaling automatically
-- **Integration**: Seamless integration with existing Vercel deployment pipeline
-- **Professional Grade**: Enterprise-level monitoring capabilities with zero custom code
-
-### Monitoring Coverage
-
-- **Largest Contentful Paint (LCP)**: Page loading performance
-- **First Input Delay (FID)**: Interactivity measurement
-- **Cumulative Layout Shift (CLS)**: Visual stability tracking
-- **Real-time Metrics**: Live performance data and historical trends
-- **User Experience Insights**: Detailed analytics on user interactions and page performance
+- **Vercel Analytics**: Zero-maintenance user behavior tracking
+- **SpeedInsights**: Real-time Core Web Vitals monitoring (LCP, FID, CLS)
+- **Automated Alerts**: Built-in performance regression notifications
 
 ## Security Architecture
 
-### Rate Limiting
+### Input Validation
 
-**Implementation Strategy**: Implemented in-memory rate limiting for the `/api/book-session` endpoint to prevent abuse.
+- **Zod Schemas**: Server-side validation with TypeScript integration
+- **Sanitization**: Automatic React JSX escaping + DOMPurify for rich content
+- **SQL Injection Prevention**: Prisma ORM parameterized queries
 
-- **Technology**: In-memory store (Map) to track requests per IP address.
-- **Limits**: 5 requests per minute per IP address.
-- **Error Handling**: Returns a 429 "Too Many Requests" status code when the limit is exceeded.
-- **Logging**: Logs a warning to the console when an IP address is rate-limited.
+### Security Headers
 
-### Security Architecture Benefits
+```typescript
+const securityHeaders = [
+  { key: 'X-Content-Type-Options', value: 'nosniff' },
+  { key: 'X-Frame-Options', value: 'DENY' },
+  { key: 'X-XSS-Protection', value: '1; mode=block' },
+  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+  { key: 'Content-Security-Policy', value: "default-src 'self'; ..." },
+]
+```
 
-- **Abuse Prevention**: Protects the booking endpoint from simple denial-of-service attacks.
-- **Resource Protection**: Prevents the server from being overloaded with requests from a single client.
-- **Low Complexity**: In-memory solution is simple to implement and maintain for the current scale.
+### Rate Limiting Strategy
+
+- **Implementation**: In-memory per-IP tracking
+- **Limits**: 5 requests per minute per IP address
+- **Rationale**: Simple, sufficient for current scale, cost-effective
+
+## Testing Architecture
+
+### Test Pyramid
+
+- **Unit Tests**: Jest + React Testing Library (80% coverage minimum)
+- **Integration Tests**: MSW for realistic API mocking
+- **E2E Tests**: Playwright with accessibility validation
+- **Performance Tests**: Lighthouse CI integration
+
+### Testing Tools Integration
+
+- **Jest**: Excellent Next.js integration, fast feedback loops
+- **MSW**: Network-level mocking for realistic test scenarios
+- **Playwright**: Superior browser automation with WCAG compliance testing
+
+## System Constraints
+
+- Single client business (Emily's fitness coaching)
+- Solo developer with agentic LLM assistance
+- FLOSS/free tools preferred
+- Privacy-conscious solution choices
+- Functionality over complexity
+- Zero accessibility violations requirement
 
 ## Deployment Architecture
 
-### Vercel Platform
+### Environment Strategy
 
-- **Build**: `prisma generate && next build` (generates Prisma Client) then Next.js static generation + serverless functions
-- **CDN**: Global edge network for static assets
-- **Database**: Neon PostgreSQL with serverless connection pooling
-- **Environment**: Production, Preview, Development branches
-- **Analytics**: Built-in Vercel Analytics and SpeedInsights for performance monitoring
+- **Production**: Vercel deployment triggered by main branch
+- **Preview**: Automatic preview deployments for all pull requests
+- **Database**: Neon serverless PostgreSQL with connection pooling
 
-### Key Constraints
+### CI/CD Pipeline
 
-- **Serverless Functions**: 10-second timeout limit
-- **Database Connections**: Connection pooling required
-- **Build Time**: Optimized for fast deployment cycles
-- **Static Assets**: Optimized via Next.js Image component
+- **GitHub Actions**: Lint, test, build, size-check, lighthouse audits
+- **Quality Gates**: Critical tests must pass, non-critical tracked in debt
+- **Vercel Integration**: Automatic deployments with rollback capability
 
-## Evolution Tracking
+## Future Considerations
 
-### v1.0.0 (Current - Production Ready)
+### Scalability Enhancements
 
-- Complete booking system with 3-step wizard UI
-- PostgreSQL database with comprehensive schema
-- SMTP email notification system (customer + admin)
-- Comprehensive testing suite (unit + integration + e2e)
-- Production deployment with performance optimization
-- Accessibility compliance (WCAG 2.1 AA)
-- Error handling and user feedback systems
+```prisma
+// Potential future schema additions
+model Booking {
+  // ... existing fields
+  status        BookingStatus @default(PENDING)
+  sessionDuration Int?         // Minutes
+  location        String?      // Session location
+  trainerId       String?
+  trainer         Trainer?     @relation(fields: [trainerId], references: [id])
+  paymentId       String?
+  payment         Payment?     @relation(fields: [paymentId], references: [id])
+}
 
-### Implementation Insights
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+```
 
-#### Performance Monitoring Implementation
+### Performance Optimizations
 
-- **Strategic Decision**: Leveraged existing Vercel Analytics and SpeedInsights instead of custom implementation
-- **Architecture Benefit**: Reduced code complexity and maintenance overhead
-- **Performance Monitoring**: Professional-grade Core Web Vitals tracking (LCP, FID, CLS) with zero custom code
-- **Operational Advantage**: Real-time dashboard and automated alerts via Vercel platform
-- **Quality Impact**: Maintained comprehensive monitoring while simplifying the codebase
+- Image optimization strategy
+- Database indexing for common queries
+- Caching strategy for static content
+- Bundle size optimization
 
-#### Email Service Design Decisions
+## Key Architectural Decisions
 
-- **Fire-and-forget pattern**: Prevents booking failures due to email issues
-- **Dual notifications**: Customer confirmation + admin alerts
-- **Environment flexibility**: SMTP configuration supports various providers
-- **Error resilience**: Email failures logged but don't affect user experience
-
-#### Form Architecture
-
-- **Multi-step wizard**: Improves user experience and completion rates
-- **Real-time validation**: Zod schemas provide immediate feedback
-- **Loading states**: Visual feedback during submission with disabled controls
-- **Error recovery**: Network failures handled gracefully with retry capability
-
-#### Database Design
-
-- **CUID primary keys**: Better for distributed systems than auto-increment
-- **Nullable fields**: Flexible schema accommodates optional user input
-- **Timestamp tracking**: Automatic createdAt/updatedAt for audit trails
-- **Type safety**: Prisma generates TypeScript types for compile-time safety
-
-### Planned Evolution
-
-- User authentication system
-- Class scheduling interface with availability management
-- Payment integration (Stripe/PayPal)
-- Admin dashboard for booking management
-- Mobile app consideration
-- Advanced email templates with branding
-
-## Design Decisions
-
-### Technology Choices
-
-- **Next.js**: Full-stack React framework with excellent DX and App Router
-- **TypeScript**: Type safety and better developer experience
-- **Tailwind CSS**: Utility-first styling for rapid development
-- **PostgreSQL**: Reliable relational database for structured data
-- **Prisma ORM**: Type-safe database access with excellent DX
-- **Vercel**: Seamless Next.js deployment and scaling
-- **Nodemailer**: SMTP email service for reliability and FLOSS compatibility
-
-### Architecture Patterns
-
-- **JAMstack**: Pre-built markup, APIs, and JavaScript
-- **Component-Based**: Reusable UI components with shadcn/ui
-- **Type-Safe**: End-to-end TypeScript coverage with Zod validation
-- **Progressive Enhancement**: Works without JavaScript
-- **Mobile-First**: Responsive design approach
-
-#### Rate Limiting: In-Memory vs. Redis
-
-- **Decision**: Use a simple in-memory rate limiter instead of a more complex solution like Redis.
-- **Rationale**:
-  - The current scale of the application does not warrant the complexity and overhead of an external dependency like Redis.
-  - An in-memory solution is sufficient to protect against basic abuse and can be easily scaled or replaced if needed in the future.
-  - Vercel's serverless environment would require a managed Redis instance, adding cost and complexity.
-- **Alternative Considered**: Redis-based rate limiting (rejected due to complexity and cost).
-- **Benefits**: Simplicity, no external dependencies, and sufficient for current needs.
-- **Fire-and-Forget**: Non-blocking email service for optimal UX
-- **Atomic Commits**: TDD workflow with frequent, small commits
-
-### Key Architectural Decisions
-
-#### Performance Monitoring: Vercel Built-in Tools vs Custom Implementation
-
-- **Decision**: Leverage Vercel Analytics and SpeedInsights instead of custom Core Web Vitals tracking
-- **Rationale**:
-  - Eliminates redundant implementation and reduces code complexity
-  - Zero maintenance overhead compared to custom solution
-  - Professional-grade monitoring with industry-standard accuracy
-  - Real-time dashboard and automated alerts included
-- **Alternative Considered**: Custom Core Web Vitals implementation (rejected due to unnecessary complexity)
-- **Implementation**: Existing [`@vercel/analytics`](../app/layout.tsx:15) and [`@vercel/speed-insights`](../app/layout.tsx:16) components
-- **Benefits**: Reduced codebase complexity while maintaining comprehensive monitoring capabilities
-
-#### Email Service Choice: Nodemailer + SMTP
-
-- **Rationale**: FLOSS compatibility, production flexibility, reliability
-- **Alternative Considered**: Resend, SendGrid (rejected due to vendor lock-in)
-- **Implementation**: Environment-configurable SMTP with error resilience
-
-#### Database Schema Design
-
-- **Nullable vs Required**: Balanced approach - core fields required, optional fields nullable
-- **CUID vs UUID**: CUID chosen for better readability and collision resistance
-- **Timestamp Strategy**: Automatic Prisma timestamps for audit trails
-
-#### Form UX Architecture
-
-- **Multi-step vs Single Page**: Multi-step chosen for better completion rates
-- **Validation Strategy**: Client + server validation with Zod for consistency
-- **Error Handling**: Graceful degradation with clear user feedback
-
-#### Testing Strategy
-
-- **Unit + Integration + E2E**: Comprehensive coverage across all layers
-- **MSW for Mocking**: Realistic API mocking for consistent test behavior
-- **Accessibility Testing**: Automated WCAG compliance validation
+1. **Next.js App Router**: Modern React patterns with SSR capabilities
+2. **Prisma + Neon**: Type-safe database with serverless optimization
+3. **Vercel Platform**: Zero-maintenance monitoring and deployment
+4. **Mobile-First Design**: WCAG 2.1 AA compliance requirement
+5. **Lean Development**: Functionality over unnecessary complexity

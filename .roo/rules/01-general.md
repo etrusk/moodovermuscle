@@ -12,5 +12,4 @@
 
 # Dev Workflow
 
-- ALWAYS consult - /.docs/orchestration-workflow.md - when starting and finishing any task and/or subtask, to ensure all guidelines were followed
 - Before starting any servers, check existing terminal windows and if server not already running on port 3000

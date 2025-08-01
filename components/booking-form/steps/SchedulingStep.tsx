@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import {} from /* useBookingForm */ '../BookingFormProvider'
+import { useBookingForm } from '../BookingFormProvider'
 import {
   FormField,
   FormItem,
@@ -26,6 +26,7 @@ interface SchedulingStepProps {
 }
 
 export function SchedulingStep({ isLoading = false }: SchedulingStepProps) {
+  const { form } = useBookingForm()
   const [isCalendarOpen, setCalendarOpen] = useState(false)
   const [calendarLoading, setCalendarLoading] = useState(false)
 
@@ -51,6 +52,7 @@ export function SchedulingStep({ isLoading = false }: SchedulingStepProps) {
     >
       <div className="grid gap-6 md:grid-cols-2">
         <FormField
+          control={form.control}
           name="date"
           render={({ field }) => (
             <FormItem className="flex flex-col">
@@ -112,6 +114,7 @@ export function SchedulingStep({ isLoading = false }: SchedulingStepProps) {
           )}
         />
         <FormField
+          control={form.control}
           name="time"
           render={({ field }) => (
             <FormItem>
@@ -137,12 +140,11 @@ export function SchedulingStep({ isLoading = false }: SchedulingStepProps) {
         />
       </div>
       <FormField
+        control={form.control}
         name="message"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>
-              Anything else you&apos;d like me to know? (Optional)
-            </FormLabel>
+            <FormLabel>Message (Optional)</FormLabel>
             <FormControl>
               <Textarea
                 placeholder="Any questions, concerns, or things you're excited about? I'd love to hear from you! 💕"

@@ -44,12 +44,13 @@ interface ServiceSelectionStepProps {
 }
 
 export function ServiceSelectionStep({ isLoading = false }: ServiceSelectionStepProps) {
-  const { isSubmitting } = useBookingForm()
+  const { isSubmitting, form } = useBookingForm()
   const loading = isLoading || isSubmitting
 
   return (
     <div className="space-y-6 animate-fade-in-up" data-testid="booking-form-step-2">
       <FormField
+        control={form.control}
         name="service"
         render={({ field }) => (
           <FormItem className="space-y-4">

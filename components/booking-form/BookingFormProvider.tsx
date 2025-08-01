@@ -21,7 +21,9 @@ export function BookingFormProvider({ onClose, children }: BookingFormProviderPr
   const logic = useBookingFormLogic(onClose)
   return (
     <BookingFormContext.Provider value={logic}>
-      <Form {...logic.form}>{children}</Form>
+      <Form {...logic.form}>
+        {children}
+      </Form>
     </BookingFormContext.Provider>
   )
 }

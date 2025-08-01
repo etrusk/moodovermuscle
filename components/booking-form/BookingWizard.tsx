@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { BookingFormData } from './bookingFormLogic'
 import { WizardHeader } from './WizardHeader'
 import { WizardSteps } from './WizardSteps'
 import { WizardNavigation } from './WizardNavigation'
@@ -34,23 +35,16 @@ export function BookingWizard({ onClose }: BookingWizardProps) {
     }
   }
 
-  const handleSubmit = async () => {
-    const isValidStep = await validateStep(currentStep)
-    if (!isValidStep) return
-    const isStepValid = await validateStep(currentStep)
-    if (!isStepValid) return
+  const { form } = useBookingForm()
+  const handleSubmit = async (data: BookingFormData) => {
     try {
-      const response = await submitForm()
-      if (response.ok) {
+      const result = await submitForm(data)
+      if (result.error) {
+        setSubmissionError('Booking failed. Please try again.')
+        setCurrentStep(1)
+      } else {
         setSubmissionSuccess(true)
         setSubmissionError(null)
-      } else {
-        if (response.status >= 500) {
-          setSubmissionError('Booking Failed')
-        } else {
-          setSubmissionError('Booking Failed')
-        }
-        setCurrentStep(1)
       }
     } catch (error) {
       console.error('Network error during submission:', error)
@@ -67,7 +61,7 @@ export function BookingWizard({ onClose }: BookingWizardProps) {
   }, [submissionSuccess, onClose])
 
   return (
-    <>
+    <form onSubmit={form.handleSubmit(handleSubmit)}>
       {!submissionSuccess && (
         <>
           {submissionError && (
@@ -90,7 +84,6 @@ export function BookingWizard({ onClose }: BookingWizardProps) {
               totalSteps={totalSteps}
               onNext={handleNext}
               onPrevious={handlePrevious}
-              onSubmit={handleSubmit}
               isNextLoading={isStepLoading}
               isSubmitLoading={isSubmitting}
               canProceed={!isStepLoading && !isSubmitting}
@@ -103,6 +96,6 @@ export function BookingWizard({ onClose }: BookingWizardProps) {
           Booking Confirmed!
         </div>
       )}
-    </>
+    </form>
   )
 }

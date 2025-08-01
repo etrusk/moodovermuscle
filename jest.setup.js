@@ -1,3 +1,4 @@
+import 'whatwg-fetch'
 import { TextEncoder, TextDecoder } from 'util';
 
 if (typeof setImmediate === 'undefined') {
@@ -222,8 +223,7 @@ import '@testing-library/jest-dom'
 import 'jest-axe/extend-expect'
 
 // Mock fetch globally
-// Mock fetch globally
-global.fetch = jest.fn();
+// MSW will handle fetch mocking, so the global mock is no longer needed.
 
 // Mock nodemailer transporter for tests
 jest.mock('nodemailer', () => {
@@ -334,3 +334,8 @@ global.console = {
 
 // MSW setup is now handled in a separate file (__tests__/setup/msw-setup.js)
 // This ensures polyfills are loaded before MSW is imported
+
+// Mock for target.hasPointerCapture
+if (typeof window !== 'undefined') {
+  window.HTMLElement.prototype.hasPointerCapture = jest.fn();
+}

@@ -10,6 +10,13 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Heart } from 'lucide-react'
 
 interface PersonalDetailsStepProps {
@@ -19,7 +26,7 @@ interface PersonalDetailsStepProps {
 export function PersonalDetailsStep({
   isLoading = false,
 }: PersonalDetailsStepProps) {
-  const { isSubmitting } = useBookingForm()
+  const { isSubmitting, form } = useBookingForm()
   const loading = isLoading || isSubmitting
 
   return (
@@ -29,12 +36,13 @@ export function PersonalDetailsStep({
     >
       <div className="grid gap-6">
         <FormField
+          control={form.control}
           name="name"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="flex items-center gap-2">
                 <Heart className="h-4 w-4 stroke-1 text-rose-500" />
-                What should we call you? *
+                Name
               </FormLabel>
               <FormControl>
                 <Input
@@ -50,6 +58,7 @@ export function PersonalDetailsStep({
         />
         <div className="grid gap-6 md:grid-cols-2">
           <FormField
+            control={form.control}
             name="email"
             render={({ field }) => (
               <FormItem>
@@ -68,6 +77,7 @@ export function PersonalDetailsStep({
             )}
           />
           <FormField
+            control={form.control}
             name="phone"
             render={({ field }) => (
               <FormItem>
@@ -87,30 +97,40 @@ export function PersonalDetailsStep({
           />
         </div>
         <FormField
+          control={form.control}
           name="goals"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>What&apos;s your main fitness goal? *</FormLabel>
-              <FormControl>
-                <select
-                  {...field}
-                  disabled={loading}
-                  className="w-full p-4 border-2 border-stone-200 rounded-xl focus:border-green-500 focus:ring-green-500 bg-white text-lg"
-                  data-testid="goals-select"
-                >
-                  <option value="">Choose your goal...</option>
-                  <option value="weight-loss">
+              <FormLabel>What's your main fitness goal? *</FormLabel>
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={field.value}
+                disabled={loading}
+                name="goals"
+              >
+                <FormControl>
+                  <SelectTrigger
+                    className="min-h-[3.5rem] h-auto"
+                    data-testid="goals-select-trigger"
+                  >
+                    <SelectValue placeholder="Choose your goal..." />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="Weight Loss" role="option">
                     Lose weight & feel confident
-                  </option>
-                  <option value="strength">Build strength & energy</option>
-                  <option value="postnatal">Postnatal recovery</option>
-                  <option value="community">Find my mum tribe</option>
-                  <option value="mental-health">
+                  </SelectItem>
+                  <SelectItem value="Build strength & energy" role="option">
+                    Build strength & energy
+                  </SelectItem>
+                  <SelectItem value="Postnatal" role="option">Postnatal recovery</SelectItem>
+                  <SelectItem value="Community" role="option">Find my mum tribe</SelectItem>
+                  <SelectItem value="Mental Health" role="option">
                     Improve mental wellbeing
-                  </option>
-                  <option value="other">Something else amazing</option>
-                </select>
-              </FormControl>
+                  </SelectItem>
+                  <SelectItem value="Other" role="option">Something else amazing</SelectItem>
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}

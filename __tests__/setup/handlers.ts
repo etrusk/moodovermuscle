@@ -7,45 +7,41 @@ interface BookingRequestBody {
 
 export const handlers = [
   http.post('/api/book-session', async ({ request }) => {
-    const body = (await request.json()) as BookingRequestBody
+    let body: BookingRequestBody
+    try {
+      body = (await request.json()) as BookingRequestBody
+    } catch (e) {
+      const error = e as Error
+      // Handle cases where the request body is not valid JSON
+      return HttpResponse.json({ message: error.message }, { status: 400 })
+    }
 
     if (body.email === 'fail@example.com') {
-      return new HttpResponse(
-        JSON.stringify({ message: 'Internal Server Error' }),
-        {
-          status: 500,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
+      return HttpResponse.json(
+        { message: 'Internal Server Error' },
+        { status: 500 }
       )
     }
 
-    return new HttpResponse(
-      JSON.stringify({ message: TEST_STRINGS.BOOKING.SUCCESS_MESSAGE }),
-      {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
-    )
-  }),
-  // Simulate network failure for specific test email
-  http.post('/api/book-session', async ({ request }) => {
-    const body = (await request.json()) as BookingRequestBody
     if (body.email === 'network@example.com') {
-      throw new Error('Network error: failed to connect')
+      return HttpResponse.error()
     }
-    // Fallback to success if not network scenario
-    return new HttpResponse(
-      JSON.stringify({ message: TEST_STRINGS.BOOKING.SUCCESS_MESSAGE }),
-      {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
+
+    if (body.email === 'validation@example.com') {
+      return HttpResponse.json(
+        {
+          message: 'Invalid data',
+          errors: { email: ['Invalid email format'] },
         },
-      }
+        { status: 400 }
+      )
+    }
+
+    // Add a small delay to simulate network latency
+    await new Promise(resolve => setTimeout(resolve, 250))
+    return HttpResponse.json(
+      { message: TEST_STRINGS.BOOKING.SUCCESS_MESSAGE },
+      { status: 201 }
     )
   }),
 ]

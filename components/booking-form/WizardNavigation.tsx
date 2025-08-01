@@ -10,7 +10,6 @@ interface WizardNavigationProps {
   totalSteps: number
   onNext: () => void
   onPrevious: () => void
-  onSubmit: () => void
   isNextLoading?: boolean
   isSubmitLoading?: boolean
   canProceed: boolean
@@ -21,7 +20,6 @@ export function WizardNavigation({
   totalSteps,
   onNext,
   onPrevious,
-  onSubmit,
   isNextLoading = false,
   isSubmitLoading = false,
   canProceed,
@@ -63,11 +61,10 @@ export function WizardNavigation({
       ) : (
         <Button
           type="submit"
-          onClick={onSubmit}
-          className="flex-1"
-          disabled={!canProceed || isSubmitLoading}
-          aria-busy={isSubmitLoading}
-          data-testid="booking-form-submit-button"
+            className="flex-1"
+            disabled={!canProceed || isSubmitLoading}
+            aria-busy={isSubmitLoading}
+            data-testid="booking-form-submit-button"
         >
           {isSubmitLoading ? (
             <>

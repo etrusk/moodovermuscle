@@ -50,14 +50,12 @@ export function useBookingFormLogic(onClose: () => void) {
     }
   }
 
-  const submitForm = async (): Promise<Response> => {
+  const submitForm = async (formData: BookingFormData) => {
     setIsSubmitting(true)
     try {
-      await form.trigger()
-      const raw = form.getValues()
       const data: Record<string, unknown> = {
-        ...raw,
-        date: raw.date ? raw.date.toISOString() : undefined,
+        ...formData,
+        date: formData.date ? formData.date.toISOString() : undefined,
       }
       Object.keys(data).forEach(key => {
         if (data[key] === '' || data[key] === undefined) {
@@ -69,7 +67,14 @@ export function useBookingFormLogic(onClose: () => void) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       })
-      return response
+      
+      const result = await response.json()
+      
+      if (!response.ok) {
+        return { error: result.error || result.message || 'Booking failed. Please try again.' }
+      }
+      
+      return result
     } finally {
       setIsSubmitting(false)
     }

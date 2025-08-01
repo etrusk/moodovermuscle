@@ -101,7 +101,7 @@ export function PersonalDetailsStep({
           name="goals"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>What's your main fitness goal? *</FormLabel>
+              <FormLabel>What&apos;s your main fitness goal? *</FormLabel>
               <Select
                 onValueChange={field.onChange}
                 defaultValue={field.value}
@@ -123,12 +123,18 @@ export function PersonalDetailsStep({
                   <SelectItem value="Build strength & energy" role="option">
                     Build strength & energy
                   </SelectItem>
-                  <SelectItem value="Postnatal" role="option">Postnatal recovery</SelectItem>
-                  <SelectItem value="Community" role="option">Find my mum tribe</SelectItem>
+                  <SelectItem value="Postnatal" role="option">
+                    Postnatal recovery
+                  </SelectItem>
+                  <SelectItem value="Community" role="option">
+                    Find my mum tribe
+                  </SelectItem>
                   <SelectItem value="Mental Health" role="option">
                     Improve mental wellbeing
                   </SelectItem>
-                  <SelectItem value="Other" role="option">Something else amazing</SelectItem>
+                  <SelectItem value="Other" role="option">
+                    Something else amazing
+                  </SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />

@@ -16,12 +16,17 @@ interface PersonalDetailsStepProps {
   isLoading?: boolean
 }
 
-export function PersonalDetailsStep({ isLoading = false }: PersonalDetailsStepProps) {
+export function PersonalDetailsStep({
+  isLoading = false,
+}: PersonalDetailsStepProps) {
   const { isSubmitting } = useBookingForm()
   const loading = isLoading || isSubmitting
 
   return (
-    <div className="space-y-6 animate-fade-in-up" data-testid="booking-form-step-1">
+    <div
+      className="space-y-6 animate-fade-in-up"
+      data-testid="booking-form-step-1"
+    >
       <div className="grid gap-6">
         <FormField
           name="name"
@@ -85,7 +90,7 @@ export function PersonalDetailsStep({ isLoading = false }: PersonalDetailsStepPr
           name="goals"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>What's your main fitness goal? *</FormLabel>
+              <FormLabel>What&apos;s your main fitness goal? *</FormLabel>
               <FormControl>
                 <select
                   {...field}
@@ -94,11 +99,15 @@ export function PersonalDetailsStep({ isLoading = false }: PersonalDetailsStepPr
                   data-testid="goals-select"
                 >
                   <option value="">Choose your goal...</option>
-                  <option value="weight-loss">Lose weight & feel confident</option>
+                  <option value="weight-loss">
+                    Lose weight & feel confident
+                  </option>
                   <option value="strength">Build strength & energy</option>
                   <option value="postnatal">Postnatal recovery</option>
                   <option value="community">Find my mum tribe</option>
-                  <option value="mental-health">Improve mental wellbeing</option>
+                  <option value="mental-health">
+                    Improve mental wellbeing
+                  </option>
                   <option value="other">Something else amazing</option>
                 </select>
               </FormControl>

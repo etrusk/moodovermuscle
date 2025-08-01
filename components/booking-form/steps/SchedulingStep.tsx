@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { /* useBookingForm */ } from '../BookingFormProvider'
+import {} from /* useBookingForm */ '../BookingFormProvider'
 import {
   FormField,
   FormItem,
@@ -45,14 +45,20 @@ export function SchedulingStep({ isLoading = false }: SchedulingStepProps) {
   }, [isCalendarOpen])
 
   return (
-    <div className="space-y-6 animate-fade-in-up" data-testid="booking-form-step-3">
+    <div
+      className="space-y-6 animate-fade-in-up"
+      data-testid="booking-form-step-3"
+    >
       <div className="grid gap-6 md:grid-cols-2">
         <FormField
           name="date"
           render={({ field }) => (
             <FormItem className="flex flex-col">
               <FormLabel>Preferred Date *</FormLabel>
-              <Popover open={isCalendarOpen} onOpenChange={handleCalendarToggle}>
+              <Popover
+                open={isCalendarOpen}
+                onOpenChange={handleCalendarToggle}
+              >
                 <PopoverTrigger asChild>
                   <FormControl>
                     <Button
@@ -65,18 +71,24 @@ export function SchedulingStep({ isLoading = false }: SchedulingStepProps) {
                       )}
                       data-testid="date-picker-trigger"
                     >
-                      {field.value
-                        ? field.value.toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                          })
-                        : <span>Pick a date</span>}
+                      {field.value ? (
+                        field.value.toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
                       <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                     </Button>
                   </FormControl>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start" data-testid="date-picker-content">
+                <PopoverContent
+                  className="w-auto p-0"
+                  align="start"
+                  data-testid="date-picker-content"
+                >
                   <Calendar
                     mode="single"
                     selected={field.value}
@@ -113,7 +125,9 @@ export function SchedulingStep({ isLoading = false }: SchedulingStepProps) {
                 >
                   <option value="">Select time...</option>
                   {timeSlots.map(time => (
-                    <option key={time} value={time}>{time}</option>
+                    <option key={time} value={time}>
+                      {time}
+                    </option>
                   ))}
                 </select>
               </FormControl>
@@ -126,7 +140,9 @@ export function SchedulingStep({ isLoading = false }: SchedulingStepProps) {
         name="message"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Anything else you'd like me to know? (Optional)</FormLabel>
+            <FormLabel>
+              Anything else you&apos;d like me to know? (Optional)
+            </FormLabel>
             <FormControl>
               <Textarea
                 placeholder="Any questions, concerns, or things you're excited about? I'd love to hear from you! 💕"

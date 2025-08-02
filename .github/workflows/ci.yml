@@ -70,6 +70,50 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
+  # Job for running accessibility tests (critical quality gate)
+  test-accessibility:
+    name: test-accessibility
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+      - name: Run comprehensive accessibility tests
+        run: pnpm accessibility:ci
+      - name: Upload accessibility test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: accessibility-test-results
+          path: |
+            playwright-report/
+            .accessibility-baseline.json
+            accessibility-report.json
+          retention-days: 30
+      - name: Comment on PR if accessibility tests fail
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '🚫 **Accessibility tests are failing** - this is a critical quality gate that must be resolved before merging. WCAG 2.1 AA compliance is required. Check the uploaded test artifacts for detailed failure reports.'
+            })
+
   # Job for running integration tests (allowed to fail with warning)
   test-integration:
     name: test-integration
@@ -170,13 +214,30 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Run Lighthouse CI with automated quality gates
         run: pnpm lighthouse:ci
+      - name: Upload Lighthouse reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse-reports
+          path: |
+            .lighthouseci/
+            lhci_reports/
+          retention-days: 30
 
   # Job for deploying the application to Vercel
   deploy:
     name: Deploy to Vercel
     runs-on: ubuntu-latest
-    # This job requires critical quality checks to pass (integration tests can fail)
-    needs: [lint-and-typecheck, test-critical, build, size-check, lighthouse]
+    # This job requires critical quality checks to pass (accessibility and integration tests can fail)
+    needs:
+      [
+        lint-and-typecheck,
+        test-critical,
+        test-accessibility,
+        build,
+        size-check,
+        lighthouse,
+      ]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

@@ -18,7 +18,10 @@ test.describe('Booking Form Calendar', () => {
     await page.getByTestId('name-input').fill('Test User')
     await page.getByTestId('email-input').fill('test@example.com')
     await page.getByTestId('phone-input').fill('0412345678')
-    await page.getByTestId('goals-select').selectOption('weight-loss')
+    await page.getByTestId('goals-select-trigger').click()
+    await page
+      .getByRole('option', { name: 'Lose weight & feel confident' })
+      .click()
 
     // Click Continue to go to step 2
     await page.getByTestId('booking-form-continue-button').click()
@@ -57,9 +60,12 @@ test.describe('Booking Form Calendar', () => {
     // Verify that tomorrow's date is enabled and selectable
     // This will click the forward button on the calendar to go back to the current month
     await page.getByTestId('calendar-next-button').click()
-    const tomorrowButton = page.getByRole('button', {
-      name: tomorrowDate.getDate().toString(),
-    })
+    const tomorrowButton = page
+      .getByRole('button', {
+        name: tomorrowDate.getDate().toString(),
+        exact: true,
+      })
+      .first()
     await expect(tomorrowButton).toBeEnabled()
     await tomorrowButton.click()
   })

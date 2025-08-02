@@ -22,7 +22,7 @@ test.describe('3-step Booking Wizard Flow', () => {
         contentType: 'application/json',
         body: JSON.stringify({
           message: 'Booking submitted successfully!',
-          data: { id: 1, name: 'Jane Doe' }
+          data: { id: 1, name: 'Jane Doe' },
         }),
       })
     )
@@ -31,18 +31,17 @@ test.describe('3-step Booking Wizard Flow', () => {
     await page.getByTestId('name-input').fill('Jane Doe')
     await page.getByTestId('email-input').fill('jane@example.com')
     await page.getByTestId('phone-input').fill('0400000000')
-    await page.getByTestId('goals-select').selectOption('weight-loss')
-    await expect(
-      page.getByTestId('booking-form-continue-button')
-    ).toBeEnabled()
+    await page.getByTestId('goals-select-trigger').click()
+    await page
+      .getByRole('option', { name: 'Lose weight & feel confident' })
+      .click()
+    await expect(page.getByTestId('booking-form-continue-button')).toBeEnabled()
     await page.getByTestId('booking-form-continue-button').click()
 
     // Step 2: session type
     await expect(page.getByTestId('booking-form-step-2')).toBeVisible()
     await page.getByTestId('service-option-1-on-1-Personal-Training').click()
-    await expect(
-      page.getByTestId('booking-form-continue-button')
-    ).toBeEnabled()
+    await expect(page.getByTestId('booking-form-continue-button')).toBeEnabled()
     await page.getByTestId('booking-form-continue-button').click()
 
     // Step 3: date picker
@@ -55,11 +54,15 @@ test.describe('3-step Booking Wizard Flow', () => {
     await expect(submit).toBeEnabled()
     await submit.click()
 
-    // Wait for form submission to complete and toast to appear
-    await expect(page.getByTestId('toast').getByText('Booking Confirmed!')).toBeVisible({ timeout: 10000 })
-    
+    // Wait for confirmation UI to appear
+    await expect(page.getByTestId('booking-confirmation')).toBeVisible({
+      timeout: 10000,
+    })
+
     // Dialog should close after successful submission
-    await expect(page.getByTestId('booking-form-dialog')).not.toBeVisible({ timeout: 5000 })
+    await expect(page.getByTestId('booking-form-dialog')).not.toBeVisible({
+      timeout: 5000,
+    })
   })
 
   test('Form validation: missing required fields and invalid email', async ({
@@ -73,7 +76,10 @@ test.describe('3-step Booking Wizard Flow', () => {
     await page.getByTestId('name-input').fill('Test')
     await page.getByTestId('email-input').fill('not-an-email')
     await page.getByTestId('phone-input').fill('0412345678')
-    await page.getByTestId('goals-select').selectOption('weight-loss')
+    await page.getByTestId('goals-select-trigger').click()
+    await page
+      .getByRole('option', { name: 'Lose weight & feel confident' })
+      .click()
     await page.getByTestId('booking-form-continue-button').click()
     await expect(
       page.getByText('Please enter a valid email address.')
@@ -95,7 +101,10 @@ test.describe('3-step Booking Wizard Flow', () => {
     await page.getByTestId('name-input').fill('John Smith')
     await page.getByTestId('email-input').fill('john@example.com')
     await page.getByTestId('phone-input').fill('0499999999')
-    await page.getByTestId('goals-select').selectOption('weight-loss')
+    await page.getByTestId('goals-select-trigger').click()
+    await page
+      .getByRole('option', { name: 'Lose weight & feel confident' })
+      .click()
     await page.getByTestId('booking-form-continue-button').click()
     // Step 2
     await expect(page.getByTestId('booking-form-step-2')).toBeVisible()
@@ -111,9 +120,11 @@ test.describe('3-step Booking Wizard Flow', () => {
     await expect(errorSubmitButton).toBeEnabled()
     await page.waitForTimeout(500) // Allow any animations to settle
     await errorSubmitButton.click()
-    
+
     // Error toast - dialog should stay open on error
-    await expect(page.getByTestId('toast').getByText('Booking Failed')).toBeVisible({ timeout: 10000 })
+    await expect(
+      page.getByTestId('toast').getByText('Booking Failed')
+    ).toBeVisible({ timeout: 10000 })
     // Data persists: navigate back to step1 and verify values
     await page.getByTestId('booking-form-back-button').click()
     await page.getByTestId('booking-form-back-button').click()
@@ -128,23 +139,27 @@ test.describe('3-step Booking Wizard Flow', () => {
         contentType: 'application/json',
         body: JSON.stringify({
           message: 'Booking submitted successfully!',
-          data: { id: 2, name: 'John Smith' }
+          data: { id: 2, name: 'John Smith' },
         }),
       })
     )
     await page.getByTestId('booking-form-continue-button').click() // to step2
     await page.getByTestId('booking-form-continue-button').click() // to step3
-    
+
     // Wait for button to be stable before clicking
     const retrySubmitButton = page.getByTestId('booking-form-submit-button')
     await expect(retrySubmitButton).toBeVisible()
     await page.waitForTimeout(500) // Allow any animations to settle
     await retrySubmitButton.click()
-    
-    // Wait for success toast
-    await expect(page.getByTestId('toast').getByText('Booking Confirmed!')).toBeVisible({ timeout: 10000 })
+
+    // Wait for confirmation UI to appear
+    await expect(page.getByTestId('booking-confirmation')).toBeVisible({
+      timeout: 10000,
+    })
     // Dialog should close after successful submission
-    await expect(page.getByTestId('booking-form-dialog')).not.toBeVisible({ timeout: 5000 })
+    await expect(page.getByTestId('booking-form-dialog')).not.toBeVisible({
+      timeout: 5000,
+    })
   })
 
   test('Accessibility: loading and disabled states use aria-busy and disabled attrs', async ({
@@ -158,7 +173,7 @@ test.describe('3-step Booking Wizard Flow', () => {
         contentType: 'application/json',
         body: JSON.stringify({
           message: 'Booking submitted successfully!',
-          data: { id: 3, name: 'A11y Test' }
+          data: { id: 3, name: 'A11y Test' },
         }),
       })
     })
@@ -166,7 +181,10 @@ test.describe('3-step Booking Wizard Flow', () => {
     await page.getByTestId('name-input').fill('A11y Test')
     await page.getByTestId('email-input').fill('a11y@example.com')
     await page.getByTestId('phone-input').fill('0400123456')
-    await page.getByTestId('goals-select').selectOption('weight-loss')
+    await page.getByTestId('goals-select-trigger').click()
+    await page
+      .getByRole('option', { name: 'Lose weight & feel confident' })
+      .click()
     await page.getByTestId('booking-form-continue-button').click()
     await page.getByTestId('service-option-1-on-1-Personal-Training').click()
     await page.getByTestId('booking-form-continue-button').click()
@@ -179,11 +197,15 @@ test.describe('3-step Booking Wizard Flow', () => {
     await expect(btn).toBeVisible()
     await page.waitForTimeout(500) // Allow any animations to settle
     await btn.click()
-    
+
     // During request: button disabled & busy (may be too fast to catch)
-    // After completion - wait for success toast
-    await expect(page.getByTestId('toast').getByText('Booking Confirmed!')).toBeVisible({ timeout: 10000 })
+    // After completion - wait for confirmation UI
+    await expect(page.getByTestId('booking-confirmation')).toBeVisible({
+      timeout: 10000,
+    })
     // Dialog should close after successful submission
-    await expect(page.getByTestId('booking-form-dialog')).not.toBeVisible({ timeout: 5000 })
+    await expect(page.getByTestId('booking-form-dialog')).not.toBeVisible({
+      timeout: 5000,
+    })
   })
 })

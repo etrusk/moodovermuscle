@@ -19,13 +19,13 @@ module.exports = {
         // Raised accessibility threshold to 95%
         'categories:accessibility': ['error', { minScore: 0.95 }],
         // Zero-tolerance critical violations
-        'audits:color-contrast': ['error', { minScore: 1 }],
-        'audits:image-alt': ['error', { minScore: 1 }],
-        'audits:label': ['error', { minScore: 1 }],
-        'audits:link-name': ['error', { minScore: 1 }],
-        'audits:button-name': ['error', { minScore: 1 }],
-        'audits:heading-order': ['error', { minScore: 1 }],
-        'audits:landmark-one-main': ['error', { minScore: 1 }],
+        'color-contrast': ['error', { minScore: 1 }],
+        'image-alt': ['error', { minScore: 1 }],
+        label: ['error', { minScore: 1 }],
+        'link-name': ['error', { minScore: 1 }],
+        'button-name': ['error', { minScore: 1 }],
+        'heading-order': ['error', { minScore: 1 }],
+        'landmark-one-main': ['error', { minScore: 1 }],
       },
     },
     upload: {

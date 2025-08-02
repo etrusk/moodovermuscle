@@ -10,8 +10,8 @@ import { assertNoAccessibilityViolations } from './accessibility-utils'
  * @param testName - Optional name for the test case.
  */
 export function standardAccessibilityTestSuite(
-  Component: React.ComponentType<any>,
-  props: Record<string, any> = {},
+  Component: React.ComponentType<unknown>,
+  props: Record<string, unknown> = {},
   testName?: string
 ): void {
   const name = testName || Component.displayName || Component.name || 'Component'
@@ -30,8 +30,8 @@ export function standardAccessibilityTestSuite(
  * @param props - Props to pass to the form component.
  */
 export function formAccessibilityTests(
-  FormComponent: React.ComponentType<any>,
-  props: Record<string, any> = {}
+  FormComponent: React.ComponentType<unknown>,
+  props: Record<string, unknown> = {}
 ): void {
   describe('Form Accessibility Tests', () => {
     it('form container should have no accessibility violations', async () => {
@@ -62,8 +62,8 @@ export function formAccessibilityTests(
  * @param interactions - Array of functions performing user interactions.
  */
 export function interactiveAccessibilityTests(
-  Component: React.ComponentType<any>,
-  props: Record<string, any> = {},
+  Component: React.ComponentType<unknown>,
+  props: Record<string, unknown> = {},
   interactions: Array<(container: HTMLElement) => Promise<void>>
 ): void {
   const name = Component.displayName || Component.name || 'InteractiveComponent'

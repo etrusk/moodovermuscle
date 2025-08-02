@@ -3,9 +3,11 @@ import { axe, toHaveNoViolations } from 'jest-axe'
 expect.extend(toHaveNoViolations)
 
 // Conditionally import userEvent only in JSDOM environment
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let userEvent: any = null
 if (typeof window !== 'undefined') {
   // Dynamic import to avoid loading in Node.js environment
+  // eslint-disable-next-line @typescript-eslint/no-var-requires, node/no-unpublished-require
   userEvent = require('@testing-library/user-event').default
 }
 

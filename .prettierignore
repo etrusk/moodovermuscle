@@ -82,3 +82,6 @@ temp/
 # OS
 .DS_Store
 Thumbs.db
+
+# Lighthouse CI reports
+.lighthouseci/

@@ -101,6 +101,40 @@ const securityHeaders = [
 - **Jest**: Excellent Next.js integration, fast feedback loops
 - **MSW**: Network-level mocking for realistic test scenarios
 - **Playwright**: Superior browser automation with WCAG compliance testing
+- **Docker Lighthouse CI**: Isolated Chrome environment for consistent performance auditing
+
+## Docker Infrastructure
+
+### Lighthouse CI Architecture
+
+- **Container Strategy**: Multi-stage Docker builds with Chrome isolation
+- **Base Image**: `mcr.microsoft.com/playwright:v1.54.1-jammy` for consistent Chrome environment
+- **Audit Timing**: Pre-deployment auditing of build artifacts (not production URLs)
+- **Local Development**: Docker Compose setup for consistent testing across environments
+
+### Container Design
+
+```dockerfile
+# Multi-stage approach for optimized builds
+FROM node:20-alpine AS dependencies
+FROM dependencies AS builder
+FROM mcr.microsoft.com/playwright:v1.54.1-jammy AS lighthouse
+```
+
+### Key Benefits
+
+- **Complete Chrome Isolation**: Eliminates host system dependencies and security concerns
+- **CachyOS Compatibility**: Standard Docker commands work seamlessly on development system
+- **Environmental Consistency**: Identical Chrome version across local, CI, and production audits
+- **Zero System Exposure**: No Chrome installation required on host systems
+- **Pre-deployment Quality Gates**: Performance budgets enforced before production deployment
+
+### Volume Strategy
+
+- **Source Code**: Bind mounts for live development workflow
+- **Build Artifacts**: Named volumes for CI artifact sharing between build and audit stages
+- **Reports**: Persistent volumes for historical performance tracking
+- **Cache Optimization**: Docker layer caching for faster rebuilds
 
 ## System Constraints
 
@@ -121,9 +155,25 @@ const securityHeaders = [
 
 ### CI/CD Pipeline
 
-- **GitHub Actions**: Lint, test, build, size-check, lighthouse audits
+- **GitHub Actions**: Lint, test, build, size-check, Docker-based lighthouse audits
 - **Quality Gates**: Critical tests must pass, non-critical tracked in debt
+- **Docker Lighthouse**: Pre-deployment auditing of build artifacts in isolated Chrome environment
 - **Vercel Integration**: Automatic deployments with rollback capability
+
+### Docker Lighthouse CI Workflow
+
+1. **Build Stage**: Create production build artifacts with `pnpm build`
+2. **Containerize Stage**: Package artifacts in Docker container with consistent Chrome environment
+3. **Audit Stage**: Run Lighthouse CI against build artifacts (not production URLs)
+4. **Quality Gate**: Enforce performance budgets before deployment proceeds
+5. **Deploy Stage**: Deploy to Vercel only if audits pass critical thresholds
+
+### Artifact Management
+
+- **Report Storage**: Structured directory layout in `.lighthouseci/` for historical tracking
+- **Performance Trends**: JSON-based metrics for trend analysis over time
+- **Build Correlation**: Link performance reports to specific build artifacts and commits
+- **Quality Tracking**: Integration with debt.md for non-critical performance regressions
 
 ## Future Considerations
 

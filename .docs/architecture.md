@@ -107,40 +107,133 @@ const securityHeaders = [
 
 ### Privacy-First Implementation
 
-- **Local Chromium**: Direct installation with privacy-hardened configuration
-- **Complete Profile Isolation**: Dedicated `~/.lighthouse-chrome-profile` with automatic cleanup
-- **Zero Persistent Data**: Profile wiped before and after each test run
-- **Privacy-Hardened Flags**: Extensive Chrome flags disable telemetry, sync, and data collection
-- **Automated Quality Gates**: Pass/fail enforcement with build blocking
+**Local Chromium with Complete Isolation**
+
+- **Installation**: Direct Chromium package installation with privacy-hardened configuration
+- **Profile Isolation**: Dedicated `~/.lighthouse-chrome-profile` directory, completely separate from personal browsing
+- **Zero Persistent Data**: Profile wiped clean before and after each test run
+- **Process Management**: All Chrome processes terminated after testing to prevent data leakage
+
+**Privacy-Hardened Chrome Configuration**
+
+```javascript
+// Network Privacy Protection
+;('--disable-background-networking', // No background requests
+  '--disable-sync', // No Google account sync
+  '--disable-translate', // No translation services
+  '--no-pings', // No ping requests
+  '--no-referrers', // No referrer headers
+  // Data Collection Prevention
+  '--disable-breakpad', // No crash reporting
+  '--disable-client-side-phishing-detection', // No phishing detection
+  '--disable-component-update', // No component updates
+  '--disable-logging', // No logging to disk
+  '--disable-domain-reliability', // No domain reliability tracking
+  // Complete Profile Isolation
+  '--user-data-dir=/home/bob/.lighthouse-chrome-profile',
+  '--headless', // No GUI
+  '--disable-gpu') // No GPU acceleration
+```
+
+**Automated Cleanup Workflow**
+
+- **Pre-test**: Complete profile directory removal and recreation
+- **Post-test**: Automatic cleanup with process termination
+- **Fail-safe**: Cleanup scripts ensure no persistent data accumulation
+- **Privacy Assessment**: Minimal exposure (localhost:3001 only), zero persistent data
 
 ### Quality Gate Framework
 
-```javascript
-// Critical Gates (Build Blockers)
-'categories:accessibility': ['error', { minScore: 0.9 }],
-'categories:seo': ['error', { minScore: 0.9 }],
-'audits:largest-contentful-paint': ['error', { maxNumericValue: 2500 }],
-'audits:cumulative-layout-shift': ['error', { maxNumericValue: 0.1 }],
+**Critical Gates (Build Blockers) 🔴**
 
-// Warning Gates (Tracked)
-'categories:performance': ['warn', { minScore: 0.85 }],
-'audits:first-contentful-paint': ['warn', { maxNumericValue: 2000 }],
+```javascript
+// Accessibility & SEO (Non-negotiable)
+'categories:accessibility': ['error', { minScore: 0.9 }],  // WCAG compliance
+'categories:seo': ['error', { minScore: 0.9 }],            // Search visibility
+'categories:best-practices': ['error', { minScore: 0.85 }], // Security standards
+
+// Core Web Vitals (User Experience)
+'audits:largest-contentful-paint': ['error', { maxNumericValue: 2500 }],  // LCP < 2.5s
+'audits:cumulative-layout-shift': ['error', { maxNumericValue: 0.1 }],    // CLS < 0.1
+
+// Critical Accessibility Audits
+'audits:color-contrast': ['error', { minScore: 1.0 }],     // 100% contrast compliance
+'audits:image-alt': ['error', { minScore: 1.0 }],          // 100% alt text coverage
+'audits:meta-description': ['error', { minScore: 1.0 }],   // SEO essential
+'audits:is-on-https': ['error', { minScore: 1.0 }]         // Security requirement
 ```
 
-### Key Benefits
+**Warning Gates (Tracked) 🟡**
 
-- **Complete Privacy Protection**: No personal data exposure or persistent browsing data
-- **Automated Quality Enforcement**: Zero manual intervention required for quality decisions
-- **CachyOS Compatibility**: Works seamlessly on development environment
-- **Build Blocking**: Failed quality gates prevent deployment automatically
-- **FLOSS Compliance**: Uses open-source Chromium package
+```javascript
+// Performance Budgets
+'categories:performance': ['warn', { minScore: 0.85 }],           // Overall performance
+'audits:first-contentful-paint': ['warn', { maxNumericValue: 2000 }], // FCP < 2s
+'audits:total-blocking-time': ['warn', { maxNumericValue: 300 }],      // TBT < 300ms
+'audits:total-byte-weight': ['warn', { maxNumericValue: 1048576 }],    // < 1MB total
+'audits:dom-size': ['warn', { maxNumericValue: 1500 }]                 // < 1500 elements
+```
 
-### Automated Workflow
+### Automated Quality Enforcement
 
-- **Local Testing**: `npm run lighthouse:test` - Complete automated validation
-- **Quality Validation**: `npm run lighthouse:validate` - Check existing results
-- **Automatic Cleanup**: Profile isolation with pre/post-test cleanup
-- **CI Integration**: GitHub Actions maintains existing workflow compatibility
+**Exit Code Based Workflow**
+
+- **Success (0)**: All critical gates pass → Automatic deployment proceeds
+- **Failure (1)**: Critical gates fail → Build blocked with specific failure details
+- **No Manual Decisions**: Objective thresholds eliminate subjective quality assessments
+
+**Build Integration**
+
+- **Local Development**: `npm run lighthouse:test` provides immediate feedback
+- **CI/CD Pipeline**: Automated enforcement in GitHub Actions workflow
+- **Quality Validation**: `npm run lighthouse:validate` checks existing results
+- **Emergency Override**: Manual bypass available with debt tracking requirement
+
+### Technical Implementation Details
+
+**File Architecture**
+
+- **Configuration**: [`lighthouserc.js`](../lighthouserc.js) - Privacy-hardened settings with quality gates
+- **Cleanup Script**: [`scripts/lighthouse-cleanup.sh`](../scripts/lighthouse-cleanup.sh) - Automated profile cleanup
+- **Quality Gates**: [`scripts/lighthouse-quality-gates.sh`](../scripts/lighthouse-quality-gates.sh) - Validation and reporting
+- **Report Storage**: `.lighthouseci/` directory with temporary public URLs
+
+**Privacy Risk Assessment**
+
+- **Protected**: Personal browsing data, passwords, extensions, Google sync, location tracking
+- **Minimal Exposure**: localhost:3001 testing target only, basic system info (auto-cleaned)
+- **Risk Level**: MINIMAL - Complete isolation with automatic cleanup
+
+### Integration with Testing Architecture
+
+**Test Pyramid Enhancement**
+
+- **Unit Tests**: Jest + React Testing Library (80% coverage minimum)
+- **Integration Tests**: MSW for realistic API mocking
+- **E2E Tests**: Playwright with accessibility validation
+- **Performance Tests**: Privacy-focused Lighthouse CI with automated quality gates
+
+**Quality Gate Alignment**
+
+- **Critical Gates**: Never bypass - accessibility, SEO, security, Core Web Vitals
+- **Non-Critical Gates**: Can bypass with tracking in [`.docs/debt.md`](.docs/debt.md)
+- **Automated Enforcement**: Consistent standards across all environments
+- **WCAG Compliance**: Zero accessibility violations requirement maintained
+
+### CachyOS Compatibility & FLOSS Compliance
+
+**Local Implementation Benefits**
+
+- **CachyOS Native**: Works seamlessly with system Chromium package
+- **FLOSS Compliance**: Open-source Chromium, no proprietary dependencies
+- **Development Efficiency**: Fast local feedback without container overhead
+- **Privacy Protection**: Equivalent to containerized approach with proper isolation
+
+**Alternative Approaches Considered**
+
+- **Docker Solution**: Abandoned due to persistent Chrome interstitial errors on CachyOS
+- **CI-Only Testing**: Available as fallback but lacks local development feedback
+- **Current Approach**: Optimal balance of functionality, privacy, and development efficiency
 
 ## System Constraints
 

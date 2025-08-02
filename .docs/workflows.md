@@ -51,7 +51,7 @@ docs(api): update booking endpoint documentation
 - **Unit Tests**: Jest + React Testing Library (fast feedback loop)
 - **Integration Tests**: MSW for realistic API mocking
 - **E2E Tests**: Playwright for critical user journeys
-- **Performance Tests**: Privacy-focused Lighthouse CI with automated quality gates
+- **Performance Tests**: Privacy-focused Lighthouse CI with automated quality gates and build blocking
 
 ### Testing Tools Integration
 
@@ -75,6 +75,7 @@ const customJestConfig: Config = {
 - **Critical Tests**: `npm run test:critical` (fast feedback for commits)
 - **Full Suite**: `npm run test` (comprehensive coverage)
 - **E2E Testing**: `npm run test:e2e` (user journey validation)
+- **Performance Testing**: `npm run lighthouse:test` (automated quality gates with build blocking)
 - **Watch Mode**: `npm run test:watch` (TDD development)
 
 ### Test Organization
@@ -103,12 +104,28 @@ e2e/
 - Build failures
 - Security vulnerabilities
 - Core business logic test failures
+- **Lighthouse CI Critical Gates**:
+  - Accessibility ≥90% (WCAG compliance)
+  - SEO ≥90% (search visibility)
+  - Best Practices ≥85% (security standards)
+  - LCP <2.5s (Core Web Vital)
+  - CLS <0.1 (Core Web Vital)
+  - Color contrast 100% (critical accessibility)
+  - Image alt text 100% (critical accessibility)
+  - Meta descriptions 100% (SEO essential)
+  - HTTPS 100% (security requirement)
 
 #### Non-Critical Gates (Can Bypass with Tracking)
 
-- Integration test failures → Document in debt.md with timeline
-- Performance regressions → Track in debt.md with impact assessment
-- Minor accessibility issues → Plan remediation in debt.md
+- Integration test failures → Document in [`.docs/debt.md`](.docs/debt.md) with timeline
+- Performance regressions → Track in [`.docs/debt.md`](.docs/debt.md) with impact assessment
+- Minor accessibility issues → Plan remediation in [`.docs/debt.md`](.docs/debt.md)
+- **Lighthouse CI Warning Gates**:
+  - Performance ≥85% (overall score)
+  - FCP <2s (loading experience)
+  - TBT <300ms (interactivity)
+  - Total byte weight <1MB (resource budget)
+  - DOM size <1500 elements (performance budget)
 
 ### Testing Patterns
 
@@ -182,7 +199,7 @@ jobs:
   - test: Unit and integration tests
   - build: Application build verification
   - size-check: Bundle size monitoring
-  - lighthouse: Privacy-focused performance audits with automated quality gates
+  - lighthouse: Privacy-focused performance audits with automated quality gates and build blocking
 ```
 
 ### Performance Monitoring
@@ -191,7 +208,110 @@ jobs:
 - **SpeedInsights**: Real-time Core Web Vitals (LCP, FID, CLS)
 - **Privacy-Focused Lighthouse CI**: Automated quality gates with build blocking
 - **Build Monitoring**: Bundle size tracking and alerts
-- **Local Testing**: `npm run lighthouse:test` for development validation
+
+#### Lighthouse CI Workflow Integration
+
+**Development Workflow**
+
+```bash
+# Standard development testing (zero manual intervention required)
+npm run lighthouse:test          # Complete automated validation with quality gates
+# Exit codes: 0 = Pass (proceed), 1 = Fail (fix issues listed)
+
+# Quality gate validation on existing reports
+npm run lighthouse:validate      # Check quality gates without running new tests
+
+# Performance summary and detailed results
+npm run lighthouse:check         # View comprehensive performance metrics
+
+# Manual cleanup (if needed)
+npm run lighthouse:clean         # Clean Chrome profile manually
+```
+
+**Pre-commit Integration**
+
+```bash
+# Add to .husky/pre-commit for automated quality enforcement
+npm run lint
+npm run type-check
+npm run lighthouse:test          # Blocks commits if quality gates fail
+```
+
+**Quality Gate Results Interpretation**
+
+✅ **Quality Gates Passed**
+
+```
+🎉 AUTOMATED QUALITY GATES: PASSED
+✅ Build can proceed to deployment
+
+Performance:     91% (threshold: 85%)
+Accessibility:   100% (threshold: 90%)
+Best Practices:  96% (threshold: 85%)
+SEO:             100% (threshold: 90%)
+```
+
+- **Action**: None required - proceed automatically with commit/deployment
+- **Result**: Automated deployment proceeds without manual review
+
+❌ **Quality Gates Failed**
+
+```
+🚫 AUTOMATED QUALITY GATES: FAILED
+❌ Build blocked - fix issues before deployment
+
+Failed assertions:
+  - audits:largest-contentful-paint: 3200 (required: 2500)
+  - categories:accessibility: 0.85 (required: 0.9)
+```
+
+- **Action**: Fix specific issues listed in output
+- **Result**: Build/deployment automatically blocked until resolved
+
+**Privacy Protection Workflow**
+
+- **Profile Isolation**: Dedicated `~/.lighthouse-chrome-profile` (never personal browsing)
+- **Automatic Cleanup**: Profile wiped before and after each test
+- **Process Management**: All Chrome processes terminated after testing
+- **Zero Persistent Data**: Complete cleanup prevents data accumulation
+
+**Troubleshooting Common Issues**
+
+_Performance Failures_
+
+```bash
+# LCP > 2.5s: Optimize images, reduce server response time
+# CLS > 0.1: Fix layout shifts, reserve space for dynamic content
+# FCP > 2s: Optimize critical rendering path
+```
+
+_Accessibility Failures_
+
+```bash
+# Add alt text to images
+# Improve color contrast ratios
+# Add proper form labels
+# Ensure keyboard navigation
+```
+
+_SEO Issues_
+
+```bash
+# Add meta descriptions
+# Ensure proper heading structure
+# Optimize page titles
+# Fix broken links
+```
+
+**Emergency Override (Document in Debt)**
+
+```bash
+# Skip quality gates (NOT RECOMMENDED - use only for critical hotfixes)
+npm run lighthouse:local         # Run without quality gate enforcement
+
+# REQUIRED: Document bypass in technical debt
+echo "Performance regression: LCP 3.2s (budget: 2.5s) - Fix by [date]" >> .docs/debt.md
+```
 
 ## Accessibility Requirements
 

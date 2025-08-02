@@ -168,10 +168,8 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      - name: Build application
-        run: pnpm build
-      - name: Run Lighthouse CI (Docker)
-        run: pnpm lighthouse:ci:local
+      - name: Run Lighthouse CI with automated quality gates
+        run: pnpm lighthouse:ci
 
   # Job for deploying the application to Vercel
   deploy:

@@ -73,6 +73,26 @@
 
 ## Resolved Debt
 
+### Docker-based Lighthouse CI Implementation ✅
+
+- **Issue**: Docker-based Lighthouse CI approach abandoned due to persistent Chrome interstitial errors in containerized environments on CachyOS
+- **Impact**: No local Lighthouse testing capability, reliance on CI-only performance validation
+- **Priority**: High
+- **Resolution**: Implemented privacy-focused local Chromium solution with automated quality gates
+- **Date Resolved**: 2025-08-02
+- **Status**: Complete - Privacy-focused local implementation with automated quality enforcement
+- **Implementation Details**:
+  - Local Chromium installation with privacy-hardened configuration
+  - Isolated Chrome profile (`~/.lighthouse-chrome-profile`) with automatic cleanup
+  - Comprehensive automated quality gates with build blocking
+  - Zero persistent data with complete profile isolation
+  - npm scripts for local testing: `npm run lighthouse:test`
+- **Benefits**:
+  - Complete privacy protection with automatic cleanup
+  - Automated quality enforcement without manual intervention
+  - Local testing capability for development workflow
+  - CI/CD integration maintains existing GitHub Actions workflow
+
 ### Integration Tests - Calendar Component ✅
 
 - **File**: `__tests__/integration/calendar-component.integration.test.tsx`

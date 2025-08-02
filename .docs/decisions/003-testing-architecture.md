@@ -25,7 +25,7 @@ Use Jest + MSW + Playwright for testing architecture.
 - **Unit Tests**: Jest + React Testing Library (80% coverage minimum)
 - **Integration Tests**: MSW for realistic API mocking
 - **E2E Tests**: Playwright with accessibility validation
-- **Performance Tests**: Lighthouse CI integration
+- **Performance Tests**: Privacy-focused Lighthouse CI with automated quality gates
 
 ## Test Organization
 

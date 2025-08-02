@@ -51,7 +51,7 @@ docs(api): update booking endpoint documentation
 - **Unit Tests**: Jest + React Testing Library (fast feedback loop)
 - **Integration Tests**: MSW for realistic API mocking
 - **E2E Tests**: Playwright for critical user journeys
-- **Performance Tests**: Lighthouse CI integration
+- **Performance Tests**: Privacy-focused Lighthouse CI with automated quality gates
 
 ### Testing Tools Integration
 
@@ -182,15 +182,16 @@ jobs:
   - test: Unit and integration tests
   - build: Application build verification
   - size-check: Bundle size monitoring
-  - lighthouse: Performance, accessibility, SEO audits
+  - lighthouse: Privacy-focused performance audits with automated quality gates
 ```
 
 ### Performance Monitoring
 
 - **Vercel Analytics**: Zero-maintenance user behavior tracking
 - **SpeedInsights**: Real-time Core Web Vitals (LCP, FID, CLS)
-- **Lighthouse CI**: Automated performance budgets
+- **Privacy-Focused Lighthouse CI**: Automated quality gates with build blocking
 - **Build Monitoring**: Bundle size tracking and alerts
+- **Local Testing**: `npm run lighthouse:test` for development validation
 
 ## Accessibility Requirements
 

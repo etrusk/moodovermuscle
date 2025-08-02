@@ -95,6 +95,7 @@ const securityHeaders = [
 - **Integration Tests**: MSW for realistic API mocking
 - **E2E Tests**: Playwright with accessibility validation
 - **Performance Tests**: Privacy-focused Lighthouse CI with automated quality gates
+- **Accessibility Tests**: Comprehensive automated WCAG 2.1 AA compliance testing
 
 ### Testing Tools Integration
 
@@ -102,6 +103,92 @@ const securityHeaders = [
 - **MSW**: Network-level mocking for realistic test scenarios
 - **Playwright**: Superior browser automation with WCAG compliance testing
 - **Privacy-Focused Lighthouse CI**: Local Chromium with complete isolation and automated quality enforcement
+- **Automated Accessibility Testing**: Three-layer approach eliminating manual verification requirements
+
+### Accessibility Testing Architecture
+
+**Three-Layer Automated Testing Approach**
+
+**Unit Level: Enhanced Jest + jest-axe**
+
+- Custom accessibility testing utilities with comprehensive validation
+- Keyboard navigation testing automation
+- Screen reader output simulation and validation
+- Focus management testing across components
+- Form accessibility testing with validation feedback
+- Dynamic content accessibility testing (loading states, live regions)
+
+**Integration Level: Playwright Accessibility Automation**
+
+- Complex user journey accessibility validation
+- Modal dialog, dropdown, and date picker accessibility testing
+- Form wizard accessibility flow validation
+- Cross-browser accessibility testing (Chromium, Firefox, Mobile)
+- Touch interaction accessibility validation
+- Keyboard-only navigation testing
+
+**System Level: Enhanced Lighthouse CI**
+
+- Raised accessibility threshold to 95% (from 90%)
+- Zero-tolerance critical violations (color contrast, alt text, labeling)
+- Comprehensive accessibility audit coverage
+- Privacy-hardened configuration with automated quality enforcement
+
+**Accessibility Quality Gates Framework**
+
+```javascript
+// Critical Accessibility Gates (Build Blockers)
+'categories:accessibility': ['error', { minScore: 0.95 }],  // Raised from 0.9
+'audits:color-contrast': ['error', { minScore: 1.0 }],      // 100% compliance
+'audits:image-alt': ['error', { minScore: 1.0 }],           // 100% coverage
+'audits:label': ['error', { minScore: 1.0 }],               // 100% form labeling
+'audits:link-name': ['error', { minScore: 1.0 }],           // 100% link naming
+'audits:button-name': ['error', { minScore: 1.0 }],         // 100% button naming
+'audits:heading-order': ['error', { minScore: 1.0 }],       // 100% heading structure
+'audits:landmark-one-main': ['error', { minScore: 1.0 }],   // 100% landmark usage
+
+// Warning Accessibility Gates (Tracked)
+'audits:skip-link': ['warn', { minScore: 1.0 }],            // Skip link implementation
+'audits:tabindex': ['warn', { minScore: 1.0 }],             // Tab index usage
+'audits:use-landmarks': ['warn', { minScore: 1.0 }],        // Advanced landmark usage
+```
+
+**Accessibility Regression Prevention**
+
+- **Baseline Management**: Automated comparison of accessibility metrics across test runs
+- **Regression Detection**: Automated detection of decreased accessibility scores or increased violations
+- **Baseline Updates**: Automatic baseline updates when accessibility metrics improve
+- **Comprehensive Reporting**: Detailed accessibility compliance reports with violation analysis
+
+**File Architecture for Accessibility Testing**
+
+```
+__tests__/setup/
+├── accessibility-utils.ts           # Core accessibility testing utilities
+├── accessibility-test-patterns.ts   # Reusable accessibility test templates
+└── accessibility-setup.js          # Accessibility test environment setup
+
+e2e/utils/
+└── accessibility-helpers.ts        # Playwright accessibility automation
+
+scripts/
+├── accessibility-regression-check.sh    # Automated regression detection
+├── validate-accessibility-compliance.sh # Compliance validation
+└── generate-accessibility-report.sh     # Accessibility reporting
+
+configs/
+├── jest.config.accessibility.ts    # Jest accessibility configuration
+├── playwright.config.accessibility.ts # Playwright accessibility configuration
+└── lighthouserc.accessibility.js   # Enhanced Lighthouse accessibility configuration
+```
+
+**Accessibility Testing Integration**
+
+- **Unit Tests**: Every component automatically tested for accessibility violations
+- **Integration Tests**: Complex user flows validated for accessibility compliance
+- **E2E Tests**: Complete user journeys tested across browsers with accessibility validation
+- **CI/CD Pipeline**: Automated accessibility testing with build blocking on critical violations
+- **Regression Prevention**: Continuous monitoring and prevention of accessibility regressions
 
 ## Lighthouse CI Architecture
 

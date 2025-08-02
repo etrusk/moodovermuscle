@@ -1,183 +1,237 @@
-# Current Task: Privacy-Focused Lighthouse CI with Automated Quality Gates
+# Current Task: Automated Accessibility Testing Implementation
 
-## Status: COMPLETED ✅
+## Status: Planning Complete → Ready for Implementation
 
-## Implementation Summary
+## Objective
 
-Successfully implemented a comprehensive privacy-focused Lighthouse CI solution with fully automated quality enforcement for MoodOverMuscle. The solution provides robust performance testing with zero manual intervention required while maintaining strict privacy protection.
+Eliminate manual accessibility verification requirements by implementing comprehensive automated accessibility testing across unit, integration, and E2E levels while maintaining WCAG 2.1 AA compliance and preventing accessibility regressions.
 
-## Final Implementation
+## Technical Approach
 
-### Core Components
+### Three-Layer Testing Architecture
 
-- **Local Chromium**: Privacy-hardened installation with isolated profile
-- **Automated Quality Gates**: Pass/fail enforcement with build blocking
-- **Privacy Protection**: Complete profile isolation with automatic cleanup
-- **CI/CD Integration**: Seamless GitHub Actions workflow compatibility
-- **Development Workflow**: One-command testing with automated validation
+- **Unit Level**: Enhanced Jest + jest-axe with custom accessibility utilities for component-level validation
+- **Integration Level**: Playwright automation for complex user journeys and interaction patterns
+- **System Level**: Enhanced Lighthouse CI with comprehensive accessibility rule enforcement (95% minimum score)
 
-### Files Created
+### Key Architectural Decisions
 
-- [`scripts/lighthouse-cleanup.sh`](../scripts/lighthouse-cleanup.sh) - Automated Chrome profile cleanup
-- [`scripts/lighthouse-quality-gates.sh`](../scripts/lighthouse-quality-gates.sh) - Quality gate validation and reporting
-- [`.docs/decisions/007-lighthouse-ci-documentation-consolidation.md`](decisions/007-lighthouse-ci-documentation-consolidation.md) - Documentation consolidation decision record
+- **Automated Quality Gates**: Zero manual intervention required - objective thresholds with build blocking
+- **Regression Prevention**: Baseline comparison system with automatic detection and reporting
+- **Cross-Browser Testing**: Chromium, Firefox, and mobile accessibility validation
+- **CI/CD Integration**: Comprehensive GitHub Actions workflow with PR commenting and compliance validation
 
-### Files Modified
+### Technology Integration
 
-- [`lighthouserc.js`](../lighthouserc.js) - Privacy-hardened configuration with automated quality gates
-- [`package.json`](../package.json) - Added automated npm scripts for testing and validation
+- **Enhanced jest-axe**: Custom accessibility testing utilities with keyboard navigation, screen reader simulation, and focus management testing
+- **Playwright + @axe-core/playwright**: Complex interaction testing with user journey validation
+- **Lighthouse CI**: Privacy-hardened configuration with 95% accessibility threshold and zero-tolerance critical violations
+- **Automated Reporting**: HTML reports, JSON metrics, and regression detection with baseline management
 
-### Files Removed
+## Implementation Roadmap
 
-- Docker-related files (abandoned approach): `docker-compose.lighthouse.yml`, `Dockerfile.lighthouse`, `lighthouserc.docker.js`
-- Obsolete documentation: Previous separate privacy and automation docs consolidated
+### Phase 1: Core Testing Infrastructure (Priority: High)
 
-## Quality Gates Implementation
+1. **Create accessibility testing utilities** (`__tests__/setup/accessibility-utils.ts`)
+   - Enhanced jest-axe integration with custom validation functions
+   - Keyboard navigation testing utilities
+   - Screen reader output simulation
+   - Focus management validation
+   - Form accessibility testing patterns
 
-### Automated Enforcement
+2. **Implement accessibility test patterns** (`__tests__/setup/accessibility-test-patterns.ts`)
+   - Standard component accessibility test suite
+   - Form-specific accessibility validation
+   - Interactive component testing patterns
+   - Reusable test templates for consistent coverage
 
-- **Critical Gates**: Accessibility ≥90%, SEO ≥90%, LCP <2.5s, CLS <0.1 (Build blockers)
-- **Warning Gates**: Performance ≥85%, FCP <2s, resource budgets (Tracked)
-- **Exit Codes**: 0 = Pass (proceed), 1 = Fail (fix issues)
-- **No Manual Decisions**: Objective thresholds with automatic enforcement
+3. **Create Jest accessibility configuration** (`jest.config.accessibility.ts`)
+   - Dedicated accessibility test configuration
+   - Enhanced coverage thresholds (90% minimum)
+   - Accessibility-specific setup and teardown
 
-### Current Performance Status
+### Phase 2: E2E Accessibility Automation (Priority: High)
 
-- Performance: 91% ✅, Accessibility: 100% ✅, Best Practices: 96% ✅, SEO: 100% ✅
-- All Core Web Vitals within budgets ✅
-- All quality gates passing ✅
+4. **Develop Playwright accessibility helpers** (`e2e/utils/accessibility-helpers.ts`)
+   - PlaywrightAccessibilityTester class for comprehensive validation
+   - User journey accessibility testing framework
+   - Complex interaction testing (modals, dropdowns, date pickers, form wizards)
+   - Cross-browser accessibility validation
 
-## Privacy Protection
+5. **Create comprehensive E2E test specifications** (`e2e/accessibility-comprehensive.spec.ts`)
+   - Complete booking flow accessibility journey
+   - Complex interaction accessibility validation
+   - Mobile accessibility with touch interactions
+   - Keyboard-only navigation testing
+   - Screen reader simulation testing
 
-### Complete Isolation
+6. **Configure Playwright for accessibility** (`playwright.config.accessibility.ts`)
+   - Accessibility-focused browser configurations
+   - Enhanced reporting with JSON output
+   - Cross-browser project setup (Chromium, Firefox, Mobile)
 
-- **Profile Directory**: `~/.lighthouse-chrome-profile` (isolated from personal browsing)
-- **Automatic Cleanup**: Profile wiped before and after each test
-- **Privacy-Hardened Flags**: Disabled telemetry, sync, background networking
-- **Process Management**: All Chrome processes terminated after testing
+### Phase 3: Enhanced Lighthouse Integration (Priority: High)
 
-### Risk Assessment
+7. **Create enhanced Lighthouse configuration** (`lighthouserc.accessibility.js`)
+   - Raised accessibility threshold to 95% (from 90%)
+   - Zero-tolerance critical violations (color contrast, alt text, labeling)
+   - Comprehensive accessibility audit coverage
+   - Privacy-hardened Chrome configuration
 
-- **Minimal Exposure**: Only localhost:3001 testing, no external services
-- **Zero Persistent Data**: Complete cleanup prevents accumulation
-- **FLOSS Compliance**: Open-source Chromium package
+8. **Develop Lighthouse accessibility scripts** (`scripts/lighthouse-accessibility-gates.sh`)
+   - Automated quality gate validation
+   - Enhanced reporting with detailed violation analysis
+   - Integration with existing privacy-focused setup
 
-## Usage
+### Phase 4: CI/CD Integration and Automation (Priority: High)
 
-### Standard Workflow
+9. **Implement GitHub Actions accessibility workflow** (`.github/workflows/accessibility-ci.yml`)
+   - Comprehensive accessibility testing pipeline
+   - Cross-browser testing matrix
+   - Automated PR commenting with results
+   - Compliance validation and reporting
 
-```bash
-npm run lighthouse:test  # Complete automated testing with quality gates
-```
+10. **Create regression prevention system** (`scripts/accessibility-regression-check.sh`)
+    - Baseline comparison and management
+    - Automated regression detection
+    - Detailed regression reporting
+    - Baseline update automation
 
-### Integration Options
+11. **Develop compliance validation** (`scripts/validate-accessibility-compliance.sh`)
+    - Multi-level compliance checking
+    - Critical vs warning issue classification
+    - Comprehensive compliance reporting
+    - Exit code based enforcement
 
-```bash
-# Pre-commit hook integration
-npm run lighthouse:test  # Blocks commits if quality gates fail
+### Phase 5: Reporting and Monitoring (Priority: Medium)
 
-# Quality gate validation
-npm run lighthouse:validate  # Check existing results
+12. **Implement accessibility reporting** (`scripts/generate-accessibility-report.sh`)
+    - HTML accessibility reports with interactive dashboards
+    - JSON metrics extraction and analysis
+    - Historical trend tracking
+    - Compliance status visualization
 
-# Manual cleanup
-npm run lighthouse:clean  # Clean Chrome profile
-```
+13. **Create package.json script integration**
+    - Accessibility-specific npm scripts
+    - Development workflow integration
+    - Debug and watch mode support
+    - Local testing capabilities
 
-## Technical Decisions
+### Phase 6: Documentation and Guidelines (Priority: Medium)
 
-### Local vs Docker Approach
+14. **Update core documentation**
+    - Architecture.md: Accessibility testing integration
+    - Workflows.md: Development process updates
+    - Decision records: Technical choices and rationale
 
-- **Docker Abandoned**: Persistent Chrome interstitial errors on CachyOS
-- **Local Chosen**: Privacy mitigations provide equivalent protection
-- **Result**: Functional solution with comprehensive privacy safeguards
+15. **Create comprehensive testing guide** (`.docs/accessibility-testing-guide.md`)
+    - Complete usage instructions
+    - Development guidelines
+    - Troubleshooting guide
+    - Best practices and patterns
 
-### Quality Gate Strategy
+## Success Criteria
 
-- **Automated Enforcement**: No manual quality decisions required
-- **Build Blocking**: Failed gates prevent deployment automatically
-- **Objective Thresholds**: Consistent standards across environments
+### Functional Requirements ✅ (Design Complete)
 
-## Documentation
+- **Automated Testing**: Zero manual verification required for accessibility compliance
+- **Comprehensive Coverage**: Unit, integration, E2E, and system-level accessibility testing
+- **Regression Prevention**: Automated detection and prevention of accessibility regressions
+- **CI/CD Integration**: Seamless integration with existing GitHub Actions workflow
+- **Cross-Browser Support**: Accessibility validation across multiple browsers and devices
 
-### Consolidated Documentation Structure
+### Quality Assurance ✅ (Design Complete)
 
-**Technical Architecture** → [`.docs/architecture.md`](architecture.md#lighthouse-ci-architecture)
+- **WCAG 2.1 AA Compliance**: 95% Lighthouse accessibility score requirement
+- **Zero Critical Violations**: Color contrast, alt text, labeling, and structural requirements
+- **Build Blocking**: Failed accessibility tests prevent deployment automatically
+- **Regression Detection**: Baseline comparison with automated reporting
+- **Comprehensive Reporting**: Detailed accessibility metrics and compliance status
 
-- Privacy-first implementation details with complete Chrome isolation
-- Comprehensive quality gate framework configuration
-- Technical implementation details and file architecture
-- Integration with existing testing architecture
-- CachyOS compatibility and FLOSS compliance
+### Development Efficiency ✅ (Design Complete)
 
-**Workflow Integration** → [`.docs/workflows.md`](workflows.md#performance-monitoring)
+- **Fast Feedback**: Unit tests provide immediate accessibility validation
+- **Development Integration**: Watch mode and debug capabilities for accessibility testing
+- **Clear Guidelines**: Comprehensive documentation and testing patterns
+- **Automated Enforcement**: Objective thresholds eliminate subjective decisions
 
-- Development commands and automated quality enforcement
-- Pre-commit integration and CI/CD pipeline details
-- Quality gate results interpretation and troubleshooting
-- Privacy protection workflow and emergency procedures
+## Technical Implementation Details
 
-**Decision Record** → [`.docs/decisions/007-lighthouse-ci-documentation-consolidation.md`](decisions/007-lighthouse-ci-documentation-consolidation.md)
+### File Architecture
 
-- Documentation consolidation rationale and strategy
-- Content distribution approach and benefits achieved
-- Migration from standalone document to integrated structure
+- **Testing Utilities**: `__tests__/setup/accessibility-utils.ts` - Core accessibility testing framework
+- **Test Patterns**: `__tests__/setup/accessibility-test-patterns.ts` - Reusable accessibility test templates
+- **E2E Helpers**: `e2e/utils/accessibility-helpers.ts` - Playwright accessibility automation
+- **Configuration**: `jest.config.accessibility.ts`, `playwright.config.accessibility.ts`, `lighthouserc.accessibility.js`
+- **Scripts**: `scripts/accessibility-regression-check.sh`, `scripts/validate-accessibility-compliance.sh`
+- **CI/CD**: `.github/workflows/accessibility-ci.yml` - Comprehensive accessibility pipeline
+- **Documentation**: `.docs/accessibility-testing-guide.md` - Complete usage guide
 
-### Documentation Consolidation Benefits
+### Quality Gate Framework
 
-- **Single Source of Truth**: Eliminated duplication between standalone and core docs
-- **Improved Discoverability**: Information located where developers expect it
-- **Reduced Maintenance**: Updates in one place per topic area
-- **Consistent Patterns**: Follows established documentation structure for complex features
+**Critical Gates (Build Blockers)**:
 
-### Removed Documentation
+- Unit accessibility tests: 100% pass rate
+- Lighthouse accessibility: ≥95% score
+- Color contrast: 100% compliance
+- Image alt text: 100% coverage
+- Form labeling: 100% compliance
+- Heading structure: 100% compliance
 
-- [`.docs/lighthouse-ci-implementation.md`](lighthouse-ci-implementation.md) - Consolidated into core documentation
-- Separate privacy and automation docs (consolidated)
-- Docker-related documentation (obsolete)
-- Temporary implementation files (cleaned up)
+**Warning Gates (Tracked in debt.md)**:
 
-## Success Criteria Met
+- E2E accessibility test failures
+- Advanced ARIA feature compliance
+- Performance accessibility metrics
 
-### Functional Requirements ✅
+### Integration Points
 
-- **Privacy Protection**: Complete Chrome isolation with automatic cleanup
-- **Automated Quality Gates**: Zero manual intervention required
-- **CachyOS Compatibility**: Works seamlessly on development environment
-- **CI/CD Integration**: Maintains existing GitHub Actions workflow
-- **Development Efficiency**: One-command testing with immediate feedback
+- **Existing Lighthouse CI**: Enhanced with accessibility-specific configuration
+- **Current Testing Architecture**: Extended with accessibility-focused utilities
+- **GitHub Actions Workflow**: Integrated with existing CI/CD pipeline
+- **Privacy Protection**: Maintains existing Chrome isolation and cleanup
 
-### Quality Assurance ✅
+## Handoff Notes for Code Role
 
-- **Performance Budgets**: Prevent regressions automatically
-- **Accessibility Compliance**: WCAG standards enforced
-- **SEO Optimization**: Search visibility maintained
-- **Security Standards**: HTTPS and best practices enforced
+**Files to create/modify**:
 
-### Privacy Standards ✅
+- `__tests__/setup/accessibility-utils.ts` - Core testing utilities (new)
+- `__tests__/setup/accessibility-test-patterns.ts` - Test patterns (new)
+- `e2e/utils/accessibility-helpers.ts` - E2E helpers (new)
+- `e2e/accessibility-comprehensive.spec.ts` - E2E tests (new)
+- `jest.config.accessibility.ts` - Jest config (new)
+- `playwright.config.accessibility.ts` - Playwright config (new)
+- `lighthouserc.accessibility.js` - Lighthouse config (new)
+- `.github/workflows/accessibility-ci.yml` - CI workflow (new)
+- `scripts/accessibility-regression-check.sh` - Regression detection (new)
+- `scripts/validate-accessibility-compliance.sh` - Compliance validation (new)
+- `scripts/generate-accessibility-report.sh` - Reporting (new)
+- `package.json` - Add accessibility scripts (modify)
 
-- **Zero Persistent Data**: Complete profile cleanup
-- **Network Isolation**: Local-only testing
-- **FLOSS Compliance**: Open-source Chromium
-- **Minimal Exposure**: Only testing target accessed
+**Key constraints**:
 
-## Next Steps
+- Maintain existing privacy-focused Lighthouse setup
+- Integrate with current testing architecture without breaking changes
+- Follow established patterns from `.docs/workflows.md`
+- Ensure FLOSS compliance and CachyOS compatibility
 
-### Immediate Actions
+**Testing approach**:
 
-1. **Commit Implementation**: All changes ready for version control
-2. **Update Team Documentation**: Implementation guide available
-3. **Monitor Quality Gates**: Automated enforcement active
+- Start with unit-level accessibility utilities
+- Implement E2E automation framework
+- Integrate with enhanced Lighthouse configuration
+- Add CI/CD automation and regression prevention
+- Validate with existing components before full rollout
 
-### Future Enhancements
+**Reference docs**:
 
-1. **Performance Monitoring**: Historical trend analysis
-2. **Additional Hardening**: More privacy flags if needed
-3. **Integration Expansion**: Pre-commit hooks, additional CI checks
+- `.docs/accessibility-testing-guide.md` - Complete implementation guide
+- `.docs/architecture.md#testing-architecture` - Current testing setup
+- `.docs/workflows.md#testing-strategy` - Existing testing patterns
+- `.docs/decisions/003-testing-architecture.md` - Testing decisions
 
-## Implementation Status: PRODUCTION READY + DOCUMENTATION CONSOLIDATED
+## Implementation Status: DESIGN COMPLETE → READY FOR CODE IMPLEMENTATION
 
-The privacy-focused Lighthouse CI implementation with automated quality gates is complete, tested, and ready for production use. All privacy mitigations are active, quality gates are enforcing standards automatically, and the development workflow is fully integrated.
+The automated accessibility testing solution design is complete with comprehensive technical specifications, implementation roadmap, and integration strategy. All manual verification requirements have been identified and automated solutions designed.
 
-**Documentation has been successfully consolidated into core architecture and workflow files, eliminating duplication and improving maintainability.**
-
-**Zero manual intervention required - quality gates automatically enforce standards.**
+**Zero manual accessibility verification required after implementation - comprehensive automated testing covers all WCAG 2.1 AA requirements with regression prevention.**

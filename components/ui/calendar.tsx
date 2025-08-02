@@ -16,6 +16,7 @@ function Calendar({
   onMonthChange,
   ...props
 }: CalendarProps) {
+  const currentDay = new Date().getDate()
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
@@ -74,7 +75,11 @@ function Calendar({
           )
         },
       }}
-      onMonthChange={onMonthChange}
+      onMonthChange={(date) => {
+        if (onMonthChange) {
+          onMonthChange(new Date(date.getFullYear(), date.getMonth(), currentDay))
+        }
+      }}
       {...props}
     />
   )

@@ -1,3 +1,27 @@
+// jest.setup.js
+
+// Mock the navigator object
+const mockNavigator = {
+  clipboard: {
+    writeText: jest.fn().mockResolvedValue(undefined),
+    readText: jest.fn().mockResolvedValue(''),
+  },
+  userAgent: 'jest',
+  // Add any other properties your tests might need
+};
+
+Object.defineProperty(global, 'navigator', {
+  value: mockNavigator,
+  writable: true,
+});
+
+if (typeof window !== 'undefined') {
+  Object.defineProperty(window, 'navigator', {
+    value: mockNavigator,
+    writable: true,
+  });
+}
+
 import 'whatwg-fetch'
 import { TextEncoder, TextDecoder } from 'util';
 
@@ -338,4 +362,14 @@ global.console = {
 // Mock for target.hasPointerCapture
 if (typeof window !== 'undefined') {
   window.HTMLElement.prototype.hasPointerCapture = jest.fn();
+}
+
+// Polyfill for navigator
+if (typeof navigator === 'undefined') {
+  global.navigator = {
+    clipboard: {
+      writeText: jest.fn(),
+      readText: jest.fn(),
+    },
+  };
 }

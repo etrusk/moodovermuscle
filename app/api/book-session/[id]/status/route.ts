@@ -1,7 +1,6 @@
-// @ts-nocheck
 import { NextResponse } from 'next/server'
-import { Prisma, prisma } from '../../../../../lib/prisma'
-import { BookingStatus } from '@prisma/client'
+import { prisma } from '../../../../../lib/prisma'
+import { BookingStatus, Prisma } from '../../../../../lib/generated/prisma'
 import {
   sendCustomerConfirmation,
   sendAdminNotification,
@@ -27,7 +26,10 @@ export async function POST(
   // Define allowed transitions
   const transitions: Record<BookingStatus, BookingStatus[]> = {
     [BookingStatus.PENDING]: [BookingStatus.CONFIRMED, BookingStatus.CANCELLED],
-    [BookingStatus.CONFIRMED]: [BookingStatus.CANCELLED, BookingStatus.COMPLETED],
+    [BookingStatus.CONFIRMED]: [
+      BookingStatus.CANCELLED,
+      BookingStatus.COMPLETED,
+    ],
     [BookingStatus.CANCELLED]: [],
     [BookingStatus.COMPLETED]: [],
   }
@@ -51,20 +53,22 @@ export async function POST(
   }
 
   // Perform update and audit in a transaction
-  const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-    const updated = await tx.booking.update({
-      where: { id: bookingId },
-      data: { status: toStatus },
-    })
-    await tx.bookingStatusChange.create({
-      data: {
-        bookingId,
-        fromStatus,
-        toStatus,
-      },
-    })
-    return updated
-  })
+  const result = await prisma.$transaction(
+    async (tx: Prisma.TransactionClient) => {
+      const updated = await tx.booking.update({
+        where: { id: bookingId },
+        data: { status: toStatus },
+      })
+      await tx.bookingStatusChange.create({
+        data: {
+          bookingId,
+          fromStatus,
+          toStatus,
+        },
+      })
+      return updated
+    }
+  )
 
   // Trigger email notifications fire-and-forget
   if (toStatus === 'CONFIRMED') {

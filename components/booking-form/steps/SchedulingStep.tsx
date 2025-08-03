@@ -85,11 +85,11 @@ export function SchedulingStep({ isLoading = false }: SchedulingStepProps) {
   // Clear lock warnings on date change
   useEffect(() => {
     if (date) {
-      setLockConflict(false);
-      setLockWarning(null);
-      form.setValue('time', '');
+      setLockConflict(false)
+      setLockWarning(null)
+      form.setValue('time', '')
     }
-  }, [date])
+  }, [date, form])
 
   const handleCalendarToggle = (open: boolean) => {
     if (open) {
@@ -107,7 +107,10 @@ export function SchedulingStep({ isLoading = false }: SchedulingStepProps) {
   }, [isCalendarOpen, setCalendarLoading])
 
   return (
-    <div className="space-y-6 animate-fade-in-up" data-testid="booking-form-step-3">
+    <div
+      className="space-y-6 animate-fade-in-up"
+      data-testid="booking-form-step-3"
+    >
       <div className="grid gap-6 md:grid-cols-2">
         <FormField
           control={form.control}
@@ -115,7 +118,10 @@ export function SchedulingStep({ isLoading = false }: SchedulingStepProps) {
           render={({ field }) => (
             <FormItem className="flex flex-col">
               <FormLabel>Preferred Date *</FormLabel>
-              <Popover open={isCalendarOpen} onOpenChange={handleCalendarToggle}>
+              <Popover
+                open={isCalendarOpen}
+                onOpenChange={handleCalendarToggle}
+              >
                 <PopoverTrigger asChild>
                   <FormControl>
                     <Button
@@ -161,7 +167,9 @@ export function SchedulingStep({ isLoading = false }: SchedulingStepProps) {
                       if (date < tomorrow) return true
                       const key = date.toISOString().split('T')[0]
                       const cachedData = availabilityCache[key]
-                      return cachedData ? cachedData.availableTimes.length === 0 : false
+                      return cachedData
+                        ? cachedData.availableTimes.length === 0
+                        : false
                     }}
                     initialFocus
                     className="rounded-md border"
@@ -215,8 +223,8 @@ export function SchedulingStep({ isLoading = false }: SchedulingStepProps) {
                     {!date
                       ? 'Select a date first'
                       : loadingAvailability
-                      ? 'Loading slots...'
-                      : 'Select time...'}
+                        ? 'Loading slots...'
+                        : 'Select time...'}
                   </option>
                   {!loadingAvailability &&
                     date &&
@@ -226,17 +234,17 @@ export function SchedulingStep({ isLoading = false }: SchedulingStepProps) {
                         value={time}
                         disabled={!availableTimes.includes(time)}
                       >
-                        {formatTimeForDisplay(
-                          time,
-                          bookedTimes.includes(time)
-                        )}
+                        {formatTimeForDisplay(time, bookedTimes.includes(time))}
                       </option>
                     ))}
                 </select>
               </FormControl>
               <FormMessage />
               {lockConflict && (
-                <div className="text-red-600 text-sm mt-2" data-testid="slot-lock-warning">
+                <div
+                  className="text-red-600 text-sm mt-2"
+                  data-testid="slot-lock-warning"
+                >
                   {lockWarning}
                 </div>
               )}

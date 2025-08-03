@@ -2,13 +2,13 @@
 
 import * as React from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { DayPicker, DayProps } from 'react-day-picker'
+import { DayPicker } from 'react-day-picker'
 
 import { cn } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/button'
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker> & {
-  onDayMouseEnter?: (day: Date) => void;
+  onDayMouseEnter?: (day: Date) => void
 }
 
 function Calendar({
@@ -20,12 +20,12 @@ function Calendar({
   ...props
 }: CalendarProps) {
   const currentDay = new Date().getDate()
-  
+
   const handleDayMouseEnter = (day: Date) => {
     if (onDayMouseEnter) {
-      onDayMouseEnter(day);
+      onDayMouseEnter(day)
     }
-  };
+  }
 
   return (
     <DayPicker
@@ -85,12 +85,14 @@ function Calendar({
           )
         },
       }}
-       onMonthChange={(date) => {
-         if (onMonthChange) {
-           onMonthChange(new Date(date.getFullYear(), date.getMonth(), currentDay))
-         }
-       }}
-       onDayMouseEnter={handleDayMouseEnter}
+      onMonthChange={date => {
+        if (onMonthChange) {
+          onMonthChange(
+            new Date(date.getFullYear(), date.getMonth(), currentDay)
+          )
+        }
+      }}
+      onDayMouseEnter={handleDayMouseEnter}
       {...props}
     />
   )

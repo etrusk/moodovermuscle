@@ -32,11 +32,13 @@ export function BookingForm({ isOpen, onClose }: BookingFormProps) {
 ```
 
 **Responsibilities**:
+
 - Dialog state management
 - Provider setup and teardown
 - Modal accessibility and styling
 
 **Testing Strategy**:
+
 - Dialog open/close behavior
 - Provider integration
 - Accessibility compliance
@@ -66,18 +68,18 @@ interface BookingFormContextValue {
   // Form data
   formData: BookingFormData
   updateFormData: (data: Partial<BookingFormData>) => void
-  
+
   // Form operations
   submitForm: () => Promise<void>
   resetForm: () => void
-  
+
   // Loading states
   isSubmitting: boolean
-  
+
   // Validation
   validationErrors: Record<string, string[]>
   validateStep: (step: number) => Promise<boolean>
-  
+
   // Callbacks
   onClose: () => void
 }
@@ -87,15 +89,15 @@ export function BookingFormProvider({ children, onClose }: BookingFormProviderPr
     resolver: zodResolver(bookingSchema),
     defaultValues: initialFormData
   })
-  
+
   const submitForm = async () => {
     // API submission logic
   }
-  
+
   const validateStep = async (step: number) => {
     // Step-specific validation
   }
-  
+
   return (
     <BookingFormContext.Provider value={contextValue}>
       <Form {...form}>
@@ -107,12 +109,14 @@ export function BookingFormProvider({ children, onClose }: BookingFormProviderPr
 ```
 
 **Responsibilities**:
+
 - Form state management with React Hook Form
 - API submission and error handling
 - Cross-step validation logic
 - Loading state coordination
 
 **Testing Strategy**:
+
 - Form state updates
 - Validation logic
 - API integration
@@ -135,7 +139,7 @@ export function BookingWizard({ onClose }: BookingWizardProps) {
   const [currentStep, setCurrentStep] = useState(1)
   const [isStepLoading, setIsStepLoading] = useState(false)
   const { validateStep } = useBookingForm()
-  
+
   const handleNext = async () => {
     setIsStepLoading(true)
     const isValid = await validateStep(currentStep)
@@ -144,17 +148,17 @@ export function BookingWizard({ onClose }: BookingWizardProps) {
     }
     setIsStepLoading(false)
   }
-  
+
   const handlePrevious = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1)
     }
   }
-  
+
   return (
     <>
-      <WizardHeader 
-        currentStep={currentStep} 
+      <WizardHeader
+        currentStep={currentStep}
         totalSteps={totalSteps}
         isLoading={isStepLoading}
       />
@@ -174,12 +178,14 @@ export function BookingWizard({ onClose }: BookingWizardProps) {
 ```
 
 **Responsibilities**:
+
 - Step navigation logic
 - Step transition loading states
 - Layout coordination
 - Progress tracking
 
 **Testing Strategy**:
+
 - Step navigation
 - Loading state management
 - Validation integration
@@ -202,7 +208,7 @@ interface WizardHeaderProps {
 
 export function WizardHeader({ currentStep, totalSteps, isLoading }: WizardHeaderProps) {
   const progressPercentage = (currentStep / totalSteps) * 100
-  
+
   return (
     <DialogHeader className="bg-gradient-to-br from-green-500 via-emerald-500 to-teal-600 text-white">
       <div className="relative p-8">
@@ -211,7 +217,7 @@ export function WizardHeader({ currentStep, totalSteps, isLoading }: WizardHeade
           <Sparkles className="h-3 w-3 stroke-1" />
           100% FREE Session
         </div>
-        
+
         {/* Title and description */}
         <div className="relative z-10 pt-8">
           <div className="flex items-center gap-3 mb-4">
@@ -227,7 +233,7 @@ export function WizardHeader({ currentStep, totalSteps, isLoading }: WizardHeade
               </DialogDescription>
             </div>
           </div>
-          
+
           {/* Progress indicator */}
           <div className="mt-6">
             <div className="flex justify-between text-xs text-green-100 mb-2">
@@ -252,12 +258,14 @@ export function WizardHeader({ currentStep, totalSteps, isLoading }: WizardHeade
 ```
 
 **Responsibilities**:
+
 - Progress bar visualization
 - Step indicator
 - Branding and messaging
 - Loading state indication
 
 **Testing Strategy**:
+
 - Progress calculation
 - Loading state display
 - Accessibility compliance
@@ -281,7 +289,7 @@ interface PersonalDetailsStepProps {
 
 export function PersonalDetailsStep({ onNext, isLoading }: PersonalDetailsStepProps) {
   const { formData, updateFormData } = useBookingForm()
-  
+
   return (
     <div className="space-y-6 animate-fade-in-up" data-testid="booking-form-step-1">
       <div className="grid gap-6">
@@ -304,13 +312,13 @@ export function PersonalDetailsStep({ onNext, isLoading }: PersonalDetailsStepPr
             </FormItem>
           )}
         />
-        
+
         {/* Email and phone fields */}
         <div className="grid gap-6 md:grid-cols-2">
           {/* Email field */}
           {/* Phone field */}
         </div>
-        
+
         {/* Goals selection */}
         <FormField
           name="goals"
@@ -365,7 +373,7 @@ export function ServiceSelectionStep({ onNext, onPrevious, isLoading }: ServiceS
     },
     // ... other services
   ]
-  
+
   return (
     <div className="space-y-6 animate-fade-in-up" data-testid="booking-form-step-2">
       <FormField
@@ -411,7 +419,7 @@ interface SchedulingStepProps {
 
 export function SchedulingStep({ onPrevious, onSubmit, isSubmitting }: SchedulingStepProps) {
   const [isCalendarOpen, setCalendarOpen] = useState(false)
-  
+
   return (
     <div className="space-y-6 animate-fade-in-up" data-testid="booking-form-step-3">
       <div className="grid gap-6 md:grid-cols-2">
@@ -431,7 +439,7 @@ export function SchedulingStep({ onPrevious, onSubmit, isSubmitting }: Schedulin
             </FormItem>
           )}
         />
-        
+
         {/* Time selection */}
         <FormField
           name="time"
@@ -447,7 +455,7 @@ export function SchedulingStep({ onPrevious, onSubmit, isSubmitting }: Schedulin
           )}
         />
       </div>
-      
+
       {/* Message field */}
       <FormField
         name="message"
@@ -473,12 +481,14 @@ export function SchedulingStep({ onPrevious, onSubmit, isSubmitting }: Schedulin
 ```
 
 **Responsibilities**:
+
 - Step-specific form fields
 - Field validation
 - User interaction handling
 - Loading state display
 
 **Testing Strategy**:
+
 - Field validation
 - User interactions
 - Loading state handling
@@ -528,7 +538,7 @@ export function WizardNavigation({
           Back
         </Button>
       )}
-      
+
       {currentStep < totalSteps ? (
         <Button
           type="button"
@@ -574,12 +584,14 @@ export function WizardNavigation({
 ```
 
 **Responsibilities**:
+
 - Navigation button management
 - Loading state visualization
 - Button state coordination
 - Accessibility attributes
 
 **Testing Strategy**:
+
 - Button state management
 - Loading state display
 - Navigation flow
@@ -613,10 +625,12 @@ export function WizardSteps({ currentStep }: WizardStepsProps) {
 ```
 
 **Responsibilities**:
+
 - Step component routing
 - Step transition management
 
 **Testing Strategy**:
+
 - Step routing logic
 - Component mounting/unmounting
 
@@ -647,12 +661,14 @@ const LoadingContext = createContext<LoadingStates>()
 ## Migration Benefits
 
 ### Immediate Benefits
+
 - **Code Mode Compatibility**: All components under 150 lines
 - **Loading States**: Granular implementation across all interactions
 - **Testability**: Isolated component testing with clear interfaces
 - **Maintainability**: Clear separation of concerns
 
 ### Long-term Benefits
+
 - **Feature Development**: Easy to add new steps or modify existing ones
 - **Performance**: Potential for lazy loading and code splitting
 - **Reusability**: Step components can be reused in other contexts
@@ -661,16 +677,19 @@ const LoadingContext = createContext<LoadingStates>()
 ## Testing Strategy
 
 ### Unit Testing
+
 - Each component tested in isolation
 - Mock providers for dependencies
 - Focus on component-specific logic
 
 ### Integration Testing
+
 - Preserve existing integration test structure
 - Update selectors to match new component structure
 - Test cross-component interactions
 
 ### E2E Testing
+
 - Maintain existing Playwright tests
 - Add loading state verification
 - Test complete user journeys

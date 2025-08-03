@@ -95,6 +95,7 @@ interface BookingServerErrorResponse {
 **Purpose**: Get available time slots for a specific date
 
 **Query Parameters**:
+
 - `date`: Required, ISO date string (e.g., "2024-08-15")
 
 **Response Schema**:
@@ -102,8 +103,8 @@ interface BookingServerErrorResponse {
 ```typescript
 interface AvailabilityResponse {
   availableTimes: string[] // Array of available time slots
-  bookedTimes: string[]    // Array of already booked time slots
-  date: string            // Requested date
+  bookedTimes: string[] // Array of already booked time slots
+  date: string // Requested date
 }
 ```
 
@@ -114,6 +115,7 @@ interface AvailabilityResponse {
 - `500`: Internal server error
 
 **Caching**:
+
 - Response includes appropriate cache headers
 - Client-side caching recommended with real-time invalidation
 

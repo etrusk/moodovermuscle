@@ -1,19 +1,32 @@
-# System Architecture
+# System Architecture & Design Constraints
 
-## Tech Stack
+## Architecture Philosophy
 
-- **Framework**: Next.js 14 (App Router)
-- **Database**: Neon PostgreSQL with Prisma ORM
-- **Styling**: Tailwind CSS + shadcn/ui components
-- **Email**: Nodemailer with Gmail SMTP
-- **Testing**: Jest + React Testing Library + Playwright + MSW
-- **Performance**: Vercel Analytics + SpeedInsights
-- **Deployment**: Vercel with GitHub integration
-- **Security**: Built-in Next.js security + rate limiting
+**Constraint-Driven Design**: Architecture decisions optimized for single developer + agentic LLM workflow with Emily's fitness coaching business requirements.
 
-## Database Design
+**Appetite-Based Constraints**:
 
-### Current Schema Architecture
+- **Simplicity Over Complexity**: Choose proven solutions over cutting-edge when appetite is limited
+- **Functionality Over Elegance**: Deliver user value within appetite boundaries
+- **Privacy-First**: Technical choices must respect privacy constraints
+- **FLOSS Preference**: Open-source solutions unless significant functionality gap
+
+## Current System State
+
+### Tech Stack (Proven & Stable)
+
+- **Framework**: Next.js 14 (App Router) - Mature, well-documented, excellent TypeScript support
+- **Database**: Neon PostgreSQL with Prisma ORM - Serverless, type-safe, familiar patterns
+- **Styling**: Tailwind CSS + shadcn/ui components - Rapid development, consistent design system
+- **Email**: Nodemailer with Gmail SMTP - Simple, reliable, fire-and-forget pattern
+- **Testing**: Jest + React Testing Library + Playwright + MSW - Comprehensive, automated quality gates
+- **Performance**: Vercel Analytics + SpeedInsights - Zero-maintenance monitoring
+- **Deployment**: Vercel with GitHub integration - One-click deploys, automatic previews
+- **Security**: Built-in Next.js security + rate limiting - Good defaults, minimal configuration
+
+### Database Architecture & Evolution Path
+
+#### Current Schema (Stable Foundation)
 
 ```prisma
 model Booking {
@@ -32,7 +45,7 @@ model Booking {
 }
 ```
 
-### Planned Schema Enhancements
+#### Next Evolution (Transaction Safety - Week 1-2)
 
 ```prisma
 model Booking {
@@ -51,8 +64,8 @@ model Booking {
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 
-  @@unique([date, time])  // Prevent double bookings
-  @@index([date])         // Optimize availability queries
+  @@unique([date, time])  // CRITICAL: Prevent double bookings
+  @@index([date])         // PERFORMANCE: Optimize availability queries
 }
 
 enum BookingStatus {
@@ -63,372 +76,8 @@ enum BookingStatus {
 }
 ```
 
-### Key Design Decisions
+#### Future Appetite (Multi-trainer Support - Future 6+ month appetite)
 
-- **CUID Primary Keys**: Better for distributed systems, sortable by creation time
-- **Nullable Fields**: Flexible schema for optional user input (phone, message, goals, experience)
-- **Time Storage**: DateTime for precise dates, String for user-selected time slots
-- **Audit Trail**: Automatic createdAt/updatedAt timestamps
-- **Conflict Prevention**: Unique constraint on date/time combination prevents double bookings
-- **Query Optimization**: Date indexing for efficient availability checking
-
-## Core Components
-
-### Booking System
-
-- **Multi-step Wizard**: Progressive form with validation at each step
-- **Calendar Integration**: Date/time selection with real-time availability checking
-- **Transaction Safety**: Atomic booking operations with conflict detection and rollback
-- **Email Notifications**: Automated confirmations via Nodemailer + SMTP (fire-and-forget)
-- **Rate Limiting**: In-memory IP-based protection (5 requests/minute)
-- **Conflict Prevention**: Database constraints and application logic prevent double bookings
-
-### Email Architecture
-
-- **Fire-and-forget Pattern**: Non-blocking email sending
-- **Provider Flexibility**: SMTP-agnostic (Gmail dev, professional SMTP production)
-- **Error Resilience**: Email failures don't break booking flow
-- **Template Management**: HTML/text templates in code
-
-### Performance Monitoring
-
-- **Vercel Analytics**: Zero-maintenance user behavior tracking
-- **SpeedInsights**: Real-time Core Web Vitals monitoring (LCP, FID, CLS)
-- **Automated Alerts**: Built-in performance regression notifications
-
-## Security Architecture
-
-### Input Validation
-
-- **Zod Schemas**: Server-side validation with TypeScript integration
-- **Sanitization**: Automatic React JSX escaping + DOMPurify for rich content
-- **SQL Injection Prevention**: Prisma ORM parameterized queries
-
-### Security Headers
-
-```typescript
-const securityHeaders = [
-  { key: 'X-Content-Type-Options', value: 'nosniff' },
-  { key: 'X-Frame-Options', value: 'DENY' },
-  { key: 'X-XSS-Protection', value: '1; mode=block' },
-  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-  { key: 'Content-Security-Policy', value: "default-src 'self'; ..." },
-]
-```
-
-### Rate Limiting Strategy
-
-- **Implementation**: In-memory per-IP tracking
-- **Limits**: 5 requests per minute per IP address
-- **Rationale**: Simple, sufficient for current scale, cost-effective
-
-## Testing Architecture
-
-### Test Pyramid
-
-- **Unit Tests**: Jest + React Testing Library (80% coverage minimum)
-- **Integration Tests**: MSW for realistic API mocking
-- **E2E Tests**: Playwright with accessibility validation
-- **Performance Tests**: Privacy-focused Lighthouse CI with automated quality gates
-- **Accessibility Tests**: Comprehensive automated WCAG 2.1 AA compliance testing
-
-### Testing Tools Integration
-
-- **Jest**: Excellent Next.js integration, fast feedback loops
-- **MSW**: Network-level mocking for realistic test scenarios
-- **Playwright**: Superior browser automation with WCAG compliance testing
-- **Privacy-Focused Lighthouse CI**: Local Chromium with complete isolation and automated quality enforcement
-- **Automated Accessibility Testing**: Three-layer approach eliminating manual verification requirements
-
-### Accessibility Testing Architecture
-
-**Three-Layer Automated Testing Approach**
-
-**Unit Level: Enhanced Jest + jest-axe**
-
-- Custom accessibility testing utilities with comprehensive validation
-- Keyboard navigation testing automation
-- Screen reader output simulation and validation
-- Focus management testing across components
-- Form accessibility testing with validation feedback
-- Dynamic content accessibility testing (loading states, live regions)
-
-**Integration Level: Playwright Accessibility Automation**
-
-- Complex user journey accessibility validation
-- Modal dialog, dropdown, and date picker accessibility testing
-- Form wizard accessibility flow validation
-- Cross-browser accessibility testing (Chromium, Firefox, Mobile)
-- Touch interaction accessibility validation
-- Keyboard-only navigation testing
-
-**System Level: Enhanced Lighthouse CI**
-
-- Raised accessibility threshold to 95% (from 90%)
-- Zero-tolerance critical violations (color contrast, alt text, labeling)
-- Comprehensive accessibility audit coverage
-- Privacy-hardened configuration with automated quality enforcement
-
-**Accessibility Quality Gates Framework**
-
-```javascript
-// Critical Accessibility Gates (Build Blockers)
-'categories:accessibility': ['error', { minScore: 0.95 }],  // Raised from 0.9
-'audits:color-contrast': ['error', { minScore: 1.0 }],      // 100% compliance
-'audits:image-alt': ['error', { minScore: 1.0 }],           // 100% coverage
-'audits:label': ['error', { minScore: 1.0 }],               // 100% form labeling
-'audits:link-name': ['error', { minScore: 1.0 }],           // 100% link naming
-'audits:button-name': ['error', { minScore: 1.0 }],         // 100% button naming
-'audits:heading-order': ['error', { minScore: 1.0 }],       // 100% heading structure
-'audits:landmark-one-main': ['error', { minScore: 1.0 }],   // 100% landmark usage
-
-// Warning Accessibility Gates (Tracked)
-'audits:skip-link': ['warn', { minScore: 1.0 }],            // Skip link implementation
-'audits:tabindex': ['warn', { minScore: 1.0 }],             // Tab index usage
-'audits:use-landmarks': ['warn', { minScore: 1.0 }],        // Advanced landmark usage
-```
-
-**Accessibility Regression Prevention**
-
-- **Baseline Management**: Automated comparison of accessibility metrics across test runs
-- **Regression Detection**: Automated detection of decreased accessibility scores or increased violations
-- **Baseline Updates**: Automatic baseline updates when accessibility metrics improve
-- **Comprehensive Reporting**: Detailed accessibility compliance reports with violation analysis
-
-**File Architecture for Accessibility Testing**
-
-```
-__tests__/setup/
-├── accessibility-utils.ts           # Core accessibility testing utilities
-├── accessibility-test-patterns.ts   # Reusable accessibility test templates
-└── accessibility-setup.js          # Accessibility test environment setup
-
-e2e/utils/
-└── accessibility-helpers.ts        # Playwright accessibility automation
-
-scripts/
-├── accessibility-regression-check.sh    # Automated regression detection
-├── validate-accessibility-compliance.sh # Compliance validation
-└── generate-accessibility-report.sh     # Accessibility reporting
-
-configs/
-├── jest.config.accessibility.ts    # Jest accessibility configuration
-├── playwright.config.accessibility.ts # Playwright accessibility configuration
-└── lighthouserc.accessibility.js   # Enhanced Lighthouse accessibility configuration
-```
-
-**Accessibility Testing Integration**
-
-- **Unit Tests**: Every component automatically tested for accessibility violations
-- **Integration Tests**: Complex user flows validated for accessibility compliance
-- **E2E Tests**: Complete user journeys tested across browsers with accessibility validation
-- **CI/CD Pipeline**: Automated accessibility testing with build blocking on critical violations
-- **Regression Prevention**: Continuous monitoring and prevention of accessibility regressions
-
-## Lighthouse CI Architecture
-
-### Privacy-First Implementation
-
-**Local Chromium with Complete Isolation**
-
-- **Installation**: Direct Chromium package installation with privacy-hardened configuration
-- **Profile Isolation**: Dedicated `~/.lighthouse-chrome-profile` directory, completely separate from personal browsing
-- **Zero Persistent Data**: Profile wiped clean before and after each test run
-- **Process Management**: All Chrome processes terminated after testing to prevent data leakage
-
-**Privacy-Hardened Chrome Configuration**
-
-```javascript
-// Network Privacy Protection
-;('--disable-background-networking', // No background requests
-  '--disable-sync', // No Google account sync
-  '--disable-translate', // No translation services
-  '--no-pings', // No ping requests
-  '--no-referrers', // No referrer headers
-  // Data Collection Prevention
-  '--disable-breakpad', // No crash reporting
-  '--disable-client-side-phishing-detection', // No phishing detection
-  '--disable-component-update', // No component updates
-  '--disable-logging', // No logging to disk
-  '--disable-domain-reliability', // No domain reliability tracking
-  // Complete Profile Isolation
-  '--user-data-dir=/home/bob/.lighthouse-chrome-profile',
-  '--headless', // No GUI
-  '--disable-gpu') // No GPU acceleration
-```
-
-**Automated Cleanup Workflow**
-
-- **Pre-test**: Complete profile directory removal and recreation
-- **Post-test**: Automatic cleanup with process termination
-- **Fail-safe**: Cleanup scripts ensure no persistent data accumulation
-- **Privacy Assessment**: Minimal exposure (localhost:3001 only), zero persistent data
-
-### Quality Gate Framework
-
-**Critical Gates (Build Blockers) 🔴**
-
-```javascript
-// Accessibility & SEO (Non-negotiable)
-'categories:accessibility': ['error', { minScore: 0.9 }],  // WCAG compliance
-'categories:seo': ['error', { minScore: 0.9 }],            // Search visibility
-'categories:best-practices': ['error', { minScore: 0.85 }], // Security standards
-
-// Core Web Vitals (User Experience)
-'audits:largest-contentful-paint': ['error', { maxNumericValue: 2500 }],  // LCP < 2.5s
-'audits:cumulative-layout-shift': ['error', { maxNumericValue: 0.1 }],    // CLS < 0.1
-
-// Critical Accessibility Audits
-'audits:color-contrast': ['error', { minScore: 1.0 }],     // 100% contrast compliance
-'audits:image-alt': ['error', { minScore: 1.0 }],          // 100% alt text coverage
-'audits:meta-description': ['error', { minScore: 1.0 }],   // SEO essential
-'audits:is-on-https': ['error', { minScore: 1.0 }]         // Security requirement
-```
-
-**Warning Gates (Tracked) 🟡**
-
-```javascript
-// Performance Budgets
-'categories:performance': ['warn', { minScore: 0.85 }],           // Overall performance
-'audits:first-contentful-paint': ['warn', { maxNumericValue: 2000 }], // FCP < 2s
-'audits:total-blocking-time': ['warn', { maxNumericValue: 300 }],      // TBT < 300ms
-'audits:total-byte-weight': ['warn', { maxNumericValue: 1048576 }],    // < 1MB total
-'audits:dom-size': ['warn', { maxNumericValue: 1500 }]                 // < 1500 elements
-```
-
-### Automated Quality Enforcement
-
-**Exit Code Based Workflow**
-
-- **Success (0)**: All critical gates pass → Automatic deployment proceeds
-- **Failure (1)**: Critical gates fail → Build blocked with specific failure details
-- **No Manual Decisions**: Objective thresholds eliminate subjective quality assessments
-
-**Build Integration**
-
-- **Local Development**: `npm run lighthouse:test` provides immediate feedback
-- **CI/CD Pipeline**: Automated enforcement in GitHub Actions workflow
-- **Quality Validation**: `npm run lighthouse:validate` checks existing results
-- **Emergency Override**: Manual bypass available with debt tracking requirement
-
-### Technical Implementation Details
-
-**File Architecture**
-
-- **Configuration**: [`lighthouserc.js`](../lighthouserc.js) - Privacy-hardened settings with quality gates
-- **Cleanup Script**: [`scripts/lighthouse-cleanup.sh`](../scripts/lighthouse-cleanup.sh) - Automated profile cleanup
-- **Quality Gates**: [`scripts/lighthouse-quality-gates.sh`](../scripts/lighthouse-quality-gates.sh) - Validation and reporting
-- **Report Storage**: `.lighthouseci/` directory with temporary public URLs
-
-**Privacy Risk Assessment**
-
-- **Protected**: Personal browsing data, passwords, extensions, Google sync, location tracking
-- **Minimal Exposure**: localhost:3001 testing target only, basic system info (auto-cleaned)
-- **Risk Level**: MINIMAL - Complete isolation with automatic cleanup
-
-### Integration with Testing Architecture
-
-**Test Pyramid Enhancement**
-
-- **Unit Tests**: Jest + React Testing Library (80% coverage minimum)
-- **Integration Tests**: MSW for realistic API mocking
-- **E2E Tests**: Playwright with accessibility validation
-- **Performance Tests**: Privacy-focused Lighthouse CI with automated quality gates
-
-**Quality Gate Alignment**
-
-- **Critical Gates**: Never bypass - accessibility, SEO, security, Core Web Vitals
-- **Non-Critical Gates**: Can bypass with tracking in [`.docs/debt.md`](.docs/debt.md)
-- **Automated Enforcement**: Consistent standards across all environments
-- **WCAG Compliance**: Zero accessibility violations requirement maintained
-
-### CachyOS Compatibility & FLOSS Compliance
-
-**Local Implementation Benefits**
-
-- **CachyOS Native**: Works seamlessly with system Chromium package
-- **FLOSS Compliance**: Open-source Chromium, no proprietary dependencies
-- **Development Efficiency**: Fast local feedback without container overhead
-- **Privacy Protection**: Equivalent to containerized approach with proper isolation
-
-**Alternative Approaches Considered**
-
-- **Docker Solution**: Abandoned due to persistent Chrome interstitial errors on CachyOS
-- **CI-Only Testing**: Available as fallback but lacks local development feedback
-- **Current Approach**: Optimal balance of functionality, privacy, and development efficiency
-
-## System Constraints
-
-- Single client business (Emily's fitness coaching)
-- Solo developer with agentic LLM assistance
-- FLOSS/free tools preferred
-- Privacy-conscious solution choices
-- Functionality over complexity
-- Zero accessibility violations requirement
-
-## Deployment Architecture
-
-### Environment Strategy
-
-- **Production**: Vercel deployment triggered by main branch
-- **Preview**: Automatic preview deployments for all pull requests
-- **Database**: Neon serverless PostgreSQL with connection pooling
-
-### CI/CD Pipeline
-
-- **GitHub Actions**: Lint, test, build, size-check, privacy-focused lighthouse audits
-- **Quality Gates**: Critical tests must pass, non-critical tracked in debt
-- **Privacy-Focused Lighthouse**: Local Chromium with automated quality enforcement
-- **Vercel Integration**: Automatic deployments with rollback capability
-
-### Lighthouse CI Workflow
-
-1. **Build Stage**: Create production build artifacts with `npm run build`
-2. **Audit Stage**: Run Lighthouse CI with privacy-hardened Chrome configuration
-3. **Quality Gate**: Automated pass/fail enforcement blocks deployment if critical thresholds fail
-4. **Deploy Stage**: Deploy to Vercel only if automated quality gates pass
-5. **Cleanup Stage**: Automatic Chrome profile cleanup ensures zero persistent data
-
-### Automated Quality Enforcement
-
-- **Exit Code Based**: `npm run lighthouse:test` returns 0 (pass) or 1 (fail)
-- **Build Blocking**: Failed quality gates prevent deployment automatically
-- **No Manual Decisions**: Objective thresholds with consistent enforcement
-- **Privacy Protection**: Complete profile isolation with automatic cleanup
-
-## Current Implementation Status
-
-### Transaction Safety & Calendar Integration
-
-**Status**: Planning Complete → Ready for Implementation
-
-**Critical Gaps Addressed**:
-- Database transaction safety for atomic booking operations
-- Real-time calendar availability checking to prevent conflicts
-- Booking conflict detection with proper rollback mechanisms
-- Enhanced schema with constraints and status management
-
-**Implementation Priority**:
-1. **Phase 1**: Transaction safety with conflict detection (Critical)
-2. **Phase 2**: Real-time availability API and calendar integration (High)
-3. **Phase 3**: Enhanced user experience and booking status management (Medium)
-
-### Admin Dashboard Requirements
-
-**Current State**: Email-only notifications for Emily
-**Next Phase**: Web-based admin interface for booking management
-
-**Essential Features Planned**:
-- Booking list view with status management
-- Calendar view showing daily/weekly schedules
-- Customer communication tools
-- Basic authentication for admin access
-
-## Future Considerations
-
-### Scalability Enhancements
-
-**Multi-trainer Support**:
 ```prisma
 model Trainer {
   id       String    @id @default(cuid())
@@ -444,29 +93,473 @@ model Booking {
 }
 ```
 
-**Payment Integration**:
-```prisma
-model Payment {
-  id        String   @id @default(cuid())
-  bookingId String   @unique
-  booking   Booking  @relation(fields: [bookingId], references: [id])
-  amount    Decimal
-  status    PaymentStatus
-  createdAt DateTime @default(now())
+### Key Architectural Constraints
+
+#### Database Design Principles
+
+- **CUID Primary Keys**: Better for distributed systems, sortable by creation time
+- **Nullable Fields**: Flexible schema for optional user input (phone, message, goals, experience)
+- **Time Storage**: DateTime for precise dates, String for user-selected time slots
+- **Audit Trail**: Automatic createdAt/updatedAt timestamps
+- **Conflict Prevention**: Unique constraint on date/time combination prevents double bookings
+- **Query Optimization**: Date indexing for efficient availability checking
+
+#### API Design Constraints
+
+- **Fire-and-Forget Email**: Email failures never block user workflows
+- **Transaction Safety**: All booking operations must be atomic with rollback capability
+- **Type Safety**: Zod validation on all inputs, TypeScript end-to-end
+- **Performance Budget**: API responses <500ms (95th percentile)
+
+## Core System Components
+
+### Booking System (Current Appetite Focus)
+
+#### Transaction Safety Architecture (Critical - Week 1-2)
+
+```typescript
+// Current Implementation (Vulnerable)
+const newBooking = await prisma.booking.create({
+  data: validatedData.data,
+})
+
+// Target Implementation (Transaction-Safe)
+return await prisma.$transaction(async tx => {
+  // 1. Check for existing booking conflicts
+  const existingBooking = await tx.booking.findFirst({
+    where: {
+      date: validatedData.date,
+      time: validatedData.time,
+    },
+  })
+
+  if (existingBooking) {
+    throw new Error('Time slot already booked')
+  }
+
+  // 2. Create booking within transaction
+  const newBooking = await tx.booking.create({
+    data: validatedData.data,
+  })
+
+  return newBooking
+})
+```
+
+**Architectural Benefits**:
+
+- **Atomicity**: All-or-nothing booking creation
+- **Consistency**: Database always in valid state
+- **Isolation**: Concurrent bookings don't interfere
+- **Durability**: Committed bookings are permanent
+
+#### Real-Time Availability Architecture (High Priority - Week 3-4)
+
+```typescript
+// New API Endpoint: /api/availability
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url)
+  const date = searchParams.get('date')
+
+  const existingBookings = await prisma.booking.findMany({
+    where: { date: new Date(date) },
+    select: { time: true },
+  })
+
+  const bookedTimes = existingBookings.map(b => b.time)
+  const availableTimes = timeSlots.filter(slot => !bookedTimes.includes(slot))
+
+  return NextResponse.json({
+    availableTimes,
+    bookedTimes,
+    date,
+  })
 }
 ```
 
-### Performance Optimizations
+**Performance Constraints**:
 
-- Image optimization strategy
-- Database indexing for common queries
-- Caching strategy for static content
-- Bundle size optimization
+- **Response Time**: <500ms for availability queries
+- **Caching Strategy**: Client-side caching with real-time invalidation
+- **Database Optimization**: Date indexing for efficient queries
 
-## Key Architectural Decisions
+#### Multi-step Wizard Pattern (Proven Architecture)
 
-1. **Next.js App Router**: Modern React patterns with SSR capabilities
-2. **Prisma + Neon**: Type-safe database with serverless optimization
-3. **Vercel Platform**: Zero-maintenance monitoring and deployment
-4. **Mobile-First Design**: WCAG 2.1 AA compliance requirement
-5. **Lean Development**: Functionality over unnecessary complexity
+```typescript
+// Successful Pattern: Step-based Architecture
+<BookingWizard>
+  <WizardSteps currentStep={currentStep}>
+    <ServiceSelectionStep />
+    <SchedulingStep />        // Enhanced with real-time availability
+    <PersonalDetailsStep />
+  </WizardSteps>
+  <WizardNavigation />
+</BookingWizard>
+```
+
+**Design Constraints**:
+
+- **Separation of Concerns**: Each step focuses on single responsibility
+- **State Management**: Centralized booking state with TypeScript safety
+- **Accessibility**: WCAG 2.1 AA compliance throughout wizard flow
+- **Mobile-First**: Responsive design with touch-friendly interactions
+
+### Email Architecture (Stable Pattern)
+
+#### Fire-and-Forget Implementation
+
+```typescript
+// Non-blocking email pattern
+const newBooking = await prisma.booking.create({ data: validatedData.data })
+
+// Fire-and-forget email sending (never blocks API response)
+sendCustomerConfirmation(emailData)
+  .then(res => {
+    if (!res.success) {
+      console.error('Failed to send customer confirmation email:', res.error)
+    }
+  })
+  .catch(err => {
+    console.error('Error in sendCustomerConfirmation:', err)
+  })
+
+// Return success immediately
+return NextResponse.json(
+  { message: 'Booking submitted successfully!', data: newBooking },
+  { status: 201 }
+)
+```
+
+**Architectural Benefits**:
+
+- **Reliability**: Email failures don't affect booking success
+- **Performance**: API responses not blocked by SMTP timeouts
+- **User Experience**: Immediate feedback regardless of email service status
+- **Monitoring**: Email failures logged for admin awareness
+
+#### Email Template Strategy
+
+- **Customer Confirmation**: Professional HTML/text with booking details
+- **Admin Notification**: Action-oriented with clear next steps
+- **Error Handling**: Graceful degradation when templates fail
+
+### Performance Monitoring Architecture
+
+#### Privacy-Focused Lighthouse CI (Proven Pattern)
+
+```javascript
+// Privacy-hardened Chrome configuration
+const chromeFlags = [
+  '--disable-background-networking', // No background requests
+  '--disable-sync', // No Google account sync
+  '--disable-translate', // No translation services
+  '--no-pings', // No ping requests
+  '--no-referrers', // No referrer headers
+  '--disable-breakpad', // No crash reporting
+  '--disable-client-side-phishing-detection',
+  '--disable-component-update',
+  '--disable-logging',
+  '--disable-domain-reliability',
+  '--user-data-dir=/home/bob/.lighthouse-chrome-profile',
+  '--headless',
+  '--disable-gpu',
+]
+```
+
+**Privacy Benefits**:
+
+- **Complete Isolation**: Dedicated Chrome profile, wiped after each test
+- **Zero Persistent Data**: No tracking, no data accumulation
+- **Local Control**: No data sent to external services
+- **Automated Cleanup**: Profile cleanup prevents data leakage
+
+#### Automated Quality Gates
+
+```javascript
+// Critical Gates (Build Blockers)
+'categories:accessibility': ['error', { minScore: 0.95 }],  // WCAG compliance
+'categories:seo': ['error', { minScore: 0.9 }],            // Search visibility
+'audits:largest-contentful-paint': ['error', { maxNumericValue: 2500 }],  // LCP < 2.5s
+'audits:cumulative-layout-shift': ['error', { maxNumericValue: 0.1 }],    // CLS < 0.1
+
+// Warning Gates (Tracked in debt.md)
+'categories:performance': ['warn', { minScore: 0.85 }],    // Overall performance
+'audits:total-blocking-time': ['warn', { maxNumericValue: 300 }]  // TBT < 300ms
+```
+
+## Security Architecture & Constraints
+
+### Input Validation Strategy (Defense in Depth)
+
+```typescript
+// Server-side validation with Zod (Never trust client)
+export const bookingSchema = z.object({
+  name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
+  email: z.string().email({ message: 'Please enter a valid email address.' }),
+  phone: z.string().min(10, { message: 'Please enter a valid phone number.' }),
+  service: z.string({ required_error: 'Please select a service.' }),
+  date: z
+    .string()
+    .pipe(z.coerce.date({ required_error: 'Please select a date.' })),
+  time: z.string({ required_error: 'Please select a time.' }),
+  message: z.string().max(500).optional(),
+  goals: z.string({ required_error: 'Please select a goal.' }),
+  experience: z.string().optional(),
+})
+```
+
+### Security Headers (Next.js Defaults + Enhancements)
+
+```typescript
+const securityHeaders = [
+  { key: 'X-Content-Type-Options', value: 'nosniff' },
+  { key: 'X-Frame-Options', value: 'DENY' },
+  { key: 'X-XSS-Protection', value: '1; mode=block' },
+  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+  { key: 'Content-Security-Policy', value: "default-src 'self'; ..." },
+]
+```
+
+### Rate Limiting Strategy (Simple & Effective)
+
+```typescript
+// In-memory rate limiting (sufficient for current scale)
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Max 5 booking attempts per IP
+  message: 'Too many booking attempts, please try again later',
+  standardHeaders: true,
+  legacyHeaders: false,
+})
+```
+
+## Testing Architecture (Proven Patterns)
+
+### Three-Layer Accessibility Testing (Zero Manual Verification)
+
+```typescript
+// Unit Level: Automated accessibility validation
+import { axe, toHaveNoViolations } from 'jest-axe'
+expect.extend(toHaveNoViolations)
+
+test('component has no accessibility violations', async () => {
+  const { container } = render(<BookingForm />)
+  const results = await axe(container)
+  expect(results).toHaveNoViolations()
+})
+
+// Integration Level: Complex interaction testing
+test('booking wizard maintains accessibility throughout flow', async ({ page }) => {
+  await page.getByPlaceholder('Your beautiful name').fill('Jane Doe')
+  const btn = page.getByRole('button', { name: 'Book session' })
+  await btn.click()
+  await expect(btn).toHaveAttribute('aria-busy', 'true')
+})
+
+// System Level: Lighthouse CI with 95% threshold
+'audits:color-contrast': ['error', { minScore: 1.0 }],      // 100% compliance
+'audits:image-alt': ['error', { minScore: 1.0 }],           // 100% coverage
+'audits:label': ['error', { minScore: 1.0 }],               // 100% form labeling
+```
+
+### Component Testing Patterns (Race Condition Elimination)
+
+```typescript
+// Successful Pattern: Custom Hook Extraction
+// File: components/booking-form/useAvailability.ts
+export function useAvailability(selectedDate: Date | undefined) {
+  const [availableTimes, setAvailableTimes] = useState<string[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+
+  // Clean separation enables deterministic testing
+}
+
+// Test Pattern: Hook Mocking (No race conditions)
+jest.mock('../useAvailability', () => ({
+  useAvailability: jest.fn().mockReturnValue({
+    availableTimes: ['09:00', '10:00'],
+    isLoading: false,
+  }),
+}))
+```
+
+### API Integration Testing (MSW Network-Level Mocking)
+
+```typescript
+// Realistic error simulation without brittle mocks
+export const handlers = [
+  http.post('/api/book-session', async ({ request }) => {
+    const body = (await request.json()) as BookingRequestBody
+
+    if (body.email === 'fail@example.com') {
+      return new HttpResponse(
+        JSON.stringify({ message: 'Internal Server Error' }),
+        { status: 500 }
+      )
+    }
+
+    return new HttpResponse(
+      JSON.stringify({ message: 'Booking submitted successfully!' }),
+      { status: 200 }
+    )
+  }),
+]
+```
+
+## Deployment Architecture (Zero-Maintenance)
+
+### Vercel Platform Integration
+
+- **Production Deployment**: Every merge to main branch
+- **Preview Deployments**: Every pull request gets unique URL
+- **Environment Variables**: Managed via Vercel dashboard
+- **Rollback Capability**: One-click rollback through Vercel interface
+- **Monitoring**: Built-in analytics and performance monitoring
+
+### CI/CD Pipeline (GitHub Actions)
+
+```yaml
+# Automated quality enforcement
+jobs:
+  - lint-and-typecheck: Code quality validation
+  - test: Unit and integration tests (must pass)
+  - build: Application build verification (must pass)
+  - size-check: Bundle size monitoring (warning level)
+  - lighthouse: Performance and accessibility gates (critical)
+```
+
+### Database Deployment (Neon PostgreSQL)
+
+- **Connection Pooling**: Handled automatically by Neon
+- **Backups**: Automatic daily backups with point-in-time recovery
+- **Scaling**: Serverless scaling based on demand
+- **Migration Strategy**: Prisma migrate with rollback capabilities
+
+## System Constraints & Design Boundaries
+
+### Business Constraints
+
+- **Single Client**: Emily's fitness coaching business (1 trainer)
+- **Solo Development**: 1 developer + agentic LLM assistance
+- **Budget Conscious**: Free/open-source solutions prioritized
+- **Privacy First**: No unnecessary data collection or tracking
+
+### Technical Constraints
+
+- **CachyOS Environment**: Local development on privacy-focused Linux
+- **FLOSS Preference**: Open-source tools unless significant functionality gap
+- **Simplicity Mandate**: Choose proven solutions over cutting-edge
+- **Performance Budget**: Core Web Vitals compliance required
+
+### Scale Constraints (Current Appetite)
+
+- **User Load**: 50-100 bookings per month maximum
+- **Data Volume**: <10GB database size in foreseeable future
+- **Concurrent Users**: <10 simultaneous users expected
+- **Geographic Scope**: Single timezone (Australia/Brisbane)
+
+## Architecture Evolution Path
+
+### Phase 1: Transaction Safety (Current Appetite)
+
+- **Database**: Add unique constraints and status enum
+- **API**: Implement Prisma transactions with conflict detection
+- **Testing**: Add transaction safety test coverage
+- **Performance**: Maintain <500ms API response times
+
+### Phase 2: Real-Time Availability (Next Appetite)
+
+- **API**: New `/api/availability` endpoint
+- **Frontend**: Dynamic calendar integration
+- **Caching**: Client-side availability caching
+- **Performance**: <500ms availability queries
+
+### Phase 3: Admin Dashboard (Future Appetite)
+
+- **Authentication**: Simple password-based admin access
+- **UI**: Booking list and calendar views for Emily
+- **API**: Admin CRUD operations for booking management
+- **Integration**: Email communication tools
+
+### Future Architecture (6+ Month Appetite)
+
+- **Multi-trainer Support**: Schema and UI for multiple trainers
+- **Payment Integration**: Stripe or similar payment processing
+- **Advanced Scheduling**: Recurring appointments, availability rules
+- **Analytics**: Business insights and reporting
+
+## Architectural Decision Framework
+
+### When to Choose Simple Solutions
+
+- **Current appetite is <2 weeks**: Use proven patterns
+- **Complexity score >6**: Break into smaller appetites
+- **External dependencies involved**: Prefer platform services
+- **Team knowledge gaps**: Choose familiar technologies
+
+### When to Invest in Complexity
+
+- **Core business logic**: Transaction safety, booking conflicts
+- **User experience critical**: Accessibility, performance
+- **Security requirements**: Input validation, data protection
+- **Long-term maintainability**: Type safety, testing
+
+### Circuit Breakers (When to Stop)
+
+- **Implementation time exceeds appetite by 50%**: Re-evaluate scope
+- **Technology choice requires extensive learning**: Consider alternatives
+- **Performance targets not achievable**: Reassess requirements
+- **Testing becomes more complex than implementation**: Simplify approach
+
+## Integration Points & Dependencies
+
+### External Service Dependencies
+
+- **Neon PostgreSQL**: Database hosting and management
+- **Vercel Platform**: Deployment, monitoring, analytics
+- **Gmail SMTP**: Email delivery (fire-and-forget)
+- **GitHub**: Code repository and CI/CD triggers
+
+### Internal System Dependencies
+
+- **Next.js Framework**: React, routing, API routes, image optimization
+- **Prisma ORM**: Database access, migrations, type generation
+- **shadcn/ui**: Component library, design system consistency
+- **Tailwind CSS**: Styling, responsive design, theme management
+
+### Development Environment Dependencies
+
+- **CachyOS**: Local development environment
+- **Chromium**: Privacy-focused performance testing
+- **Node.js**: Runtime environment for local development
+- **pnpm/npm**: Package management and dependency resolution
+
+## Success Metrics & Monitoring
+
+### Technical Health Indicators
+
+- **Test Pass Rate**: 100% for critical tests
+- **Build Success Rate**: >95% for CI/CD pipeline
+- **Performance Score**: ≥95% Lighthouse accessibility, ≥85% performance
+- **Error Rate**: <1% API errors in production
+
+### Business Value Indicators
+
+- **Booking Success Rate**: >95% completion rate
+- **Double Booking Incidents**: 0 (after transaction safety)
+- **User Satisfaction**: Positive feedback from Emily
+- **System Reliability**: 99.9% uptime
+
+### Development Velocity Indicators
+
+- **Feature Delivery**: Within appetite timeframes 80% of time
+- **Bug Resolution**: <24 hours for critical issues
+- **Deployment Frequency**: Multiple deployments per week safely
+- **Rollback Time**: <5 minutes to restore working state
+
+---
+
+**Last Updated**: 2025-08-03  
+**Architecture Status**: Stable foundation, transaction safety next priority  
+**Next Review**: After transaction safety implementation completion  
+**Evolution Driver**: Emily's business needs and user feedback

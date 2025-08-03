@@ -1,6 +1,39 @@
 # Technical Debt
 
-## Current Failing Tests (0 tests as of 2025-08-01)
+## Current Failing Tests (0 tests as of 2025-08-03)
+
+All test failures have been resolved. Test suite is stable with 36 passing suites (161 tests total).
+
+## Critical Database & Booking System Debt
+
+### Transaction Safety - CRITICAL PRIORITY
+
+- **Issue**: Database booking operations lack transaction safety and conflict detection
+- **Impact**: Risk of double bookings, data inconsistency, and inability to rollback failed operations
+- **Priority**: Critical (Build Blocking)
+- **Resolution**: Implement Prisma transactions with conflict detection in booking API
+- **Target Resolution**: Week 1-2 of next development cycle
+- **Status**: Planning Complete → Ready for Implementation
+- **Implementation Details**: See .docs/current-task.md for comprehensive transaction safety plan
+
+### Calendar Availability Integration - HIGH PRIORITY
+
+- **Issue**: Static time slots without real-time availability checking
+- **Impact**: Users can select unavailable time slots, leading to booking conflicts and poor UX
+- **Priority**: High
+- **Resolution**: Implement `/api/availability` endpoint with dynamic calendar integration
+- **Target Resolution**: Week 3-4 of next development cycle
+- **Status**: Architecture designed, ready for implementation
+- **Dependencies**: Requires transaction safety implementation first
+
+### Booking Conflict Prevention - HIGH PRIORITY
+
+- **Issue**: No database-level constraints preventing double bookings for same date/time
+- **Impact**: Multiple customers can book the same time slot simultaneously
+- **Priority**: High
+- **Resolution**: Add unique constraints on `[date, time]` combination with proper indexing
+- **Target Resolution**: Week 1-2 (concurrent with transaction safety)
+- **Status**: Schema design complete, migration ready
 
 ## Performance Debt
 
@@ -104,6 +137,59 @@
 - **Status**: Acceptable (Vercel monitoring sufficient for current scale)
 
 ## Resolved Debt
+
+### Test Suite Stability & Component Architecture ✅
+
+- **Issue**: Multiple test failures across API routes, integration tests, and component tests due to race conditions and improper mocking
+- **Impact**: Unreliable CI/CD pipeline, developer productivity loss, inability to trust test results
+- **Priority**: Critical (Build Blocking)
+- **Resolution**: Comprehensive test suite debugging and component refactoring
+- **Date Resolved**: 2025-08-03
+- **Status**: Complete - All 36 test suites passing (161 tests total)
+- **Implementation Details**:
+  - **API Test Fixes**: Resolved Prisma transaction mocking, standardized NextRequest/NextResponse patterns
+  - **Component Refactoring**: Extracted `useAvailability` custom hook for better testability
+  - **Data Format Standardization**: Unified time formats across application layers
+  - **Race Condition Elimination**: Implemented deterministic state control in component tests
+- **Technical Achievements**:
+  - Created `components/booking-form/useAvailability.ts` for clean separation of concerns
+  - Refactored `SchedulingStep` component to eliminate async testing issues
+  - Standardized time format to 24-hour in data layer with user-friendly display formatting
+  - Updated all test mocking patterns for consistency and reliability
+- **Benefits**:
+  - 100% test pass rate achieved and maintained
+  - Eliminated intermittent test failures due to race conditions
+  - Improved component architecture with better testability
+  - Established reliable foundation for future development
+  - Enhanced developer confidence in test results
+
+### Component Testing Race Conditions ✅
+
+- **Issue**: `SchedulingStep` component tests failing due to asynchronous data fetching race conditions
+- **Impact**: Unreliable component tests, difficulty in maintaining test suite
+- **Priority**: High
+- **Resolution**: Extracted data fetching logic into `useAvailability` custom hook with proper mocking
+- **Date Resolved**: 2025-08-03
+- **Status**: Complete - Component tests now run deterministically
+- **Technical Details**:
+  - Separated data fetching concerns from UI logic
+  - Implemented proper hook mocking in test environment
+  - Eliminated dependency on real network requests in component tests
+  - Maintained backward compatibility with existing functionality
+
+### API Integration Test Mocking ✅
+
+- **Issue**: Inconsistent mocking patterns across API and integration tests causing failures
+- **Impact**: Unreliable test results, difficulty in debugging test failures
+- **Priority**: High
+- **Resolution**: Standardized NextRequest/NextResponse mocking and Prisma transaction handling
+- **Date Resolved**: 2025-08-03
+- **Status**: Complete - All API tests now pass consistently
+- **Technical Details**:
+  - Fixed `NextRequest` constructor issues in test environment
+  - Standardized Prisma transaction mocking across all test files
+  - Added proper response validation for booking creation endpoints
+  - Ensured type compatibility between test mocks and actual implementations
 
 ### Docker-based Lighthouse CI Implementation ✅
 

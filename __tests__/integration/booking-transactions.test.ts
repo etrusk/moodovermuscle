@@ -3,7 +3,6 @@
  * @jest-environment node
  */
 import { POST } from '@/app/api/book-session/route'
-import { NextRequest, NextResponse } from 'next/server'
 import { testDb } from '../setup/test-db'
 import { createTestBookingData } from '../setup/test-db-data'
 import * as email from '@/lib/email'
@@ -22,14 +21,14 @@ jest.mock('@/lib/email', () => ({
 }));
 
 
-function makeJsonRequest(data: Record<string, unknown>): NextRequest {
+function makeJsonRequest(data: Record<string, unknown>): Request {
   return new Request('http://localhost/api/book-session', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(data),
-  }) as NextRequest
+  })
 }
 
 describe('Booking Transactions Integration Tests', () => {

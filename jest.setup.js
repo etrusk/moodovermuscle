@@ -163,6 +163,24 @@ if (typeof global.Response === 'undefined') {
   }
 }
 
+// Polyfill NextResponse for Node.js environment
+if (typeof global.NextResponse === 'undefined') {
+  global.NextResponse = class NextResponse extends global.Response {
+    constructor(body, init = {}) {
+      super(body, init)
+    }
+
+    static json(data, init) {
+      const body = JSON.stringify(data)
+      const headers = {
+        ...init?.headers,
+        'Content-Type': 'application/json',
+      }
+      return new NextResponse(body, { ...init, headers })
+    }
+  }
+}
+
 // Polyfill Request for Node.js environment
 if (typeof global.Request === 'undefined') {
   global.Request = class Request {
@@ -308,6 +326,23 @@ jest.mock('next/navigation', () => ({
   },
   usePathname() {
     return ''
+  },
+}))
+
+// Mock NextResponse for Node.js environment integration tests
+jest.mock('next/server', () => ({
+  NextResponse: {
+    json: (data, init) => {
+      const body = JSON.stringify(data)
+      return {
+        json: () => Promise.resolve(data),
+        status: init?.status || 200,
+        statusText: init?.statusText || 'OK',
+        headers: new Map(Object.entries(init?.headers || {})),
+        body,
+        ok: (init?.status || 200) >= 200 && (init?.status || 200) < 300,
+      }
+    },
   },
 }))
 

@@ -4,7 +4,6 @@
  */
 import { POST } from '@/app/api/book-session/route'
 jest.setTimeout(20000)
-import { NextRequest } from 'next/server'
 import { testDb } from '../setup/test-db'
 import { createTestBookingData } from '../setup/test-db-data'
 import {
@@ -28,8 +27,8 @@ import { sendCustomerConfirmation, sendAdminNotification } from '@/lib/email'
 const mockSendCustomerConfirmation = sendCustomerConfirmation as jest.Mock
 const mockSendAdminNotification = sendAdminNotification as jest.Mock
 
-function makeJsonRequest(data: Record<string, unknown>): NextRequest {
-  return new NextRequest('http://localhost/api/book-session', {
+function makeJsonRequest(data: Record<string, unknown>): Request {
+  return new Request('http://localhost/api/book-session', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -323,13 +322,13 @@ describe('Error Scenarios Integration Tests', () => {
 
   describe('Malformed Request Handling', () => {
     it('should handle non-JSON request body', async () => {
-      const req = new NextRequest('http://localhost/api/book-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: 'not-json-data',
-      })
+      const req = new Request('http://localhost/api/book-session', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: 'not-json-data',
+            })
 
       const response = await POST(req)
 
@@ -339,13 +338,13 @@ describe('Error Scenarios Integration Tests', () => {
     })
 
     it('should handle empty request body', async () => {
-      const req = new NextRequest('http://localhost/api/book-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: '',
-      })
+      const req = new Request('http://localhost/api/book-session', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: '',
+            })
 
       const response = await POST(req)
 
@@ -353,13 +352,13 @@ describe('Error Scenarios Integration Tests', () => {
     })
 
     it('should handle request with wrong content type', async () => {
-      const req = new NextRequest('http://localhost/api/book-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'text/plain',
-        },
-        body: JSON.stringify(createTestBookingData()),
-      })
+      const req = new Request('http://localhost/api/book-session', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'text/plain',
+              },
+              body: JSON.stringify(createTestBookingData()),
+            })
 
       const response = await POST(req)
 

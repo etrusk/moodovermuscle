@@ -3,7 +3,6 @@
  */
 // @ts-nocheck
 import { POST } from '@/app/api/book-session/route'
-import { NextRequest } from 'next/server'
 import { testDb } from '../setup/test-db'
 import { createTestBookingData } from '../setup/test-db-data'
 import {
@@ -29,8 +28,8 @@ jest.mock('@/lib/email', () => ({
     .mockResolvedValue({ success: true, messageId: 'test-id' }),
 }))
 
-function makeJsonRequest(data: Record<string, unknown>): NextRequest {
-  return new NextRequest('http://localhost/api/book-session', {
+function makeJsonRequest(data: Record<string, unknown>): Request {
+  return new Request('http://localhost/api/book-session', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

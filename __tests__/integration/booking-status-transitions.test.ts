@@ -2,24 +2,31 @@
 /**
  * @jest-environment node
  */
-import { POST } from '@/app/api/book-session/[id]/status/route'
-import { NextRequest } from 'next/server'
-import { BookingStatus } from '@prisma/client'
-import { testDb } from '../setup/test-db'
-import * as email from '@/lib/email'
-import { setupIntegrationTest, teardownIntegrationTest } from '../setup/test-helpers'
-
-jest.setTimeout(15000)
-
-jest.mock('@/lib/prisma', () => ({
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  prisma: require('../setup/test-db').testDb,
-}))
-
-jest.mock('@/lib/email', () => ({
-  sendCustomerConfirmation: jest.fn().mockResolvedValue({ success: true }),
-  sendAdminNotification: jest.fn().mockResolvedValue({ success: true }),
-}));
+ import { POST } from '@/app/api/book-session/[id]/status/route'
+ import { NextRequest } from 'next/server'
+ import { testDb } from '../setup/test-db'
+ import * as email from '@/lib/email'
+ import { setupIntegrationTest, teardownIntegrationTest } from '../setup/test-helpers'
+ 
+ jest.setTimeout(15000)
+ 
+ jest.mock('@/lib/prisma', () => ({
+   // eslint-disable-next-line @typescript-eslint/no-var-requires
+   prisma: require('../setup/test-db').testDb,
+ }))
+ 
+ jest.mock('@/lib/email', () => ({
+   sendCustomerConfirmation: jest.fn().mockResolvedValue({ success: true }),
+   sendAdminNotification: jest.fn().mockResolvedValue({ success: true }),
+ }));
+ 
+ // Define BookingStatus enum locally to avoid Prisma client import issues
+ const BookingStatus = {
+   PENDING: 'PENDING',
+   CONFIRMED: 'CONFIRMED',
+   CANCELLED: 'CANCELLED',
+   COMPLETED: 'COMPLETED',
+ } as const
 
 
 function makeStatusRequest(id: string, status: string): NextRequest {

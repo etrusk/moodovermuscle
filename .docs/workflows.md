@@ -5,7 +5,6 @@
 **Appetite-Driven Development**: Workflows optimized for single developer + agentic LLM collaboration with time-boxed appetites rather than deadline-driven timelines.
 
 **Core Principles**:
-
 - **Quality Gates Over Speed**: Critical gates never bypassed regardless of appetite pressure
 - **Agent Collaboration**: Workflows designed for Architect → Code → Debug → Resolution handoffs
 - **Scope Flexibility**: Features shaped to fit appetite rather than appetite extended for features
@@ -23,512 +22,734 @@
 ### Branch Naming Conventions (Appetite-Aware)
 
 ```
-feature/MOM-123-calendar-integration-4w    # 4-week appetite scope
-feature/MOM-200-transaction-safety-2w      # 2-week appetite scope
-hotfix/MOM-300-security-patch-1d           # 1-day emergency appetite
-investigation/MOM-400-performance-analysis # Investigation branch
+feature/profile-editing                    # Appetite-scoped feature
+feature/calendar-integration              # Clear scope indication
+hotfix/security-patch                     # Emergency fixes
+investigation/performance-analysis        # Investigation branch
 ```
 
-**Appetite Indicators**:
+**Branch Lifecycle**:
+- Create from main: `git checkout -b feature/appetite-description`
+- Short-lived: Complete within single appetite
+- Auto-delete after merge to keep repository clean
 
-- `1d` = 1-day appetite (hotfixes, simple fixes)
-- `2w` = 2-week appetite (small features, specific improvements)
-- `4w` = 4-week appetite (medium features, architectural changes)
-- `6w` = 6-week appetite (major features, system integrations)
-
-### Commit Message Standards (Appetite-Enhanced Conventional Commits)
+### Commit Message Standards (Conventional Commits)
 
 ```
-<type>(<scope>): <subject> [appetite: Xw]
+<type>(<scope>): <subject>
 
-feat(booking): add transaction safety with conflict detection [appetite: 2w]
-fix(ui): resolve mobile booking form validation issues [appetite: 1d]
-docs(handoff): update architect-to-code template [appetite: 1d]
-investigation(performance): analyze booking form rendering bottlenecks [appetite: 3d]
+feat(profile): add user profile editing with avatar upload
+fix(auth): resolve JWT token validation edge case
+docs(handoff): update architect-to-code template
+test(booking): add integration tests for conflict detection
+refactor(api): simplify user endpoint error handling
 ```
 
-**Appetite Tracking in Commits**:
+**Commit Types**:
+- `feat`: New features or enhancements
+- `fix`: Bug fixes and corrections
+- `docs`: Documentation updates
+- `test`: Test additions or modifications
+- `refactor`: Code improvements without functionality changes
+- `perf`: Performance improvements
+- `style`: Code formatting and style changes
 
-- Documents time investment for future complexity scoring
-- Enables appetite vs. actual analysis for institutional memory
-- Supports pattern recognition for similar work estimates
+### Pre-Commit Quality Gates (Automated)
+
+**Critical Gates (Must Pass Before Any Commit)**:
+```bash
+# Automatic execution via husky pre-commit hooks
+npm run lint                     # ESLint + Prettier (auto-fix where possible)
+npm run type-check               # TypeScript compilation
+npm run test:critical            # Essential tests only (< 30 seconds)
+npm run security:scan            # Security vulnerability detection
+npm run build:verify             # Build verification
+```
+
+**Pre-Commit Hook Configuration**:
+```json
+// package.json
+{
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged && npm run test:critical && npm run security:scan",
+      "pre-push": "npm run test:full && npm run build:verify"
+    }
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": ["eslint --fix", "prettier --write"],
+    "*.{json,md,css}": ["prettier --write"]
+  }
+}
+```
 
 ### Pull Request Process (Appetite-Scoped)
 
-- **Appetite Validation**: Scope matches original appetite estimation
-- **Quality Gates**: Critical gates enforced regardless of appetite pressure
-- **Handoff Documentation**: Context preserved for future agent collaboration
-- **Pattern Capture**: Successful approaches documented in .docs/memory/
-
-#### PR Template (Appetite-Enhanced)
-
+#### PR Template (Quality-Focused)
 ```markdown
-## Appetite Scope
+## Changes Made
+Brief description of what was implemented within appetite scope.
 
-- **Original Appetite**: 2 weeks
-- **Actual Time**: 1.5 weeks
-- **Scope Changes**: None | [describe changes]
-- **Circuit Breaker Triggered**: No | [describe if appetite exceeded]
-
-## Quality Gate Status
-
-- [ ] Critical gates passed (type check, lint, build, security)
-- [ ] Accessibility ≥95% (WCAG 2.1 AA compliance)
-- [ ] Performance ≥85% (Core Web Vitals within budget)
-- [ ] Test coverage maintained (unit, integration, e2e)
-
-## Agent Handoff Context
-
-- **Mode Used**: Architect | Code | Debug | Manual-Debug
-- **Complexity Score**: [1-10 based on .docs/memory/complexity-scoring.md]
-- **Patterns Applied**: [reference to .docs/memory/successful-patterns.md]
-- **Knowledge Captured**: [what was learned for institutional memory]
+## Quality Gates Status
+- [x] Linting passed (ESLint + Prettier)
+- [x] Type checking passed (TypeScript)
+- [x] Critical tests passed
+- [x] Security scan clean
+- [x] Build verification successful
+- [x] Accessibility validation (WCAG 2.1 AA)
+- [x] Performance targets met (Core Web Vitals)
 
 ## Testing Evidence
+- [ ] Unit tests added/updated for new functionality
+- [ ] Integration tests verify API contracts
+- [ ] E2E tests cover critical user paths
+- [ ] Manual testing completed on preview deployment
 
-- [ ] Unit tests added/updated
-- [ ] Integration tests verify business logic
-- [ ] E2E tests cover critical user journeys
-- [ ] Accessibility testing automated
-- [ ] Performance impact measured
+## Appetite Compliance
+- **Original Scope**: [Brief appetite description]
+- **Delivered Scope**: [What was actually completed]
+- **Circuit Breakers**: None triggered | [Description if scope expanded]
+
+## Review Notes
+Any specific areas requiring reviewer attention or context for decisions made.
 ```
 
-### Development Workflow (Appetite-Constrained)
+### Development Workflow (Quality-First)
 
 1. **Appetite Planning**: Review .docs/spec.md for current appetite scope
-2. **Complexity Assessment**: Use .docs/memory/complexity-scoring.md for estimation
-3. **Pattern Review**: Check .docs/memory/successful-patterns.md for similar work
-4. **Environment Setup**: Check terminals, ensure dev server on port 3000
-5. **Branch Creation**: `git checkout -b feature/MOM-XXX-description-Yw`
-6. **TDD Implementation**: Red-green-refactor within appetite boundaries
-7. **Agent Collaboration**: Use .docs/handoffs/ templates for mode transitions
-8. **Circuit Breakers**: Stop if appetite exceeded by 50% - reassess scope
-9. **Quality Validation**: All critical gates must pass regardless of appetite pressure
-10. **Pattern Documentation**: Capture successful approaches in .docs/memory/
-11. **Handoff Completion**: Update .docs/current-task.md with progress and context
+2. **Branch Creation**: `git checkout -b feature/descriptive-name`
+3. **Environment Verification**: Ensure dev server, tests, and tools working
+4. **TDD Implementation**: Red-green-refactor with continuous quality gates
+5. **Continuous Integration**: Pre-commit hooks enforce quality automatically
+6. **Agent Collaboration**: Use .docs/handoffs/ templates for mode transitions
+7. **Quality Validation**: All gates must pass regardless of appetite pressure
+8. **Preview Deployment**: Automatic Vercel preview for testing
+9. **Peer Review**: Required PR review before merge
+10. **Pattern Documentation**: Capture approaches in .docs/memory/
 
-## Testing Strategy (Quality-First Appetite Approach)
+## Testing Strategy (Comprehensive Quality Assurance)
 
-### Appetite-Aware Test Pyramid
-
-- **Unit Tests**: Fast feedback within TDD cycles (Jest + React Testing Library)
-- **Integration Tests**: Realistic API validation (MSW network-level mocking)
-- **E2E Tests**: Critical user journey protection (Playwright automation)
-- **Performance Gates**: Automated quality enforcement (Privacy-focused Lighthouse CI)
-- **Accessibility Gates**: Zero-tolerance WCAG 2.1 AA compliance validation
-
-### Testing Commands (Appetite Optimization)
+### Test Pyramid (Optimized for Speed + Coverage)
 
 ```bash
-# Fast feedback for appetite-constrained development
-npm run test:critical          # Essential tests only (< 30 seconds)
-npm run test:appetite          # Appetite-scoped test subset
-npm run test:full              # Complete test suite (when appetite allows)
+# Fast feedback during development
+npm run test:watch              # Jest watch mode for TDD
+npm run test:critical           # Essential tests only (< 30 seconds)
+npm run test:unit               # All unit tests
+npm run test:integration        # API and component integration tests
+npm run test:e2e                # End-to-end user journey tests
 
-# TDD cycle optimization
-npm run test:watch             # Real-time feedback during development
-npm run test:changed           # Only test files affected by changes
-
-# Quality gate validation
-npm run quality:gates          # All critical gates (accessibility, performance, security)
-npm run quality:validate       # Gate validation without running new tests
+# Full validation
+npm run test                    # Complete test suite
+npm run test:coverage           # Coverage report generation
+npm run test:ci                 # CI-optimized test run
 ```
 
-### Appetite-Based Test Execution Strategy
+### Testing Tools & Configuration
 
-#### 2-Week Appetite or Less
-
-- **Focus**: Critical tests only during development
-- **Gates**: All critical gates enforced at PR
-- **Coverage**: Maintain existing coverage, add focused tests
-
-#### 4-Week Appetite
-
-- **Focus**: Full test suite with enhancement
-- **Gates**: All gates enforced with improvement targets
-- **Coverage**: Expand test coverage with new patterns
-
-#### 6-Week Appetite
-
-- **Focus**: Comprehensive testing strategy evolution
-- **Gates**: Enhanced quality gates with new metrics
-- **Coverage**: Test infrastructure improvements included
-
-### Quality Gates Framework (Appetite-Independent)
-
-#### Critical Gates (Never Bypass - Regardless of Appetite Pressure)
-
-**Build & Code Quality**:
-
-- Type checking failures
-- Linting errors
-- Build failures
-- Security vulnerabilities
-- Core business logic test failures
-
-**Accessibility (Zero Tolerance)**:
-
-- Unit accessibility tests: 100% pass rate
-- Accessibility score ≥95% (WCAG 2.1 AA compliance)
-- Color contrast: 100% compliance
-- Image alt text: 100% coverage
-- Form labeling: 100% compliance
-- Keyboard navigation: 100% compliance
-- Screen reader compatibility: 100% compliance
-
-**Performance (Core Web Vitals)**:
-
-- LCP <2.5s (Largest Contentful Paint)
-- CLS <0.1 (Cumulative Layout Shift)
-- SEO ≥90% (search visibility)
-- HTTPS 100% (security requirement)
-
-#### Non-Critical Gates (Track in .docs/debt.md)
-
-**Performance Targets**:
-
-- Overall performance ≥85%
-- FCP <2s (First Contentful Paint)
-- TBT <300ms (Total Blocking Time)
-- Total byte weight <1MB
-- DOM size <1500 elements
-
-**Advanced Features**:
-
-- Integration test edge cases
-- E2E accessibility enhancements
-- Performance optimizations beyond Core Web Vitals
-- Advanced ARIA implementations
-
-### Circuit Breaker Protocol
-
-#### When to Stop (Appetite Exceeded)
-
-**50% Appetite Overrun**: Mandatory scope reassessment
-
+**Unit Testing**: Jest + React Testing Library
 ```bash
-# If 2-week appetite reaches 3 weeks
-echo "CIRCUIT BREAKER: Appetite exceeded 50%" >> .docs/current-task.md
-echo "Scope reassessment required before continuing" >> .docs/current-task.md
+# Fast, focused unit tests
+npm run test:unit               # All unit tests
+npm run test:unit:watch         # Watch mode for development
+npm run test:unit:coverage      # Unit test coverage report
 ```
 
-**Technology Learning Required**: Switch to simpler approach
+**Integration Testing**: MSW (Mock Service Worker) + Testing Library
+```bash
+# Realistic API testing without external dependencies
+npm run test:integration        # Integration test suite
+npm run test:api                # API endpoint testing
+npm run test:components         # Component integration tests
+```
 
-- If implementation requires extensive new learning
-- If testing becomes more complex than implementation
-- If performance targets not achievable with current approach
+**End-to-End Testing**: Playwright
+```bash
+# Critical user journey protection
+npm run test:e2e                # Full E2E suite
+npm run test:e2e:headed         # Visual E2E testing
+npm run test:e2e:debug          # Debug mode for test development
+```
 
-**Quality Gate Failures**: Never bypass critical gates
+### Quality Gates Framework
 
-- Accessibility violations must be fixed
-- Security issues must be resolved
-- Performance regressions must be addressed
+#### Critical Gates (Never Bypass)
 
-#### Scope Adjustment Strategies
+**Code Quality (Automated)**:
+```bash
+npm run lint                    # ESLint + Prettier
+npm run type-check              # TypeScript compilation
+npm run build                   # Production build verification
+npm run security:scan           # OWASP dependency check
+```
 
-**Reduce Scope**: Cut features to fit original appetite
+**Testing Requirements**:
+```bash
+npm run test:critical          # Core business logic tests (must pass)
+npm run test:security          # Security-focused test suite
+npm run test:accessibility     # Automated accessibility tests
+```
 
-- Remove nice-to-have features
-- Simplify complex interactions
-- Defer advanced functionality
+**Performance Standards**:
+```bash
+npm run lighthouse:ci          # Core Web Vitals validation
+npm run bundle:analyze         # Bundle size analysis
+npm run perf:budget           # Performance budget enforcement
+```
 
-**Split Appetite**: Break into smaller appetites
+**Accessibility Compliance (WCAG 2.1 AA)**:
+```bash
+npm run a11y:test             # Automated accessibility testing
+npm run a11y:audit            # Lighthouse accessibility audit
+npm run a11y:contrast         # Color contrast validation
+```
 
-- Create follow-up appetite for remaining work
-- Document handoff context for continuation
-- Preserve institutional memory for future work
+#### Non-Critical Gates (Track but Don't Block)
 
-**Architecture Simplification**: Choose proven patterns
+**Performance Optimizations**:
+- Bundle size optimizations beyond basic requirements
+- Advanced performance metrics beyond Core Web Vitals
+- Progressive enhancement features
 
-- Use existing successful patterns from .docs/memory/
-- Avoid cutting-edge solutions under appetite pressure
-- Prioritize functionality over elegance
+**Enhanced Testing**:
+- Complex integration test scenarios
+- Advanced E2E edge cases
+- Performance testing under load
+
+**Documentation Quality**:
+- API documentation completeness
+- Code comment quality
+- README and guide updates
+
+### Automated Code Review Integration
+
+**ESLint Configuration** (.eslintrc.js):
+```javascript
+module.exports = {
+  extends: [
+    'next/core-web-vitals',
+    '@typescript-eslint/recommended',
+    'plugin:accessibility/recommended',
+    'plugin:security/recommended'
+  ],
+  rules: {
+    // Enforce code quality
+    'no-console': 'warn',
+    'no-debugger': 'error',
+    'prefer-const': 'error',
+    
+    // Accessibility enforcement
+    'jsx-a11y/alt-text': 'error',
+    'jsx-a11y/aria-labels': 'error',
+    
+    // Security rules
+    'security/detect-object-injection': 'error',
+    'security/detect-sql-injection': 'error'
+  }
+}
+```
+
+**Prettier Configuration** (.prettierrc):
+```json
+{
+  "semi": false,
+  "singleQuote": true,
+  "tabWidth": 2,
+  "trailingComma": "es5",
+  "printWidth": 80,
+  "bracketSpacing": true,
+  "arrowParens": "avoid"
+}
+```
 
 ## Agent Collaboration Workflows
 
-### Architect → Code Handoff
+### Handoff Templates (Structured Context Transfer)
 
-**Handoff Trigger**: When planning is complete and implementation ready
+**Architect → Code Handoff** (.docs/handoffs/architect-to-code.md):
+```markdown
+## Implementation Ready
+**Branch**: Create `feature/[description]` from main
+**Context Files**: 
+- .docs/current-task.md (implementation roadmap)
+- .docs/architecture.md#[relevant-section]
+- .docs/decisions/[relevant-decision].md
 
-**Required Context** (use .docs/handoffs/architect-to-code.md):
+## Quality Requirements
+- Run quality gates before each commit
+- Follow TDD: red-green-refactor cycle
+- Update progress in .docs/current-task.md
 
-- Implementation requirements with acceptance criteria
-- Quality gates and success metrics
-- Context files to read before starting
-- Complexity assessment and appetite boundaries
-- Pattern recommendations from .docs/memory/
+## Success Criteria
+[Clear, testable acceptance criteria]
 
-**Success Criteria**:
+## Circuit Breakers
+[Scope boundaries - when to escalate]
+```
 
-- Code mode has clear implementation path
-- All dependencies and constraints understood
-- Quality gates defined and measurable
-- Rollback plan established if appetite exceeded
+**Code → Debug Handoff** (.docs/handoffs/code-to-debug.md):
+```markdown
+## Issue Context
+**Problem**: [Specific issue description]
+**Reproduction**: [Steps to reproduce]
+**Environment**: [Development/testing environment details]
 
-### Code → Debug Handoff
+## Investigation Scope
+**Files Involved**: [Specific files and functions]
+**Recent Changes**: [What was changed recently]
+**Error Messages**: [Complete error output]
 
-**Handoff Trigger**: When implementation issues arise that need investigation
+## Quality Context
+**Tests Failing**: [Specific test failures]
+**Quality Gates**: [Which gates are failing]
+**Expected Behavior**: [What should happen]
+```
 
-**Required Context** (use .docs/handoffs/code-to-debug.md):
+### Agent Mode Transitions
 
-- Problem description with symptoms
-- Investigation starting points
-- Rollback plan and safe fallback state
-- Appetite remaining for debugging effort
-- Expected resolution complexity
+**Automatic Escalation Triggers**:
+- Code mode: Stuck for 15 minutes → Auto-escalate to Debug
+- Debug mode: No progress after 3 investigation cycles → Escalate to human
+- Any mode: Quality gates failing repeatedly → Pause and escalate
 
-**Success Criteria**:
+**Context Preservation**:
+- All mode switches update .docs/current-task.md
+- Decision rationale captured in .docs/decisions/
+- Learning outcomes saved in .docs/memory/
 
-- Debug mode has clear investigation path
-- Problem scope is bounded
-- Resolution timeline fits remaining appetite
-- Escalation path defined if debugging exceeds scope
+## Deployment & CI/CD (Vercel + GitHub Actions)
 
-### Debug → Resolution Handoff
+### Vercel Configuration (Zero-Maintenance Deployment)
 
-**Handoff Trigger**: When root cause identified and solution path clear
+**vercel.json**:
+```json
+{
+  "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm ci",
+  "functions": {
+    "app/api/**/*.ts": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        }
+      ]
+    }
+  ]
+}
+```
 
-**Required Context** (use .docs/handoffs/debug-to-resolution.md):
-
-- Root cause analysis with evidence
-- Recommended solution approach
-- Prevention measures for future
-- Knowledge to capture in institutional memory
-- Testing strategy for resolution validation
-
-**Success Criteria**:
-
-- Resolution approach fits remaining appetite
-- Prevention measures identified
-- Knowledge captured for future similar issues
-- Quality gates maintained throughout resolution
-
-## Deployment Automation (Appetite-Aware)
-
-### Vercel Integration (Zero-Maintenance)
-
-- **Production Deployment**: Every merge to main (appetite completion)
-- **Preview Deployments**: Every PR for appetite validation
-- **Environment Variables**: Managed via Vercel dashboard
-- **Rollback**: One-click rollback if appetite delivery fails
-
-### CI/CD Pipeline (Quality-First)
+### GitHub Actions Workflow (.github/workflows/ci.yml)
 
 ```yaml
-# Appetite-aware workflow triggers
+name: CI/CD Pipeline
+
 on:
   push:
-    branches: [main] # Appetite completion
+    branches: [main]
   pull_request:
-    branches: [main] # Appetite validation
+    branches: [main]
 
 jobs:
-  appetite-validation: # Validate scope matches appetite
-    - Check appetite indicators in branch/commits
-    - Validate scope creep boundaries
-    - Assess complexity vs. original estimation
+  quality-gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Lint and format check
+        run: |
+          npm run lint
+          npm run prettier:check
+      
+      - name: Type checking
+        run: npm run type-check
+      
+      - name: Security scan
+        run: npm run security:scan
+      
+      - name: Critical tests
+        run: npm run test:critical
+      
+      - name: Build verification
+        run: npm run build
+      
+      - name: Accessibility audit
+        run: npm run a11y:ci
+      
+      - name: Performance budget
+        run: npm run lighthouse:ci
 
-  quality-gates: # Never bypass regardless of appetite
-    - lint-and-typecheck: Code quality
-    - test-critical: Essential business logic
-    - build: Application build verification
-    - accessibility: WCAG 2.1 AA compliance
-    - performance: Core Web Vitals validation
+  full-test-suite:
+    runs-on: ubuntu-latest
+    needs: quality-gates
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run full test suite
+        run: npm run test:coverage
+      
+      - name: E2E tests
+        run: npm run test:e2e:ci
+      
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
 
-  deployment-readiness: # Appetite completion validation
-    - appetite-scope-match: Delivered scope matches planned appetite
-    - quality-debt-tracking: Any bypassed non-critical gates documented
-    - institutional-memory: Patterns captured for future appetites
+  deploy-preview:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    needs: quality-gates
+    steps:
+      - name: Deploy to Vercel Preview
+        uses: amondnet/vercel-action@v20
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.ORG_ID }}
+          vercel-project-id: ${{ secrets.PROJECT_ID }}
 ```
 
-### Performance Monitoring (Privacy-First)
+### Package.json Scripts (Complete Toolchain)
 
-**Vercel Analytics**: Zero-maintenance user behavior insights
-
-- Real-time Core Web Vitals monitoring
-- Performance trend analysis across appetite deliveries
-- User experience impact measurement
-
-**Lighthouse CI Integration**: Automated quality enforcement
-
-```bash
-# Appetite-scoped performance validation
-npm run lighthouse:appetite            # Quick validation for small appetites
-npm run lighthouse:comprehensive       # Full audit for major appetites
-npm run lighthouse:gates               # Quality gate enforcement only
+```json
+{
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
+    "lint:check": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "prettier": "prettier --write .",
+    "prettier:check": "prettier --check .",
+    "type-check": "tsc --noEmit",
+    
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:critical": "jest --testPathPattern=critical --passWithNoTests",
+    "test:unit": "jest --testPathPattern=unit",
+    "test:integration": "jest --testPathPattern=integration",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:ci": "playwright test --reporter=github",
+    "test:coverage": "jest --coverage",
+    "test:full": "npm run test && npm run test:e2e",
+    
+    "a11y:test": "jest --testPathPattern=accessibility",
+    "a11y:audit": "lighthouse --only-categories=accessibility",
+    "a11y:ci": "jest --testPathPattern=accessibility --passWithNoTests",
+    
+    "security:scan": "audit-ci --config audit-ci.json",
+    "security:test": "jest --testPathPattern=security",
+    
+    "lighthouse:ci": "lhci autorun",
+    "perf:budget": "bundlesize",
+    "bundle:analyze": "ANALYZE=true npm run build",
+    
+    "quality:all": "npm run lint && npm run type-check && npm run test:critical && npm run security:scan",
+    "ci:verify": "npm run quality:all && npm run build"
+  }
+}
 ```
 
-**Privacy-Hardened Configuration**:
+## Performance & Accessibility Standards
 
-- Dedicated Chrome profile isolation
-- Automatic profile cleanup after testing
-- Zero persistent data accumulation
-- Local-only performance analysis
+### Core Web Vitals Requirements (Non-Negotiable)
 
-## Accessibility Excellence (Zero Manual Verification)
+**Performance Budgets**:
+- Largest Contentful Paint (LCP): < 2.5 seconds
+- Cumulative Layout Shift (CLS): < 0.1
+- First Input Delay (FID): < 100 milliseconds
+- Total Bundle Size: < 1MB initial load
 
-### Appetite-Independent Accessibility Requirements
+**Lighthouse CI Configuration** (.lighthouserc.js):
+```javascript
+module.exports = {
+  ci: {
+    collect: {
+      startServerCommand: 'npm run start',
+      url: ['http://localhost:3000', 'http://localhost:3000/booking']
+    },
+    assert: {
+      assertions: {
+        'categories:performance': ['error', { minScore: 0.85 }],
+        'categories:accessibility': ['error', { minScore: 0.95 }],
+        'categories:seo': ['error', { minScore: 0.9 }],
+        'categories:best-practices': ['error', { minScore: 0.9 }]
+      }
+    }
+  }
+}
+```
 
-**WCAG 2.1 AA Compliance**: Non-negotiable regardless of appetite size
+### Accessibility Compliance (WCAG 2.1 AA)
 
-- 100% automated accessibility validation
-- Zero tolerance for critical violations
-- Cross-browser compatibility testing
-- Mobile accessibility verification
+**Automated Testing Integration**:
+```javascript
+// jest.accessibility.config.js
+module.exports = {
+  testMatch: ['**/__tests__/**/*.a11y.test.{js,ts}'],
+  setupFilesAfterEnv: ['<rootDir>/jest.a11y.setup.js']
+}
 
-### Three-Layer Accessibility Automation
+// jest.a11y.setup.js
+import { configureAxe } from 'jest-axe'
+import 'jest-axe/extend-expect'
 
-**Unit Level**: Component accessibility validation
+const axe = configureAxe({
+  rules: {
+    'color-contrast': { enabled: true },
+    'focus-order-semantics': { enabled: true },
+    'keyboard-navigation': { enabled: true }
+  }
+})
+```
 
+**Component Accessibility Testing**:
 ```typescript
-// Automated in every component test
+// Example: BookingForm.a11y.test.tsx
+import { render } from '@testing-library/react'
 import { axe, toHaveNoViolations } from 'jest-axe'
+import BookingForm from '../BookingForm'
+
 expect.extend(toHaveNoViolations)
 
-test('component has no accessibility violations', async () => {
+test('BookingForm has no accessibility violations', async () => {
   const { container } = render(<BookingForm />)
   const results = await axe(container)
   expect(results).toHaveNoViolations()
 })
 ```
 
-**Integration Level**: Complex interaction accessibility
+## Emergency & Recovery Procedures
 
+### Hotfix Process (Critical Issues)
+
+**Hotfix Workflow**:
+1. **Create Branch**: `git checkout -b hotfix/critical-issue-description`
+2. **Minimal Fix**: Address only the critical issue, no additional changes
+3. **Quality Gates**: All critical gates must still pass
+4. **Fast Review**: Single reviewer approval required
+5. **Deploy**: Direct merge to main with immediate deployment
+6. **Follow-up**: Document in .docs/debt.md for post-mortem
+
+**Hotfix Quality Gates** (Reduced but not eliminated):
+```bash
+npm run lint                    # Still required
+npm run type-check              # Still required
+npm run test:critical           # Essential tests only
+npm run security:scan           # Security still critical
+npm run build                   # Build verification
+```
+
+### Rollback Procedures
+
+**Vercel Rollback** (Immediate):
+- One-click rollback via Vercel dashboard
+- Automatic traffic routing to previous stable deployment
+- DNS propagation within 30 seconds globally
+
+**Git Rollback** (For Code Issues):
+```bash
+# Revert specific commit
+git revert [commit-hash]
+
+# Emergency reset (use cautiously)
+git reset --hard [last-good-commit]
+git push --force-with-lease
+```
+
+**Recovery Verification**:
+1. Run full quality gate suite on rollback
+2. Verify critical user journeys work
+3. Monitor error rates and performance metrics
+4. Document issue in .docs/investigations/
+
+## Tool Configuration Files
+
+### TypeScript Configuration (tsconfig.json)
+```json
+{
+  "compilerOptions": {
+    "target": "es5",
+    "lib": ["dom", "dom.iterable", "es6"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [{ "name": "next" }],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@/components/*": ["./src/components/*"],
+      "@/lib/*": ["./src/lib/*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}
+```
+
+### Jest Configuration (jest.config.js)
+```javascript
+const nextJest = require('next/jest')
+
+const createJestConfig = nextJest({
+  dir: './',
+})
+
+const customJestConfig = {
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  moduleNameMapping: {
+    '^@/(.*)$': '<rootDir>/src/$1',
+  },
+  testEnvironment: 'jest-environment-jsdom',
+  collectCoverageFrom: [
+    'src/**/*.{js,jsx,ts,tsx}',
+    '!src/**/*.d.ts',
+    '!src/**/*.stories.{js,jsx,ts,tsx}'
+  ],
+  coverageThreshold: {
+    global: {
+      branches: 70,
+      functions: 70,
+      lines: 70,
+      statements: 70
+    }
+  }
+}
+
+module.exports = createJestConfig(customJestConfig)
+```
+
+### Playwright Configuration (playwright.config.ts)
 ```typescript
-// Automated in user journey tests
-test('booking wizard maintains accessibility throughout flow', async ({
-  page,
-}) => {
-  await page.getByPlaceholder('Your beautiful name').fill('Jane Doe')
-  const btn = page.getByRole('button', { name: 'Book session' })
-  await btn.click()
-  await expect(btn).toHaveAttribute('aria-busy', 'true')
+import { defineConfig, devices } from '@playwright/test'
+
+export default defineConfig({
+  testDir: './e2e',
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  workers: process.env.CI ? 1 : undefined,
+  reporter: 'html',
+  use: {
+    baseURL: 'http://localhost:3000',
+    trace: 'on-first-retry',
+    screenshot: 'only-on-failure'
+  },
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'Mobile Chrome',
+      use: { ...devices['Pixel 5'] },
+    },
+    {
+      name: 'Mobile Safari',
+      use: { ...devices['iPhone 12'] },
+    },
+  ],
+  webServer: {
+    command: 'npm run dev',
+    url: 'http://localhost:3000',
+    reuseExistingServer: !process.env.CI,
+  },
 })
 ```
 
-**System Level**: Lighthouse CI with 95% threshold
+## Monitoring & Analytics
 
-```javascript
-// Automated quality gates
-'categories:accessibility': ['error', { minScore: 0.95 }],
-'audits:color-contrast': ['error', { minScore: 1.0 }],
-'audits:image-alt': ['error', { minScore: 1.0 }],
-'audits:label': ['error', { minScore: 1.0 }],
+### Error Tracking & Performance
+
+**Vercel Analytics Integration**:
+- Real-time Core Web Vitals monitoring
+- User experience metrics tracking
+- Performance trend analysis
+- Zero configuration required
+
+**Error Boundary Implementation**:
+```typescript
+// src/components/ErrorBoundary.tsx
+import React from 'react'
+
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { hasError: false }
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true }
+  }
+
+  componentDidCatch(error, errorInfo) {
+    // Log error to monitoring service
+    console.error('Application Error:', error, errorInfo)
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <h1>Something went wrong. Please refresh the page.</h1>
+    }
+    return this.props.children
+  }
+}
+
+export default ErrorBoundary
 ```
 
-### Accessibility Development Commands
+### Development Metrics
 
-```bash
-# Appetite-optimized accessibility workflow
-npm run a11y:critical             # Essential accessibility checks (< 30 seconds)
-npm run a11y:full                 # Comprehensive accessibility validation
-npm run a11y:dev                  # Watch mode for accessibility development
+**Workflow Success Indicators**:
+- Quality gate pass rate: > 95%
+- Deployment success rate: > 99%
+- Rollback frequency: < 1% of deployments
+- Average time from commit to production: < 10 minutes
 
-# Quality gate validation
-npm run a11y:gates                # Critical gate validation only
-npm run a11y:validate             # Check compliance without new tests
-
-# Debug and investigation
-npm run a11y:debug                # Debug accessibility issues
-npm run a11y:audit-local          # Local audit without external reporting
-```
-
-## Emergency Procedures (Appetite Override)
-
-### Hotfix Process (1-Day Appetite)
-
-**Critical Issue Identification**: Security, data corruption, booking system failure
-
-1. **Emergency Appetite**: 1-day maximum for hotfix resolution
-2. **Create Branch**: `hotfix/MOM-XXX-description-1d`
-3. **Minimal Implementation**: Fix only the critical issue, nothing more
-4. **Quality Gates**: Critical gates still enforced (accessibility, security)
-5. **Emergency Review**: Single reviewer approval (document in .docs/debt.md)
-6. **Deploy & Monitor**: Immediate deployment with enhanced monitoring
-
-### Rollback Procedures (Circuit Breaker)
-
-**Appetite Failure**: When appetite significantly exceeded without delivery
-
-- **Vercel Rollback**: One-click rollback to previous working state
-- **Scope Reset**: Return to last known good appetite scope
-- **Context Preservation**: Document lessons learned in .docs/memory/
-- **Appetite Reassessment**: Plan new appetite with updated complexity understanding
-
-**Quality Gate Failure**: When critical gates cannot be satisfied
-
-- **Automatic Rollback**: CI/CD automatically prevents deployment
-- **Issue Resolution**: Fix quality issues before proceeding
-- **Gate Validation**: Re-run quality gates after fixes
-- **Process Learning**: Update .docs/memory/ with prevention strategies
-
-## Institutional Memory Integration
-
-### Pattern Capture During Development
-
-**Successful Patterns**: Document in .docs/memory/successful-patterns.md
-
-- Implementation approaches that worked well within appetite
-- Testing strategies that provided fast feedback
-- Architecture decisions that scaled appropriately
-- Problem-solving approaches that prevented scope creep
-
-**Failure Recovery**: Document in .docs/memory/failure-recovery.md
-
-- Issues that caused appetite overruns with prevention strategies
-- Quality gate failures with specific resolution approaches
-- Performance bottlenecks with optimization solutions
-- Accessibility issues with compliance restoration methods
-
-**Complexity Scoring**: Update .docs/memory/complexity-scoring.md
-
-- Actual implementation time vs. estimated appetite
-- Factors that increased complexity unexpectedly
-- Indicators for future appetite estimation accuracy
-- Risk factors that suggest larger appetite needed
-
-### Handoff Context Preservation
-
-**Agent Transitions**: Use structured templates for mode switching
-
-- Preserve context across Architect → Code → Debug workflows
-- Document decision rationale for future reference
-- Capture implementation patterns for reuse
-- Record debugging approaches for similar issues
-
-**Session State Management**: Track in .docs/current-task.md
-
-- Current appetite progress and remaining scope
-- Quality debt accumulated and resolution timeline
-- Next logical steps for workflow continuation
-- Blockers or escalation triggers encountered
-
-## Workflow Success Metrics
-
-### Appetite Delivery Metrics
-
-- **Scope Match**: 80% of appetites deliver planned scope
-- **Time Accuracy**: Actual time within 120% of appetite estimate
-- **Quality Maintenance**: 100% critical gate compliance
-- **Pattern Reuse**: 60% of appetites use documented successful patterns
-
-### Quality Excellence Metrics
-
-- **Accessibility Compliance**: 100% WCAG 2.1 AA compliance maintained
-- **Performance Standards**: 95% of deliveries meet Core Web Vitals
-- **Test Coverage**: Maintain or improve coverage with each appetite
-- **Security Standards**: Zero security vulnerabilities in production
-
-### Agent Collaboration Metrics
-
-- **Handoff Efficiency**: Smooth transitions between modes
-- **Context Preservation**: Complete handoff information transferred
-- **Knowledge Capture**: Patterns documented for institutional memory
-- **Workflow Optimization**: Continuous improvement in collaboration patterns
+**Code Quality Metrics**:
+- Test coverage: > 70% (enforced)
+- ESLint violations: 0 (enforced)
+- TypeScript errors: 0 (enforced)
+- Security vulnerabilities: 0 critical/high (enforced)
 
 ---
 
 **Last Updated**: 2025-08-03  
-**Workflow Status**: Appetite-based development ready  
-**Next Review**: After first appetite completion using new workflows  
-**Evolution Driver**: Agent collaboration effectiveness and appetite accuracy
+**Workflow Status**: Production-ready with comprehensive quality gates  
+**Next Review**: After first month of usage to optimize based on real metrics  
+**Evolution Driver**: Quality gate effectiveness and agent collaboration efficiency

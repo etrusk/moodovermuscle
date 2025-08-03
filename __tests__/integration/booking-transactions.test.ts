@@ -12,7 +12,8 @@ import { setupIntegrationTest, teardownIntegrationTest } from '../setup/test-hel
 jest.setTimeout(15000)
 
 jest.mock('@/lib/prisma', () => ({
-  prisma: testDb,
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  prisma: require('../setup/test-db').testDb,
 }))
 
 jest.mock('@/lib/email', () => ({

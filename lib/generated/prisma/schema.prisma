@@ -15,16 +15,40 @@ datasource db {
 }
 
 model Booking {
-  id         String   @id @default(cuid())
-  name       String
-  email      String
-  phone      String?
-  service    String
-  date       DateTime
-  time       String
-  message    String?
-  goals      String?
-  experience String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id              String                @id @default(cuid())
+  name            String
+  email           String
+  phone           String?
+  service         String
+  date            DateTime
+  time            String
+  message         String?
+  goals           String?
+  experience      String?
+  status          BookingStatus         @default(PENDING)
+  sessionDuration Int?                  @default(60)
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  statusChanges   BookingStatusChange[]
+
+  @@unique([date, time])
+  @@index([date])
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+model BookingStatusChange {
+  id         String        @id @default(cuid())
+  booking    Booking       @relation(fields: [bookingId], references: [id])
+  bookingId  String
+  fromStatus BookingStatus
+  toStatus   BookingStatus
+  createdAt  DateTime      @default(now())
+
+  @@index([bookingId])
 }

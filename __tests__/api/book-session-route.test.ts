@@ -4,26 +4,40 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
 // Mock Prisma
-jest.mock('@/lib/prisma', () => ({
-  prisma: {
+jest.mock('@/lib/prisma', () => {
+  const mockBooking = {
+    id: 'mock-booking-id',
+    name: 'Test User',
+    email: 'test@example.com',
+    phone: '0412345678',
+    service: '1-on-1 Personal Training',
+    date: new Date(),
+    time: '10:00 AM',
+    message: '',
+    goals: 'community',
+    experience: 'Beginner',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }
+
+  const mockTx = {
     booking: {
-      create: jest.fn().mockResolvedValue({
-        id: 'mock-booking-id',
-        name: 'Test User',
-        email: 'test@example.com',
-        phone: '0412345678',
-        service: '1-on-1 Personal Training',
-        date: new Date(),
-        time: '10:00 AM',
-        message: '',
-        goals: 'community',
-        experience: 'Beginner',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }),
+      findFirst: jest.fn().mockResolvedValue(null),
+      create: jest.fn().mockResolvedValue(mockBooking),
     },
-  },
-}))
+  }
+
+  return {
+    prisma: {
+      $transaction: jest.fn().mockImplementation(async (callback) => {
+        return await callback(mockTx)
+      }),
+      booking: {
+        create: jest.fn().mockResolvedValue(mockBooking),
+      },
+    },
+  }
+})
 
 // Mock email functions
 jest.mock('@/lib/email', () => ({
@@ -95,10 +109,12 @@ describe('API POST /api/book-session', () => {
 
   test('returns 500 on server exception', async () => {
     // Mock Prisma to throw an error
-    const mockCreate = prisma.booking.create as jest.MockedFunction<
-      typeof prisma.booking.create
-    >
-    mockCreate.mockRejectedValueOnce(new Error('Database connection failed'))
+    const mockTransaction = prisma.$transaction as jest.MockedFunction<
+      typeof prisma.$transaction
+    >;
+    mockTransaction.mockRejectedValueOnce(
+      new Error('Database connection failed')
+    );
 
     const validData = {
       name: 'Error Case',

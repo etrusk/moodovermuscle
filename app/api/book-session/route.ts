@@ -66,18 +66,41 @@ export async function POST(request: Request) {
       experience,
     } = validatedData.data
 
-    const newBooking = await prisma.booking.create({
-      data: {
-        name,
-        email,
-        phone: phone ?? null,
-        service,
-        date,
-        time,
-        message: message ?? null,
-        goals,
-        experience: experience ?? null,
-      },
+    const newBooking = await prisma.$transaction(async (tx) => {
+      // Conflict detection: ensure no existing booking at same date and time
+      const conflict = await tx.booking.findFirst({
+        where: { date, time },
+      })
+      if (conflict) {
+        throw new Error('Booking conflict: Selected date and time is already booked.')
+      }
+      // Create booking within transaction
+      return tx.booking.create({
+        data: {
+          name,
+          email,
+          phone: phone ?? null,
+          service,
+          date,
+          time,
+          message: message ?? null,
+          goals,
+          experience: experience ?? null,
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+          service: true,
+          date: true,
+          time: true,
+          message: true,
+          goals: true,
+          experience: true,
+          status: true,
+        },
+      })
     })
 
     // Send emails without awaiting them to avoid blocking the response
@@ -126,6 +149,13 @@ export async function POST(request: Request) {
     )
   } catch (error) {
     console.error('Error processing booking form:', error)
+    // Handle booking conflict specifically
+    if ((error as Error).message.startsWith('Booking conflict')) {
+      return NextResponse.json(
+        { message: (error as Error).message },
+        { status: 409 }
+      )
+    }
     return NextResponse.json(
       { message: 'Failed to submit booking.', error: (error as Error).message },
       { status: 500 }

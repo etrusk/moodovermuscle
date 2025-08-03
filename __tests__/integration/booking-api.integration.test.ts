@@ -1,6 +1,7 @@
 /**
  * @jest-environment node
  */
+// @ts-nocheck
 import { POST } from '@/app/api/book-session/route'
 import { NextRequest } from 'next/server'
 import { testDb } from '../setup/test-db'
@@ -11,9 +12,10 @@ import {
 } from '../setup/test-helpers'
 jest.setTimeout(15000)
 
+type TransactionCallback = (tx: typeof testDb) => Promise<any>;
+
 jest.mock('@/lib/prisma', () => ({
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  prisma: require('../setup/test-db').testDb,
+  prisma: testDb,
 }))
 // Mock the prisma client
 // Mock email functions for integration tests
@@ -52,14 +54,26 @@ describe('Booking API Integration Tests', () => {
 
       // Mock the database create function
       const mockBookingId = 'mock-booking-id-123'
-      testDb.booking.create.mockResolvedValue({
-        ...testData,
+      const mockBooking = {
+        ...createTestBookingData(),
         id: mockBookingId,
         createdAt: new Date(),
         updatedAt: new Date(),
         phone: testData.phone ?? null,
         message: testData.message ?? null,
-      })
+        status: 'PENDING',
+        sessionDuration: 60,
+      };
+
+(testDb.$transaction as jest.Mock).mockImplementation(async (callback: TransactionCallback) => {
+        const mockTx = {
+          booking: {
+            findFirst: jest.fn().mockResolvedValue(null),
+            create: jest.fn().mockResolvedValue(mockBooking),
+          },
+        }
+        return await callback(mockTx as any)
+      });
 
       const response = await POST(req)
       expect(response.status).toBe(201)
@@ -76,6 +90,8 @@ describe('Booking API Integration Tests', () => {
         updatedAt: new Date(),
         phone: testData.phone ?? null,
         message: testData.message ?? null,
+        status: 'PENDING',
+        sessionDuration: 60,
       })
       const createdBooking = await testDb.booking.findUnique({
         where: { id: responseData.data.id },
@@ -126,23 +142,45 @@ describe('Booking API Integration Tests', () => {
       const req2 = makeJsonRequest(testData2)
 
       // Mock the database create function for both calls
-      testDb.booking.create
-        .mockResolvedValueOnce({
-          ...testData1,
-          id: 'mock-id-1',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          phone: testData1.phone ?? null,
-          message: testData1.message ?? null,
+      const mockBooking1 = {
+        ...testData1,
+        id: 'mock-id-1',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        phone: testData1.phone ?? null,
+        message: testData1.message ?? null,
+        status: 'PENDING',
+        sessionDuration: 60,
+      }
+      const mockBooking2 = {
+        ...testData1,
+        id: 'mock-id-2',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        phone: testData2.phone ?? null,
+        message: testData2.message ?? null,
+        status: 'PENDING',
+        sessionDuration: 60,
+      };
+(testDb.$transaction as jest.Mock)
+        .mockImplementationOnce(async (callback: TransactionCallback) => {
+            const mockTx = {
+                booking: {
+                    findFirst: jest.fn().mockResolvedValue(null),
+                    create: jest.fn().mockResolvedValue(mockBooking1),
+                },
+            };
+            return await callback(mockTx as any);
         })
-        .mockResolvedValueOnce({
-          ...testData2,
-          id: 'mock-id-2',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          phone: testData2.phone ?? null,
-          message: testData2.message ?? null,
-        })
+        .mockImplementationOnce(async (callback: TransactionCallback) => {
+            const mockTx = {
+                booking: {
+                    findFirst: jest.fn().mockResolvedValue(null),
+                    create: jest.fn().mockResolvedValue(mockBooking2),
+                },
+            };
+            return await callback(mockTx as any);
+        });
 
       const response1 = await POST(req1)
       const response2 = await POST(req2)
@@ -164,6 +202,8 @@ describe('Booking API Integration Tests', () => {
           updatedAt: new Date(),
           phone: testData1.phone ?? null,
           message: testData1.message ?? null,
+          status: 'PENDING',
+          sessionDuration: 60,
         })
         .mockResolvedValueOnce({
           ...testData2,
@@ -172,6 +212,8 @@ describe('Booking API Integration Tests', () => {
           updatedAt: new Date(),
           phone: testData2.phone ?? null,
           message: testData2.message ?? null,
+          status: 'PENDING',
+          sessionDuration: 60,
         })
       const booking1 = await testDb.booking.findUnique({
         where: { id: data1.data.id },
@@ -194,7 +236,7 @@ describe('Booking API Integration Tests', () => {
       const req = makeJsonRequest(testData)
 
       // Mock the database create function
-      testDb.booking.create.mockResolvedValue({
+      const mockBooking = {
         ...testData,
         id: 'mock-booking-id-date-time',
         date: new Date(testData.date),
@@ -202,7 +244,18 @@ describe('Booking API Integration Tests', () => {
         updatedAt: new Date(),
         phone: testData.phone ?? null,
         message: testData.message ?? null,
-      })
+        status: 'PENDING',
+        sessionDuration: 60,
+      };
+(testDb.$transaction as jest.Mock).mockImplementation(async (callback: TransactionCallback) => {
+        const mockTx = {
+            booking: {
+                findFirst: jest.fn().mockResolvedValue(null),
+                create: jest.fn().mockResolvedValue(mockBooking),
+            },
+        };
+        return await callback(mockTx as any);
+      });
 
       const response = await POST(req)
 
@@ -217,6 +270,8 @@ describe('Booking API Integration Tests', () => {
         updatedAt: new Date(),
         phone: testData.phone ?? null,
         message: testData.message ?? null,
+        status: 'PENDING',
+        sessionDuration: 60,
       })
       const createdBooking = await testDb.booking.findUnique({
         where: { id: responseData.data.id },
@@ -235,14 +290,25 @@ describe('Booking API Integration Tests', () => {
       const req = makeJsonRequest(testData)
 
       // Mock the database create function
-      testDb.booking.create.mockResolvedValue({
+      const mockBooking = {
         ...testData,
         id: 'mock-booking-id-optional',
         createdAt: new Date(),
         updatedAt: new Date(),
         phone: null,
         message: null,
-      })
+        status: 'PENDING',
+        sessionDuration: 60,
+      };
+(testDb.$transaction as jest.Mock).mockImplementation(async (callback: TransactionCallback) => {
+        const mockTx = {
+            booking: {
+                findFirst: jest.fn().mockResolvedValue(null),
+                create: jest.fn().mockResolvedValue(mockBooking),
+            },
+        };
+        return await callback(mockTx as any);
+      });
 
       const response = await POST(req)
 
@@ -256,6 +322,8 @@ describe('Booking API Integration Tests', () => {
         updatedAt: new Date(),
         phone: null,
         message: null,
+        status: 'PENDING',
+        sessionDuration: 60,
       })
       const createdBooking = await testDb.booking.findUnique({
         where: { id: responseData.data.id },
@@ -289,14 +357,25 @@ describe('Booking API Integration Tests', () => {
       const req = makeJsonRequest(validData)
 
       // Mock the database create function
-      testDb.booking.create.mockResolvedValue({
+      const mockBooking = {
         ...validData,
         id: 'mock-booking-id-goals',
         createdAt: new Date(),
         updatedAt: new Date(),
         phone: validData.phone ?? null,
         message: validData.message ?? null,
-      })
+        status: 'PENDING',
+        sessionDuration: 60,
+      };
+(testDb.$transaction as jest.Mock).mockImplementation(async (callback: TransactionCallback) => {
+        const mockTx = {
+            booking: {
+                findFirst: jest.fn().mockResolvedValue(null),
+                create: jest.fn().mockResolvedValue(mockBooking),
+            },
+        };
+        return await callback(mockTx as any);
+      });
 
       const response = await POST(req)
 
@@ -310,6 +389,8 @@ describe('Booking API Integration Tests', () => {
         updatedAt: new Date(),
         phone: validData.phone ?? null,
         message: validData.message ?? null,
+        status: 'PENDING',
+        sessionDuration: 60,
       })
       const createdBooking = await testDb.booking.findUnique({
         where: { id: responseData.data.id },

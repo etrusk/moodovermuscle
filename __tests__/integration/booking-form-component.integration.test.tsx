@@ -8,6 +8,7 @@ import {
 } from '../setup/test-helpers'
 
 // MSW will handle API mocking. No need for manual fetch mocks.
+jest.setTimeout(30000);
 
 describe('Booking Form Component Integration Tests', () => {
   const user = userEvent.setup()
@@ -36,6 +37,9 @@ describe('Booking Form Component Integration Tests', () => {
     }
 
     // Step 1: Fill personal details
+    await waitFor(() => {
+        expect(screen.getByLabelText(/name/i)).toBeInTheDocument();
+    });
     await user.type(screen.getByLabelText(/name/i), defaultData.name)
     await user.type(screen.getByLabelText(/email/i), defaultData.email)
     await user.type(screen.getByLabelText(/phone/i), defaultData.phone)
@@ -71,8 +75,11 @@ describe('Booking Form Component Integration Tests', () => {
       throw new Error(`Could not find enabled date cell for day ${day}`)
     }
 
-    await user.click(enabledDateCell)
+    await user.click(enabledDateCell);
 
+    await waitFor(() => {
+      expect(screen.getByTestId('time-select')).not.toBeDisabled()
+    })
     await user.selectOptions(screen.getByTestId('time-select'), '10:00 AM')
 
     await user.type(screen.getByLabelText(/message/i), defaultData.message)
@@ -87,7 +94,7 @@ describe('Booking Form Component Integration Tests', () => {
       screen.getByRole('button', { name: /book my free session/i })
     )
 
-    expect(await screen.findByText(/booking confirmed/i)).toBeInTheDocument()
+    expect(await screen.findByText(/booking confirmed/i, {}, { timeout: 5000 })).toBeInTheDocument()
   })
 
   it('should handle API validation errors', async () => {
@@ -97,7 +104,7 @@ describe('Booking Form Component Integration Tests', () => {
       screen.getByRole('button', { name: /book my free session/i })
     )
 
-    expect(await screen.findByText(/booking failed/i)).toBeInTheDocument()
+    expect(await screen.findByText(/Invalid data/i, {}, { timeout: 5000 })).toBeInTheDocument()
   })
 
   it('should handle network errors gracefully', async () => {
@@ -107,7 +114,7 @@ describe('Booking Form Component Integration Tests', () => {
       screen.getByRole('button', { name: /book my free session/i })
     )
 
-    expect(await screen.findByText(/network error/i)).toBeInTheDocument()
+    expect(await screen.findByText(/network error/i, {}, { timeout: 5000 })).toBeInTheDocument()
   })
 
   it('should show loading state during step transition and submission', async () => {

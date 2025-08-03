@@ -44,4 +44,10 @@ export const handlers = [
       { status: 201 }
     )
   }),
+  http.get('/api/availability', () => {
+    return HttpResponse.json({
+      availableTimes: ['09:00', '10:00'],
+      bookedTimes: [],
+    })
+  }),
 ]

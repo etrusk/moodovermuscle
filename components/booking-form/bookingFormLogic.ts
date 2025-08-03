@@ -24,7 +24,10 @@ export interface LoadingStates {
   calendarLoading: boolean
 }
 
-export function useBookingFormLogic(onClose: () => void) {
+export function useBookingFormLogic(
+  onClose: () => void,
+  initialValues?: Partial<BookingFormData>
+) {
   const form = useForm<BookingFormData>({
     resolver: zodResolver(bookingSchema),
     defaultValues: {
@@ -37,6 +40,7 @@ export function useBookingFormLogic(onClose: () => void) {
       message: '',
       goals: '',
       experience: undefined,
+      ...initialValues,
     },
   })
 
@@ -77,6 +81,18 @@ export function useBookingFormLogic(onClose: () => void) {
 
   const submitForm = async (formData: BookingFormData) => {
     setIsSubmitting(true)
+    // Re-check availability before submission
+    if (formData.date && formData.time) {
+      const dateKey = formData.date.toISOString().split('T')[0];
+      const availRes = await fetch(`/api/availability?date=${dateKey}`);
+      if (!availRes.ok) {
+        return { error: 'Failed to verify availability. Please try again.' };
+      }
+      const availData = await availRes.json();
+      if (!availData.availableTimes.includes(formData.time)) {
+        return { error: 'Selected time slot is no longer available. Please choose another slot.' };
+      }
+    }
     try {
       const data: Record<string, unknown> = {
         ...formData,

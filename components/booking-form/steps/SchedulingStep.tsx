@@ -1,7 +1,8 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useBookingForm } from '../BookingFormProvider'
+import { useAvailability } from '../useAvailability'
 import {
   FormField,
   FormItem,
@@ -26,9 +27,69 @@ interface SchedulingStepProps {
 }
 
 export function SchedulingStep({ isLoading = false }: SchedulingStepProps) {
-  const { form } = useBookingForm()
+  const { form, calendarLoading, setCalendarLoading } = useBookingForm()
   const [isCalendarOpen, setCalendarOpen] = useState(false)
-  const { calendarLoading, setCalendarLoading } = useBookingForm()
+  const date = form.watch('date')
+
+  const {
+    availableTimes,
+    bookedTimes,
+    loadingAvailability,
+    fetchAvailability,
+    availabilityCache,
+  } = useAvailability(date)
+
+  // Time slot locking state
+  const selectedTime = form.watch('time')
+  const [lockConflict, setLockConflict] = useState(false)
+  const [lockWarning, setLockWarning] = useState<string | null>(null)
+
+  const fetchDateAvailability = useCallback(
+    async (date: Date) => {
+      // This is now only for pre-fetching on hover, the main fetch is in the hook
+      fetchAvailability(date)
+    },
+    [fetchAvailability]
+  )
+
+  // Poll for slot locking every 30s
+  useEffect(() => {
+    if (!date || !selectedTime) return
+    const interval = window.setInterval(async () => {
+      const dateKey = date.toISOString().split('T')[0]
+      try {
+        const res = await fetch(`/api/availability?date=${dateKey}`)
+        if (!res.ok) throw new Error('Failed to fetch')
+        const data = await res.json()
+        if (!data.availableTimes.includes(selectedTime)) {
+          setLockConflict(true)
+          setLockWarning(
+            'Your selected time slot has just been booked by someone else. Please choose another slot.'
+          )
+        }
+      } catch {
+        // ignore errors
+      }
+    }, 30000)
+    return () => clearInterval(interval)
+  }, [date, selectedTime])
+
+  // Clear previous lock warnings when time selection changes
+  useEffect(() => {
+    if (selectedTime) {
+      setLockConflict(false)
+      setLockWarning(null)
+    }
+  }, [selectedTime])
+
+  // Clear lock warnings on date change
+  useEffect(() => {
+    if (date) {
+      setLockConflict(false);
+      setLockWarning(null);
+      form.setValue('time', '');
+    }
+  }, [date])
 
   const handleCalendarToggle = (open: boolean) => {
     if (open) {
@@ -46,10 +107,7 @@ export function SchedulingStep({ isLoading = false }: SchedulingStepProps) {
   }, [isCalendarOpen, setCalendarLoading])
 
   return (
-    <div
-      className="space-y-6 animate-fade-in-up"
-      data-testid="booking-form-step-3"
-    >
+    <div className="space-y-6 animate-fade-in-up" data-testid="booking-form-step-3">
       <div className="grid gap-6 md:grid-cols-2">
         <FormField
           control={form.control}
@@ -57,10 +115,7 @@ export function SchedulingStep({ isLoading = false }: SchedulingStepProps) {
           render={({ field }) => (
             <FormItem className="flex flex-col">
               <FormLabel>Preferred Date *</FormLabel>
-              <Popover
-                open={isCalendarOpen}
-                onOpenChange={handleCalendarToggle}
-              >
+              <Popover open={isCalendarOpen} onOpenChange={handleCalendarToggle}>
                 <PopoverTrigger asChild>
                   <FormControl>
                     <Button
@@ -94,18 +149,47 @@ export function SchedulingStep({ isLoading = false }: SchedulingStepProps) {
                   <Calendar
                     mode="single"
                     selected={field.value}
-                    onSelect={date => {
-                      field.onChange(date)
+                    onSelect={day => {
+                      if (day) field.onChange(day)
                       setCalendarOpen(false)
                     }}
+                    onDayMouseEnter={fetchDateAvailability}
                     disabled={date => {
                       const tomorrow = new Date()
-                      tomorrow.setDate(tomorrow.getDate() + 1)
+                      tomorrow.setDate(tomorrow.getDate())
                       tomorrow.setHours(0, 0, 0, 0)
-                      return date < tomorrow
+                      if (date < tomorrow) return true
+                      const key = date.toISOString().split('T')[0]
+                      const cachedData = availabilityCache[key]
+                      return cachedData ? cachedData.availableTimes.length === 0 : false
                     }}
                     initialFocus
                     className="rounded-md border"
+                    modifiers={{
+                      busy: (date: Date) => {
+                        const key = date.toISOString().split('T')[0]
+                        const dayData = availabilityCache[key]
+                        if (!dayData) return false
+                        const totalSlots = timeSlots.length
+                        const busyThreshold = totalSlots * 0.5
+                        return (
+                          dayData.availableTimes.length < totalSlots &&
+                          dayData.availableTimes.length >= busyThreshold
+                        )
+                      },
+                      packed: (date: Date) => {
+                        const key = date.toISOString().split('T')[0]
+                        const dayData = availabilityCache[key]
+                        if (!dayData) return false
+                        const totalSlots = timeSlots.length
+                        const packedThreshold = totalSlots * 0.9
+                        return dayData.bookedTimes.length >= packedThreshold
+                      },
+                    }}
+                    modifiersClassNames={{
+                      busy: 'bg-yellow-200/50',
+                      packed: 'bg-red-300/80',
+                    }}
                   />
                 </PopoverContent>
               </Popover>
@@ -122,19 +206,40 @@ export function SchedulingStep({ isLoading = false }: SchedulingStepProps) {
               <FormControl>
                 <select
                   {...field}
-                  disabled={isLoading}
+                  disabled={isLoading || loadingAvailability || !date}
+                  aria-busy={loadingAvailability}
                   className="w-full p-4 border-2 border-stone-200 rounded-xl focus:border-green-500 focus:ring-green-500 bg-white"
                   data-testid="time-select"
                 >
-                  <option value="">Select time...</option>
-                  {timeSlots.map(time => (
-                    <option key={time} value={time}>
-                      {time}
-                    </option>
-                  ))}
+                  <option value="">
+                    {!date
+                      ? 'Select a date first'
+                      : loadingAvailability
+                      ? 'Loading slots...'
+                      : 'Select time...'}
+                  </option>
+                  {!loadingAvailability &&
+                    date &&
+                    timeSlots.map(time => (
+                      <option
+                        key={time}
+                        value={time}
+                        disabled={!availableTimes.includes(time)}
+                      >
+                        {formatTimeForDisplay(
+                          time,
+                          bookedTimes.includes(time)
+                        )}
+                      </option>
+                    ))}
                 </select>
               </FormControl>
               <FormMessage />
+              {lockConflict && (
+                <div className="text-red-600 text-sm mt-2" data-testid="slot-lock-warning">
+                  {lockWarning}
+                </div>
+              )}
             </FormItem>
           )}
         />
@@ -159,4 +264,12 @@ export function SchedulingStep({ isLoading = false }: SchedulingStepProps) {
       />
     </div>
   )
+}
+
+function formatTimeForDisplay(time: string, isBooked: boolean) {
+  const [hour, minute] = time.split(':').map(Number)
+  const period = hour >= 12 ? 'PM' : 'AM'
+  const adjustedHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour
+  const displayTime = `${adjustedHour}:${minute.toString().padStart(2, '0')} ${period}`
+  return isBooked ? `${displayTime} (Booked)` : displayTime
 }

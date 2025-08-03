@@ -13,7 +13,7 @@
 
 ## Database Design
 
-### Schema Architecture
+### Current Schema Architecture
 
 ```prisma
 model Booking {
@@ -32,21 +32,56 @@ model Booking {
 }
 ```
 
+### Planned Schema Enhancements
+
+```prisma
+model Booking {
+  id              String        @id @default(cuid())
+  name            String
+  email           String
+  phone           String?
+  service         String
+  date            DateTime
+  time            String
+  message         String?
+  goals           String?
+  experience      String?
+  status          BookingStatus @default(PENDING)
+  sessionDuration Int?          @default(60)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@unique([date, time])  // Prevent double bookings
+  @@index([date])         // Optimize availability queries
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+```
+
 ### Key Design Decisions
 
 - **CUID Primary Keys**: Better for distributed systems, sortable by creation time
 - **Nullable Fields**: Flexible schema for optional user input (phone, message, goals, experience)
 - **Time Storage**: DateTime for precise dates, String for user-selected time slots
 - **Audit Trail**: Automatic createdAt/updatedAt timestamps
+- **Conflict Prevention**: Unique constraint on date/time combination prevents double bookings
+- **Query Optimization**: Date indexing for efficient availability checking
 
 ## Core Components
 
 ### Booking System
 
 - **Multi-step Wizard**: Progressive form with validation at each step
-- **Calendar Integration**: Date/time selection with availability checking
-- **Email Notifications**: Automated confirmations via Nodemailer + SMTP
+- **Calendar Integration**: Date/time selection with real-time availability checking
+- **Transaction Safety**: Atomic booking operations with conflict detection and rollback
+- **Email Notifications**: Automated confirmations via Nodemailer + SMTP (fire-and-forget)
 - **Rate Limiting**: In-memory IP-based protection (5 requests/minute)
+- **Conflict Prevention**: Database constraints and application logic prevent double bookings
 
 ### Email Architecture
 
@@ -361,28 +396,63 @@ configs/
 - **No Manual Decisions**: Objective thresholds with consistent enforcement
 - **Privacy Protection**: Complete profile isolation with automatic cleanup
 
+## Current Implementation Status
+
+### Transaction Safety & Calendar Integration
+
+**Status**: Planning Complete → Ready for Implementation
+
+**Critical Gaps Addressed**:
+- Database transaction safety for atomic booking operations
+- Real-time calendar availability checking to prevent conflicts
+- Booking conflict detection with proper rollback mechanisms
+- Enhanced schema with constraints and status management
+
+**Implementation Priority**:
+1. **Phase 1**: Transaction safety with conflict detection (Critical)
+2. **Phase 2**: Real-time availability API and calendar integration (High)
+3. **Phase 3**: Enhanced user experience and booking status management (Medium)
+
+### Admin Dashboard Requirements
+
+**Current State**: Email-only notifications for Emily
+**Next Phase**: Web-based admin interface for booking management
+
+**Essential Features Planned**:
+- Booking list view with status management
+- Calendar view showing daily/weekly schedules
+- Customer communication tools
+- Basic authentication for admin access
+
 ## Future Considerations
 
 ### Scalability Enhancements
 
+**Multi-trainer Support**:
 ```prisma
-// Potential future schema additions
-model Booking {
-  // ... existing fields
-  status        BookingStatus @default(PENDING)
-  sessionDuration Int?         // Minutes
-  location        String?      // Session location
-  trainerId       String?
-  trainer         Trainer?     @relation(fields: [trainerId], references: [id])
-  paymentId       String?
-  payment         Payment?     @relation(fields: [paymentId], references: [id])
+model Trainer {
+  id       String    @id @default(cuid())
+  name     String
+  email    String
+  bookings Booking[]
 }
 
-enum BookingStatus {
-  PENDING
-  CONFIRMED
-  CANCELLED
-  COMPLETED
+model Booking {
+  // ... existing fields
+  trainerId String?
+  trainer   Trainer? @relation(fields: [trainerId], references: [id])
+}
+```
+
+**Payment Integration**:
+```prisma
+model Payment {
+  id        String   @id @default(cuid())
+  bookingId String   @unique
+  booking   Booking  @relation(fields: [bookingId], references: [id])
+  amount    Decimal
+  status    PaymentStatus
+  createdAt DateTime @default(now())
 }
 ```
 

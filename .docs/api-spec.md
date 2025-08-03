@@ -8,7 +8,7 @@ This document serves as the single source of truth for all API-related developme
 
 ### POST /api/book-session
 
-**Purpose**: Create a new session booking
+**Purpose**: Create a new session booking with transaction safety and conflict detection
 
 **Request Schema**:
 
@@ -79,14 +79,43 @@ interface BookingServerErrorResponse {
 
 - `201`: Booking created successfully
 - `400`: Validation error with detailed field errors
+- `409`: Conflict error - time slot already booked
 - `500`: Internal server error with error message
 
 **Side Effects**:
 
+- Creates booking within database transaction with conflict checking
 - Sends customer confirmation email (non-blocking fire-and-forget)
 - Sends admin notification email (non-blocking fire-and-forget)
 - Email failures logged but don't affect API response
-- Email sending uses Promise.then().catch() pattern for error handling
+- Transaction rollback on any database operation failure
+
+### GET /api/availability
+
+**Purpose**: Get available time slots for a specific date
+
+**Query Parameters**:
+- `date`: Required, ISO date string (e.g., "2024-08-15")
+
+**Response Schema**:
+
+```typescript
+interface AvailabilityResponse {
+  availableTimes: string[] // Array of available time slots
+  bookedTimes: string[]    // Array of already booked time slots
+  date: string            // Requested date
+}
+```
+
+**HTTP Status Codes**:
+
+- `200`: Availability data retrieved successfully
+- `400`: Invalid date parameter
+- `500`: Internal server error
+
+**Caching**:
+- Response includes appropriate cache headers
+- Client-side caching recommended with real-time invalidation
 
 ## Data Models
 

@@ -20,13 +20,15 @@ export function useBookingForm() {
 interface BookingFormProviderProps {
   onClose: () => void
   children: React.ReactNode
+  initialValues?: Partial<BookingFormContextValue['form']['getValues']>
 }
 
 export function BookingFormProvider({
   onClose,
   children,
+  initialValues,
 }: BookingFormProviderProps) {
-  const logic = useBookingFormLogic(onClose)
+  const logic = useBookingFormLogic(onClose, initialValues)
 
   const loadingStates: LoadingStates = {
     stepTransition: logic.stepTransition,

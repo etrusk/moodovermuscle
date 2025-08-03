@@ -36,12 +36,14 @@ export function BookingWizard({ onClose }: BookingWizardProps) {
     try {
       const result = await submitForm(data)
       if (result.error) {
-        setSubmissionError('Booking failed. Please try again.')
-        setCurrentStep(1)
-      } else {
-        setSubmissionSuccess(true)
-        setSubmissionError(null)
+        const conflict = result.error.includes('already booked') || result.error.includes('no longer available')
+        setSubmissionError(result.error)
+        setCurrentStep(conflict ? 3 : 1)
+        form.setValue('time', '')
+        return
       }
+      setSubmissionSuccess(true)
+      setSubmissionError(null)
     } catch (error) {
       console.error('Network error during submission:', error)
       setSubmissionError('Network Error')

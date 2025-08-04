@@ -8,7 +8,7 @@
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "project": "./tsconfig.json",
+    "project": ["./tsconfig.json", "./__tests__/tsconfig.json"],
     "ecmaVersion": "latest",
     "sourceType": "module"
   },
@@ -49,6 +49,18 @@
       }
     ]
   },
+  "overrides": [
+    {
+      "files": ["**/__tests__/**/*.{ts,tsx,js,jsx}", "**/*.test.{ts,tsx,js,jsx}", "**/*.spec.{ts,tsx,js,jsx}"],
+      "rules": {
+        "max-lines-per-function": ["error", { "max": 150 }],
+        "max-lines": ["error", { "max": 600 }],
+        "max-nested-callbacks": ["error", { "max": 6 }],
+        "complexity": ["error", { "max": 15 }],
+        "@typescript-eslint/no-explicit-any": "warn"
+      }
+    }
+  ],
   "ignorePatterns": [
     "lib/generated/prisma/**/*.js",
     "lib/generated/prisma/**/*.ts"

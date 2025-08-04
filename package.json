@@ -45,6 +45,8 @@
     "lighthouse:test": "npm run lighthouse:clean && npm run build && npm run lighthouse:local && npm run lighthouse:validate",
     "lighthouse:validate": "./scripts/lighthouse-quality-gates.sh",
     "lighthouse:check": "./scripts/lighthouse-quality-gates.sh",
+    "security:scan": "npm audit --audit-level moderate --production",
+    "build:verify": "pnpm run type-check && next build >/dev/null 2>&1",
     "prepare": "husky",
     "lint-staged": "lint-staged"
   },

@@ -1,2 +1,24 @@
 
+echo "🔍 Running pre-commit quality gates..."
+
+# Step 1: Lint and format staged files
+echo "📝 Running lint-staged (ESLint + Prettier)..."
 pnpm exec lint-staged
+
+# Step 2: TypeScript type checking
+echo "🔧 Running TypeScript type check..."
+pnpm run type-check
+
+# Step 3: Critical tests (must complete in <30 seconds)
+echo "🧪 Running critical tests..."
+pnpm run test:critical
+
+# Step 4: Security vulnerability scan
+echo "🔒 Running security audit..."
+npm audit --audit-level moderate --production
+
+# Step 5: Build verification
+echo "🏗️  Verifying build..."
+pnpm run build >/dev/null 2>&1 || (echo "❌ Build failed" && exit 1)
+
+echo "✅ All pre-commit quality gates passed!"

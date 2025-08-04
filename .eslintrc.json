@@ -7,6 +7,11 @@
     "prettier"
   ],
   "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "./tsconfig.json",
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
   "plugins": ["@typescript-eslint", "react", "jsx-a11y"],
   "rules": {
     "@typescript-eslint/no-unused-vars": [
@@ -15,7 +20,34 @@
     ],
     "react/react-in-jsx-scope": "off",
     "react/prop-types": "off",
-    "jsx-a11y/anchor-is-valid": "off"
+    "jsx-a11y/anchor-is-valid": "off",
+
+    // Complexity Detection Rules
+    "complexity": ["error", { "max": 10 }],
+    "max-lines": [
+      "error",
+      { "max": 300, "skipBlankLines": true, "skipComments": true }
+    ],
+    "max-lines-per-function": [
+      "error",
+      { "max": 50, "skipBlankLines": true, "skipComments": true }
+    ],
+    "max-depth": ["error", { "max": 4 }],
+    "max-params": ["error", { "max": 5 }],
+    "max-nested-callbacks": ["error", { "max": 3 }],
+
+    // TypeScript-specific complexity rules
+    "@typescript-eslint/no-explicit-any": "error",
+    "@typescript-eslint/prefer-nullish-coalescing": "warn",
+    "@typescript-eslint/prefer-optional-chain": "warn",
+    "@typescript-eslint/no-non-null-assertion": "error",
+    "@typescript-eslint/explicit-function-return-type": [
+      "warn",
+      {
+        "allowExpressions": true,
+        "allowTypedFunctionExpressions": true
+      }
+    ]
   },
   "ignorePatterns": [
     "lib/generated/prisma/**/*.js",

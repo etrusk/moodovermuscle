@@ -35,15 +35,37 @@ const criticalJestConfig: Config = {
   ],
   collectCoverageFrom: [
     'lib/**/*.{ts,tsx}',
-    'components/booking-form.tsx',
-    'app/api/book-session/route.ts',
+    'components/**/*.{ts,tsx}',
+    'app/api/**/*.{ts,tsx}',
+    '!lib/generated/**',
+    '!**/*.d.ts',
+    '!**/*.config.{js,ts}',
   ],
   coverageThreshold: {
     global: {
-      statements: 0,
-      branches: 0,
-      functions: 0,
-      lines: 0,
+      statements: 70,
+      branches: 65,
+      functions: 70,
+      lines: 70,
+    },
+    // Critical booking functionality requires higher coverage
+    'app/api/book-session/route.ts': {
+      statements: 85,
+      branches: 80,
+      functions: 85,
+      lines: 85,
+    },
+    'components/booking-form/**/*.{ts,tsx}': {
+      statements: 85,
+      branches: 80,
+      functions: 85,
+      lines: 85,
+    },
+    'lib/schemas.ts': {
+      statements: 85,
+      branches: 80,
+      functions: 85,
+      lines: 85,
     },
   },
   transformIgnorePatterns: ['/node_modules/(?!(msw|@mswjs)/)'],

@@ -45,6 +45,10 @@ This index helps agents find proven implementation approaches before starting ne
 - [E2E Test Pattern](./test-e2e-pattern.md) - end-to-end user journey testing
 - [Mock Pattern](./test-mock-pattern.md) - external service mocking strategies
 
+**Quality Assurance**
+
+- [Comprehensive Quality Gates Pattern](./quality-gate-comprehensive-pattern.md) - complexity detection, coverage thresholds, pre-commit automation
+
 **TypeScript Patterns**
 
 - [Interface Definition Pattern](./ts-interface-pattern.md) - API response and data structure typing
@@ -133,6 +137,10 @@ This index helps agents find proven implementation approaches before starting ne
 - Error handling approaches documented
 - Performance considerations noted
 - Security implications addressed
+
+**Implemented Quality Gates**:
+
+- [Comprehensive Quality Gates Pattern](./quality-gate-comprehensive-pattern.md) - Prevents technical debt through automated complexity detection, coverage enforcement, and security scanning
 
 **Pattern Evolution**:
 

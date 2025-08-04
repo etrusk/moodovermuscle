@@ -13,6 +13,7 @@ A modern, accessible fitness website built with Next.js and deployed on Vercel.
 MoodOverMuscle is a fitness website for mothers on the Sunshine Coast, Queensland. The platform focuses on postnatal fitness, mental wellbeing, and building a supportive community for mums. Created by Emilia, a certified Safe Return to Exercise trainer and mother herself.
 
 ### Key Features
+
 - **Free first session** - No payment or commitment required
 - **Multi-step booking form** - Streamlined user experience
 - **Responsive design** - Mobile-first approach
@@ -53,7 +54,7 @@ pnpm run health-check       # Comprehensive site health monitoring
 pnpm run build-validate     # Validate build environment consistency
 pnpm run test-errors        # Test error scenarios and recovery
 pnpm run pre-deploy         # Full validation pipeline before deployment
-pnpm test                  # Run Jest unit & integration tests  
+pnpm test                  # Run Jest unit & integration tests
 pnpm test:e2e             # Run Playwright end-to-end tests
 ```
 
@@ -90,16 +91,19 @@ pnpm test:e2e             # Run Playwright end-to-end tests
 ## Monitoring & Error Handling
 
 ### Error Pages
+
 - **404 Not Found** (`app/not-found.tsx`): Custom branded 404 page with helpful navigation and contact information
 - **500 Server Error** (`app/500.tsx`): Server error page with retry functionality and support contact
 - **Error Boundary** (`app/error.tsx`): Client-side error boundary with development error details and recovery options
 
 ### Performance Monitoring
+
 - **Vercel Analytics**: Integrated in `app/layout.tsx` for visitor tracking and page views
 - **Speed Insights**: Core Web Vitals monitoring for performance optimization
 - **Real-time Metrics**: Available in Vercel dashboard after deployment
 
 ### Health Monitoring Scripts
+
 - **Domain Verification** (`scripts/verify-domain.js`):
   - DNS resolution checking (A records, CNAME records)
   - SSL certificate validation and expiry monitoring
@@ -127,6 +131,7 @@ pnpm test:e2e             # Run Playwright end-to-end tests
   - Monitoring integration verification
 
 ### Automated Monitoring
+
 - **Enhanced Deployment Workflow** (`.github/workflows/vercel-deployment.yml`):
   - Build validation integration
   - Health monitoring on deployments
@@ -150,18 +155,21 @@ pnpm test:e2e             # Run Playwright end-to-end tests
 ## Development Guidelines
 
 ### Code Style
+
 - Use TypeScript with strict mode
 - Follow Tailwind CSS utility-first approach
 - Implement responsive design (mobile-first)
 - Use semantic HTML and ARIA labels for accessibility
 
 ### Component Patterns
+
 - Functional components with hooks
 - Use `"use client"` directive for interactive components
 - Props interfaces for type safety
 - Consistent naming: kebab-case files, PascalCase components
 
 ### Styling Conventions
+
 - Primary colors: Rose/Pink gradients (`from-rose-500 to-pink-500`)
 - Text colors: Stone variants (`text-stone-600`, `text-stone-900`)
 - Success/Free elements: Green gradients (`from-green-500 to-emerald-500`)
@@ -171,7 +179,9 @@ pnpm test:e2e             # Run Playwright end-to-end tests
 ## Key Components
 
 ### BookingForm
+
 Multi-step form component with:
+
 - Step 1: Personal information
 - Step 2: Service selection
 - Step 3: Scheduling and final details
@@ -179,6 +189,7 @@ Multi-step form component with:
 - Mobile-optimized UX
 
 ### Homepage Sections
+
 - **Hero**: Emotional hook with FREE session emphasis
 - **About**: Emily's story and credentials
 - **How It Works**: 4-step process explanation
@@ -188,11 +199,13 @@ Multi-step form component with:
 ## Deployment
 
 ### Environment Structure
+
 - **Development**: `localhost:3000` - Local development with hot-reload
 - **Preview**: `preview.moodovermuscle.com.au` - Static staging environment
 - **Production**: `moodovermuscle.com.au` - Live production site
 
 ### Branch Workflow
+
 ```
 feature/new-feature → preview → main
                    ↓         ↓
@@ -200,6 +213,7 @@ feature/new-feature → preview → main
 ```
 
 ### Vercel Integration
+
 - **Auto-deployment**: Automatic deployments from GitHub branches
 - **Preview environment**: `preview` branch deploys to preview.moodovermuscle.com.au
 - **Production deployment**: `main` branch deploys to moodovermuscle.com.au
@@ -207,12 +221,14 @@ feature/new-feature → preview → main
 - **Static export ready**: Optimized for static hosting
 
 ### Development Workflow
+
 1. **Develop**: Create feature branches from `main`
 2. **Stage**: Merge features to `preview` branch for testing
 3. **Test**: Review changes on `preview.moodovermuscle.com.au`
 4. **Deploy**: Merge `preview` to `main` for production deployment
 
 ### Branch Management Commands
+
 ```bash
 # Switch to preview for staging
 git checkout preview
@@ -231,12 +247,14 @@ git push origin main
 ## Content & Brand Guidelines
 
 ### Voice & Tone
+
 - Conversational and supportive ("Hi mama", "lovely")
 - Emphasizes community ("M.O.M.unity", "stronger together")
 - No-pressure approach ("no bouncing back", "just come as you are")
 - Mental health focus ("MoodOverMuscle")
 
 ### Target Audience
+
 - New mothers seeking postnatal fitness recovery
 - Mums looking for supportive fitness community
 - Women wanting to balance physical and mental wellbeing
@@ -245,16 +263,18 @@ git push origin main
 ## Recent Updates
 
 ### GitHub Actions & Project Cleanup (Latest)
+
 - ✅ Fixed GitHub Actions permission issues ("Resource not accessible by integration")
 - ✅ Added explicit permissions to workflows (issues: write, pull-requests: write)
 - ✅ Created missing scripts referenced in package.json (verify-domain.js, test-error-scenarios.js)
 - ✅ Added .env.example file to resolve build validation failures
-- ✅ Cleaned up temporary documentation files (PREVIEW_*_SETUP.md, test-preview.txt)
+- ✅ Cleaned up temporary documentation files (PREVIEW\_\*\_SETUP.md, test-preview.txt)
 - ✅ Removed redundant scripts (verify-preview-setup.js, check-vercel-dns.js)
 - ✅ Updated .gitignore to prevent future temporary file commits
 - ✅ All GitHub Actions workflows now running successfully
 
 ### Performance Monitoring
+
 - Implemented automated Lighthouse audits with minimum score thresholds
 - Added response time monitoring with alerts for slow responses
 - Set up SSL certificate expiration monitoring
@@ -263,6 +283,7 @@ git push origin main
 ## Contributing
 
 When making changes:
+
 1. Follow the established code patterns
 2. Test on mobile devices
 3. Ensure accessibility compliance
@@ -272,7 +293,9 @@ When making changes:
 ## Support
 
 For technical issues or questions about the codebase, refer to:
+
 - project root .md files for development guidance
 - Next.js documentation for framework questions
 - Tailwind CSS docs for styling
 - shadcn/ui docs for component usage
+  // Test comment for pre-commit timing

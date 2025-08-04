@@ -5,32 +5,32 @@
 **From**: Orchestrator Mode → **To**: [Specialist Mode]  
 **Context**: Complex task decomposed, specific specialist expertise required for sub-component
 
-## Curated Context Package
+## Synthesized Context Package
 
-**ORCHESTRATOR RESPONSIBILITY**: Comprehensive context discovery completed and curated for specialist
+**ORCHESTRATOR RESPONSIBILITY**: Context discovery delegated to Ask mode and synthesized for specialist
 
-### Context Discovery Completed by Orchestrator
+### Context Discovery Delegated and Synthesized
 
-**Full .docs Discovery Executed**:
+**Discovery Delegation Completed**:
 
-- ✅ `.docs/current-task.md` - Active work and session state analyzed
-- ✅ `.docs/spec.md` - Project requirements and appetite constraints reviewed
-- ✅ `.docs/architecture.md` - System design boundaries and constraints evaluated
-- ✅ `.docs/workflows.md` - Quality gates and development processes confirmed
-- ✅ `.docs/patterns/index.md` - Relevant patterns identified and selected
-- ✅ `.docs/decisions/index.md` - Architectural decisions affecting task reviewed
-- ✅ `.docs/investigations/index.md` - Related investigations analyzed
-- ✅ `.docs/memory/index.md` - Complexity insights and lessons applied
+- ✅ Ask mode analyzed `.docs/current-task.md` - Active work and session state
+- ✅ Ask mode reviewed `.docs/spec.md` - Project requirements and appetite constraints
+- ✅ Ask mode evaluated `.docs/architecture.md` - System design boundaries and constraints
+- ✅ Ask mode confirmed `.docs/workflows.md` - Quality gates and development processes
+- ✅ Ask mode identified `.docs/patterns/index.md` - Relevant patterns selected
+- ✅ Ask mode reviewed `.docs/decisions/index.md` - Architectural decisions affecting task
+- ✅ Ask mode analyzed `.docs/investigations/index.md` - Related investigations
+- ✅ Ask mode applied `.docs/memory/index.md` - Complexity insights and lessons
 
-**Documentation Pulse Tracking**:
+**Documentation Pulse Tracking** (via Ask mode):
 
 ```
-<!-- PULSE: [YYYY-MM-DD] orchestrator - curated context for [specialist] delegation -->
+<!-- PULSE: [YYYY-MM-DD] ask - discovery for orchestrator delegation to [specialist] -->
 ```
 
-### Curated Context for Specialist
+### Synthesized Context for Specialist
 
-**NO BROAD DISCOVERY REQUIRED**: All relevant context pre-researched and provided below
+**NO BROAD DISCOVERY REQUIRED**: All relevant context discovered by Ask mode and synthesized below
 
 ## Task Decomposition
 

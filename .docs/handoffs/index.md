@@ -147,7 +147,7 @@ _(Space reserved for additional specialized handoff templates as workflow patter
 
 **All handoff templates must include**:
 
-- **Curated context provision** (for Orchestrator/Architect handoffs) OR **No broad discovery required** (for Code/Debug handoffs)
+- **Synthesized context provision** (for Orchestrator handoffs via Ask mode delegation) OR **Curated context provision** (for Architect handoffs) OR **No broad discovery required** (for Code/Debug handoffs)
 - **Documentation pulse tracking** for all .docs references
 - Clear appetite and complexity estimates (except emergency escalations)
 - Circuit breaker conditions and escalation triggers
@@ -175,7 +175,7 @@ _(Space reserved for additional specialized handoff templates as workflow patter
 **Template requirements**:
 
 - Follow semantic naming: `[source-mode]-to-[target-mode]-[specific-scenario].md`
-- **Include curated context provision** (for comprehensive discovery roles) OR **specify no broad discovery required** (for specialized roles)
+- **Include synthesized context provision** (for Orchestrator handoffs via Ask mode) OR **curated context provision** (for Architect handoffs) OR **specify no broad discovery required** (for specialized roles)
 - **Add documentation pulse tracking** for all .docs references
 - Provide structured context transfer protocols aligned with role specialization
 - Define clear success criteria and escalation conditions
@@ -210,20 +210,28 @@ _(Space reserved for additional specialized handoff templates as workflow patter
 **Complexity**: [1-10] **Appetite**: [Time constraint]
 **Risk Level**: Low/Medium/High
 
-## Curated Context Package (for Orchestrator/Architect handoffs)
+## Synthesized Context Package (for Orchestrator handoffs)
+
+**Context Discovery Delegated**: [Ask mode analyzed .docs files]
+
+OR
+
+## Curated Context Package (for Architect handoffs)
+
+**Context Discovery Completed**: [List .docs files analyzed]
 
 OR
 
 ## Specialized Role Context (for Code/Debug handoffs)
 
-**Context Discovery Completed**: [List .docs files analyzed]
+**NO BROAD DISCOVERY REQUIRED**: [Context provided by comprehensive roles]
+
 **Documentation Pulse Tracking**:
 ```
 
 <!-- PULSE: [YYYY-MM-DD] [role] - [context] -->
 
 ```
-**NO BROAD DISCOVERY REQUIRED**: [For specialized roles]
 
 ## Current State
 
@@ -235,10 +243,10 @@ OR
 
 ## Context Package
 
-**Curated Patterns**: [Specific patterns selected from comprehensive analysis]
-**Architectural Constraints**: [Relevant constraints from full context discovery]
-**Related Investigations**: [Similar issues identified through comprehensive analysis]
-**Institutional Memory**: [Lessons learned applied from memory analysis]
+**Synthesized Patterns**: [Specific patterns selected via Ask mode analysis]
+**Architectural Constraints**: [Relevant constraints from Ask mode discovery]
+**Related Investigations**: [Similar issues identified through Ask mode analysis]
+**Institutional Memory**: [Lessons learned applied from Ask mode memory analysis]
 
 ## Preview-First Workflow (for functionality changes)
 
@@ -263,7 +271,9 @@ OR
 
 **Specialized Implementation Role**: [For Code/Debug - focus on provided context]
 OR
-**Comprehensive Discovery Role**: [For Orchestrator/Architect - full context analysis]
+**Synthesis Coordination Role**: [For Orchestrator - coordinate Ask mode discovery and synthesize]
+OR
+**Comprehensive Discovery Role**: [For Architect - full context analysis]
 
 ## Handoff Verification
 

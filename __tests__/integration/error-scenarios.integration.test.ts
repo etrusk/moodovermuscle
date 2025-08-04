@@ -144,7 +144,8 @@ describe('Error Scenarios Integration Tests', () => {
         message: null,
         status: 'PENDING',
         sessionDuration: 60,
-      }(testDb.$transaction as jest.Mock).mockImplementation(
+      }
+      ;(testDb.$transaction as jest.Mock).mockImplementation(
         async (
           callback: (tx: Prisma.TransactionClient) => Promise<Booking>
         ) => {
@@ -191,7 +192,8 @@ describe('Error Scenarios Integration Tests', () => {
         message: null,
         status: 'PENDING',
         sessionDuration: 60,
-      }(testDb.$transaction as jest.Mock).mockImplementation(
+      }
+      ;(testDb.$transaction as jest.Mock).mockImplementation(
         async (
           callback: (tx: Prisma.TransactionClient) => Promise<Booking>
         ) => {
@@ -237,7 +239,8 @@ describe('Error Scenarios Integration Tests', () => {
         message: null,
         status: 'PENDING',
         sessionDuration: 60,
-      }(testDb.$transaction as jest.Mock).mockImplementation(
+      }
+      ;(testDb.$transaction as jest.Mock).mockImplementation(
         async (
           callback: (tx: Prisma.TransactionClient) => Promise<Booking>
         ) => {
@@ -285,7 +288,8 @@ describe('Error Scenarios Integration Tests', () => {
         message: null,
         status: 'PENDING',
         sessionDuration: 60,
-      }(testDb.$transaction as jest.Mock).mockImplementation(
+      }
+      ;(testDb.$transaction as jest.Mock).mockImplementation(
         async (
           callback: (tx: Prisma.TransactionClient) => Promise<Booking>
         ) => {

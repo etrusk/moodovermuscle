@@ -41,9 +41,8 @@ function makeStatusRequest(id: string, status: string): NextRequest {
 
 describe('Booking Status Transition API', () => {
   beforeEach(async () => {
-    await setupIntegrationTest()(
-      testDb.$transaction as jest.Mock
-    ).mockImplementation(
+    await setupIntegrationTest()
+    ;(testDb.$transaction as jest.Mock).mockImplementation(
       async (cb: (tx: Prisma.TransactionClient) => Promise<Booking>) =>
         await cb(testDb as unknown as Prisma.TransactionClient)
     )

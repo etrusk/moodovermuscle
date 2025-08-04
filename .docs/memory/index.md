@@ -2,6 +2,11 @@
 
 This index captures organizational learning to improve future appetite estimation, pattern recognition, and failure prevention. Use this knowledge to make informed decisions and avoid repeating past mistakes.
 
+## Core System References
+
+- **[System Architecture](../architecture.md)** - Technical architecture patterns and design constraints that inform complexity estimation
+- **[Development Workflows](../workflows.md)** - Proven workflow patterns including quality gates and agent collaboration approaches
+
 ## Memory Files
 
 **Core Institutional Memory Documents**

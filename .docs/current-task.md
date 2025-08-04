@@ -1,6 +1,65 @@
-# Technical Debt
+# Documentation Cleanup and Optimization
 
-## Task Ledger
+## Current Task: .docs Directory Cleanup
+
+### Task Context
+
+**Task**: Implement documentation cleanup and optimization for .docs directory
+**Mode**: Code
+**Appetite**: Focus on cleanup within existing structure - no major architectural changes
+**Approved Items**: 1-5 from analysis (consolidate templates, clean archive, integrate top-level docs, standardize naming, manage pattern gaps)
+
+### Attempt Tracking
+
+**Current Attempt**: 1
+**Approach**: Systematic review and consolidation following 70/30 principle
+**Complexity Estimate**: Medium (4-6 complexity units based on multiple file operations)
+
+### Index Discovery Results
+
+**Patterns Applied**:
+
+- No specific documentation management patterns found in patterns/index.md
+- Will create documentation management patterns during cleanup
+
+**Investigations Heeded**:
+
+- No documentation-specific issues found in investigations/index.md
+- Clean slate for documentation improvements
+
+**Complexity Insights**:
+
+- From memory/index.md: Documentation and cleanup tasks typically take 25% longer than estimated
+- Cross-reference maintenance requires careful attention to avoid broken links
+
+### Implementation Progress
+
+#### Completed Tasks
+
+- [x] Index discovery completed for context
+- [x] Todo list created with 12 tasks
+- [x] Current-task.md updated with cleanup context
+
+#### Current Focus
+
+- [x] Consolidate redundant handoff templates by comparing generic vs specific templates
+- [x] Clean up archive directory - migrate valuable content to living documents
+
+#### Archive Migration Completed
+
+**Files Migrated**:
+
+- ✅ `.docs/archive/original-migration-2025-08-03/debt.md` → `.docs/debt.md` (focused on active debt tracking)
+- ✅ `.docs/archive/original-migration-2025-08-03/api-spec.md` → `.docs/api-reference.md` (technical API reference)
+
+**Migration Strategy Applied**:
+
+- **Preserved valuable resolved patterns**: Extracted successful resolution patterns from archived debt.md
+- **Created focused technical reference**: Migrated api-spec.md as complementary technical API documentation
+- **Maintained living document structure**: New files integrate with existing .docs organization
+- **Avoided duplication**: Current spec.md remains appetite-focused, new api-reference.md provides technical details
+
+**Next**: Review accessibility guide for pattern integration vs standalone reference
 
 ### Facts (Confirmed)
 
@@ -11,6 +70,7 @@
 - ✅ 100% test pass rate achieved and maintained through deployment
 - ✅ Accessibility testing achieving 95% Lighthouse threshold
 - ✅ Email notifications using fire-and-forget pattern (non-blocking)
+- ✅ Index discovery completed for documentation cleanup context
 
 ### Guesses (Needs Validation)
 

@@ -1,3 +1,12 @@
+# [DEPRECATED] Code → Debug Handoff Template
+
+> **⚠️ DEPRECATED**: This generic template has been superseded by specific scenario templates:
+>
+> - Use [`code-to-debug-runtime-errors.md`](./code-to-debug-runtime-errors.md) for runtime error investigations
+> - Use [`code-to-debug-test-failures.md`](./code-to-debug-test-failures.md) for test failure debugging
+>
+> The specific templates include appetite constraints, circuit breakers, and modern handoff patterns that this generic template lacks.
+
 # Code → Debug Handoff Template
 
 ## Issue Summary

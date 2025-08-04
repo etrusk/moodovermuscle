@@ -8,15 +8,13 @@ This index provides structured templates for transferring context between differ
 
 - [New Feature Implementation](./arch-to-code-new-feature.md) - feature design to implementation handoff
 - [Bug Fix Implementation](./arch-to-code-bug-fix.md) - problem analysis to solution implementation
-- [Refactoring Task](./arch-to-code-refactoring.md) - architectural improvement to code changes
-- [Integration Work](./arch-to-code-integration.md) - system integration design to implementation
+- ~~[Generic Template](./architect-to-code.md)~~ - **DEPRECATED** - use specific templates above
 
 **Code → Debug**
 
 - [Test Failures](./code-to-debug-test-failures.md) - failing tests requiring investigation
 - [Runtime Errors](./code-to-debug-runtime-errors.md) - production issues needing debugging
-- [Performance Issues](./code-to-debug-performance.md) - performance problems requiring analysis
-- [Integration Failures](./code-to-debug-integration.md) - external system integration problems
+- ~~[Generic Template](./code-to-debug.md)~~ - **DEPRECATED** - use specific templates above
 
 **Debug → Code**
 

@@ -2,6 +2,11 @@
 
 This index provides quick access to architectural decisions (ADRs) that guide system design and technology choices. Reference these when making implementation decisions or understanding system constraints.
 
+## Core Architecture References
+
+- **[System Architecture](../architecture.md)** - Complete technical architecture, constraints, and design patterns
+- **[Development Workflows](../workflows.md)** - Appetite-based development processes and quality gates
+
 ## By Domain
 
 **Authentication & Security**

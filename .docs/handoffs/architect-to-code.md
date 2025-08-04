@@ -1,3 +1,12 @@
+# [DEPRECATED] Architect → Code Handoff Template
+
+> **⚠️ DEPRECATED**: This generic template has been superseded by specific scenario templates:
+>
+> - Use [`arch-to-code-new-feature.md`](./arch-to-code-new-feature.md) for new feature implementation
+> - Use [`arch-to-code-bug-fix.md`](./arch-to-code-bug-fix.md) for bug fix implementation
+>
+> The specific templates include appetite constraints, circuit breakers, and modern handoff patterns that this generic template lacks.
+
 # Architect → Code Handoff Template
 
 ## Context Summary

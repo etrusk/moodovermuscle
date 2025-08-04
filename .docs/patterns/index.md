@@ -140,3 +140,120 @@ This index helps agents find proven implementation approaches before starting ne
 - Deprecate patterns that are no longer recommended
 - Version patterns when significant changes occur
 - Cross-reference pattern updates with related investigations
+
+## Pattern Gaps (Patterns Needed But Not Yet Documented)
+
+### High Priority Gaps
+
+**Real-Time Data Synchronization Pattern**
+
+- **Needed For**: Calendar availability updates, live booking status
+- **Current Approach**: Polling (inefficient, complexity 3-4 per implementation)
+- **Why It's Missing**: Haven't implemented real-time features yet
+- **Estimated Complexity**: 7-8 to develop pattern
+- **Business Impact**: Blocking real-time availability feature
+- **Potential Approaches**: WebSockets, SSE, or polling optimization
+- **Investigation Needed**: Performance implications, scalability
+
+**Admin Authentication Pattern**
+
+- **Needed For**: Admin dashboard access control
+- **Current Approach**: None - critical security gap
+- **Why It's Missing**: Admin features not yet implemented
+- **Estimated Complexity**: 5-6 to develop pattern
+- **Business Impact**: Cannot deploy admin features without auth
+- **Potential Approaches**: JWT with role checks, session-based, OAuth
+- **Investigation Needed**: Security requirements, session management
+
+### Medium Priority Gaps
+
+**Bulk Operation Pattern**
+
+- **Needed For**: Admin bulk actions, data migrations
+- **Current Approach**: Individual operations (inefficient)
+- **Why It's Missing**: No bulk requirements yet
+- **Estimated Complexity**: 4-5 to develop pattern
+- **Business Impact**: Admin efficiency limited
+- **Potential Approaches**: Batch API, transaction batching
+- **Investigation Needed**: Transaction safety, performance limits
+
+**Dynamic Email Template Pattern**
+
+- **Needed For**: Customizable email content, A/B testing
+- **Current Approach**: Hardcoded templates (works but inflexible)
+- **Why It's Missing**: Current templates sufficient for MVP
+- **Estimated Complexity**: 3-4 to develop pattern
+- **Business Impact**: Marketing flexibility limited
+- **Potential Approaches**: Template engine, MDX, or React Email
+- **Investigation Needed**: Template management, preview system
+
+### Low Priority Gaps
+
+**Analytics Integration Pattern**
+
+- **Needed For**: User behavior tracking, conversion metrics
+- **Current Approach**: Basic Vercel Analytics only
+- **Why It's Missing**: Not priority for current phase
+- **Estimated Complexity**: 2-3 to develop pattern
+- **Business Impact**: Limited insight into user behavior
+- **Potential Approaches**: Google Analytics, Plausible, custom
+- **Investigation Needed**: Privacy implications, GDPR compliance
+
+**Notification System Pattern**
+
+- **Needed For**: In-app notifications, push notifications
+- **Current Approach**: Email only
+- **Why It's Missing**: Email sufficient for current needs
+- **Estimated Complexity**: 5-6 to develop pattern
+- **Business Impact**: User engagement opportunities missed
+- **Potential Approaches**: In-app, push, SMS integration
+- **Investigation Needed**: User preferences, delivery reliability
+
+## Gap Management Process
+
+### When Gaps Are Identified
+
+1. **During Implementation**: If no pattern exists, document gap immediately
+2. **During Architecture**: Note pattern needs in design documents
+3. **During Debug**: If investigation reveals missing pattern, add to gaps
+4. **During Ask**: If analysis shows pattern would help, document it
+
+### Gap Tracking Workflow
+
+```markdown
+1. Identify gap during work
+2. Check if truly no pattern exists (search all indexes)
+3. Add to appropriate priority level
+4. Include all fields for context
+5. Reference in current-task.md if blocking
+```
+
+### Converting Gaps to Patterns
+
+- **Trigger**: When implementing feature that needs the pattern
+- **Process**: Develop pattern during implementation
+- **Documentation**: Create pattern file and update index
+- **Review**: Validate pattern works before removing from gaps
+- **Cross-Reference**: Update investigations/decisions that relate
+
+### Escalation Criteria
+
+- **Critical Gaps**: Security patterns needed → Immediate escalation
+- **Blocking Gaps**: Preventing feature delivery → Include in handoff
+- **Accumulation**: >5 high-priority gaps → Review architecture approach
+- **Complexity**: Gap would require >8 complexity → Needs appetite planning
+
+## Gap Review Schedule
+
+- **Per Task**: Check if task creates or fills gaps
+- **Per Handoff**: Include relevant gaps in context
+- **Per Appetite**: Review all gaps during planning
+- **Pattern Creation**: Prioritize based on business impact
+
+## Current Gap Statistics
+
+- **High Priority**: 2 patterns needed
+- **Medium Priority**: 2 patterns needed
+- **Low Priority**: 2 patterns needed
+- **Total Gap Complexity**: ~30 units to fill all gaps
+- **Most Critical**: Admin Authentication Pattern (security risk)

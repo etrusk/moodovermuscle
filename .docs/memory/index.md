@@ -2,35 +2,70 @@
 
 This index captures organizational learning to improve future appetite estimation, pattern recognition, and failure prevention. Use this knowledge to make informed decisions and avoid repeating past mistakes.
 
+## Memory Files
+
+**Core Institutional Memory Documents**
+
+- [successful-testing-patterns-and-proven-approaches.md](./successful-testing-patterns-and-proven-approaches.md) - Documented approaches that worked well repeatedly across testing, development, and deployment
+- [debugging-failures-and-recovery-strategies.md](./debugging-failures-and-recovery-strategies.md) - Root cause analysis and recovery strategies from major failures and debugging sessions
+- [complexity-estimation-framework-and-historical-calibration.md](./complexity-estimation-framework-and-historical-calibration.md) - Complexity estimation accuracy and calibration over time with historical data
+
+## Enhanced Search Guide
+
+**When implementing testing strategies** → Check: [`successful-testing-patterns-and-proven-approaches.md`](./successful-testing-patterns-and-proven-approaches.md) for proven testing approaches
+**When debugging complex issues** → Check: [`debugging-failures-and-recovery-strategies.md`](./debugging-failures-and-recovery-strategies.md) for similar failure patterns and solutions  
+**When estimating feature complexity** → Check: [`complexity-estimation-framework-and-historical-calibration.md`](./complexity-estimation-framework-and-historical-calibration.md) for historical accuracy data
+**When setting appetite boundaries** → Check: [`complexity-estimation-framework-and-historical-calibration.md`](./complexity-estimation-framework-and-historical-calibration.md) for realistic time allocation
+**When choosing technical approaches** → Check: [`successful-testing-patterns-and-proven-approaches.md`](./successful-testing-patterns-and-proven-approaches.md) for established patterns that work
+
+**Enhanced Semantic Search Terms**:
+
+- **Testing**: test patterns, testing success, proven approaches, test architecture, testing strategies, jest, playwright, msw, react-testing-library
+- **Debugging**: debug strategies, failure recovery, troubleshooting patterns, error resolution, bug fixes, root-cause analysis
+- **Complexity**: complexity scoring, appetite estimation, effort calibration, complexity factors, estimation accuracy, forecasting
+
 ## Learning Categories
 
 **Complexity Estimation**
 
-- [Feature Complexity Patterns](./complexity-feature-patterns.md) - common underestimation areas and multipliers
-- [Integration Complexity Factors](./complexity-integration-factors.md) - third-party integration time multipliers
-- [Technical Debt Impact](./complexity-technical-debt.md) - how debt affects implementation speed
-- [Testing Complexity Scaling](./complexity-testing-scaling.md) - test suite growth and maintenance overhead
+From [`complexity-estimation-framework-and-historical-calibration.md`](./complexity-estimation-framework-and-historical-calibration.md):
+
+- Historical calibration data showing improvement from ±45% to ±25% estimation accuracy over time
+- Risk multipliers for third-party integrations (3-4x), new technology (2x), and environmental constraints (1.5-2x)
+- Appetite setting guidelines based on complexity scores 1-10
+- Circuit breaker patterns for scope protection with 17% trigger rate
 
 **Successful Approaches**
 
-- [High-Impact Patterns](./success-high-impact-patterns.md) - patterns that consistently save significant time
-- [Appetite Management Wins](./success-appetite-management.md) - successful scope boundary management
-- [Quality Gate Effectiveness](./success-quality-gates.md) - which quality checks prevent the most issues
-- [Handoff Best Practices](./success-handoff-practices.md) - most effective context transfer approaches
+From [`successful-testing-patterns-and-proven-approaches.md`](./successful-testing-patterns-and-proven-approaches.md):
+
+- Test suite architecture patterns with 95% success rate
+- Component testing with custom hooks (resolved race conditions)
+- API route testing with standardized mocking (100% pass rate)
+- Privacy-focused performance monitoring without external dependencies
+- Fire-and-forget email patterns preventing API blocking
+- Three-layer accessibility testing achieving 95% Lighthouse scores
 
 **Failure Prevention**
 
-- [Common Scope Creep Sources](./failure-scope-creep.md) - frequent appetite boundary violations
-- [Integration Failure Patterns](./failure-integration-patterns.md) - recurring third-party integration issues
-- [Testing Blind Spots](./failure-testing-blindspots.md) - commonly missed testing scenarios
-- [Performance Regression Sources](./failure-performance-regressions.md) - typical performance degradation causes
+From [`debugging-failures-and-recovery-strategies.md`](./debugging-failures-and-recovery-strategies.md):
 
-**Appetite Management**
+- Component testing race condition prevention through hook extraction
+- Docker containerization issues resolved with platform-native solutions
+- Library update resilience through semantic selectors over brittle data-testid
+- Email service failure isolation using non-blocking patterns
+- Performance regression prevention through automated monitoring
+- 8 major failure categories documented with recovery strategies
 
-- [Appetite Calibration History](./appetite-calibration-history.md) - estimation accuracy improvements over time
-- [Circuit Breaker Effectiveness](./appetite-circuit-breaker-effectiveness.md) - successful scope protection examples
-- [Escalation Pattern Analysis](./appetite-escalation-patterns.md) - when and why escalations occur
-- [70/30 Decision Accuracy](./appetite-decision-routing.md) - autonomous vs escalation decision quality
+**Quality Assurance**
+
+From [`successful-testing-patterns-and-proven-approaches.md`](./successful-testing-patterns-and-proven-approaches.md):
+
+- Three-layer accessibility testing (Unit → Integration → E2E)
+- Automated quality gates with critical vs non-critical classification
+- TDD workflow with fast feedback loops (<30s critical tests)
+- Mobile-first responsive design for accessibility compliance
+- Cross-browser testing with Playwright and MSW integration
 
 ## Cross-References
 
@@ -64,11 +99,17 @@ This index captures organizational learning to improve future appetite estimatio
 
 ## Usage Guide
 
+**For LLM Agents**:
+
+- Use descriptive filenames and YAML metadata for semantic matching
+- Each file contains structured headers with tags, confidence levels, and search terms
+- Files named to indicate content without opening (e.g., "successful-testing-patterns-and-proven-approaches")
+
 **Before Starting New Work**:
 
-1. **Check Complexity Patterns**: Look for similar work complexity factors
-2. **Review Success Patterns**: Apply proven high-impact approaches
-3. **Scan Failure Prevention**: Avoid known pitfalls and anti-patterns
+1. **Check Complexity Patterns**: Reference [`complexity-estimation-framework-and-historical-calibration.md`](./complexity-estimation-framework-and-historical-calibration.md) for similar work complexity factors
+2. **Review Success Patterns**: Apply proven approaches from [`successful-testing-patterns-and-proven-approaches.md`](./successful-testing-patterns-and-proven-approaches.md)
+3. **Scan Failure Prevention**: Check [`debugging-failures-and-recovery-strategies.md`](./debugging-failures-and-recovery-strategies.md) for known pitfalls
 4. **Calibrate Appetite**: Use historical data to refine time estimates
 
 **During Implementation**:
@@ -84,36 +125,6 @@ This index captures organizational learning to improve future appetite estimatio
 - **Document New Successes**: Add effective approaches to success memory
 - **Record Prevention Insights**: Document near-misses and how they were avoided
 - **Calibrate Future Appetites**: Use actual time data to improve estimation
-
-**Memory Documentation Format**:
-
-```markdown
-# Memory: [Learning Category]
-
-**Date Range**: [When this learning was captured]
-**Confidence Level**: High/Medium/Low (based on sample size)
-**Impact Score**: [1-10] (how much this affects future work)
-
-## Key Insights
-
-[Primary learning points and patterns identified]
-
-## Supporting Data
-
-[Specific examples, time measurements, success/failure rates]
-
-## Application Guidelines
-
-[How to apply this learning to future work]
-
-## Related References
-
-[Links to patterns, investigations, decisions that connect to this learning]
-
-## Update History
-
-[When and why this memory was revised]
-```
 
 ## Specific Memory Areas
 
@@ -147,6 +158,8 @@ This index captures organizational learning to improve future appetite estimatio
 
 **Testing Strategy Memory**
 
+From [`successful-testing-patterns-and-proven-approaches.md`](./successful-testing-patterns-and-proven-approaches.md):
+
 - Unit test writing time: 0.3x implementation time for simple logic, 0.8x for complex logic
 - Integration test setup: 2-4 hours initial setup, then 0.5x per test case
 - E2E test maintenance overhead: 15% of total testing time
@@ -175,15 +188,24 @@ This index captures organizational learning to improve future appetite estimatio
 
 **Appetite Management Insights**
 
+From [`complexity-estimation-framework-and-historical-calibration.md`](./complexity-estimation-framework-and-historical-calibration.md):
+
 - 70% of appetite overruns come from scope creep rather than estimation errors
 - Circuit breakers prevent 85% of major scope violations when consistently applied
 - Quality gate enforcement reduces debugging time by 50% but adds 10% to implementation time
 - Proper handoff documentation reduces context switching overhead by 30%
 
-**Update Process**:
+## Update Process
 
 1. **Monthly Review**: Aggregate learning from completed tasks
 2. **Pattern Updates**: Update pattern effectiveness based on usage data
 3. **Estimation Calibration**: Refine complexity factors based on actual outcomes
 4. **Cross-Reference Maintenance**: Ensure links between memory and other indexes remain current
 5. **Knowledge Validation**: Verify insights still apply as system and team evolve
+
+---
+
+**Index Updated**: 2025-08-04  
+**Memory Files Enhanced**: 3 core institutional memory documents with structured metadata  
+**Search Enhancement**: Descriptive filenames + YAML headers + semantic search terms  
+**Discoverability**: Optimized for LLM semantic matching and human browsing

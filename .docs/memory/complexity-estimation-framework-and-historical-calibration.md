@@ -1,3 +1,28 @@
+---
+title: Complexity Estimation Framework and Historical Calibration
+tags:
+  [
+    complexity,
+    estimation,
+    appetite,
+    scoring,
+    calibration,
+    planning,
+    forecasting,
+  ]
+confidence: medium-high
+sample_size: 12 completed features with tracked complexity
+last_calibrated: 2025-08-03
+search_terms:
+  [
+    complexity scoring,
+    appetite estimation,
+    effort calibration,
+    complexity factors,
+    estimation accuracy,
+  ]
+---
+
 # Complexity Scoring Framework
 
 ## Overview

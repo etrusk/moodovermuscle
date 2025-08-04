@@ -1,3 +1,29 @@
+---
+title: Debugging Failures and Recovery Strategies
+tags:
+  [
+    debugging,
+    failures,
+    recovery,
+    troubleshooting,
+    root-cause,
+    investigation,
+    errors,
+    bugs,
+  ]
+confidence: high
+sample_size: 8 major failure categories documented
+last_calibrated: 2025-08-03
+search_terms:
+  [
+    debug strategies,
+    failure recovery,
+    troubleshooting patterns,
+    error resolution,
+    bug fixes,
+  ]
+---
+
 # Failure Recovery Patterns & Learning
 
 ## Test Suite Failures (Resolved 2025-08-03)

@@ -1,57 +1,56 @@
 # MoodOverMuscle: Appetite-Based Specification
 
-## Current Appetite
+## CORNERSTONE
 
-**Problem**: Solo fitness trainer needs a reliable booking system that eliminates double-bookings and provides real-time availability checking.
+**One-Line Purpose**: A reliable booking system that prevents double-bookings for a solo fitness trainer and her clients.
 
-**Appetite**: 4-6 weeks of focused development effort to achieve transaction-safe booking with calendar integration.
+---
 
-**Scope**: Transform existing MVP booking system into production-ready platform with conflict prevention and admin dashboard.
+## USER REQUIREMENTS
 
-## What We're Building
+### For Emily (Trainer)
 
-### Core Value Proposition
+- View all bookings in a clear calendar format
+- Manage booking status (confirm, cancel, complete)
+- Never worry about double-bookings
+- Receive instant notification of new bookings
+- Access booking system from any device
 
-- **For Emily (Trainer)**: Zero double-bookings, automated availability management, professional client communication
-- **For Clients**: Real-time slot availability, instant confirmation, seamless mobile booking experience
-- **For Business**: Scalable foundation for growth, automated workflows, data-driven insights
+### For Clients
 
-### Success Metrics
+- See real-time availability without conflicts
+- Book sessions with instant confirmation
+- Receive professional booking confirmations
+- Easily manage their bookings
+- Access seamless mobile booking experience
 
-- 100% booking conflict prevention (transaction safety)
-- Real-time availability checking with <500ms response time
-- Zero accessibility violations (WCAG 2.1 AA compliance maintained)
-- 95% client booking completion rate on mobile devices
+### Core User Journeys
 
-## Current State Analysis
+1. **Client books session**: Browse availability → Select time → Enter details → Receive confirmation
+2. **Emily manages bookings**: View daily schedule → Update booking status → Communicate with clients
+3. **System prevents conflicts**: Check availability → Block double-bookings → Update in real-time
 
-### What's Working Well
+## TECHNICAL CONSTRAINTS
 
-- **Stable Test Suite**: 36 passing test suites (161 tests) - solid foundation achieved
-- **Accessibility Excellence**: Comprehensive automated testing with 95% Lighthouse threshold
-- **Mobile-First Design**: WCAG 2.1 AA compliant booking experience
-- **Email Integration**: Non-blocking email notifications (fire-and-forget pattern)
-- **Performance Monitoring**: Vercel Analytics + SpeedInsights with automated quality gates
+### Architecture Decisions
 
-### Critical Gaps (Build Blockers)
+- **Framework**: Next.js 14 with App Router for SSR and optimal performance
+- **Database**: PostgreSQL with Prisma ORM for type-safe data operations
+- **Deployment**: Vercel with automatic preview deployments
+- **Email**: Fire-and-forget pattern with SMTP integration
 
-- **No Transaction Safety**: Single database writes without rollback capability
-- **No Conflict Detection**: Multiple bookings can be made for same time slot
-- **Static Calendar**: Time slots don't reflect actual availability
-- **Missing Admin Tools**: No web interface for Emily to manage bookings
+### Implementation Boundaries
 
-### High Priority Enhancements
+- Single developer with agentic LLM assistance
+- FLOSS preference for all technology choices
+- Privacy-first approach with minimal data collection
+- CachyOS development environment
 
-- **Calendar Availability Integration**: Dynamic time slot filtering based on existing bookings
-- **Database Constraints**: Unique constraints on `[date, time]` combination with proper indexing
-- **Booking Status Management**: PENDING → CONFIRMED → COMPLETED workflow
-- **Enhanced User Experience**: Loading states, better error handling, confirmation flows
+### System Constraints
 
-## Technical Architecture Appetite
+**Database Transaction Safety (Critical - Week 1-2)**
 
-### Database Transaction Safety (Critical - Week 1-2)
-
-**Current Implementation**:
+Current Implementation:
 
 ```typescript
 // Vulnerable: No transaction safety
@@ -60,7 +59,7 @@ const newBooking = await prisma.booking.create({
 })
 ```
 
-**Target Implementation**:
+Target Implementation:
 
 ```typescript
 // Transaction-safe with conflict detection
@@ -79,18 +78,11 @@ return await prisma.$transaction(async tx => {
 })
 ```
 
-**Success Criteria**:
+**Real-Time Availability API (High - Week 3-4)**
 
-- Zero double-bookings possible
-- Atomic operations with rollback on failure
-- Conflict detection before booking creation
-- Graceful error handling for users
+New Endpoint: `/api/availability?date=2024-08-15`
 
-### Real-Time Availability API (High - Week 3-4)
-
-**New Endpoint**: `/api/availability?date=2024-08-15`
-
-**Response Contract**:
+Response Contract:
 
 ```typescript
 interface AvailabilityResponse {
@@ -100,15 +92,9 @@ interface AvailabilityResponse {
 }
 ```
 
-**Integration Points**:
+**Enhanced Schema Evolution**
 
-- Calendar component dynamically loads available slots
-- Booking form validates against real-time availability
-- Admin dashboard shows daily/weekly availability overview
-
-### Enhanced Schema Evolution
-
-**Current Schema**:
+Current Schema:
 
 ```prisma
 model Booking {
@@ -127,7 +113,7 @@ model Booking {
 }
 ```
 
-**Target Schema**:
+Target Schema:
 
 ```prisma
 model Booking {
@@ -157,6 +143,38 @@ enum BookingStatus {
   COMPLETED
 }
 ```
+
+## Current Appetite
+
+**Problem**: Solo fitness trainer needs a reliable booking system that eliminates double-bookings and provides real-time availability checking.
+
+**Appetite**: 4-6 weeks of focused development effort to achieve transaction-safe booking with calendar integration.
+
+**Scope**: Transform existing MVP booking system into production-ready platform with conflict prevention and admin dashboard.
+
+## Current State Analysis
+
+### What's Working Well
+
+- **Stable Test Suite**: 36 passing test suites (161 tests) - solid foundation achieved
+- **Accessibility Excellence**: Comprehensive automated testing with 95% Lighthouse threshold
+- **Mobile-First Design**: WCAG 2.1 AA compliant booking experience
+- **Email Integration**: Non-blocking email notifications (fire-and-forget pattern)
+- **Performance Monitoring**: Vercel Analytics + SpeedInsights with automated quality gates
+
+### Critical Gaps (Build Blockers)
+
+- **No Transaction Safety**: Single database writes without rollback capability
+- **No Conflict Detection**: Multiple bookings can be made for same time slot
+- **Static Calendar**: Time slots don't reflect actual availability
+- **Missing Admin Tools**: No web interface for Emily to manage bookings
+
+### High Priority Enhancements
+
+- **Calendar Availability Integration**: Dynamic time slot filtering based on existing bookings
+- **Database Constraints**: Unique constraints on `[date, time]` combination with proper indexing
+- **Booking Status Management**: PENDING → CONFIRMED → COMPLETED workflow
+- **Enhanced User Experience**: Loading states, better error handling, confirmation flows
 
 ## Quality Gate Framework
 

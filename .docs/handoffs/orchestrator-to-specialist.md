@@ -5,23 +5,32 @@
 **From**: Orchestrator Mode → **To**: [Specialist Mode]  
 **Context**: Complex task decomposed, specific specialist expertise required for sub-component
 
-## Mandatory Index Discovery
+## Curated Context Package
 
-**CRITICAL**: Specialist must execute this discovery protocol immediately:
+**ORCHESTRATOR RESPONSIBILITY**: Comprehensive context discovery completed and curated for specialist
 
-### Required Index Reads
+### Context Discovery Completed by Orchestrator
 
-- **MANDATORY**: Read `.docs/patterns/index.md` - search for patterns related to delegated task domain
-- **MANDATORY**: Check `.docs/investigations/index.md` - review relevant investigations for task context
-- **CONDITIONAL**: Review `.docs/decisions/index.md` - understand architectural decisions affecting task
-- **CONDITIONAL**: Check `.docs/memory/index.md` - apply complexity lessons from similar specialist work
+**Full .docs Discovery Executed**:
 
-### Discovery Documentation
+- ✅ `.docs/current-task.md` - Active work and session state analyzed
+- ✅ `.docs/spec.md` - Project requirements and appetite constraints reviewed
+- ✅ `.docs/architecture.md` - System design boundaries and constraints evaluated
+- ✅ `.docs/workflows.md` - Quality gates and development processes confirmed
+- ✅ `.docs/patterns/index.md` - Relevant patterns identified and selected
+- ✅ `.docs/decisions/index.md` - Architectural decisions affecting task reviewed
+- ✅ `.docs/investigations/index.md` - Related investigations analyzed
+- ✅ `.docs/memory/index.md` - Complexity insights and lessons applied
 
-- [ ] Domain-specific patterns identified and selected
-- [ ] Relevant investigations reviewed for context
-- [ ] Architectural constraints understood
-- [ ] Complexity calibration completed from institutional memory
+**Documentation Pulse Tracking**:
+
+```
+<!-- PULSE: [YYYY-MM-DD] orchestrator - curated context for [specialist] delegation -->
+```
+
+### Curated Context for Specialist
+
+**NO BROAD DISCOVERY REQUIRED**: All relevant context pre-researched and provided below
 
 ## Task Decomposition
 

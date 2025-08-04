@@ -83,7 +83,7 @@ Four ways to switch modes:
 
 1. **Dropdown menu**: Click the selector to the left of the chat input
 2. **Slash command**: Type `/architect`, `/ask`, `/debug`, `/code`, or `/orchestrator`
-3. **Keyboard shortcut**: 
+3. **Keyboard shortcut**:
    - macOS: ⌘ + .
    - Windows/Linux: Ctrl + .
 4. **Accept suggestions**: Click on mode switch suggestions that Roo offers
@@ -91,26 +91,31 @@ Four ways to switch modes:
 ### Built-in Modes
 
 #### 💻 Code Mode (Default)
+
 - **Purpose**: General-purpose coding and development
 - **Tool Access**: Full access to all tools (read, edit, browser, command, mcp)
 - **Best For**: Writing code, implementing features, debugging
 
 #### ❓ Ask Mode
+
 - **Purpose**: Learning and explanation without making changes
 - **Tool Access**: Limited (read, browser, mcp only - cannot edit files or run commands)
 - **Best For**: Code explanation, concept exploration, technical learning
 
 #### 🏗️ Architect Mode
+
 - **Purpose**: System design and high-level planning
 - **Tool Access**: Read, browser, mcp, and restricted edit (markdown files only)
 - **Best For**: System design, architecture discussions, documentation
 
 #### 🪲 Debug Mode
+
 - **Purpose**: Systematic troubleshooting and problem-solving
 - **Tool Access**: Full access to all tools
 - **Best For**: Tracking down bugs, diagnosing errors, resolving complex issues
 
 #### 🪃 Orchestrator Mode
+
 - **Purpose**: Managing complex workflows by delegating to other modes
 - **Tool Access**: No direct tool access (uses `new_task` to delegate)
 - **Best For**: Multi-step projects, coordinating work across different specialties
@@ -119,14 +124,14 @@ Four ways to switch modes:
 
 ### Tool Categories
 
-| Category | Purpose | Tools |
-|----------|---------|-------|
-| **Read** | File system reading and exploration | `read_file`, `list_files`, `search_files`, `list_code_definition_names` |
-| **Edit** | File system modifications | `apply_diff`, `insert_content`, `search_and_replace`, `write_to_file` |
-| **Execute** | System command execution | `execute_command` |
-| **Browser** | Web automation | `browser_action` |
-| **Workflow** | Mode and task management | `switch_mode`, `new_task`, `ask_followup_question`, `attempt_completion` |
-| **MCP** | External tool integration | `use_mcp_tool`, `access_mcp_resource` |
+| Category     | Purpose                             | Tools                                                                    |
+| ------------ | ----------------------------------- | ------------------------------------------------------------------------ |
+| **Read**     | File system reading and exploration | `read_file`, `list_files`, `search_files`, `list_code_definition_names`  |
+| **Edit**     | File system modifications           | `apply_diff`, `insert_content`, `search_and_replace`, `write_to_file`    |
+| **Execute**  | System command execution            | `execute_command`                                                        |
+| **Browser**  | Web automation                      | `browser_action`                                                         |
+| **Workflow** | Mode and task management            | `switch_mode`, `new_task`, `ask_followup_question`, `attempt_completion` |
+| **MCP**      | External tool integration           | `use_mcp_tool`, `access_mcp_resource`                                    |
 
 ### How Tools Work
 
@@ -138,6 +143,7 @@ Four ways to switch modes:
 ### Tool Safety
 
 Every tool use requires your explicit approval unless you've enabled auto-approval for specific operations. This ensures you maintain control over:
+
 - Which files are modified
 - What commands are executed
 - How your codebase is changed
@@ -148,15 +154,15 @@ Context mentions allow you to provide Roo Code with specific information about y
 
 ### Types of Mentions
 
-| Type | Format | Description | Example |
-|------|--------|-------------|---------|
-| **File** | `@/path/to/file.ts` | Includes file contents | "Explain the function in @/src/utils.ts" |
-| **Folder** | `@/path/to/folder` | Includes all files in folder | "Analyze the code in @/src/components" |
-| **Problems** | `@problems` | VS Code Problems panel diagnostics | "@problems Fix all errors in my code" |
-| **Terminal** | `@terminal` | Recent terminal output | "Fix the errors shown in @terminal" |
-| **Git Commit** | `@a1b2c3d` | Specific commit details | "What changed in commit @a1b2c3d?" |
-| **Git Changes** | `@git-changes` | Uncommitted changes | "Suggest a message for @git-changes" |
-| **URL** | `@https://example.com` | Website content | "Summarize @https://docusaurus.io/" |
+| Type            | Format                 | Description                        | Example                                  |
+| --------------- | ---------------------- | ---------------------------------- | ---------------------------------------- |
+| **File**        | `@/path/to/file.ts`    | Includes file contents             | "Explain the function in @/src/utils.ts" |
+| **Folder**      | `@/path/to/folder`     | Includes all files in folder       | "Analyze the code in @/src/components"   |
+| **Problems**    | `@problems`            | VS Code Problems panel diagnostics | "@problems Fix all errors in my code"    |
+| **Terminal**    | `@terminal`            | Recent terminal output             | "Fix the errors shown in @terminal"      |
+| **Git Commit**  | `@a1b2c3d`             | Specific commit details            | "What changed in commit @a1b2c3d?"       |
+| **Git Changes** | `@git-changes`         | Uncommitted changes                | "Suggest a message for @git-changes"     |
+| **URL**         | `@https://example.com` | Website content                    | "Summarize @https://docusaurus.io/"      |
 
 ### How to Use Mentions
 
@@ -178,17 +184,21 @@ Custom Instructions allow you to personalize how Roo behaves, providing specific
 ### Setting Custom Instructions
 
 #### Global Instructions
+
 1. Open Prompts Tab: Click the 🎯 icon in the Roo Code top menu bar
 2. Find "Custom Instructions for All Modes" section
 3. Enter your instructions
 4. Click "Done" to save
 
 #### Workspace Instructions
+
 Create files in your project:
+
 - **Preferred**: `.roo/rules/` directory with instruction files
 - **Fallback**: `.roorules` file in workspace root
 
 #### Mode-Specific Instructions
+
 - **Via UI**: Use the Prompts tab to set instructions for specific modes
 - **Via Files**: Create `.roo/rules-{modeSlug}/` directories or `.roorules-{modeSlug}` files
 
@@ -212,9 +222,11 @@ Create files in your project:
 ### Creating Custom Modes
 
 #### Method 1: Ask Roo (Recommended)
+
 Simply ask: "Create a custom mode for [specific task]" and Roo will guide you through the process.
 
 #### Method 2: Using the Prompts Tab
+
 1. Open Prompts Tab
 2. Click the ➕ button next to "Modes"
 3. Fill in the required fields:
@@ -226,7 +238,9 @@ Simply ask: "Create a custom mode for [specific task]" and Roo will guide you th
    - **Custom Instructions**: Specific behavioral guidelines
 
 #### Method 3: Manual Configuration (YAML/JSON)
+
 Edit configuration files directly:
+
 - **Global**: `custom_modes.yaml` or `custom_modes.json`
 - **Project**: `.roomodes` file in project root
 
@@ -289,6 +303,7 @@ Browser automation requires **Claude Sonnet 3.5 or 3.7** model.
 ### How Browser Use Works
 
 Roo Code can:
+
 - Launch a browser automatically
 - Capture screenshots of web pages
 - Interact with web elements (click, type, scroll)
@@ -296,14 +311,14 @@ Roo Code can:
 
 ### Available Browser Actions
 
-| Action | Description | When to Use |
-|--------|-------------|-------------|
-| `launch` | Opens browser at a URL | Starting a new session |
-| `click` | Clicks at specific coordinates | Interacting with buttons, links |
-| `type` | Types text into active element | Filling forms, search boxes |
-| `scroll_down` | Scrolls down by one page | Viewing content below the fold |
-| `scroll_up` | Scrolls up by one page | Returning to previous content |
-| `close` | Closes the browser | Ending a session |
+| Action        | Description                    | When to Use                     |
+| ------------- | ------------------------------ | ------------------------------- |
+| `launch`      | Opens browser at a URL         | Starting a new session          |
+| `click`       | Clicks at specific coordinates | Interacting with buttons, links |
+| `type`        | Types text into active element | Filling forms, search boxes     |
+| `scroll_down` | Scrolls down by one page       | Viewing content below the fold  |
+| `scroll_up`   | Scrolls up by one page         | Returning to previous content   |
+| `close`       | Closes the browser             | Ending a session                |
 
 ### Browser Settings
 
@@ -326,6 +341,7 @@ Break down complex projects into manageable subtasks using the 🪃 Orchestrator
 4. **Process continues** until main task is complete
 
 Benefits:
+
 - Tackle complexity by breaking down large projects
 - Use specialized modes for optimal results
 - Maintain focus with isolated contexts
@@ -343,6 +359,7 @@ For complex, multi-step tasks, Roo Code automatically creates interactive todo l
 ### MCP (Model Context Protocol)
 
 Extend Roo Code's capabilities by connecting to external servers that provide:
+
 - Custom tools for specialized tasks
 - Access to external APIs and databases
 - Integration with third-party services
@@ -350,6 +367,7 @@ Extend Roo Code's capabilities by connecting to external servers that provide:
 ### Codebase Indexing
 
 Create semantic search indexes of your project using AI embeddings for:
+
 - Better understanding of large codebases
 - Finding relevant code based on meaning
 - Improved navigation and context awareness
@@ -391,24 +409,28 @@ Create semantic search indexes of your project using AI embeddings for:
 ### Common Issues
 
 #### Roo Code Not Responding
+
 - Check API key validity and expiration
 - Verify internet connection
 - Check API provider status
 - Try restarting VS Code
 
 #### File Editing Issues
+
 - Disable "format on save" extensions
 - Remove markdown preview settings that interfere with editing
 - Check file permissions
 - Restart VS Code after settings changes
 
 #### Terminal Integration Problems
+
 - Update VS Code to latest version
 - Select compatible shell profile
 - Configure execution policy (Windows PowerShell)
 - Add shell integration manually if needed
 
 #### Browser Automation Issues
+
 - Ensure using Claude Sonnet 3.5 or 3.7
 - Check browser tool is enabled in settings
 - Verify viewport size and screenshot quality settings

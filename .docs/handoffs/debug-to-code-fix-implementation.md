@@ -5,23 +5,29 @@
 **From**: Debug Mode → **To**: Code Mode  
 **Context**: Root cause identified, verified solution approach, ready for implementation
 
-## Mandatory Index Discovery
+## Curated Context Package
 
-**CRITICAL**: Code agent must execute this discovery protocol immediately:
+**DEBUG RESPONSIBILITY**: Context discovery completed and curated for Code implementation
 
-### Required Index Reads
+### Context Discovery Completed by Debug Mode
 
-- **MANDATORY**: Read `.docs/patterns/index.md` - search for fix patterns related to identified issue type
-- **MANDATORY**: Check `.docs/investigations/index.md` - review similar debugging outcomes and their fixes
-- **CONDITIONAL**: Review `.docs/decisions/index.md` - understand architectural constraints for fix implementation
-- **CONDITIONAL**: Check `.docs/memory/index.md` - apply lessons from similar fix implementations
+**Targeted .docs Analysis Executed**:
 
-### Discovery Documentation
+- ✅ `.docs/investigations/index.md` - Similar debugging outcomes and proven fixes analyzed
+- ✅ `.docs/patterns/index.md` - Fix patterns related to identified issue type selected
+- ✅ `.docs/architecture.md` - System constraints affecting fix approach reviewed
+- ✅ `.docs/workflows.md` - Quality gates and testing requirements confirmed
+- ✅ `.docs/memory/index.md` - Lessons from similar fix implementations applied
 
-- [ ] Fix patterns reviewed and selected for implementation
-- [ ] Previous investigations consulted for proven solutions
-- [ ] Architectural constraints confirmed for fix approach
-- [ ] Implementation complexity calibrated from memory
+**Documentation Pulse Tracking**:
+
+```
+<!-- PULSE: [YYYY-MM-DD] debug - curated fix context for code implementation -->
+```
+
+### Curated Fix Context for Code
+
+**NO BROAD DISCOVERY REQUIRED**: All relevant fix context pre-researched and provided below
 
 ## Root Cause Summary
 
@@ -168,22 +174,41 @@
 - [ ] Build process successful
 - [ ] Integration tests pass
 
+## Code Role Expectations
+
+**SPECIALIZED IMPLEMENTATION ROLE**: Focus on fix implementation using curated context
+
+### No Broad Discovery Required
+
+- **Context Provided**: All relevant fix patterns, constraints, and approaches pre-researched
+- **Focus on Implementation**: Apply provided fix patterns and verified solutions
+- **Escalate Context Gaps**: If provided context insufficient, escalate to Debug mode
+- **Report Implementation**: Document fix results for Debug mode investigation documentation
+
+### Implementation Responsibilities
+
+- [ ] Apply specific fix patterns provided in curated context
+- [ ] Follow architectural constraints from provided guidance
+- [ ] Implement within appetite boundaries specified
+- [ ] Execute quality gates as specified in curated context
+- [ ] Report implementation outcomes for Debug documentation updates
+
 ## 70/30 Decision Routing
 
-**70% (Autonomous Implementation)**:
+**70% (Code Autonomous)**:
 
-- Code structure and organization
-- Test implementation following established patterns
-- Documentation updates
-- Performance optimizations within scope
+- Fix implementation following provided patterns
+- Code structure and organization for fix
+- Testing implementation using provided approaches
+- Performance optimization within fix scope
 - Error handling improvements
 
-**30% (Escalate to Human)**:
+**30% (Escalate to Human/Debug)**:
 
 - Business logic changes required by fix
-- User experience impacts
 - Security implications of the fix
-- Integration strategy changes
+- User experience impacts of fix
+- Cross-system integration changes
 - Performance trade-off decisions
 
 ## Escalation Conditions

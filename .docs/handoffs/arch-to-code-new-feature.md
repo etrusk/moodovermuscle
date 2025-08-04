@@ -1,25 +1,47 @@
 # Architecture to Code Handoff: New Feature Implementation
 
-## Context
+## Curated Context Package
 
-### Appetite Constraints
+**ARCHITECT RESPONSIBILITY**: Comprehensive context discovery completed and curated for Code implementation
 
-- **Timeline**: [Specify appetite timeline - e.g., "Week 2-3 of current 6-week cycle"]
-- **Resource Allocation**: [Specify effort boundaries - e.g., "12-16 hours maximum"]
-- **Circuit Breakers**: [Define hard stops - e.g., "Stop if implementation exceeds 2 weeks or requires major architectural changes"]
+### Context Discovery Completed by Architect
 
-### Architecture Foundation
+**Full .docs Discovery Executed**:
 
-- **Feature Scope**: [Clear description of what is being built]
-- **System Integration Points**: [How feature connects to existing architecture]
-- **Data Model Changes**: [Database schema updates, if any]
-- **API Design**: [Endpoint definitions and request/response structures]
+- ✅ `.docs/current-task.md` - Active work and session state analyzed
+- ✅ `.docs/spec.md` - Project requirements and appetite constraints reviewed
+- ✅ `.docs/architecture.md` - System design boundaries and constraints evaluated
+- ✅ `.docs/workflows.md` - Quality gates and development processes confirmed
+- ✅ `.docs/patterns/index.md` - Implementation patterns identified and selected
+- ✅ `.docs/decisions/index.md` - Architectural decisions affecting feature reviewed
+- ✅ `.docs/investigations/index.md` - Related issues and prevention measures analyzed
+- ✅ `.docs/memory/index.md` - Complexity insights and implementation lessons applied
 
-### Technical Context
+**Documentation Pulse Tracking**:
 
-- **Dependencies**: [Required libraries, services, or infrastructure]
-- **Existing Patterns**: [Reference .docs/patterns/ and .docs/memory/successful-patterns.md]
-- **Quality Gates**: [Performance requirements, test coverage expectations]
+```
+<!-- PULSE: [YYYY-MM-DD] architect - curated context for new feature implementation -->
+```
+
+### Appetite Constraints (from spec.md analysis)
+
+- **Timeline**: [Specify appetite timeline from current project context]
+- **Resource Allocation**: [Effort boundaries based on complexity analysis]
+- **Circuit Breakers**: [Hard stops based on architectural constraints and appetite limits]
+
+### Architecture Foundation (from architecture.md + decisions context)
+
+- **Feature Scope**: [Clear description informed by project requirements]
+- **System Integration Points**: [How feature connects based on architectural analysis]
+- **Data Model Changes**: [Database schema updates based on system constraints]
+- **API Design**: [Endpoint definitions following established patterns]
+
+### Technical Context (from patterns + investigations analysis)
+
+- **Dependencies**: [Required libraries/services based on architectural decisions]
+- **Curated Patterns**: [Specific patterns from patterns/index.md to apply]
+- **Known Issues Prevention**: [Issues from investigations/index.md to avoid]
+- **Quality Gates**: [Requirements from workflows.md analysis]
 
 ## Requirements
 
@@ -69,6 +91,53 @@
 - [ ] No circuit breaker triggers encountered
 - [ ] Scope creep properly managed
 
+## Preview-First Workflow Requirements
+
+**MANDATORY for functionality changes**:
+
+### Deployment Strategy
+
+- [ ] **Feature Branch**: Create feature branch from main for implementation
+- [ ] **Vercel Preview**: Push triggers automatic Vercel Preview deployment
+- [ ] **Client Approval Required**: MUST get explicit human confirmation of client approval
+- [ ] **Production Deployment**: Only merge to main after confirmed client approval
+
+### Human Confirmation Protocol
+
+**Code agent MUST**:
+
+- Use `ask_followup_question` tool to confirm client approval
+- Ask: "Has the client reviewed and approved the changes at [preview-URL]?"
+- Wait for explicit human confirmation before merging
+- **NEVER assume approval** - always get explicit confirmation
+
+### Preview Deployment Checklist
+
+- [ ] Feature branch created and pushed
+- [ ] Vercel Preview URL generated
+- [ ] Preview URL shared with human for client review
+- [ ] Client approval explicitly confirmed by human
+- [ ] Merge to main only after approval confirmation
+
+## Code Role Expectations
+
+**SPECIALIZED IMPLEMENTATION ROLE**: Focus on implementation using curated context
+
+### No Broad Discovery Required
+
+- **Context Provided**: All relevant patterns, constraints, and guidance pre-researched
+- **Focus on Implementation**: Apply provided patterns and constraints
+- **Escalate Context Gaps**: If provided context insufficient, escalate to Architect
+- **Report Findings**: Document implementation results for Architect documentation updates
+
+### Implementation Responsibilities
+
+- [ ] Apply specific patterns provided in curated context
+- [ ] Follow architectural constraints from provided guidance
+- [ ] Implement within appetite boundaries specified
+- [ ] Execute quality gates as specified in curated workflow context
+- [ ] Report implementation outcomes without updating documentation
+
 ## Escalation Triggers
 
 ### Immediate Human Navigator Involvement
@@ -77,6 +146,13 @@
 - **Security Decisions**: Any authentication, authorization, or data protection choices
 - **Performance Impact**: If feature causes >20% degradation in core metrics
 - **Scope Expansion**: When requirements grow beyond original appetite boundaries
+
+### Return to Architect Mode
+
+- **Insufficient Context**: If curated context doesn't provide enough guidance
+- **Design Issues**: If implementation reveals architectural problems
+- **Pattern Gaps**: If no suitable patterns provided for implementation approach
+- **Constraint Conflicts**: If provided constraints conflict during implementation
 
 ### Debug Mode Handoff
 

@@ -15,6 +15,12 @@ This index captures organizational learning to improve future appetite estimatio
 - [debugging-failures-and-recovery-strategies.md](./debugging-failures-and-recovery-strategies.md) - Root cause analysis and recovery strategies from major failures and debugging sessions
 - [complexity-estimation-framework-and-historical-calibration.md](./complexity-estimation-framework-and-historical-calibration.md) - Complexity estimation accuracy and calibration over time with historical data
 
+**Agent-Specific Memory Banks**
+
+- [architect/design-patterns-and-decisions.md](./architect/design-patterns-and-decisions.md) - Architectural patterns, design decisions, and system design approaches
+- [code/implementation-lessons-and-patterns.md](./code/implementation-lessons-and-patterns.md) - Implementation approaches, coding patterns, and technical lessons learned
+- [debug/troubleshooting-strategies-and-solutions.md](./debug/troubleshooting-strategies-and-solutions.md) - Debugging approaches, problem-solving strategies, and resolution patterns
+
 ## Enhanced Search Guide
 
 **When implementing testing strategies** → Check: [`successful-testing-patterns-and-proven-approaches.md`](./successful-testing-patterns-and-proven-approaches.md) for proven testing approaches
@@ -207,6 +213,8 @@ From [`complexity-estimation-framework-and-historical-calibration.md`](./complex
 3. **Estimation Calibration**: Refine complexity factors based on actual outcomes
 4. **Cross-Reference Maintenance**: Ensure links between memory and other indexes remain current
 5. **Knowledge Validation**: Verify insights still apply as system and team evolve
+6. **Truck Number Assessment**: Identify and address single points of failure in knowledge distribution
+7. **Agent Memory Synchronization**: Ensure agent-specific memories stay current and cross-referenced
 
 ---
 

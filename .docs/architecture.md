@@ -4,12 +4,15 @@
 
 **Constraint-Driven Design**: Architecture decisions optimized for single developer + agentic LLM workflow with Emily's fitness coaching business requirements.
 
+**Navigator-Driver Model**: Human provides strategic direction and architectural decisions while AI handles tactical implementation and pattern application. This model maximizes automation while preserving human oversight for critical business and architectural decisions.
+
 **Appetite-Based Constraints**:
 
 - **Simplicity Over Complexity**: Choose proven solutions over cutting-edge when appetite is limited
 - **Functionality Over Elegance**: Deliver user value within appetite boundaries
 - **Privacy-First**: Technical choices must respect privacy constraints
 - **FLOSS Preference**: Open-source solutions unless significant functionality gap
+- **Automation-First**: Automate repetitive tasks while preserving human control over strategic decisions
 
 ## Current System State
 
@@ -94,6 +97,31 @@ model Booking {
 ```
 
 ### Key Architectural Constraints
+
+#### Navigator-Driver Integration Points
+
+**Human Navigator Responsibilities**:
+
+- Business logic decisions and validation rules
+- Security policy and authentication strategy
+- User experience flows and interface design
+- Architectural patterns and technology choices
+- Quality gate definitions and acceptance criteria
+
+**AI Driver Responsibilities**:
+
+- Implementation following established patterns
+- Code generation and boilerplate creation
+- Test case creation and maintenance
+- Documentation updates and pattern capture
+- Refactoring and optimization within defined constraints
+
+**Knowledge Distribution (Truck Number Principle)**:
+
+- Critical system knowledge must be documented and accessible
+- No single point of failure in team knowledge
+- Automated pattern capture prevents knowledge loss
+- Institutional memory builds over time through AI assistance
 
 #### Database Design Principles
 

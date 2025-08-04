@@ -147,15 +147,16 @@ _(Space reserved for additional specialized handoff templates as workflow patter
 
 **All handoff templates must include**:
 
-- Mandatory index discovery protocols
+- **Curated context provision** (for Orchestrator/Architect handoffs) OR **No broad discovery required** (for Code/Debug handoffs)
+- **Documentation pulse tracking** for all .docs references
 - Clear appetite and complexity estimates (except emergency escalations)
-- Circuit breaker conditions
-- Success criteria and escalation triggers
+- Circuit breaker conditions and escalation triggers
+- **Role specialization alignment** with Navigator-Driver model
 - 70/30 decision routing guidance (where applicable)
 - Pattern applications from institutional memory
 - Investigation cross-references where applicable
+- **Preview-first workflow requirements** for functionality changes
 - Communication protocols for specialized scenarios
-- Security considerations for sensitive handoffs
 
 **Handoff Quality Checklist**:
 
@@ -174,10 +175,12 @@ _(Space reserved for additional specialized handoff templates as workflow patter
 **Template requirements**:
 
 - Follow semantic naming: `[source-mode]-to-[target-mode]-[specific-scenario].md`
-- Include mandatory index discovery sections
-- Provide structured context transfer protocols
+- **Include curated context provision** (for comprehensive discovery roles) OR **specify no broad discovery required** (for specialized roles)
+- **Add documentation pulse tracking** for all .docs references
+- Provide structured context transfer protocols aligned with role specialization
 - Define clear success criteria and escalation conditions
-- Reference institutional memory indexes
+- Reference institutional memory indexes appropriately for role type
+- **Include preview-first workflow requirements** for functionality changes
 - Include boomerang patterns where investigation might return to orchestrator
 - Add specialized sections for domain-specific requirements
 - Include communication protocols for sensitive scenarios
@@ -207,6 +210,21 @@ _(Space reserved for additional specialized handoff templates as workflow patter
 **Complexity**: [1-10] **Appetite**: [Time constraint]
 **Risk Level**: Low/Medium/High
 
+## Curated Context Package (for Orchestrator/Architect handoffs)
+
+OR
+
+## Specialized Role Context (for Code/Debug handoffs)
+
+**Context Discovery Completed**: [List .docs files analyzed]
+**Documentation Pulse Tracking**:
+```
+
+<!-- PULSE: [YYYY-MM-DD] [role] - [context] -->
+
+```
+**NO BROAD DISCOVERY REQUIRED**: [For specialized roles]
+
 ## Current State
 
 [What has been accomplished, current system state]
@@ -217,10 +235,17 @@ _(Space reserved for additional specialized handoff templates as workflow patter
 
 ## Context Package
 
-**Patterns to Apply**: [Link to relevant patterns from patterns/index.md]
-**Architectural Constraints**: [Link to relevant ADRs from decisions/index.md]
-**Related Investigations**: [Link to similar issues from investigations/index.md]
-**Institutional Memory**: [Lessons learned from memory/index.md]
+**Curated Patterns**: [Specific patterns selected from comprehensive analysis]
+**Architectural Constraints**: [Relevant constraints from full context discovery]
+**Related Investigations**: [Similar issues identified through comprehensive analysis]
+**Institutional Memory**: [Lessons learned applied from memory analysis]
+
+## Preview-First Workflow (for functionality changes)
+
+- [ ] Feature branch creation required
+- [ ] Vercel Preview deployment needed
+- [ ] Client approval confirmation mandatory
+- [ ] Human confirmation protocol required
 
 ## Implementation Guidance
 
@@ -234,10 +259,17 @@ _(Space reserved for additional specialized handoff templates as workflow patter
 
 [Scope boundaries, when to escalate, appetite limits]
 
+## Role Expectations
+
+**Specialized Implementation Role**: [For Code/Debug - focus on provided context]
+OR
+**Comprehensive Discovery Role**: [For Orchestrator/Architect - full context analysis]
+
 ## Handoff Verification
 
 - [ ] Receiving agent confirms understanding
 - [ ] Context package verified complete
+- [ ] Role expectations understood
 - [ ] Quality gates understood
 - [ ] Circuit breakers acknowledged
 ```

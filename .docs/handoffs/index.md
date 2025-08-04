@@ -37,6 +37,69 @@ This index provides structured templates for transferring context between differ
 - [Cross-Domain Work](./any-to-orchestrator-cross-domain.md) - spans multiple expertise areas
 - [Resource Coordination](./any-to-orchestrator-resources.md) - multiple resources need management
 
+## By Handoff Type
+
+### Task Delegation
+
+**boomerang-task-template.md** - Generic template for tasks that will return to the originating mode
+
+- Use when: Task requires specialist expertise but will return for integration
+- Boomerang probability: High - designed for round-trip workflows
+- Context preservation: Comprehensive state transfer for seamless continuation
+
+**orchestrator-to-specialist.md** - Generic template for orchestrator delegating to any specialist mode
+
+- Use when: Complex task decomposed, specific specialist expertise required for sub-component
+- Expected outcome: Specialist completes domain-specific work with clear deliverables
+- Integration focus: Clear interface points and handoff back requirements
+- Complexity: Variable - depends on specialist domain and task scope
+
+### Problem Escalation
+
+**code-to-debug-test-failure.md** - When Code mode encounters test failures requiring investigation
+
+- Use when: Implementation work hits test failures that need debugging expertise
+- Expected outcome: Root cause identification and fix guidance
+- Complexity: Medium - debugging complexity varies by issue type
+
+**code-to-architect-design-issue.md** - When implementation reveals architectural problems
+
+- Use when: Code work discovers design conflicts or architectural limitations
+- Expected outcome: Revised architectural approach with clear implementation path
+- Complexity: High - architectural changes typically have broad impact
+
+**debug-to-code-fix-implementation.md** - When debug has identified root cause and needs fix implemented
+
+- Use when: Root cause verified, solution approach tested, ready for implementation
+- Expected outcome: Fix implemented with regression prevention measures
+- Complexity: Medium - implementation complexity varies by fix scope
+
+### Emergency and Critical Issues
+
+**emergency-escalation.md** - For critical production issues requiring immediate attention
+
+- Use when: Production system failures, security breaches, data loss risks
+- Response time: Critical - human response required within minutes
+- Complexity: Variable - emergency response complexity depends on issue severity
+
+**security-issue-escalation.md** - For security vulnerabilities requiring careful handling
+
+- Use when: Security vulnerabilities discovered requiring coordinated response
+- Special handling: Disclosure coordination, legal considerations, compliance requirements
+- Complexity: High - security issues require specialized expertise and careful communication
+
+### Performance and Investigation
+
+**performance-investigation.md** - Specialized template for performance bottleneck investigations
+
+- Use when: Performance degradation identified, systematic investigation required
+- Expected outcome: Root cause identification with optimization roadmap
+- Complexity: Medium to High - performance optimization can have architectural implications
+
+### Specialized Workflows
+
+_(Space reserved for additional specialized handoff templates as workflow patterns emerge)_
+
 ## By Complexity Score
 
 **Simple Tasks (Complexity 1-3)**
@@ -60,14 +123,41 @@ This index provides structured templates for transferring context between differ
 - Typical duration: 1+ days
 - System-wide changes or new integrations
 
-## Template Selection Guide
+## Usage Guidelines
 
-**Choose Template Based On**:
+### When to Use Handoff Templates
 
-1. **Task Complexity**: Use complexity scoring to select appropriate detail level
-2. **Agent Expertise Gap**: More context needed when transitioning to unfamiliar domain
-3. **Risk Level**: Higher risk tasks need more comprehensive handoffs
-4. **Time Sensitivity**: Critical issues may need abbreviated but focused handoffs
+**Required scenarios**:
+
+- Mode transitions involving context-sensitive work
+- Task delegation requiring specific expertise
+- Problem escalation needing specialized investigation
+- Complex multi-mode workflows
+- Emergency situations requiring coordinated response
+- Security issues requiring careful disclosure handling
+
+**Template selection criteria**:
+
+1. **Task complexity**: Use specialized templates for complex domain-specific work
+2. **Context sensitivity**: Use when significant context must be preserved across modes
+3. **Expertise matching**: Select template based on receiving mode's specialized capabilities
+4. **Integration requirements**: Consider how work will integrate back into overall workflow
+5. **Urgency and impact**: Use emergency templates for critical issues requiring immediate response
+6. **Security implications**: Use security-specific templates when vulnerabilities are involved
+
+### Quality Standards for Handoffs
+
+**All handoff templates must include**:
+
+- Mandatory index discovery protocols
+- Clear appetite and complexity estimates (except emergency escalations)
+- Circuit breaker conditions
+- Success criteria and escalation triggers
+- 70/30 decision routing guidance (where applicable)
+- Pattern applications from institutional memory
+- Investigation cross-references where applicable
+- Communication protocols for specialized scenarios
+- Security considerations for sensitive handoffs
 
 **Handoff Quality Checklist**:
 
@@ -79,6 +169,36 @@ This index provides structured templates for transferring context between differ
 - [ ] Rollback plan documented (if applicable)
 - [ ] Related investigations linked
 - [ ] Appetite boundaries clearly marked
+
+### Template Development Guidelines
+
+**Creating New Handoff Templates**
+**Template requirements**:
+
+- Follow semantic naming: `[source-mode]-to-[target-mode]-[specific-scenario].md`
+- Include mandatory index discovery sections
+- Provide structured context transfer protocols
+- Define clear success criteria and escalation conditions
+- Reference institutional memory indexes
+- Include boomerang patterns where investigation might return to orchestrator
+- Add specialized sections for domain-specific requirements
+- Include communication protocols for sensitive scenarios
+
+**Template Categories**
+**Current categories**:
+
+- Task delegation (boomerang workflows, orchestrator delegation)
+- Problem escalation (debugging, architectural issues, fix implementation)
+- Emergency and critical issues (production failures, security vulnerabilities)
+- Performance and investigation (bottleneck analysis, optimization planning)
+- Specialized workflows (domain-specific transitions)
+
+**Template Maintenance**:
+
+- Regular review of template effectiveness
+- Updates based on actual handoff experiences
+- Pattern refinement from successful transitions
+- Integration with evolving institutional memory
 
 **Standard Handoff Structure**:
 

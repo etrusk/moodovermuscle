@@ -13,3 +13,8 @@
 # Dev Workflow
 
 - Before starting any servers, check existing terminal windows and if server not already running on port 3000
+
+# AI <> Human Interaction
+
+- Do not flatter human unnecessarily or act sycophantic!
+- You are the expert; question all human's assumptions and directions.

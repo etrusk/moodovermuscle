@@ -380,11 +380,12 @@ describe('Error Scenarios Integration Tests', () => {
   })
 
   describe('Concurrent Request Handling', () => {
-    it.skip('should handle multiple simultaneous bookings', async () => {
+    it('should handle multiple simultaneous bookings', async () => {
       const bookingPromises = Array.from({ length: 3 }, (_, i) => {
         const testData = createTestBookingData({
           name: `Concurrent User ${i}`,
           email: `concurrent-${i}-${Date.now()}@example.com`,
+          time: `${10 + i}:00 AM`, // Use different times to avoid conflicts
         })
         const req = makeJsonRequest(testData)
         return POST(req)
@@ -410,7 +411,7 @@ describe('Error Scenarios Integration Tests', () => {
   })
 
   describe('Data Validation Edge Cases', () => {
-    it.skip('should handle special characters in names', async () => {
+    it('should handle special characters in names', async () => {
       const testData = createTestBookingData({
         name: "O'Connor-Smith & Associates",
       })
@@ -429,7 +430,7 @@ describe('Error Scenarios Integration Tests', () => {
       expect(createdBooking?.name).toBe("O'Connor-Smith & Associates")
     })
 
-    it.skip('should handle unicode characters', async () => {
+    it('should handle unicode characters', async () => {
       const testData = createTestBookingData({
         name: 'José María González',
         message: 'Looking forward to the session! 🏋️‍♀️💪',

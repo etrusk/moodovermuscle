@@ -34,7 +34,7 @@ export function useBookingFormLogic(
       name: '',
       email: '',
       phone: '',
-      service: '',
+      service: undefined,
       date: undefined,
       time: '',
       message: '',
@@ -83,14 +83,17 @@ export function useBookingFormLogic(
     setIsSubmitting(true)
     // Re-check availability before submission
     if (formData.date && formData.time) {
-      const dateKey = formData.date.toISOString().split('T')[0];
-      const availRes = await fetch(`/api/availability?date=${dateKey}`);
+      const dateKey = formData.date.toISOString().split('T')[0]
+      const availRes = await fetch(`/api/availability?date=${dateKey}`)
       if (!availRes.ok) {
-        return { error: 'Failed to verify availability. Please try again.' };
+        return { error: 'Failed to verify availability. Please try again.' }
       }
-      const availData = await availRes.json();
+      const availData = await availRes.json()
       if (!availData.availableTimes.includes(formData.time)) {
-        return { error: 'Selected time slot is no longer available. Please choose another slot.' };
+        return {
+          error:
+            'Selected time slot is no longer available. Please choose another slot.',
+        }
       }
     }
     try {

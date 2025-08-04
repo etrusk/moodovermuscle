@@ -39,7 +39,7 @@ describe('BookingForm navigation and validation logic', () => {
     expect(await screen.findByTestId('booking-form-step-2')).toBeInTheDocument()
   })
 
-  it.skip('shows validation error on step 2 when no service selected', async () => {
+  it('shows validation error on step 2 when no service selected', async () => {
     const user = userEvent.setup()
     render(<BookingForm isOpen={true} onClose={mockOnClose} />)
     // advance to step 2
@@ -59,7 +59,7 @@ describe('BookingForm navigation and validation logic', () => {
     ).toBeInTheDocument()
   })
 
-  it.skip('advances to step 3 after selecting service', async () => {
+  it('advances to step 3 after selecting service', async () => {
     const user = userEvent.setup()
     render(<BookingForm isOpen={true} onClose={mockOnClose} />)
     // step1

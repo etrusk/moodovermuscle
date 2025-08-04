@@ -1,7 +1,6 @@
 /**
  * @jest-environment node
  */
-// @ts-nocheck
 import { POST } from '@/app/api/book-session/route'
 import { testDb } from '../setup/test-db'
 import { createTestBookingData } from '../setup/test-db-data'
@@ -9,9 +8,11 @@ import {
   setupIntegrationTest,
   teardownIntegrationTest,
 } from '../setup/test-helpers'
+import type { Booking, Prisma } from '@/lib/generated/prisma'
+
 jest.setTimeout(15000)
 
-type TransactionCallback = (tx: typeof testDb) => Promise<any>;
+type TransactionCallback = (tx: Prisma.TransactionClient) => Promise<Booking>
 
 jest.mock('@/lib/prisma', () => ({
   // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -63,17 +64,19 @@ describe('Booking API Integration Tests', () => {
         message: testData.message ?? null,
         status: 'PENDING',
         sessionDuration: 60,
-      };
+      }
 
-(testDb.$transaction as jest.Mock).mockImplementation(async (callback: TransactionCallback) => {
-        const mockTx = {
-          booking: {
-            findFirst: jest.fn().mockResolvedValue(null),
-            create: jest.fn().mockResolvedValue(mockBooking),
-          },
+      ;(testDb.$transaction as jest.Mock).mockImplementation(
+        async (callback: TransactionCallback) => {
+          const mockTx = {
+            booking: {
+              findFirst: jest.fn().mockResolvedValue(null),
+              create: jest.fn().mockResolvedValue(mockBooking),
+            },
+          }
+          return await callback(mockTx as unknown as Prisma.TransactionClient)
         }
-        return await callback(mockTx as any)
-      });
+      )
 
       const response = await POST(req)
       expect(response.status).toBe(201)
@@ -161,26 +164,26 @@ describe('Booking API Integration Tests', () => {
         message: testData2.message ?? null,
         status: 'PENDING',
         sessionDuration: 60,
-      };
-(testDb.$transaction as jest.Mock)
+      }
+      ;(testDb.$transaction as jest.Mock)
         .mockImplementationOnce(async (callback: TransactionCallback) => {
-            const mockTx = {
-                booking: {
-                    findFirst: jest.fn().mockResolvedValue(null),
-                    create: jest.fn().mockResolvedValue(mockBooking1),
-                },
-            };
-            return await callback(mockTx as any);
+          const mockTx = {
+            booking: {
+              findFirst: jest.fn().mockResolvedValue(null),
+              create: jest.fn().mockResolvedValue(mockBooking1),
+            },
+          }
+          return await callback(mockTx as unknown as Prisma.TransactionClient)
         })
         .mockImplementationOnce(async (callback: TransactionCallback) => {
-            const mockTx = {
-                booking: {
-                    findFirst: jest.fn().mockResolvedValue(null),
-                    create: jest.fn().mockResolvedValue(mockBooking2),
-                },
-            };
-            return await callback(mockTx as any);
-        });
+          const mockTx = {
+            booking: {
+              findFirst: jest.fn().mockResolvedValue(null),
+              create: jest.fn().mockResolvedValue(mockBooking2),
+            },
+          }
+          return await callback(mockTx as unknown as Prisma.TransactionClient)
+        })
 
       const response1 = await POST(req1)
       const response2 = await POST(req2)
@@ -246,16 +249,18 @@ describe('Booking API Integration Tests', () => {
         message: testData.message ?? null,
         status: 'PENDING',
         sessionDuration: 60,
-      };
-(testDb.$transaction as jest.Mock).mockImplementation(async (callback: TransactionCallback) => {
-        const mockTx = {
+      }
+      ;(testDb.$transaction as jest.Mock).mockImplementation(
+        async (callback: TransactionCallback) => {
+          const mockTx = {
             booking: {
-                findFirst: jest.fn().mockResolvedValue(null),
-                create: jest.fn().mockResolvedValue(mockBooking),
+              findFirst: jest.fn().mockResolvedValue(null),
+              create: jest.fn().mockResolvedValue(mockBooking),
             },
-        };
-        return await callback(mockTx as any);
-      });
+          }
+          return await callback(mockTx as unknown as Prisma.TransactionClient)
+        }
+      )
 
       const response = await POST(req)
 
@@ -299,16 +304,18 @@ describe('Booking API Integration Tests', () => {
         message: null,
         status: 'PENDING',
         sessionDuration: 60,
-      };
-(testDb.$transaction as jest.Mock).mockImplementation(async (callback: TransactionCallback) => {
-        const mockTx = {
+      }
+      ;(testDb.$transaction as jest.Mock).mockImplementation(
+        async (callback: TransactionCallback) => {
+          const mockTx = {
             booking: {
-                findFirst: jest.fn().mockResolvedValue(null),
-                create: jest.fn().mockResolvedValue(mockBooking),
+              findFirst: jest.fn().mockResolvedValue(null),
+              create: jest.fn().mockResolvedValue(mockBooking),
             },
-        };
-        return await callback(mockTx as any);
-      });
+          }
+          return await callback(mockTx as unknown as Prisma.TransactionClient)
+        }
+      )
 
       const response = await POST(req)
 
@@ -366,16 +373,18 @@ describe('Booking API Integration Tests', () => {
         message: validData.message ?? null,
         status: 'PENDING',
         sessionDuration: 60,
-      };
-(testDb.$transaction as jest.Mock).mockImplementation(async (callback: TransactionCallback) => {
-        const mockTx = {
+      }
+      ;(testDb.$transaction as jest.Mock).mockImplementation(
+        async (callback: TransactionCallback) => {
+          const mockTx = {
             booking: {
-                findFirst: jest.fn().mockResolvedValue(null),
-                create: jest.fn().mockResolvedValue(mockBooking),
+              findFirst: jest.fn().mockResolvedValue(null),
+              create: jest.fn().mockResolvedValue(mockBooking),
             },
-        };
-        return await callback(mockTx as any);
-      });
+          }
+          return await callback(mockTx as unknown as Prisma.TransactionClient)
+        }
+      )
 
       const response = await POST(req)
 

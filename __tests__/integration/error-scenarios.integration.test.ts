@@ -1,5 +1,4 @@
- // @ts-nocheck
- /**
+/**
  * @jest-environment node
  */
 import { POST } from '@/app/api/book-session/route'
@@ -11,6 +10,7 @@ import {
   teardownIntegrationTest,
   waitFor,
 } from '../setup/test-helpers'
+import type { Booking, Prisma } from '@/lib/generated/prisma'
 
 // Mock the prisma client to use the test database
 jest.mock('@/lib/prisma', () => ({
@@ -144,17 +144,19 @@ describe('Error Scenarios Integration Tests', () => {
         message: null,
         status: 'PENDING',
         sessionDuration: 60,
-      }
-      // @ts-ignore: bypass transaction callback signature mismatch
-      testDb.$transaction.mockImplementation(async (callback: (tx: any) => Promise<any>) => {
-        const mockTx = {
-          booking: {
-            findFirst: jest.fn().mockResolvedValue(null),
-            create: jest.fn().mockResolvedValue(mockBooking),
-          },
+      }(testDb.$transaction as jest.Mock).mockImplementation(
+        async (
+          callback: (tx: Prisma.TransactionClient) => Promise<Booking>
+        ) => {
+          const mockTx = {
+            booking: {
+              findFirst: jest.fn().mockResolvedValue(null),
+              create: jest.fn().mockResolvedValue(mockBooking),
+            },
+          }
+          return await callback(mockTx as unknown as Prisma.TransactionClient)
         }
-        return await callback(mockTx)
-      })
+      )
       const req = makeJsonRequest(testData)
 
       const response = await POST(req)
@@ -189,17 +191,19 @@ describe('Error Scenarios Integration Tests', () => {
         message: null,
         status: 'PENDING',
         sessionDuration: 60,
-      }
-      // @ts-ignore: bypass transaction callback signature mismatch
-      testDb.$transaction.mockImplementation(async (callback: (tx: any) => Promise<any>) => {
-        const mockTx = {
-          booking: {
-            findFirst: jest.fn().mockResolvedValue(null),
-            create: jest.fn().mockResolvedValue(mockBooking),
-          },
+      }(testDb.$transaction as jest.Mock).mockImplementation(
+        async (
+          callback: (tx: Prisma.TransactionClient) => Promise<Booking>
+        ) => {
+          const mockTx = {
+            booking: {
+              findFirst: jest.fn().mockResolvedValue(null),
+              create: jest.fn().mockResolvedValue(mockBooking),
+            },
+          }
+          return await callback(mockTx as unknown as Prisma.TransactionClient)
         }
-        return await callback(mockTx)
-      })
+      )
       const req = makeJsonRequest(testData)
 
       const response = await POST(req)
@@ -233,17 +237,19 @@ describe('Error Scenarios Integration Tests', () => {
         message: null,
         status: 'PENDING',
         sessionDuration: 60,
-      }
-      // @ts-ignore: bypass transaction callback signature mismatch
-      testDb.$transaction.mockImplementation(async (callback: (tx: any) => Promise<any>) => {
-        const mockTx = {
-          booking: {
-            findFirst: jest.fn().mockResolvedValue(null),
-            create: jest.fn().mockResolvedValue(mockBooking),
-          },
+      }(testDb.$transaction as jest.Mock).mockImplementation(
+        async (
+          callback: (tx: Prisma.TransactionClient) => Promise<Booking>
+        ) => {
+          const mockTx = {
+            booking: {
+              findFirst: jest.fn().mockResolvedValue(null),
+              create: jest.fn().mockResolvedValue(mockBooking),
+            },
+          }
+          return await callback(mockTx as unknown as Prisma.TransactionClient)
         }
-        return await callback(mockTx)
-      })
+      )
       const req = makeJsonRequest(testData)
 
       const response = await POST(req)
@@ -279,17 +285,19 @@ describe('Error Scenarios Integration Tests', () => {
         message: null,
         status: 'PENDING',
         sessionDuration: 60,
-      }
-      // @ts-ignore: bypass transaction callback signature mismatch
-      testDb.$transaction.mockImplementation(async (callback: (tx: any) => Promise<any>) => {
-        const mockTx = {
-          booking: {
-            findFirst: jest.fn().mockResolvedValue(null),
-            create: jest.fn().mockResolvedValue(mockBooking),
-          },
+      }(testDb.$transaction as jest.Mock).mockImplementation(
+        async (
+          callback: (tx: Prisma.TransactionClient) => Promise<Booking>
+        ) => {
+          const mockTx = {
+            booking: {
+              findFirst: jest.fn().mockResolvedValue(null),
+              create: jest.fn().mockResolvedValue(mockBooking),
+            },
+          }
+          return await callback(mockTx as unknown as Prisma.TransactionClient)
         }
-        return await callback(mockTx)
-      })
+      )
       const req = makeJsonRequest(testData)
 
       const response = await POST(req)
@@ -323,12 +331,12 @@ describe('Error Scenarios Integration Tests', () => {
   describe('Malformed Request Handling', () => {
     it('should handle non-JSON request body', async () => {
       const req = new Request('http://localhost/api/book-session', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: 'not-json-data',
-            })
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: 'not-json-data',
+      })
 
       const response = await POST(req)
 
@@ -339,12 +347,12 @@ describe('Error Scenarios Integration Tests', () => {
 
     it('should handle empty request body', async () => {
       const req = new Request('http://localhost/api/book-session', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: '',
-            })
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: '',
+      })
 
       const response = await POST(req)
 
@@ -353,12 +361,12 @@ describe('Error Scenarios Integration Tests', () => {
 
     it('should handle request with wrong content type', async () => {
       const req = new Request('http://localhost/api/book-session', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'text/plain',
-              },
-              body: JSON.stringify(createTestBookingData()),
-            })
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain',
+        },
+        body: JSON.stringify(createTestBookingData()),
+      })
 
       const response = await POST(req)
 

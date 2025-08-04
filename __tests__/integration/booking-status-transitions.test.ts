@@ -1,33 +1,35 @@
-// @ts-nocheck
 /**
  * @jest-environment node
  */
- import { POST } from '@/app/api/book-session/[id]/status/route'
- import { NextRequest } from 'next/server'
- import { testDb } from '../setup/test-db'
- import * as email from '@/lib/email'
- import { setupIntegrationTest, teardownIntegrationTest } from '../setup/test-helpers'
- 
- jest.setTimeout(15000)
- 
- jest.mock('@/lib/prisma', () => ({
-   // eslint-disable-next-line @typescript-eslint/no-var-requires
-   prisma: require('../setup/test-db').testDb,
- }))
- 
- jest.mock('@/lib/email', () => ({
-   sendCustomerConfirmation: jest.fn().mockResolvedValue({ success: true }),
-   sendAdminNotification: jest.fn().mockResolvedValue({ success: true }),
- }));
- 
- // Define BookingStatus enum locally to avoid Prisma client import issues
- const BookingStatus = {
-   PENDING: 'PENDING',
-   CONFIRMED: 'CONFIRMED',
-   CANCELLED: 'CANCELLED',
-   COMPLETED: 'COMPLETED',
- } as const
+import { POST } from '@/app/api/book-session/[id]/status/route'
+import { NextRequest } from 'next/server'
+import { testDb } from '../setup/test-db'
+import * as email from '@/lib/email'
+import {
+  setupIntegrationTest,
+  teardownIntegrationTest,
+} from '../setup/test-helpers'
+import type { Booking, Prisma } from '@/lib/generated/prisma'
 
+jest.setTimeout(15000)
+
+jest.mock('@/lib/prisma', () => ({
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  prisma: require('../setup/test-db').testDb,
+}))
+
+jest.mock('@/lib/email', () => ({
+  sendCustomerConfirmation: jest.fn().mockResolvedValue({ success: true }),
+  sendAdminNotification: jest.fn().mockResolvedValue({ success: true }),
+}))
+
+// Define BookingStatus enum locally to avoid Prisma client import issues
+const BookingStatus = {
+  PENDING: 'PENDING',
+  CONFIRMED: 'CONFIRMED',
+  CANCELLED: 'CANCELLED',
+  COMPLETED: 'COMPLETED',
+} as const
 
 function makeStatusRequest(id: string, status: string): NextRequest {
   return new Request(`http://localhost/api/book-session/${id}/status`, {
@@ -39,8 +41,12 @@ function makeStatusRequest(id: string, status: string): NextRequest {
 
 describe('Booking Status Transition API', () => {
   beforeEach(async () => {
-    await setupIntegrationTest()
-    testDb.$transaction.mockImplementation(async (cb: (tx: typeof testDb) => Promise<any>) => await cb(testDb))
+    await setupIntegrationTest()(
+      testDb.$transaction as jest.Mock
+    ).mockImplementation(
+      async (cb: (tx: Prisma.TransactionClient) => Promise<Booking>) =>
+        await cb(testDb as unknown as Prisma.TransactionClient)
+    )
     jest.clearAllMocks()
   })
 
@@ -66,11 +72,23 @@ describe('Booking Status Transition API', () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     }
-    const updated = { ...original, status: BookingStatus.CONFIRMED, updatedAt: new Date() }
+    const updated = {
+      ...original,
+      status: BookingStatus.CONFIRMED,
+      updatedAt: new Date(),
+    }
 
     testDb.booking.findUnique.mockResolvedValue(original)
     testDb.booking.update.mockResolvedValue(updated)
-    ;(testDb.bookingStatusChange as any).create.mockResolvedValue({ id: 'c1', fromStatus: 'PENDING', toStatus: 'CONFIRMED', bookingId, createdAt: new Date() })
+    ;(
+      testDb.bookingStatusChange as unknown as { create: jest.Mock }
+    ).create.mockResolvedValue({
+      id: 'c1',
+      fromStatus: 'PENDING',
+      toStatus: 'CONFIRMED',
+      bookingId,
+      createdAt: new Date(),
+    })
 
     const req = makeStatusRequest(bookingId, 'CONFIRMED')
     const res = await POST(req, { params: { id: bookingId } })
@@ -82,8 +100,14 @@ describe('Booking Status Transition API', () => {
       where: { id: bookingId },
       data: { status: BookingStatus.CONFIRMED },
     })
-    expect((testDb.bookingStatusChange as any).create).toHaveBeenCalledWith({
-      data: { bookingId, fromStatus: BookingStatus.PENDING, toStatus: BookingStatus.CONFIRMED },
+    expect(
+      (testDb.bookingStatusChange as unknown as { create: jest.Mock }).create
+    ).toHaveBeenCalledWith({
+      data: {
+        bookingId,
+        fromStatus: BookingStatus.PENDING,
+        toStatus: BookingStatus.CONFIRMED,
+      },
     })
     expect(email.sendCustomerConfirmation).toHaveBeenCalled()
     expect(email.sendAdminNotification).toHaveBeenCalled()
@@ -92,7 +116,7 @@ describe('Booking Status Transition API', () => {
   it('Rejects invalid status transition', async () => {
     const bookingId = 'bid-2'
     const original = { id: bookingId, status: BookingStatus.CANCELLED }
-    testDb.booking.findUnique.mockResolvedValue(original as any)
+    testDb.booking.findUnique.mockResolvedValue(original as unknown as Booking)
 
     const req = makeStatusRequest(bookingId, 'CONFIRMED')
     const res = await POST(req, { params: { id: bookingId } })
@@ -100,7 +124,9 @@ describe('Booking Status Transition API', () => {
     const body = await res.json()
     expect(body.error).toMatch(/Cannot transition/)
     expect(testDb.booking.update).not.toHaveBeenCalled()
-    expect((testDb.bookingStatusChange as any).create).not.toHaveBeenCalled()
+    expect(
+      (testDb.bookingStatusChange as unknown as { create: jest.Mock }).create
+    ).not.toHaveBeenCalled()
   })
 
   it('Returns 404 for non-existent booking', async () => {

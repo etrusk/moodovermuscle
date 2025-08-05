@@ -20,3 +20,4 @@
 - You are the expert; question all human's assumptions and directions.
 - Don't deprecate, just remove.
 - Don't explicitly state implicit things - i.e. Orchestrator role cannot use tools.
+- Criticality over timeline for appetite, since we are using agentic LLM coding.

@@ -1,14 +1,17 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { bookingSchema } from '@/lib/schemas'
-import { sendCustomerConfirmation, sendAdminNotification } from '@/lib/email'
 import {
   RATE_LIMIT_WINDOW,
   RATE_LIMIT_MAX,
   rateLimitStore,
 } from '@/lib/rate-limit'
+import { validateBookingRequest } from './functions/booking-validation'
+import {
+  createBooking,
+  BookingConflictError,
+} from './functions/booking-creation'
+import { sendBookingNotifications } from './functions/booking-notification'
 
-export async function POST(request: Request) {
+export async function POST(request: Request): Promise<NextResponse> {
   // Rate limiting per IP via x-forwarded-for header only
   const forwarded = request.headers.get('x-forwarded-for')
   if (forwarded) {
@@ -33,115 +36,17 @@ export async function POST(request: Request) {
   }
 
   try {
-    let formData
-    try {
-      formData = await request.json()
-    } catch {
-      return NextResponse.json(
-        { message: 'Invalid form data.' },
-        { status: 400 }
-      )
-    }
-    const validatedData = bookingSchema.safeParse(formData)
-
-    if (!validatedData.success) {
-      return NextResponse.json(
-        {
-          message: 'Invalid form data.',
-          errors: validatedData.error.flatten().fieldErrors,
-        },
-        { status: 400 }
+    const validationResult = await validateBookingRequest(request)
+    if (!validationResult.success || !validationResult.data) {
+      return (
+        validationResult.error ??
+        NextResponse.json({ message: 'Invalid data' }, { status: 400 })
       )
     }
 
-    const {
-      name,
-      email,
-      phone,
-      service,
-      date,
-      time,
-      message,
-      goals,
-      experience,
-    } = validatedData.data
+    const newBooking = await createBooking(validationResult.data)
 
-    const newBooking = await prisma.$transaction(async (tx) => {
-      // Conflict detection: ensure no existing booking at same date and time
-      const conflict = await tx.booking.findFirst({
-        where: { date, time },
-      })
-      if (conflict) {
-        throw new Error('Booking conflict: Selected date and time is already booked.')
-      }
-      // Create booking within transaction
-      return tx.booking.create({
-        data: {
-          name,
-          email,
-          phone: phone ?? null,
-          service,
-          date,
-          time,
-          message: message ?? null,
-          goals,
-          experience: experience ?? null,
-        },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          phone: true,
-          service: true,
-          date: true,
-          time: true,
-          message: true,
-          goals: true,
-          experience: true,
-          status: true,
-        },
-      })
-    })
-
-    // Send emails without awaiting them to avoid blocking the response
-    sendCustomerConfirmation({
-      customerName: name,
-      customerEmail: email,
-      sessionType: service,
-      sessionDate: date.toLocaleDateString('en-AU'),
-      sessionTime: time,
-      goals,
-      experience,
-    })
-      .then(res => {
-        if (!res.success) {
-          console.error(
-            'Failed to send customer confirmation email:',
-            res.error
-          )
-        }
-      })
-      .catch(err => {
-        console.error('Error in sendCustomerConfirmation:', err)
-      })
-
-    sendAdminNotification({
-      customerName: name,
-      customerEmail: email,
-      sessionType: service,
-      sessionDate: date.toLocaleDateString('en-AU'),
-      sessionTime: time,
-      goals,
-      experience,
-    })
-      .then(res => {
-        if (!res.success) {
-          console.error('Failed to send admin notification email:', res.error)
-        }
-      })
-      .catch(err => {
-        console.error('Error in sendAdminNotification:', err)
-      })
+    sendBookingNotifications(newBooking)
 
     return NextResponse.json(
       { message: 'Booking submitted successfully!', data: newBooking },
@@ -149,13 +54,14 @@ export async function POST(request: Request) {
     )
   } catch (error) {
     console.error('Error processing booking form:', error)
-    // Handle booking conflict specifically
-    if ((error as Error).message.startsWith('Booking conflict')) {
-      return NextResponse.json(
-        { message: (error as Error).message },
-        { status: 409 }
-      )
+
+    if (error instanceof BookingConflictError) {
+      return new NextResponse(JSON.stringify({ message: error.message }), {
+        status: 409,
+        headers: { 'Content-Type': 'application/json' },
+      })
     }
+
     return NextResponse.json(
       { message: 'Failed to submit booking.', error: (error as Error).message },
       { status: 500 }

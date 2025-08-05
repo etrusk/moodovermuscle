@@ -98,6 +98,24 @@ npm run security:scan            # Security vulnerability detection
 npm run build:verify             # Build verification
 ```
 
+### Mandatory Deployment Gates (Orchestration)
+
+**Critical Deployment Gates (Must Complete Before Task Completion)**:
+
+```bash
+# POST-IMPLEMENTATION MANDATORY SEQUENCE
+git add .                        # Stage all changes
+git commit -m "conventional-message"  # Commit with conventional format
+git push origin [branch-name]    # Push to trigger deployment/preview
+# Verify deployment success (Vercel/GitHub Actions)
+```
+
+**Orchestrator Completion Protocol Enhancement**:
+
+- **NO TASK** can be marked complete without git commit + push
+- **ALL TODO LISTS** must include deployment gates as mandatory items
+- **ATTEMPT_COMPLETION** tool cannot be used until git operations verified
+
 **Pre-Commit Hook Configuration**:
 
 ```json
@@ -382,24 +400,41 @@ module.exports = {
 
 ## Agent Collaboration Workflows
 
-### Enhanced Orchestration with Mandatory Cleanup
+### Enhanced Orchestration with Mandatory Deployment Gates
 
-**Orchestrated Task Flow** (New Standard):
+**Orchestrated Task Flow** (Updated Standard):
 
 ```
-Architect (Design) → Code (Implementation) → Architect (Mandatory Cleanup) → Complete
+Architect (Design) → Code (Implementation) → Architect (Mandatory Deployment + Cleanup) → Complete
 ```
 
 **Automatic Transition Triggers**:
+
 - Code mode signals "READY_FOR_CLEANUP" when all implementation complete
-- Architect mode automatically handles cleanup phase (never manual prompting)
-- All cleanup tasks must complete before task considered finished
+- Architect mode automatically handles deployment + cleanup phase (never manual prompting)
+- **CRITICAL**: All deployment gates must complete before task considered finished
+
+**Mandatory Deployment Gate Sequence** (Never Skip):
+
+1. **Quality Gates**: All critical gates must pass
+2. **Git Commit**: Conventional commit with proper staging
+3. **Git Push**: Push to appropriate branch (main/feature)
+4. **Deployment Verification**: Confirm Vercel/GitHub Actions success
+5. **Documentation Updates**: Patterns, memory, current-task completion
+6. **Task Completion**: Only after all gates verified
+
+**Orchestrator Anti-Pattern Prevention**:
+
+- ❌ **Premature Completion**: Using `attempt_completion` before git operations
+- ❌ **Deployment Skipping**: Marking tasks complete without push verification
+- ❌ **Quality Gate Bypass**: Skipping any critical gates for speed
+- ❌ **Documentation Debt**: Completing without pattern/memory updates
 
 ### Handoff Templates (Structured Context Transfer)
 
 **Architect → Code Handoff** (.docs/handoffs/architect-to-code.md):
 
-```markdown
+````markdown
 ## Implementation Ready
 
 **Branch**: Create `feature/[description]` from main
@@ -428,11 +463,25 @@ Architect (Design) → Code (Implementation) → Architect (Mandatory Cleanup) �
 ## Completion Protocol
 
 When implementation complete:
+
 1. Mark all roadmap items as [x] in .docs/current-task.md
 2. Run critical quality gates (must pass)
-3. Document any technical debt
-4. Signal "READY_FOR_CLEANUP" for automatic Architect transition
+3. **MANDATORY**: Execute deployment gates (git commit + push)
+4. **MANDATORY**: Verify deployment/build success
+5. Document any technical debt
+6. Signal "READY_FOR_CLEANUP" for automatic Architect transition
+
+**Enhanced Deployment Gates (Never Skip)**:
+
+```bash
+git add .                        # Stage all changes
+git commit -m "type(scope): description"  # Conventional commit
+git push origin main             # Push to main (or feature branch)
+# Wait for Vercel deployment confirmation
 ```
+````
+
+````
 
 **Code → Architect Cleanup Handoff** (Automatic):
 
@@ -451,10 +500,17 @@ When implementation complete:
 - Documentation synchronization (.docs/current-task.md, patterns, memory)
 - Pattern extraction and indexing (if new patterns developed)
 - Institutional memory updates (complexity, outcomes, lessons)
-- Git operations with conventional commit messages
+- **CRITICAL**: Git operations with conventional commit messages
+- **CRITICAL**: Git push to trigger deployment/preview
+- **CRITICAL**: Deployment verification (Vercel build success)
 - Index maintenance and cross-referencing
 - Final quality verification and task completion
-```
+
+**Git Operations Cannot Be Skipped**:
+- Every orchestrated task MUST end with committed and pushed changes
+- Deployment verification MUST be confirmed before task completion
+- No exceptions for any task type (features, fixes, documentation)
+````
 
 **Code → Debug Handoff** (.docs/handoffs/code-to-debug.md):
 

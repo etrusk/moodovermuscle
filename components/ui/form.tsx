@@ -10,6 +10,7 @@ import {
   FieldValues,
   FormProvider,
   useFormContext,
+  FieldError,
 } from 'react-hook-form'
 
 import { cn } from '@/lib/utils'
@@ -47,7 +48,7 @@ type UseFormFieldReturn = {
   formItemId: string
   formDescriptionId: string
   formMessageId: string
-  error?: any
+  error?: FieldError
 }
 
 const useFormField = (): UseFormFieldReturn => {

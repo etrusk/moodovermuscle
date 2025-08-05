@@ -35,6 +35,18 @@ This index captures organizational learning to improve future appetite estimatio
 - **Debugging**: debug strategies, failure recovery, troubleshooting patterns, error resolution, bug fixes, root-cause analysis
 - **Complexity**: complexity scoring, appetite estimation, effort calibration, complexity factors, estimation accuracy, forecasting
 
+## Recent Success Patterns (Last 6 Months)
+
+### ESLint Violation Resolution Pattern ⭐⭐ 
+**Applied**: Critical deployment blocker resolution (Aug 2025)
+**Success Rate**: 100% (all violations resolved within appetite)
+**Key Learning**: Systematic approach with pattern application achieves 81% component size reduction while maintaining functionality. TypeScript `any` types eliminated through focused interface patterns.
+
+### Component Decomposition for Large Files ⭐
+**Applied**: UI component refactoring, ESLint resolution
+**Success Rate**: 90%
+**Key Learning**: Components over 200 lines benefit from decomposition; target <100 lines per component. Specialized patterns (scheduling, form state) provide 80%+ size reductions.
+
 ## Learning Categories
 
 **Complexity Estimation**

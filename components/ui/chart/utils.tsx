@@ -17,7 +17,7 @@ export interface ValidPayload {
 }
 
 export interface FormatterConfig {
-  formatter: (...args: any[]) => React.ReactNode
+  formatter: (value: unknown, name: string, item?: ChartPayloadItem, index?: number, payload?: ChartPayloadItem[]) => React.ReactNode
   value: unknown
   name: string
   item?: ChartPayloadItem
@@ -46,10 +46,10 @@ export function safeFormatter(config: FormatterConfig): React.ReactNode {
 
 // Helper to extract item config from a payload with improved type safety
 export function getPayloadConfigFromPayload(
-  config: Record<string, any>,
+  config: Record<string, unknown>,
   payload: unknown,
   key: string
-): Record<string, any> | undefined {
+): Record<string, unknown> | undefined {
   if (!isValidPayload(payload)) {
     return undefined
   }
@@ -73,6 +73,6 @@ export function getPayloadConfigFromPayload(
   }
 
   return configLabelKey in config
-    ? config[configLabelKey]
-    : config[key as keyof typeof config]
+    ? config[configLabelKey] as Record<string, unknown>
+    : config[key as keyof typeof config] as Record<string, unknown>
 }

@@ -4,6 +4,20 @@ import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { bookingSchema } from '@/lib/schemas'
+import {
+  getFieldsForStep,
+  createValidationUpdates
+} from './logic/formValidation'
+import {
+  validateAvailability,
+  prepareSubmissionData,
+  submitBookingRequest
+} from './logic/formSubmission'
+import {
+  createFormDataUpdater,
+  createFormResetter,
+  getFormState
+} from './logic/formStateManagement'
 
 export interface BookingFormData {
   name: string
@@ -15,6 +29,12 @@ export interface BookingFormData {
   message?: string
   goals?: string
   experience?: string
+}
+
+export interface BookingResult {
+  success: boolean
+  bookingId?: string
+  message?: string
 }
 
 export interface LoadingStates {
@@ -30,7 +50,7 @@ export type UseBookingFormLogicReturn = {
   form: UseFormReturn<BookingFormData>
   formData: BookingFormData
   updateFormData: (data: Partial<BookingFormData>) => void
-  submitForm: (formData: BookingFormData) => Promise<{ error: string } | { success: boolean; booking: any }>
+  submitForm: (formData: BookingFormData) => Promise<{ error: string } | BookingResult>
   resetForm: () => void
   isSubmitting: boolean
   validationErrors: FieldErrors<BookingFormData>
@@ -45,51 +65,25 @@ export type UseBookingFormLogicReturn = {
 const submitForm = async (
   formData: BookingFormData,
   setIsSubmitting: React.Dispatch<React.SetStateAction<boolean>>
-): Promise<{ error: string } | { success: boolean; booking: any }> => {
+): Promise<{ error: string } | BookingResult> => {
   setIsSubmitting(true)
-  // Re-check availability before submission
-  if (formData.date && formData.time) {
-    const dateKey = formData.date.toISOString().split('T')[0]
-    const availRes = await fetch(`/api/availability?date=${dateKey}`)
-    if (!availRes.ok) {
-      return { error: 'Failed to verify availability. Please try again.' }
-    }
-    const availData = await availRes.json()
-    if (!availData.availableTimes.includes(formData.time)) {
-      return {
-        error:
-          'Selected time slot is no longer available. Please choose another slot.',
-      }
-    }
-  }
+  
   try {
-    const data: Record<string, unknown> = {
-      ...formData,
-      date: formData.date ? formData.date.toISOString() : undefined,
-    }
-    Object.keys(data).forEach(key => {
-      if (data[key] === '' || data[key] === undefined) {
-        delete data[key]
-      }
-    })
-    const response = await fetch('/api/book-session', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    })
-
-    const result = await response.json()
-
-    if (!response.ok) {
-      return {
-        error:
-          result.error ||
-          result.message ||
-          'Booking failed. Please try again.',
-      }
+    // Re-check availability before submission
+    const availabilityCheck = await validateAvailability(formData)
+    if (availabilityCheck.error) {
+      return { error: availabilityCheck.error }
     }
 
-    return result
+    // Prepare and submit data
+    const data = prepareSubmissionData(formData)
+    const submissionResult = await submitBookingRequest(data)
+    
+    if (submissionResult.error) {
+      return { error: submissionResult.error }
+    }
+
+    return (submissionResult.result as unknown) as BookingResult || { success: true }
   } finally {
     setIsSubmitting(false)
   }
@@ -99,7 +93,35 @@ export function useBookingFormLogic(
   onClose: () => void,
   initialValues?: Partial<BookingFormData>
 ): UseBookingFormLogicReturn {
-  const form = useForm<BookingFormData>({
+  const form = useFormWithDefaults(initialValues)
+  const loadingStates = useLoadingStates()
+  const validateStep = useStepValidation(form, loadingStates.setStepTransition, loadingStates.setFieldValidation)
+  
+  const updateFormData = createFormDataUpdater(form)
+  const resetForm = createFormResetter(form)
+  const { validationErrors, formData } = getFormState(form)
+
+  return {
+    form,
+    formData,
+    updateFormData,
+    submitForm: (formData: BookingFormData) => submitForm(formData, loadingStates.setIsSubmitting),
+    resetForm,
+    isSubmitting: loadingStates.isSubmitting,
+    validationErrors,
+    validateStep,
+    // Loading states
+    stepTransition: loadingStates.stepTransition,
+    calendarLoading: loadingStates.calendarLoading,
+    fieldValidation: loadingStates.fieldValidation,
+    setCalendarLoading: loadingStates.setCalendarLoading,
+    onClose,
+  }
+}
+
+// Extract form initialization to reduce main function size
+function useFormWithDefaults(initialValues?: Partial<BookingFormData>) {
+  return useForm<BookingFormData>({
     resolver: zodResolver(bookingSchema),
     defaultValues: {
       name: '',
@@ -114,33 +136,45 @@ export function useBookingFormLogic(
       ...initialValues,
     },
   })
+}
 
+// Extract loading states management
+function useLoadingStates() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [stepTransition, setStepTransition] = useState(false)
   const [calendarLoading, setCalendarLoading] = useState(false)
-  const [fieldValidation, setFieldValidation] = useState<
-    Record<string, boolean>
-  >({})
+  const [fieldValidation, setFieldValidation] = useState<Record<string, boolean>>({})
 
-  const validateStep = async (step: number): Promise<boolean> => {
+  return {
+    isSubmitting,
+    setIsSubmitting,
+    stepTransition,
+    setStepTransition,
+    calendarLoading,
+    setCalendarLoading,
+    fieldValidation,
+    setFieldValidation,
+  }
+}
+
+// Extract step validation logic
+function useStepValidation(
+  form: UseFormReturn<BookingFormData>,
+  setStepTransition: React.Dispatch<React.SetStateAction<boolean>>,
+  setFieldValidation: React.Dispatch<React.SetStateAction<Record<string, boolean>>>
+) {
+  return async (step: number): Promise<boolean> => {
     setStepTransition(true)
-    const fieldsByStep: Record<number, (keyof BookingFormData)[]> = {
-      1: ['name', 'email', 'phone', 'goals'],
-      2: ['service'],
-      3: ['date', 'time'],
-    }
-    const fields = fieldsByStep[step]
+    const fields = getFieldsForStep(step)
+    
     if (!fields) {
       setStepTransition(false)
       return false
     }
+    
     try {
       const result = await form.trigger(fields)
-      // Update per-field validation states
-      const validationUpdates: Record<string, boolean> = {}
-      fields.forEach(field => {
-        validationUpdates[field] = !form.formState.errors[field]
-      })
+      const validationUpdates = createValidationUpdates(fields, form.formState.errors)
       setFieldValidation(prev => ({ ...prev, ...validationUpdates }))
       return result
     } catch {
@@ -148,39 +182,5 @@ export function useBookingFormLogic(
     } finally {
       setStepTransition(false)
     }
-  }
-
-  const updateFormData = (data: Partial<BookingFormData>): void => {
-    Object.entries(data).forEach(([key, value]) =>
-      form.setValue(
-        key as keyof BookingFormData,
-        value as BookingFormData[keyof BookingFormData],
-        { shouldValidate: true }
-      )
-    )
-  }
-
-  const resetForm = (): void => {
-    form.reset()
-  }
-
-  const validationErrors = form.formState.errors
-  const formData = form.getValues()
-
-  return {
-    form,
-    formData,
-    updateFormData,
-    submitForm: (formData: BookingFormData) => submitForm(formData, setIsSubmitting),
-    resetForm,
-    isSubmitting,
-    validationErrors,
-    validateStep,
-    // Loading states
-    stepTransition,
-    calendarLoading,
-    fieldValidation,
-    setCalendarLoading,
-    onClose,
   }
 }

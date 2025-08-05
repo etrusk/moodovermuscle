@@ -5,6 +5,14 @@ import * as RechartsPrimitive from 'recharts'
 
 import { cn } from '@/lib/utils'
 
+type ChartConfigItem = {
+  label?: React.ReactNode
+  icon?: React.ComponentType
+} & (
+  | { color?: string; theme?: never }
+  | { color?: never; theme: Record<keyof typeof THEMES, string> }
+)
+
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: '', dark: '.dark' } as const
 
@@ -123,7 +131,7 @@ function generateThemeCSS(
   theme: string,
   prefix: string,
   id: string,
-  colorConfig: [string, any][]
+  colorConfig: [string, ChartConfigItem][]
 ): string {
   const colorRules = colorConfig
     .map(([key, itemConfig]) => {

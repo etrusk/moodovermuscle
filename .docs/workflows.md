@@ -382,6 +382,19 @@ module.exports = {
 
 ## Agent Collaboration Workflows
 
+### Enhanced Orchestration with Mandatory Cleanup
+
+**Orchestrated Task Flow** (New Standard):
+
+```
+Architect (Design) → Code (Implementation) → Architect (Mandatory Cleanup) → Complete
+```
+
+**Automatic Transition Triggers**:
+- Code mode signals "READY_FOR_CLEANUP" when all implementation complete
+- Architect mode automatically handles cleanup phase (never manual prompting)
+- All cleanup tasks must complete before task considered finished
+
 ### Handoff Templates (Structured Context Transfer)
 
 **Architect → Code Handoff** (.docs/handoffs/architect-to-code.md):
@@ -411,6 +424,36 @@ module.exports = {
 ## Circuit Breakers
 
 [Scope boundaries - when to escalate]
+
+## Completion Protocol
+
+When implementation complete:
+1. Mark all roadmap items as [x] in .docs/current-task.md
+2. Run critical quality gates (must pass)
+3. Document any technical debt
+4. Signal "READY_FOR_CLEANUP" for automatic Architect transition
+```
+
+**Code → Architect Cleanup Handoff** (Automatic):
+
+```markdown
+## Implementation Complete Context
+
+**Implementation Summary**: [What was completed within appetite]
+**Patterns Applied**: [Institutional patterns used from memory]
+**New Patterns Identified**: [Reusable patterns discovered]
+**Technical Debt**: [Any deferred items documented]
+**Quality Status**: [Critical gates passed/failed]
+**Appetite Compliance**: [Within/exceeding boundaries]
+
+## Mandatory Cleanup Scope
+
+- Documentation synchronization (.docs/current-task.md, patterns, memory)
+- Pattern extraction and indexing (if new patterns developed)
+- Institutional memory updates (complexity, outcomes, lessons)
+- Git operations with conventional commit messages
+- Index maintenance and cross-referencing
+- Final quality verification and task completion
 ```
 
 **Code → Debug Handoff** (.docs/handoffs/code-to-debug.md):

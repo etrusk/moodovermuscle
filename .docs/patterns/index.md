@@ -26,14 +26,19 @@ This index helps agents find proven implementation approaches before starting ne
 - [Rate Limiting Pattern](./api-rate-limiting-pattern.md) - request throttling and quota management
 - [Function Decomposition Pattern](./api-function-decomposition-pattern.md) - breaking down complex endpoints into smaller, single-responsibility functions
 
-**UI Components**
+**Form Handling & Validation**
 
 - [Form Validation Pattern](./ui-form-validation-pattern.md) - client-side validation with error display
+- [Form State Management Separation Pattern](./form-state-management-separation-pattern.md) - extracting form state logic from UI components
+
+**UI Components**
+
 - [Loading State Pattern](./ui-loading-state-pattern.md) - async operation feedback and skeleton loading
 - [Error Boundary Pattern](./ui-error-boundary-pattern.md) - React error handling and recovery
 - [Responsive Design Pattern](./ui-responsive-design-pattern.md) - mobile-first component architecture
 - [Component Decomposition Pattern](./ui-component-decomposition-pattern.md) - breaking down monolithic UI components into focused modules
 - [Chart Component Decomposition Pattern](./chart-component-decomposition-pattern.md) - specialized decomposition for data visualization components with parameter reduction
+- [Scheduling Component Decomposition Pattern](./scheduling-component-decomposition-pattern.md) - specialized decomposition for complex scheduling UI components
 
 **File Handling**
 
@@ -125,6 +130,10 @@ This index helps agents find proven implementation approaches before starting ne
 
 [Links to complementary or alternative patterns]
 ```
+
+**Orchestration & Workflow**
+
+- [Orchestrated Task Completion Pattern](./orchestrated-task-completion-pattern.md) - mandatory cleanup phase with automatic Architect mode transition
 
 **Integration with Other Indexes**:
 

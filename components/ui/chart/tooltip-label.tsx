@@ -102,9 +102,9 @@ function getLabelValue({
   chartConfig: TooltipLabelConfig['config']
   itemConfig: ReturnType<typeof getPayloadConfigFromPayload>
 }): React.ReactNode {
-  return !labelKey && typeof label === 'string'
+  return (!labelKey && typeof label === 'string'
     ? chartConfig[label as keyof typeof chartConfig]?.label ?? label
-    : itemConfig?.label
+    : itemConfig?.label) as React.ReactNode
 }
 
 function renderLabelContent({

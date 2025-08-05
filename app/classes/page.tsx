@@ -11,11 +11,12 @@ import {
   Users,
   Heart,
   Calendar,
-  ArrowRight,
-  CheckCircle,
   Sparkles,
   MapPin,
 } from 'lucide-react'
+import { ServiceCardHeader } from '@/components/classes/ServiceCardHeader'
+import { ServiceCardContent } from '@/components/classes/ServiceCardContent'
+import { ServiceCardActions } from '@/components/classes/ServiceCardActions'
 
 const services = [
   {
@@ -129,81 +130,22 @@ const ServiceCard = ({ service, onBookSessionClick }: { service: typeof services
       service.comingSoon ? 'opacity-75' : ''
     }`}
   >
-    {service.popular && (
-      <div className="absolute -top-1 left-6 bg-gradient-to-r from-amber-400 to-orange-400 text-amber-900 px-4 py-2 rounded-full text-sm font-bold z-10 shadow-lg">
-        Most Popular ⭐
-      </div>
-    )}
-    {service.comingSoon && (
-      <div className="absolute -top-1 right-6 bg-gradient-to-r from-blue-400 to-cyan-400 text-blue-900 px-4 py-2 rounded-full text-sm font-bold z-10 shadow-lg">
-        Coming Soon 🚀
-      </div>
-    )}
+    <ServiceCardHeader popular={service.popular} comingSoon={service.comingSoon} />
 
     <CardContent className="p-10 space-y-8 pt-12">
-      <div className="flex flex-col lg:flex-row items-start lg:items-center gap-6 lg:gap-8">
-        <div className="inline-flex p-6 rounded-3xl bg-gradient-to-r from-rose-500 to-pink-500 shadow-xl group-hover:scale-110 transition-transform">
-          <service.icon className="h-8 w-8 stroke-1 text-white" />
-        </div>
+      <ServiceCardContent
+        icon={service.icon}
+        title={service.title}
+        description={service.description}
+        price={service.price}
+        features={service.features}
+      />
 
-        <div className="flex-1 space-y-4">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <h3 className="text-2xl md:text-3xl font-bold text-stone-900">
-              {service.title}
-            </h3>
-            <div className="flex items-center gap-3">
-              <div className="text-3xl font-bold text-rose-600">
-                {service.price}
-              </div>
-              <div className="text-lg text-stone-500">
-                per session
-              </div>
-            </div>
-          </div>
-
-          <p className="text-stone-600 leading-relaxed text-lg">
-            {service.description}
-          </p>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            {service.features.map((feature, featureIndex) => (
-              <div
-                key={featureIndex}
-                className="flex items-center gap-3 text-stone-600"
-              >
-                <CheckCircle className="h-4 w-4 stroke-1 text-rose-500 flex-shrink-0" />
-                <span>{feature}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 pt-6 border-t border-stone-100">
-        <Button
-          disabled={service.comingSoon}
-          onClick={
-            !service.comingSoon
-              ? onBookSessionClick
-              : undefined
-          }
-          className={`flex-1 lg:flex-none lg:px-8 bg-gradient-to-r ${service.gradient} hover:shadow-xl text-white rounded-full transition-all duration-300 py-6 text-lg font-medium group disabled:opacity-50 disabled:cursor-not-allowed`}
-        >
-          {service.comingSoon
-            ? 'Coming Soon'
-            : 'Start FREE Session'}
-          {!service.comingSoon && (
-            <ArrowRight className="ml-2 h-4 w-4 stroke-1 group-hover:translate-x-1 transition-transform" />
-          )}
-        </Button>
-
-        {!service.comingSoon && (
-          <div className="text-center lg:text-left text-sm text-stone-500 flex items-center justify-center lg:justify-start">
-            💯 First session completely FREE • No commitment
-            required
-          </div>
-        )}
-      </div>
+      <ServiceCardActions
+        comingSoon={service.comingSoon}
+        gradient={service.gradient}
+        onBookSessionClick={onBookSessionClick}
+      />
     </CardContent>
   </Card>
 )

@@ -109,16 +109,22 @@ describe('API POST /api/book-session', () => {
       data: validData,
       error: null,
     })
-    mockCreation.createBooking.mockRejectedValue(
-      new creation.BookingConflictError('Booking conflict')
+
+    // Create a proper error object for mocking
+    const conflictError = new Error('Booking conflict')
+    conflictError.name = 'BookingConflictError'
+    Object.setPrototypeOf(
+      conflictError,
+      creation.BookingConflictError.prototype
     )
+
+    mockCreation.createBooking.mockRejectedValue(conflictError)
 
     const req = makeJsonRequest(validData)
     const res = await POST(req)
     expect(res.status).toBe(409)
     const json = await res.json()
     expect(json).toHaveProperty('message', 'Booking conflict')
-
   })
 
   test('returns 500 on server exception', async () => {

@@ -5,13 +5,18 @@ import * as RechartsPrimitive from 'recharts'
 
 import { cn } from '@/lib/utils'
 import { useChart } from './core'
-import { ChartPayloadItem, safeFormatter, getPayloadConfigFromPayload, FormatterConfig } from './utils'
-import { useTooltipLabel } from './tooltip-label'
+import {
+  ChartPayloadItem,
+  safeFormatter,
+  getPayloadConfigFromPayload,
+  FormatterConfig,
+} from './utils'
+import { useTooltipLogic } from './tooltip-logic'
 import {
   ChartTooltipContentProps,
   TooltipRowProps,
   TooltipRowContentProps,
-  ChartConfig
+  ChartConfig,
 } from './tooltip-types'
 
 export const ChartTooltip = RechartsPrimitive.Tooltip
@@ -40,62 +45,108 @@ export const ChartTooltipContent = React.forwardRef<
   ) => {
     const { config } = useChart()
 
-    const tooltipLabel = useTooltipLabel({
-      hideLabel,
+    const { tooltipLabel, isVisible, nestLabel } = useTooltipLogic({
+      active,
       payload,
+      hideLabel,
       label,
       labelFormatter,
       labelClassName,
       config: config as ChartConfig,
       labelKey,
+      indicator,
     })
 
-    if (!active || !payload?.length) {
+    if (!isVisible) {
       return null
     }
 
-    const nestLabel = payload.length === 1 && indicator !== 'dot'
-
     return (
-      <div
+      <ChartTooltipContainer
         ref={ref}
-        role="tooltip"
-        aria-live="polite"
-        aria-atomic="true"
-        className={cn(
-          'grid min-w-[8rem] items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl',
-          className
-        )}
-      >
-        {!nestLabel ? tooltipLabel : null}
-        <div className="grid gap-1.5">
-          {payload.map((item, index) => (
-            <ChartTooltipRow
-              key={`item-${index}`}
-              item={item}
-              formatter={formatter}
-              itemConfig={getPayloadConfigFromPayload(
-                config,
-                item,
-                `${nameKey ?? item.name ?? item.dataKey ?? 'value'}`
-              )}
-              indicatorColor={color ?? (item.color as string)}
-              indicator={indicator}
-              hideIndicator={hideIndicator}
-              nestLabel={nestLabel}
-              tooltipLabel={tooltipLabel}
-              index={index}
-              payload={payload}
-            />
-          ))}
-        </div>
-      </div>
+        className={className}
+        nestLabel={nestLabel}
+        tooltipLabel={tooltipLabel}
+        payload={payload}
+        formatter={formatter}
+        config={config}
+        color={color}
+        nameKey={nameKey}
+        indicator={indicator}
+        hideIndicator={hideIndicator}
+      />
     )
   }
 )
 ChartTooltipContent.displayName = 'ChartTooltip'
 
-// TooltipContainer function removed - unused code eliminated
+// Extracted container component to reduce main function size
+const ChartTooltipContainer = React.forwardRef<
+  HTMLDivElement,
+  {
+    className?: string
+    nestLabel: boolean
+    tooltipLabel: React.ReactNode
+    payload: ChartTooltipContentProps['payload']
+    formatter?: ChartTooltipContentProps['formatter']
+    config: ChartConfig
+    color?: string
+    nameKey?: string
+    indicator: ChartTooltipContentProps['indicator']
+    hideIndicator: boolean
+  }
+>(
+  (
+    {
+      className,
+      nestLabel,
+      tooltipLabel,
+      payload = [],
+      formatter,
+      config,
+      color,
+      nameKey,
+      indicator = 'dot',
+      hideIndicator,
+    },
+    ref
+  ) => (
+    <div
+      ref={ref}
+      role="tooltip"
+      aria-live="polite"
+      aria-atomic="true"
+      className={cn(
+        'grid min-w-[8rem] items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl',
+        className
+      )}
+    >
+      {!nestLabel ? tooltipLabel : null}
+      <div className="grid gap-1.5">
+        {payload.map((item, index) => (
+          <ChartTooltipRow
+            key={`item-${index}`}
+            item={item}
+            formatter={formatter}
+            itemConfig={getPayloadConfigFromPayload(
+              config,
+              item,
+              `${nameKey ?? item.name ?? item.dataKey ?? 'value'}`
+            )}
+            indicatorColor={color ?? (item.color as string)}
+            indicator={indicator}
+            hideIndicator={hideIndicator}
+            nestLabel={nestLabel}
+            tooltipLabel={tooltipLabel}
+            index={index}
+            payload={payload}
+          />
+        ))}
+      </div>
+    </div>
+  )
+)
+ChartTooltipContainer.displayName = 'ChartTooltipContainer'
 
 function ChartTooltipRow(props: TooltipRowProps): React.ReactElement {
   const {

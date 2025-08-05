@@ -9,10 +9,10 @@ set -euo pipefail
 # Check if server is already running on port 3001
 if ! lsof -i:3001 -t >/dev/null; then
   echo "Building application..."
-  npm run build
+  pnpm run build
 
   echo "Starting server on port 3001..."
-  PORT=3001 npm run start &
+  PORT=3001 pnpm run start &
   SERVER_PID=$!
   # Give server time to start
   sleep 5

@@ -11,7 +11,66 @@ interface BookingWizardProps {
   onClose: () => void
 }
 
-const useWizardLogic = (onClose: () => void) => {
+// Applying TypeScript Interface Pattern for type safety
+interface SubmissionResult {
+  error?: string
+  success?: boolean
+  booking?: unknown
+}
+
+interface SubmissionHandlers {
+  submitForm: (data: BookingFormData) => Promise<SubmissionResult>
+  setSubmissionSuccess: (value: boolean) => void
+  setSubmissionError: (value: string | null) => void
+  setCurrentStep: (value: number) => void
+  form: {
+    setValue: (field: keyof BookingFormData, value: string) => void
+  }
+}
+
+// Applying Function Decomposition Pattern - extracted submission handling with parameter reduction
+const handleFormSubmission = async (
+  data: BookingFormData,
+  handlers: SubmissionHandlers
+): Promise<void> => {
+  try {
+    const result = await handlers.submitForm(data)
+    if (result.error) {
+      const conflict = result.error.includes('already booked') || result.error.includes('no longer available')
+      handlers.setSubmissionError(result.error)
+      handlers.setCurrentStep(conflict ? 3 : 1)
+      handlers.form.setValue('time', '')
+      return
+    }
+    handlers.setSubmissionSuccess(true)
+    handlers.setSubmissionError(null)
+  } catch (error) {
+    console.error('Network error during submission:', error)
+    handlers.setSubmissionError('Network Error')
+    handlers.setCurrentStep(1)
+  }
+}
+
+// Applying TypeScript Interface Pattern for return type safety
+interface WizardLogicReturn {
+  totalSteps: number
+  currentStep: number
+  loadingStates: {
+    stepTransition: boolean
+    formSubmission: boolean
+  }
+  submissionSuccess: boolean
+  submissionError: string | null
+  handleNext: () => Promise<void>
+  handlePrevious: () => void
+  handleSubmit: (data: BookingFormData) => Promise<void>
+  form: {
+    handleSubmit: (fn: (data: BookingFormData) => Promise<void>) => (e: React.FormEvent) => Promise<void>
+    setValue: (field: keyof BookingFormData, value: string) => void
+  }
+}
+
+const useWizardLogic = (onClose: () => void): WizardLogicReturn => {
   const totalSteps = 3
   const [currentStep, setCurrentStep] = useState(1)
   const { validateStep, submitForm, form, loadingStates } = useBookingForm()
@@ -32,22 +91,13 @@ const useWizardLogic = (onClose: () => void) => {
   }
 
   const handleSubmit = async (data: BookingFormData): Promise<void> => {
-    try {
-      const result = await submitForm(data)
-      if ('error' in result) {
-        const conflict = result.error.includes('already booked') || result.error.includes('no longer available')
-        setSubmissionError(result.error)
-        setCurrentStep(conflict ? 3 : 1)
-        form.setValue('time', '')
-        return
-      }
-      setSubmissionSuccess(true)
-      setSubmissionError(null)
-    } catch (error) {
-      console.error('Network error during submission:', error)
-      setSubmissionError('Network Error')
-      setCurrentStep(1)
-    }
+    await handleFormSubmission(data, {
+      submitForm,
+      setSubmissionSuccess,
+      setSubmissionError,
+      setCurrentStep,
+      form
+    })
   }
 
   useEffect(() => {
@@ -76,6 +126,31 @@ const SuccessView = (): React.ReactElement => (
   </div>
 )
 
+// Applying UI Component Decomposition Pattern - extracted error display
+const ErrorDisplay = ({ submissionError }: { submissionError: string | null }): React.ReactElement | null => (
+  submissionError ? (
+    <div
+      className="p-4 mb-4 text-center text-red-600"
+      data-testid="booking-error"
+    >
+      {submissionError}
+    </div>
+  ) : null
+)
+
+// Applying TypeScript Interface Pattern for component props
+interface FormViewProps {
+  currentStep: number
+  totalSteps: number
+  loadingStates: {
+    stepTransition: boolean
+    formSubmission: boolean
+  }
+  submissionError: string | null
+  handleNext: () => Promise<void>
+  handlePrevious: () => void
+}
+
 const FormView = ({
   currentStep,
   totalSteps,
@@ -83,23 +158,9 @@ const FormView = ({
   submissionError,
   handleNext,
   handlePrevious,
-}: {
-  currentStep: number
-  totalSteps: number
-  loadingStates: any
-  submissionError: string | null
-  handleNext: () => Promise<void>
-  handlePrevious: () => void
-}): React.ReactElement => (
+}: FormViewProps): React.ReactElement => (
   <>
-    {submissionError && (
-      <div
-        className="p-4 mb-4 text-center text-red-600"
-        data-testid="booking-error"
-      >
-        {submissionError}
-      </div>
-    )}
+    <ErrorDisplay submissionError={submissionError} />
     <WizardHeader
       currentStep={currentStep}
       totalSteps={totalSteps}

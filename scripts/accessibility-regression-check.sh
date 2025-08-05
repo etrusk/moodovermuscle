@@ -9,7 +9,7 @@ BASELINE_FILE=".accessibility-baseline.json"
 REPORT_FILE="accessibility-report.json"
 
 # Generate new report
-npm run test:accessibility:all
+pnpm run test:accessibility:all
 
 # Ensure baseline exists
 if [ ! -f "$BASELINE_FILE" ]; then

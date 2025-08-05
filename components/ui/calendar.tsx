@@ -18,10 +18,10 @@ function Calendar({
   onMonthChange,
   onDayMouseEnter,
   ...props
-}: CalendarProps) {
+}: CalendarProps): React.ReactElement {
   const currentDay = new Date().getDate()
 
-  const handleDayMouseEnter = (day: Date) => {
+  const handleDayMouseEnter = (day: Date): void => {
     if (onDayMouseEnter) {
       onDayMouseEnter(day)
     }

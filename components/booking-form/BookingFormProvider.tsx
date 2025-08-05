@@ -13,7 +13,7 @@ const BookingFormContext = createContext<BookingFormContextValue>(
   {} as BookingFormContextValue
 )
 
-export function useBookingForm() {
+export function useBookingForm(): BookingFormContextValue {
   return useContext(BookingFormContext)
 }
 
@@ -27,7 +27,7 @@ export function BookingFormProvider({
   onClose,
   children,
   initialValues,
-}: BookingFormProviderProps) {
+}: BookingFormProviderProps): React.ReactElement {
   const logic = useBookingFormLogic(onClose, initialValues)
 
   const loadingStates: LoadingStates = {

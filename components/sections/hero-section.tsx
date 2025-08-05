@@ -8,7 +8,9 @@ interface HeroSectionProps {
   onBookSessionClick: () => void
 }
 
-export function HeroSection({ onBookSessionClick }: HeroSectionProps) {
+export function HeroSection({
+  onBookSessionClick,
+}: HeroSectionProps): React.ReactElement {
   return (
     <section className="section-height section-white w-full overflow-hidden relative">
       <Image

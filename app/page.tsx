@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { Header } from '@/components/header'
 import { BookingForm } from '@/components/booking-form'
 import { HeroSection } from '@/components/sections/hero-section'
@@ -11,10 +11,10 @@ import { GallerySection } from '@/components/sections/gallery-section'
 import { LocationContactSection } from '@/components/sections/location-contact-section'
 import { FinalCtaSection } from '@/components/sections/final-cta-section'
 
-export default function Home() {
+export default function Home(): React.ReactElement {
   const [isBookingOpen, setIsBookingOpen] = useState(false)
 
-  const handleBookSessionClick = () => {
+  const handleBookSessionClick = (): void => {
     setIsBookingOpen(true)
   }
 

@@ -18,8 +18,8 @@ if (process.env.NODE_ENV === 'test') {
 
 // Email configuration
 const emailConfig = {
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT || '587'),
+  host: process.env.SMTP_HOST ?? 'smtp.gmail.com',
+  port: parseInt(process.env.SMTP_PORT ?? '587'),
   secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
   auth: {
     user: process.env.SMTP_USER,
@@ -39,7 +39,7 @@ export const createCustomerConfirmationEmail = (booking: {
   sessionTime: string
   goals?: string
   experience?: string
-}) => {
+}): { subject: string; html: string; text: string } => {
   const subject = 'Booking Confirmation - Mood Over Muscle'
 
   const html = `
@@ -151,7 +151,7 @@ export const createAdminNotificationEmail = (booking: {
   sessionTime: string
   goals?: string
   experience?: string
-}) => {
+}): { subject: string; html: string; text: string } => {
   const subject = `New Booking: ${booking.customerName} - ${booking.sessionType}`
 
   const html = `
@@ -251,12 +251,12 @@ export const sendCustomerConfirmation = async (booking: {
   sessionTime: string
   goals?: string
   experience?: string
-}) => {
+}): Promise<{ success: boolean; messageId?: string; error?: string }> => {
   try {
     const { subject, html, text } = createCustomerConfirmationEmail(booking)
 
     const mailOptions = {
-      from: `"${process.env.EMAIL_FROM_NAME || 'Mood Over Muscle'}" <${process.env.EMAIL_FROM}>`,
+      from: `"${process.env.EMAIL_FROM_NAME ?? 'Mood Over Muscle'}" <${process.env.EMAIL_FROM}>`,
       to: booking.customerEmail,
       subject,
       text,
@@ -283,12 +283,12 @@ export const sendAdminNotification = async (booking: {
   sessionTime: string
   goals?: string
   experience?: string
-}) => {
+}): Promise<{ success: boolean; messageId?: string; error?: string }> => {
   try {
     const { subject, html, text } = createAdminNotificationEmail(booking)
 
     const mailOptions = {
-      from: `"${process.env.EMAIL_FROM_NAME || 'Mood Over Muscle'}" <${process.env.EMAIL_FROM}>`,
+      from: `"${process.env.EMAIL_FROM_NAME ?? 'Mood Over Muscle'}" <${process.env.EMAIL_FROM}>`,
       to: process.env.ADMIN_EMAIL,
       subject,
       text,
@@ -308,7 +308,10 @@ export const sendAdminNotification = async (booking: {
 }
 
 // Test email connection
-export const testEmailConnection = async () => {
+export const testEmailConnection = async (): Promise<{
+  success: boolean
+  error?: string
+}> => {
   try {
     await transporter.verify()
     console.log('Email server connection verified')

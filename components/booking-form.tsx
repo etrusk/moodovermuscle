@@ -10,7 +10,10 @@ interface BookingFormProps {
   onClose: () => void
 }
 
-export function BookingForm({ isOpen, onClose }: BookingFormProps) {
+export function BookingForm({
+  isOpen,
+  onClose,
+}: BookingFormProps): React.ReactElement {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent

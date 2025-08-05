@@ -10,7 +10,7 @@ interface WizardStepsProps {
   isLoading?: boolean
 }
 
-export function WizardSteps({ currentStep, isLoading = false }: WizardStepsProps) {
+export function WizardSteps({ currentStep, isLoading = false }: WizardStepsProps): React.ReactElement | null {
   switch (currentStep) {
     case 1:
       return <PersonalDetailsStep isLoading={isLoading} />

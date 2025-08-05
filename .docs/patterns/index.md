@@ -24,6 +24,7 @@ This index helps agents find proven implementation approaches before starting ne
 - [Error Response Pattern](./api-error-response-pattern.md) - standardized error handling and status codes
 - [Validation Middleware Pattern](./api-validation-middleware-pattern.md) - request validation and sanitization
 - [Rate Limiting Pattern](./api-rate-limiting-pattern.md) - request throttling and quota management
+- [Function Decomposition Pattern](./api-function-decomposition-pattern.md) - breaking down complex endpoints into smaller, single-responsibility functions
 
 **UI Components**
 
@@ -31,6 +32,8 @@ This index helps agents find proven implementation approaches before starting ne
 - [Loading State Pattern](./ui-loading-state-pattern.md) - async operation feedback and skeleton loading
 - [Error Boundary Pattern](./ui-error-boundary-pattern.md) - React error handling and recovery
 - [Responsive Design Pattern](./ui-responsive-design-pattern.md) - mobile-first component architecture
+- [Component Decomposition Pattern](./ui-component-decomposition-pattern.md) - breaking down monolithic UI components into focused modules
+- [Chart Component Decomposition Pattern](./chart-component-decomposition-pattern.md) - specialized decomposition for data visualization components with parameter reduction
 
 **File Handling**
 

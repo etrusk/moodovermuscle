@@ -33,7 +33,7 @@ const FormField = <
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 >({
   ...props
-}: ControllerProps<TFieldValues, TName>) => {
+}: ControllerProps<TFieldValues, TName>): React.ReactElement => {
   return (
     <FormFieldContext.Provider value={{ name: props.name }}>
       <Controller {...props} />
@@ -41,7 +41,16 @@ const FormField = <
   )
 }
 
-const useFormField = () => {
+type UseFormFieldReturn = {
+  id: string
+  name: string
+  formItemId: string
+  formDescriptionId: string
+  formMessageId: string
+  error?: any
+}
+
+const useFormField = (): UseFormFieldReturn => {
   const fieldContext = React.useContext(FormFieldContext)
   const itemContext = React.useContext(FormItemContext)
   const { getFieldState, formState } = useFormContext()

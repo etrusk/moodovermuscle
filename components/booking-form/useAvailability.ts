@@ -5,13 +5,49 @@ export interface AvailabilityData {
   bookedTimes: string[]
 }
 
-export const useAvailability = (date: Date | undefined) => {
-  const [availableTimes, setAvailableTimes] = useState<string[]>([])
-  const [bookedTimes, setBookedTimes] = useState<string[]>([])
-  const [loadingAvailability, setLoadingAvailability] = useState(false)
+export type UseAvailabilityReturn = {
+  availableTimes: string[]
+  bookedTimes: string[]
+  loadingAvailability: boolean
+  fetchAvailability: (fetchDate: Date) => Promise<void>
+  availabilityCache: Record<string, AvailabilityData>
+}
+
+const useAvailabilityCache = () => {
   const [availabilityCache, setAvailabilityCache] = useState<
     Record<string, AvailabilityData>
   >({})
+
+  return { availabilityCache, setAvailabilityCache }
+}
+
+const useAvailabilityState = () => {
+  const [availableTimes, setAvailableTimes] = useState<string[]>([])
+  const [bookedTimes, setBookedTimes] = useState<string[]>([])
+  const [loadingAvailability, setLoadingAvailability] = useState(false)
+
+  return {
+    availableTimes,
+    setAvailableTimes,
+    bookedTimes,
+    setBookedTimes,
+    loadingAvailability,
+    setLoadingAvailability,
+  }
+}
+
+export const useAvailability = (
+  date: Date | undefined
+): UseAvailabilityReturn => {
+  const { availabilityCache, setAvailabilityCache } = useAvailabilityCache()
+  const {
+    availableTimes,
+    setAvailableTimes,
+    bookedTimes,
+    setBookedTimes,
+    loadingAvailability,
+    setLoadingAvailability,
+  } = useAvailabilityState()
 
   const fetchAvailability = useCallback(async (fetchDate: Date) => {
     const dateParam = fetchDate.toISOString().split('T')[0]
@@ -39,7 +75,7 @@ export const useAvailability = (date: Date | undefined) => {
     } finally {
       setLoadingAvailability(false)
     }
-  }, [availabilityCache])
+  }, [availabilityCache, setAvailabilityCache, setAvailableTimes, setBookedTimes, setLoadingAvailability])
 
   useEffect(() => {
     if (date) {
@@ -48,7 +84,7 @@ export const useAvailability = (date: Date | undefined) => {
       setAvailableTimes([])
       setBookedTimes([])
     }
-  }, [date, fetchAvailability])
+  }, [date, fetchAvailability, setAvailableTimes, setBookedTimes])
 
   return {
     availableTimes,

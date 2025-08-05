@@ -14,7 +14,9 @@ interface FinalCtaSectionProps {
   onBookSessionClick: () => void
 }
 
-export function FinalCtaSection({ onBookSessionClick }: FinalCtaSectionProps) {
+export function FinalCtaSection({
+  onBookSessionClick,
+}: FinalCtaSectionProps): React.ReactElement {
   return (
     <section className="section-height section-white w-full bg-gradient-to-br from-rose-500 via-pink-500 to-rose-600 text-white relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-r from-black/10 to-transparent"></div>

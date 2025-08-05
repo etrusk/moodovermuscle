@@ -3,7 +3,7 @@
 import { Instagram } from 'lucide-react'
 import Image from 'next/image'
 
-export function GallerySection() {
+export function GallerySection(): React.ReactElement {
   return (
     <section id="gallery" className="section-height section-white w-full">
       <div className="container px-4 md:px-6 max-w-7xl mx-auto section-inner mobile-px">
@@ -94,11 +94,11 @@ export function GallerySection() {
             <div
               key={index}
               className={`relative group overflow-hidden rounded-3xl hover:scale-105 transition-transform duration-500 ${
-                image.span || ''
+                image.span ?? ''
               }`}
             >
               <Image
-                src={image.src || '/placeholder.svg'}
+                src={image.src ?? '/placeholder.svg'}
                 alt={image.alt}
                 width={400}
                 height={300}

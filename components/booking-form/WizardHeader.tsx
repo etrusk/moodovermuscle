@@ -19,7 +19,7 @@ export function WizardHeader({
   currentStep,
   totalSteps,
   isLoading,
-}: WizardHeaderProps) {
+}: WizardHeaderProps): React.ReactElement {
   const progressPercentage = (currentStep / totalSteps) * 100
 
   return (

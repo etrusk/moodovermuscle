@@ -15,6 +15,82 @@ interface WizardNavigationProps {
   canProceed: boolean
 }
 
+const BackButton = ({
+  onPrevious,
+  isNextLoading,
+  isSubmitLoading,
+}: {
+  onPrevious: () => void
+  isNextLoading: boolean
+  isSubmitLoading: boolean
+}): React.ReactElement => (
+  <Button
+    type="button"
+    variant="outline"
+    onClick={onPrevious}
+    className="flex-1"
+    disabled={isNextLoading || isSubmitLoading}
+    data-testid="booking-form-back-button"
+  >
+    Back
+  </Button>
+)
+
+const NextButton = ({
+  onNext,
+  canProceed,
+  isNextLoading,
+}: {
+  onNext: () => void
+  canProceed: boolean
+  isNextLoading: boolean
+}): React.ReactElement => (
+  <Button
+    type="button"
+    onClick={onNext}
+    className="flex-1"
+    disabled={!canProceed || isNextLoading}
+    aria-busy={isNextLoading}
+    data-testid="booking-form-continue-button"
+  >
+    {isNextLoading ? (
+      <>
+        <Loader2 className="animate-spin mr-2 h-4 w-4" />
+        Validating...
+      </>
+    ) : (
+      <>
+        Continue <ArrowRight className="ml-2 h-5 w-5 stroke-1" />
+      </>
+    )}
+  </Button>
+)
+
+const SubmitButton = ({
+  canProceed,
+  isSubmitLoading,
+}: {
+  canProceed: boolean
+  isSubmitLoading: boolean
+}): React.ReactElement => (
+  <Button
+    type="submit"
+    className="flex-1"
+    disabled={!canProceed || isSubmitLoading}
+    aria-busy={isSubmitLoading}
+    data-testid="booking-form-submit-button"
+  >
+    {isSubmitLoading ? (
+      <>
+        <Loader2 className="animate-spin mr-2 h-4 w-4" />
+        Booking...
+      </>
+    ) : (
+      'Book My FREE Session! 🎉'
+    )}
+  </Button>
+)
+
 export function WizardNavigation({
   currentStep,
   totalSteps,
@@ -23,58 +99,27 @@ export function WizardNavigation({
   isNextLoading = false,
   isSubmitLoading = false,
   canProceed,
-}: WizardNavigationProps) {
+}: WizardNavigationProps): React.ReactElement {
   return (
     <DialogFooter className="flex gap-4 pt-6">
       {currentStep > 1 && (
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onPrevious}
-          className="flex-1"
-          disabled={isNextLoading || isSubmitLoading}
-          data-testid="booking-form-back-button"
-        >
-          Back
-        </Button>
+        <BackButton
+          onPrevious={onPrevious}
+          isNextLoading={isNextLoading}
+          isSubmitLoading={isSubmitLoading}
+        />
       )}
       {currentStep < totalSteps ? (
-        <Button
-          type="button"
-          onClick={onNext}
-          className="flex-1"
-          disabled={!canProceed || isNextLoading}
-          aria-busy={isNextLoading}
-          data-testid="booking-form-continue-button"
-        >
-          {isNextLoading ? (
-            <>
-              <Loader2 className="animate-spin mr-2 h-4 w-4" />
-              Validating...
-            </>
-          ) : (
-            <>
-              Continue <ArrowRight className="ml-2 h-5 w-5 stroke-1" />
-            </>
-          )}
-        </Button>
+        <NextButton
+          onNext={onNext}
+          canProceed={canProceed}
+          isNextLoading={isNextLoading}
+        />
       ) : (
-        <Button
-          type="submit"
-            className="flex-1"
-            disabled={!canProceed || isSubmitLoading}
-            aria-busy={isSubmitLoading}
-            data-testid="booking-form-submit-button"
-        >
-          {isSubmitLoading ? (
-            <>
-              <Loader2 className="animate-spin mr-2 h-4 w-4" />
-              Booking...
-            </>
-          ) : (
-            'Book My FREE Session! 🎉'
-          )}
-        </Button>
+        <SubmitButton
+          canProceed={canProceed}
+          isSubmitLoading={isSubmitLoading}
+        />
       )}
     </DialogFooter>
   )

@@ -8,7 +8,7 @@ interface AboutSectionProps {
   onBookSessionClick: () => void
 }
 
-export function AboutSection({ onBookSessionClick }: AboutSectionProps) {
+export function AboutSection({ onBookSessionClick }: AboutSectionProps): React.ReactElement {
   return (
     <section id="about" className="section-height section-white w-full">
       <div className="container px-4 md:px-6 max-w-7xl mx-auto section-inner mobile-px">

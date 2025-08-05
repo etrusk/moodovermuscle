@@ -10,7 +10,7 @@ interface HeaderProps {
   onBookSessionClick: () => void
 }
 
-export function Header({ onBookSessionClick }: HeaderProps) {
+export function Header({ onBookSessionClick }: HeaderProps): React.ReactElement {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   return (

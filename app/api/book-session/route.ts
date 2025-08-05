@@ -56,10 +56,10 @@ export async function POST(request: Request): Promise<NextResponse> {
     console.error('Error processing booking form:', error)
 
     if (error instanceof BookingConflictError) {
-      return new NextResponse(JSON.stringify({ message: error.message }), {
-        status: 409,
-        headers: { 'Content-Type': 'application/json' },
-      })
+      return NextResponse.json(
+        { message: error.message },
+        { status: 409 }
+      )
     }
 
     return NextResponse.json(

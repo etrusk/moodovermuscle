@@ -98,7 +98,7 @@ export const ChartStyle = React.memo(
   ({ id, config }: { id: string; config: ChartConfig }) => {
     const cssContent = React.useMemo(() => {
       const colorConfig = Object.entries(config).filter(
-        ([_, config]) => config.theme || config.color
+        ([_, config]) => config.theme ?? config.color
       )
 
       if (!colorConfig.length) {

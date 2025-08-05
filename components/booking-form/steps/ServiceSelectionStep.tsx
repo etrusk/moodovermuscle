@@ -91,13 +91,13 @@ function handleServiceKeyDown(
   loading: boolean,
   field: ControllerRenderProps<BookingFormData, 'service'>,
   serviceName: string
-) {
+): void {
   if (!loading && (e.key === 'Enter' || e.key === ' ')) {
     field.onChange(serviceName)
   }
 }
 
-function ServicePopularBadge({ service }: { service: Service }) {
+function ServicePopularBadge({ service }: { service: Service }): React.JSX.Element | null {
   if (!service.popular) return null
   
   return (
@@ -107,7 +107,7 @@ function ServicePopularBadge({ service }: { service: Service }) {
   )
 }
 
-function ServiceContent({ service }: { service: Service }) {
+function ServiceContent({ service }: { service: Service }): React.JSX.Element {
   return (
     <div className="flex-1">
       <h4 className="font-bold text-lg text-stone-900">
@@ -123,7 +123,7 @@ function ServiceContent({ service }: { service: Service }) {
   )
 }
 
-function ServiceSelector({ isSelected }: { isSelected: boolean }) {
+function ServiceSelector({ isSelected }: { isSelected: boolean }): React.JSX.Element {
   return (
     <div
       className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${

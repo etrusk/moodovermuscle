@@ -32,17 +32,17 @@ const renderNonCollapsible = (
 )
 
 // Render mobile sidebar
-const renderMobileSidebar = (
-  sidebarId: string,
-  openMobile: boolean,
-  setOpenMobile: (open: boolean) => void,
-  side: "left" | "right",
-  props: React.ComponentProps<"div">,
+const renderMobileSidebar = (params: {
+  sidebarId: string
+  openMobile: boolean
+  setOpenMobile: (open: boolean) => void
+  side: "left" | "right"
+  props: React.ComponentProps<"div">
   children: React.ReactNode
-): React.ReactElement => (
-  <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
+}): React.ReactElement => (
+  <Sheet open={params.openMobile} onOpenChange={params.setOpenMobile} {...params.props}>
     <SheetContent
-      id={sidebarId}
+      id={params.sidebarId}
       data-sidebar="sidebar"
       data-mobile="true"
       className="w-[--sidebar-width] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
@@ -51,11 +51,67 @@ const renderMobileSidebar = (
           "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
         } as React.CSSProperties
       }
-      side={side}
+      side={params.side}
     >
-      <div className="flex h-full w-full flex-col">{children}</div>
+      <div className="flex h-full w-full flex-col">{params.children}</div>
     </SheetContent>
   </Sheet>
+)
+
+// Render desktop sidebar
+const renderDesktopSidebar = (params: {
+  sidebarId: string
+  state: string
+  collapsible: string
+  variant: string
+  side: string
+  className: string | undefined
+  props: React.ComponentProps<"div">
+  children: React.ReactNode
+  ref: React.ForwardedRef<HTMLDivElement>
+}): React.ReactElement => (
+  <div
+    id={params.sidebarId}
+    ref={params.ref}
+    className="group peer hidden md:block text-sidebar-foreground"
+    data-state={params.state}
+    data-collapsible={params.state === "collapsed" ? params.collapsible : ""}
+    data-variant={params.variant}
+    data-side={params.side}
+  >
+    {/* Sidebar gap handler on desktop */}
+    <div
+      className={cn(
+        "duration-200 relative h-svh w-[--sidebar-width] bg-transparent transition-[width] ease-linear",
+        "group-data-[collapsible=offcanvas]:w-0",
+        "group-data-[side=right]:rotate-180",
+        params.variant === "floating" || params.variant === "inset"
+          ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4))]"
+          : "group-data-[collapsible=icon]:w-[--sidebar-width-icon]"
+      )}
+    />
+    <div
+      className={cn(
+        "duration-200 fixed inset-y-0 z-10 hidden h-svh w-[--sidebar-width] transition-[left,right,width] ease-linear md:flex",
+        params.side === "left"
+          ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
+          : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
+        // Adjust padding for floating and inset variants
+        params.variant === "floating" || params.variant === "inset"
+          ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4)_+2px)]"
+          : "group-data-[collapsible=icon]:w-[--sidebar-width-icon] group-data-[side=left]:border-r group-data-[side=right]:border-l",
+        params.className
+      )}
+      {...params.props}
+    >
+      <div
+        data-sidebar="sidebar"
+        className="flex h-full w-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow"
+      >
+        {params.children}
+      </div>
+    </div>
+  </div>
 )
 
 export const Sidebar = React.forwardRef<
@@ -85,53 +141,27 @@ export const Sidebar = React.forwardRef<
     }
 
     if (isMobile) {
-      return renderMobileSidebar(sidebarId, openMobile, setOpenMobile, side, props, children)
+      return renderMobileSidebar({
+        sidebarId,
+        openMobile,
+        setOpenMobile,
+        side,
+        props,
+        children
+      })
     }
 
-    return (
-      <div
-        id={sidebarId}
-        ref={ref}
-        className="group peer hidden md:block text-sidebar-foreground"
-        data-state={state}
-        data-collapsible={state === "collapsed" ? collapsible : ""}
-        data-variant={variant}
-        data-side={side}
-      >
-        {/* Sidebar gap handler on desktop */}
-        <div
-          className={cn(
-            "duration-200 relative h-svh w-[--sidebar-width] bg-transparent transition-[width] ease-linear",
-            "group-data-[collapsible=offcanvas]:w-0",
-            "group-data-[side=right]:rotate-180",
-            variant === "floating" || variant === "inset"
-              ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4))]"
-              : "group-data-[collapsible=icon]:w-[--sidebar-width-icon]"
-          )}
-        />
-        <div
-          className={cn(
-            "duration-200 fixed inset-y-0 z-10 hidden h-svh w-[--sidebar-width] transition-[left,right,width] ease-linear md:flex",
-            side === "left"
-              ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
-              : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
-            // Adjust padding for floating and inset variants
-            variant === "floating" || variant === "inset"
-              ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4)_+2px)]"
-              : "group-data-[collapsible=icon]:w-[--sidebar-width-icon] group-data-[side=left]:border-r group-data-[side=right]:border-l",
-            className
-          )}
-          {...props}
-        >
-          <div
-            data-sidebar="sidebar"
-            className="flex h-full w-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow"
-          >
-            {children}
-          </div>
-        </div>
-      </div>
-    )
+    return renderDesktopSidebar({
+      sidebarId,
+      state,
+      collapsible,
+      variant,
+      side,
+      className,
+      props,
+      children,
+      ref
+    })
   }
 )
 Sidebar.displayName = "Sidebar"

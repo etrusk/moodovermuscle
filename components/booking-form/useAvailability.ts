@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 
 export interface AvailabilityData {
   availableTimes: string[]
@@ -13,7 +13,10 @@ export type UseAvailabilityReturn = {
   availabilityCache: Record<string, AvailabilityData>
 }
 
-const useAvailabilityCache = () => {
+const useAvailabilityCache = (): {
+  availabilityCache: Record<string, AvailabilityData>
+  setAvailabilityCache: React.Dispatch<React.SetStateAction<Record<string, AvailabilityData>>>
+} => {
   const [availabilityCache, setAvailabilityCache] = useState<
     Record<string, AvailabilityData>
   >({})
@@ -21,7 +24,14 @@ const useAvailabilityCache = () => {
   return { availabilityCache, setAvailabilityCache }
 }
 
-const useAvailabilityState = () => {
+const useAvailabilityState = (): {
+  availableTimes: string[]
+  setAvailableTimes: React.Dispatch<React.SetStateAction<string[]>>
+  bookedTimes: string[]
+  setBookedTimes: React.Dispatch<React.SetStateAction<string[]>>
+  loadingAvailability: boolean
+  setLoadingAvailability: React.Dispatch<React.SetStateAction<boolean>>
+} => {
   const [availableTimes, setAvailableTimes] = useState<string[]>([])
   const [bookedTimes, setBookedTimes] = useState<string[]>([])
   const [loadingAvailability, setLoadingAvailability] = useState(false)
@@ -36,20 +46,15 @@ const useAvailabilityState = () => {
   }
 }
 
-export const useAvailability = (
-  date: Date | undefined
-): UseAvailabilityReturn => {
-  const { availabilityCache, setAvailabilityCache } = useAvailabilityCache()
-  const {
-    availableTimes,
-    setAvailableTimes,
-    bookedTimes,
-    setBookedTimes,
-    loadingAvailability,
-    setLoadingAvailability,
-  } = useAvailabilityState()
-
-  const fetchAvailability = useCallback(async (fetchDate: Date) => {
+// Extract fetch availability logic to reduce main function size
+const useFetchAvailabilityCallback = (
+  availabilityCache: Record<string, AvailabilityData>,
+  setAvailabilityCache: React.Dispatch<React.SetStateAction<Record<string, AvailabilityData>>>,
+  setAvailableTimes: React.Dispatch<React.SetStateAction<string[]>>,
+  setBookedTimes: React.Dispatch<React.SetStateAction<string[]>>,
+  setLoadingAvailability: React.Dispatch<React.SetStateAction<boolean>>
+): ((fetchDate: Date) => Promise<void>) => {
+  return useCallback(async (fetchDate: Date) => {
     const dateParam = fetchDate.toISOString().split('T')[0]
     if (availabilityCache[dateParam]) {
       const cachedData = availabilityCache[dateParam]
@@ -76,6 +81,28 @@ export const useAvailability = (
       setLoadingAvailability(false)
     }
   }, [availabilityCache, setAvailabilityCache, setAvailableTimes, setBookedTimes, setLoadingAvailability])
+}
+
+export const useAvailability = (
+  date: Date | undefined
+): UseAvailabilityReturn => {
+  const { availabilityCache, setAvailabilityCache } = useAvailabilityCache()
+  const {
+    availableTimes,
+    setAvailableTimes,
+    bookedTimes,
+    setBookedTimes,
+    loadingAvailability,
+    setLoadingAvailability,
+  } = useAvailabilityState()
+
+  const fetchAvailability = useFetchAvailabilityCallback(
+    availabilityCache,
+    setAvailabilityCache,
+    setAvailableTimes,
+    setBookedTimes,
+    setLoadingAvailability
+  )
 
   useEffect(() => {
     if (date) {

@@ -1,8 +1,10 @@
 'use client'
 
 import React, { useState, useCallback } from 'react'
+import { UseFormReturn } from 'react-hook-form'
 import { useBookingForm } from '../BookingFormProvider'
 import { useAvailability } from '../useAvailability'
+import { BookingFormData } from '../bookingFormLogic'
 import { DateSelector } from './scheduling/DateSelector'
 import { TimeSelector } from './scheduling/TimeSelector'
 import { MessageInput } from './scheduling/MessageInput'
@@ -49,7 +51,22 @@ export function SchedulingStep({ isLoading = false }: SchedulingStepProps): Reac
 }
 
 // Extract scheduling data logic to reduce main function size
-function useSchedulingData() {
+function useSchedulingData(): {
+  form: UseFormReturn<BookingFormData>
+  calendarLoading: boolean
+  setCalendarLoading: (loading: boolean) => void
+  isCalendarOpen: boolean
+  setCalendarOpen: (open: boolean) => void
+  date: Date | undefined
+  selectedTime: string | undefined
+  availableTimes: string[]
+  bookedTimes: string[]
+  loadingAvailability: boolean
+  fetchAvailability: (date: Date) => void
+  availabilityCache: Record<string, { availableTimes: string[]; bookedTimes: string[] }>
+  lockConflict: boolean
+  lockWarning: string | null
+} {
   const { form, calendarLoading, setCalendarLoading } = useBookingForm()
   const [isCalendarOpen, setCalendarOpen] = useState(false)
   const date = form.watch('date')
@@ -88,7 +105,7 @@ function useSchedulingData() {
 }
 
 // Extract fetch callback to reduce complexity
-function useFetchDateAvailability(fetchAvailability: (date: Date) => void) {
+function useFetchDateAvailability(fetchAvailability: (date: Date) => void): (date: Date) => Promise<void> {
   return useCallback(
     async (date: Date) => {
       fetchAvailability(date)

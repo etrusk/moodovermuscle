@@ -120,7 +120,7 @@ export function useBookingFormLogic(
 }
 
 // Extract form initialization to reduce main function size
-function useFormWithDefaults(initialValues?: Partial<BookingFormData>) {
+function useFormWithDefaults(initialValues?: Partial<BookingFormData>): UseFormReturn<BookingFormData> {
   return useForm<BookingFormData>({
     resolver: zodResolver(bookingSchema),
     defaultValues: {
@@ -139,7 +139,16 @@ function useFormWithDefaults(initialValues?: Partial<BookingFormData>) {
 }
 
 // Extract loading states management
-function useLoadingStates() {
+function useLoadingStates(): {
+  isSubmitting: boolean
+  setIsSubmitting: React.Dispatch<React.SetStateAction<boolean>>
+  stepTransition: boolean
+  setStepTransition: React.Dispatch<React.SetStateAction<boolean>>
+  calendarLoading: boolean
+  setCalendarLoading: React.Dispatch<React.SetStateAction<boolean>>
+  fieldValidation: Record<string, boolean>
+  setFieldValidation: React.Dispatch<React.SetStateAction<Record<string, boolean>>>
+} {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [stepTransition, setStepTransition] = useState(false)
   const [calendarLoading, setCalendarLoading] = useState(false)
@@ -162,7 +171,7 @@ function useStepValidation(
   form: UseFormReturn<BookingFormData>,
   setStepTransition: React.Dispatch<React.SetStateAction<boolean>>,
   setFieldValidation: React.Dispatch<React.SetStateAction<Record<string, boolean>>>
-) {
+): (step: number) => Promise<boolean> {
   return async (step: number): Promise<boolean> => {
     setStepTransition(true)
     const fields = getFieldsForStep(step)

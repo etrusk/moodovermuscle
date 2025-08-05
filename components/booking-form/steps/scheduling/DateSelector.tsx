@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { UseFormReturn } from 'react-hook-form'
+import { UseFormReturn, ControllerRenderProps } from 'react-hook-form'
 import { BookingFormData } from '../../bookingFormLogic'
 import {
   FormField,
@@ -101,10 +101,10 @@ function DatePickerTrigger({
   isLoading,
   calendarLoading
 }: {
-  field: any
+  field: ControllerRenderProps<BookingFormData, 'date'>
   isLoading: boolean
   calendarLoading: boolean
-}) {
+}): React.JSX.Element {
   return (
     <PopoverTrigger asChild>
       <FormControl>
@@ -141,11 +141,11 @@ function DatePickerContent({
   fetchDateAvailability,
   availabilityCache,
 }: {
-  field: any
+  field: ControllerRenderProps<BookingFormData, 'date'>
   setCalendarOpen: (open: boolean) => void
   fetchDateAvailability: (date: Date) => void
   availabilityCache: Record<string, { availableTimes: string[]; bookedTimes: string[] }>
-}) {
+}): React.JSX.Element {
   const dateDisabledCheck = useDateDisabledCheck(availabilityCache)
   const calendarModifiers = useCalendarModifiers(availabilityCache)
 
@@ -190,7 +190,10 @@ function useDateDisabledCheck(availabilityCache: Record<string, { availableTimes
 }
 
 // Extract calendar modifiers logic
-function useCalendarModifiers(availabilityCache: Record<string, { availableTimes: string[]; bookedTimes: string[] }>) {
+function useCalendarModifiers(availabilityCache: Record<string, { availableTimes: string[]; bookedTimes: string[] }>): {
+  busy: (date: Date) => boolean
+  packed: (date: Date) => boolean
+} {
   return {
     busy: (date: Date) => {
       const key = date.toISOString().split('T')[0]

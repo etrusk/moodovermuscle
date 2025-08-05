@@ -94,7 +94,7 @@ function TimeSlotOptions({
   date: Date | undefined
   availableTimes: string[]
   bookedTimes: string[]
-}) {
+}): React.JSX.Element | null {
   if (loadingAvailability || !date) return null
   
   return (
@@ -119,7 +119,7 @@ function LockWarning({
 }: {
   lockConflict: boolean
   lockWarning: string | null
-}) {
+}): React.JSX.Element | null {
   if (!lockConflict) return null
   
   return (

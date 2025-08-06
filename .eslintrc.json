@@ -51,7 +51,11 @@
   },
   "overrides": [
     {
-      "files": ["**/__tests__/**/*.{ts,tsx,js,jsx}", "**/*.test.{ts,tsx,js,jsx}", "**/*.spec.{ts,tsx,js,jsx}"],
+      "files": [
+        "**/__tests__/**/*.{ts,tsx,js,jsx}",
+        "**/*.test.{ts,tsx,js,jsx}",
+        "**/*.spec.{ts,tsx,js,jsx}"
+      ],
       "rules": {
         "max-lines-per-function": ["error", { "max": 150 }],
         "max-lines": ["error", { "max": 600 }],
@@ -63,7 +67,8 @@
   ],
   "ignorePatterns": [
     "lib/generated/prisma/**/*.js",
-    "lib/generated/prisma/**/*.ts"
+    "lib/generated/prisma/**/*.ts",
+    "scripts/**/*.js"
   ],
   "settings": {
     "react": {

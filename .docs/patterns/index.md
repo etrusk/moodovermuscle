@@ -2,8 +2,8 @@
 [metadata]
 type = "pattern_index"
 last_updated = "2025-08-06"
-total_patterns = 41
-documented_patterns = 41
+total_patterns = 42
+documented_patterns = 42
 missing_patterns = 0
 token_cost_estimate = "medium"
 
@@ -49,6 +49,7 @@ This index helps agents find proven implementation approaches before starting ne
 - [Rate Limiting Pattern](./api-rate-limiting-pattern.md) - request throttling and quota management
 - [Function Decomposition Pattern](./api-function-decomposition-pattern.md) - breaking down complex endpoints into smaller, single-responsibility functions
 - [Bulk Operation Pattern](./bulk-operation-pattern.md) - transaction-safe bulk operations with progress tracking
+- [Real-Time API Integration Pattern](./real-time-api-integration-pattern.md) - 6-function decomposition approach for complex API endpoints with <500ms response times
 
 **Form Handling & Validation**
 
@@ -124,6 +125,7 @@ This index helps agents find proven implementation approaches before starting ne
 - [Admin Authentication Pattern](./admin-authentication-pattern.md) - role-based access control system
 - [Notification System Pattern](./notification-system-pattern.md) - multi-channel notification delivery
 - [Bulk Operation Pattern](./bulk-operation-pattern.md) - transaction-safe bulk operations with progress tracking
+- [Real-Time API Integration Pattern](./real-time-api-integration-pattern.md) - 6-function decomposition approach for complex API endpoints with <500ms response times
 - [File Processing Pipeline](./complex-file-pipeline-pattern.md) - async file processing workflow
 - [Audit and Compliance System](./complex-audit-system-pattern.md) - comprehensive change tracking
 

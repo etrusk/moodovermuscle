@@ -2,6 +2,10 @@ import { prisma } from '../../../../lib/prisma'
 import type { Booking } from '../../../../lib/generated/prisma'
 import { z } from 'zod'
 import { bookingSchema } from '../../../../lib/schemas'
+import {
+  validateRealTimeAvailability,
+  AvailabilityConflictError,
+} from '../../availability/functions/availability-checking'
 
 type BookingData = z.infer<typeof bookingSchema>
 
@@ -15,21 +19,31 @@ export class BookingConflictError extends Error {
 export async function createBooking(
   bookingData: BookingData
 ): Promise<Booking> {
-  const { name, email, phone, service, date, time, message, goals, experience } =
-    bookingData
+  const {
+    name,
+    email,
+    phone,
+    service,
+    date,
+    time,
+    message,
+    goals,
+    experience,
+  } = bookingData
 
   try {
-    const newBooking = await prisma.$transaction(async (tx) => {
-      // Conflict detection: ensure no existing booking at same date and time
-      const conflict = await tx.booking.findFirst({
-        where: { date, time },
-      })
-      if (conflict) {
-        throw new BookingConflictError(
-          'Booking conflict: Selected date and time is already booked.'
-        )
+    const newBooking = await prisma.$transaction(async tx => {
+      // Apply Real-Time Availability Pattern - validate within transaction
+      try {
+        await validateRealTimeAvailability(date, time, tx)
+      } catch (error) {
+        if (error instanceof AvailabilityConflictError) {
+          throw new BookingConflictError(error.message)
+        }
+        throw error
       }
-      // Create booking within transaction
+
+      // Create booking within transaction after availability validation
       return tx.booking.create({
         data: {
           name,

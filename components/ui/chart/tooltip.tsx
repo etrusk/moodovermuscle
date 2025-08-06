@@ -2,7 +2,6 @@
 
 import * as React from 'react'
 import * as RechartsPrimitive from 'recharts'
-
 import { cn } from '@/lib/utils'
 import { useChart } from './core'
 import {
@@ -44,7 +43,6 @@ export const ChartTooltipContent = React.forwardRef<
     ref
   ) => {
     const { config } = useChart()
-
     const { tooltipLabel, isVisible, nestLabel } = useTooltipLogic({
       active,
       payload,
@@ -57,10 +55,7 @@ export const ChartTooltipContent = React.forwardRef<
       indicator,
     })
 
-    if (!isVisible) {
-      return null
-    }
-
+    if (!isVisible) return null
     return (
       <ChartTooltipContainer
         ref={ref}
@@ -80,7 +75,6 @@ export const ChartTooltipContent = React.forwardRef<
 )
 ChartTooltipContent.displayName = 'ChartTooltip'
 
-// Extracted container component to reduce main function size
 const ChartTooltipContainer = React.forwardRef<
   HTMLDivElement,
   {
@@ -161,12 +155,10 @@ function ChartTooltipRow(props: TooltipRowProps): React.ReactElement {
     index,
     payload,
   } = props
-
   const hasFormattedContent = useFormattedContentCheck({
     formatter,
     item,
   })
-
   return (
     <div
       key={(item.dataKey as string) ?? `item-${index}`}
@@ -199,35 +191,6 @@ function ChartTooltipRow(props: TooltipRowProps): React.ReactElement {
   )
 }
 
-function TooltipRowContent({
-  item,
-  itemConfig,
-  indicatorColor,
-  indicator,
-  hideIndicator,
-  nestLabel,
-  tooltipLabel,
-}: TooltipRowContentProps): React.ReactElement {
-  return (
-    <>
-      <TooltipIndicator
-        itemConfig={itemConfig}
-        hideIndicator={hideIndicator}
-        indicator={indicator}
-        indicatorColor={indicatorColor}
-        nestLabel={nestLabel}
-      />
-      <TooltipContent
-        item={item}
-        itemConfig={itemConfig}
-        nestLabel={nestLabel}
-        tooltipLabel={tooltipLabel}
-      />
-    </>
-  )
-}
-
-// Extracted components to reduce complexity
 function TooltipIndicator({
   itemConfig,
   hideIndicator,
@@ -245,11 +208,7 @@ function TooltipIndicator({
     const IconComponent = itemConfig.icon
     return <IconComponent />
   }
-
-  if (hideIndicator) {
-    return null
-  }
-
+  if (hideIndicator) return null
   return (
     <div
       className={cn(
@@ -272,52 +231,49 @@ function TooltipIndicator({
   )
 }
 
-function TooltipContent({
+function TooltipRowContent({
   item,
   itemConfig,
+  indicatorColor,
+  indicator,
+  hideIndicator,
   nestLabel,
   tooltipLabel,
-}: {
-  item: ChartPayloadItem
-  itemConfig: ChartConfig[string] | undefined
-  nestLabel: boolean
-  tooltipLabel: React.ReactNode
-}): React.ReactElement {
+}: TooltipRowContentProps): React.ReactElement {
   return (
-    <div
-      className={cn(
-        'flex flex-1 justify-between leading-none',
-        nestLabel ? 'items-end' : 'items-center'
-      )}
-    >
-      <div className="grid gap-1.5">
-        {nestLabel ? tooltipLabel : null}
-        <span className="text-muted-foreground">
-          {(itemConfig?.label as React.ReactNode) ??
-            (item.name as React.ReactNode)}
-        </span>
+    <>
+      <TooltipIndicator
+        itemConfig={itemConfig}
+        hideIndicator={hideIndicator}
+        indicator={indicator}
+        indicatorColor={indicatorColor}
+        nestLabel={nestLabel}
+      />
+      <div
+        className={cn(
+          'flex flex-1 justify-between leading-none',
+          nestLabel ? 'items-end' : 'items-center'
+        )}
+      >
+        <div className="grid gap-1.5">
+          {nestLabel ? tooltipLabel : null}
+          <span className="text-muted-foreground">
+            {(itemConfig?.label as React.ReactNode) ??
+              (item.name as React.ReactNode)}
+          </span>
+        </div>
+        {item.value !== null &&
+        item.value !== undefined &&
+        typeof item.value === 'number' ? (
+          <span className="font-mono font-medium tabular-nums text-foreground">
+            {item.value.toLocaleString()}
+          </span>
+        ) : null}
       </div>
-      {renderValue(item)}
-    </div>
+    </>
   )
 }
 
-function renderValue(item: ChartPayloadItem): React.ReactElement | null {
-  if (
-    item.value !== null &&
-    item.value !== undefined &&
-    typeof item.value === 'number'
-  ) {
-    return (
-      <span className="font-mono font-medium tabular-nums text-foreground">
-        {item.value.toLocaleString()}
-      </span>
-    )
-  }
-  return null
-}
-
-// Helper hook to reduce complexity
 function useFormattedContentCheck({
   formatter,
   item,

@@ -1,8 +1,8 @@
 'use client'
 
-import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Sparkles } from 'lucide-react'
+import { MobileMenuItems } from './MobileMenuItems'
 
 interface MobileMenuProps {
   isOpen: boolean
@@ -20,34 +20,7 @@ export function MobileMenu({
   return (
     <div className="md:hidden border-t border-white/20 bg-white/95 backdrop-blur-xl animate-fade-in-up">
       <div className="container px-4 py-6 space-y-4 max-w-7xl mx-auto">
-        <Link
-          href="/#about"
-          className="block text-lg font-medium text-stone-700 hover:text-rose-500 transition-colors py-3 border-b border-stone-100"
-          onClick={onClose}
-        >
-          About
-        </Link>
-        <Link
-          href="/classes"
-          className="block text-lg font-medium text-stone-700 hover:text-rose-500 transition-colors py-3 border-b border-stone-100"
-          onClick={onClose}
-        >
-          Classes
-        </Link>
-        <Link
-          href="/#contact"
-          className="block text-lg font-medium text-stone-700 hover:text-rose-500 transition-colors py-3 border-b border-stone-100"
-          onClick={onClose}
-        >
-          Contact
-        </Link>
-        <Link
-          href="/#gallery"
-          className="block text-lg font-medium text-stone-700 hover:text-rose-500 transition-colors py-3 border-b border-stone-100"
-          onClick={onClose}
-        >
-          Gallery
-        </Link>
+        <MobileMenuItems onClose={onClose} />
         <Button
           onClick={() => {
             onBookSessionClick()

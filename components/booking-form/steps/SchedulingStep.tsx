@@ -33,6 +33,7 @@ export function SchedulingStep({ isLoading = false }: SchedulingStepProps): Reac
           setCalendarOpen={schedulingData.setCalendarOpen}
           fetchDateAvailability={fetchDateAvailability}
           availabilityCache={schedulingData.availabilityCache}
+          performanceMetrics={schedulingData.performanceMetrics}
         />
         <TimeSelector
           form={schedulingData.form}
@@ -64,27 +65,34 @@ function useSchedulingData(): {
   loadingAvailability: boolean
   fetchAvailability: (date: Date) => void
   availabilityCache: Record<string, { availableTimes: string[]; bookedTimes: string[] }>
+  performanceMetrics: { responseTime?: number; cacheHit: boolean }
   lockConflict: boolean
   lockWarning: string | null
+} {
+  const bookingFormData = useBookingFormData()
+  const availabilityData = useAvailabilityData(bookingFormData.date)
+  const lockingData = useSlotLockingData(bookingFormData.date, bookingFormData.selectedTime, bookingFormData.form)
+
+  return {
+    ...bookingFormData,
+    ...availabilityData,
+    ...lockingData,
+  }
+}
+
+function useBookingFormData(): {
+  form: UseFormReturn<BookingFormData>
+  calendarLoading: boolean
+  setCalendarLoading: (loading: boolean) => void
+  isCalendarOpen: boolean
+  setCalendarOpen: (open: boolean) => void
+  date: Date | undefined
+  selectedTime: string | undefined
 } {
   const { form, calendarLoading, setCalendarLoading } = useBookingForm()
   const [isCalendarOpen, setCalendarOpen] = useState(false)
   const date = form.watch('date')
   const selectedTime = form.watch('time')
-
-  const {
-    availableTimes,
-    bookedTimes,
-    loadingAvailability,
-    fetchAvailability,
-    availabilityCache,
-  } = useAvailability(date)
-
-  const { lockConflict, lockWarning } = useSlotLocking(
-    date,
-    selectedTime ?? '',
-    form
-  )
 
   return {
     form,
@@ -94,14 +102,48 @@ function useSchedulingData(): {
     setCalendarOpen,
     date,
     selectedTime,
+  }
+}
+
+function useAvailabilityData(date: Date | undefined): {
+  availableTimes: string[]
+  bookedTimes: string[]
+  loadingAvailability: boolean
+  fetchAvailability: (date: Date) => void
+  availabilityCache: Record<string, { availableTimes: string[]; bookedTimes: string[] }>
+  performanceMetrics: { responseTime?: number; cacheHit: boolean }
+} {
+  const {
     availableTimes,
     bookedTimes,
     loadingAvailability,
     fetchAvailability,
     availabilityCache,
-    lockConflict,
-    lockWarning,
+    performanceMetrics,
+  } = useAvailability(date)
+
+  return {
+    availableTimes,
+    bookedTimes,
+    loadingAvailability,
+    fetchAvailability,
+    availabilityCache,
+    performanceMetrics,
   }
+}
+
+function useSlotLockingData(
+  date: Date | undefined,
+  selectedTime: string | undefined,
+  form: UseFormReturn<BookingFormData>
+): { lockConflict: boolean; lockWarning: string | null } {
+  const { lockConflict, lockWarning } = useSlotLocking(
+    date,
+    selectedTime ?? '',
+    form
+  )
+
+  return { lockConflict, lockWarning }
 }
 
 // Extract fetch callback to reduce complexity

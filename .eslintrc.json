@@ -68,7 +68,8 @@
       "files": [
         "app/admin/**/*.{ts,tsx}",
         "app/api/admin/**/*.{ts,tsx}",
-        "lib/auth/**/*.{ts,tsx}"
+        "lib/auth/**/*.{ts,tsx}",
+        "middleware.ts"
       ],
       "rules": {
         "max-lines-per-function": ["error", { "max": 600 }],

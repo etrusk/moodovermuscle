@@ -1,8 +1,17 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 
 export interface AvailabilityData {
   availableTimes: string[]
   bookedTimes: string[]
+  date: string
+  cachedAt?: number
+}
+
+export interface AvailabilityPerformanceMetrics {
+  requestStartTime?: number
+  responseTime?: number
+  cacheHit: boolean
+  retryCount?: number
 }
 
 export type UseAvailabilityReturn = {
@@ -11,17 +20,66 @@ export type UseAvailabilityReturn = {
   loadingAvailability: boolean
   fetchAvailability: (fetchDate: Date) => Promise<void>
   availabilityCache: Record<string, AvailabilityData>
+  performanceMetrics: AvailabilityPerformanceMetrics
+  invalidateCache: (dateKey?: string) => void
+  refreshAvailability: (date: Date) => Promise<void>
+}
+
+// Smart caching with TTL based on server Cache-Control headers
+const CACHE_TTL_MS = 60 * 1000 // 60 seconds to match server max-age
+const STALE_WHILE_REVALIDATE_MS = 30 * 1000 // 30 seconds server stale-while-revalidate
+
+interface CacheEntry extends AvailabilityData {
+  cachedAt: number
+  staleAt: number
 }
 
 const useAvailabilityCache = (): {
-  availabilityCache: Record<string, AvailabilityData>
-  setAvailabilityCache: React.Dispatch<React.SetStateAction<Record<string, AvailabilityData>>>
+  availabilityCache: Record<string, CacheEntry>
+  setAvailabilityCache: React.Dispatch<React.SetStateAction<Record<string, CacheEntry>>>
+  isCacheValid: (dateKey: string) => boolean
+  isCacheStale: (dateKey: string) => boolean
+  invalidateCache: (dateKey?: string) => void
 } => {
   const [availabilityCache, setAvailabilityCache] = useState<
-    Record<string, AvailabilityData>
+    Record<string, CacheEntry>
   >({})
 
-  return { availabilityCache, setAvailabilityCache }
+  const isCacheValid = useCallback((dateKey: string): boolean => {
+    const entry = availabilityCache[dateKey]
+    if (!entry) return false
+    
+    const now = Date.now()
+    return now < entry.staleAt
+  }, [availabilityCache])
+
+  const isCacheStale = useCallback((dateKey: string): boolean => {
+    const entry = availabilityCache[dateKey]
+    if (!entry) return true
+    
+    const now = Date.now()
+    return now >= entry.cachedAt + CACHE_TTL_MS
+  }, [availabilityCache])
+
+  const invalidateCache = useCallback((dateKey?: string) => {
+    if (dateKey) {
+      setAvailabilityCache(prev => {
+        const newCache = { ...prev }
+        delete newCache[dateKey]
+        return newCache
+      })
+    } else {
+      setAvailabilityCache({})
+    }
+  }, [])
+
+  return {
+    availabilityCache,
+    setAvailabilityCache,
+    isCacheValid,
+    isCacheStale,
+    invalidateCache
+  }
 }
 
 const useAvailabilityState = (): {
@@ -46,64 +104,165 @@ const useAvailabilityState = (): {
   }
 }
 
-// Extract fetch availability logic to reduce main function size
-const useFetchAvailabilityCallback = (
-  availabilityCache: Record<string, AvailabilityData>,
-  setAvailabilityCache: React.Dispatch<React.SetStateAction<Record<string, AvailabilityData>>>,
-  setAvailableTimes: React.Dispatch<React.SetStateAction<string[]>>,
-  setBookedTimes: React.Dispatch<React.SetStateAction<string[]>>,
+// Enhanced fetch availability with performance monitoring and retry logic
+interface FetchCallbackParams {
+  availabilityCache: Record<string, CacheEntry>
+  setAvailabilityCache: React.Dispatch<React.SetStateAction<Record<string, CacheEntry>>>
+  setAvailableTimes: React.Dispatch<React.SetStateAction<string[]>>
+  setBookedTimes: React.Dispatch<React.SetStateAction<string[]>>
   setLoadingAvailability: React.Dispatch<React.SetStateAction<boolean>>
-): ((fetchDate: Date) => Promise<void>) => {
+  isCacheValid: (dateKey: string) => boolean
+  isCacheStale: (dateKey: string) => boolean
+  performanceMetricsRef: React.MutableRefObject<AvailabilityPerformanceMetrics>
+}
+
+const createFetchAttempt = (
+  dateKey: string,
+  retryCount: number,
+  maxRetries: number,
+  params: Pick<FetchCallbackParams, 'setAvailableTimes' | 'setBookedTimes' | 'setAvailabilityCache' | 'performanceMetricsRef'>,
+  _isBackgroundRefresh: boolean
+) => {
+  return async (): Promise<void> => {
+    try {
+      const requestStart = Date.now()
+      const res = await fetch(`/api/availability?date=${dateKey}`)
+      const responseTime = Date.now() - requestStart
+      
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}: Failed to fetch availability`)
+      }
+      
+      const data: AvailabilityData = await res.json()
+      const now = Date.now()
+      
+      // Create cache entry with TTL metadata
+      const cacheEntry: CacheEntry = {
+        ...data,
+        cachedAt: now,
+        staleAt: now + STALE_WHILE_REVALIDATE_MS
+      }
+      
+      params.setAvailableTimes(data.availableTimes)
+      params.setBookedTimes(data.bookedTimes)
+      params.setAvailabilityCache(prev => ({ ...prev, [dateKey]: cacheEntry }))
+      
+      // Update performance metrics
+      const currentMetrics = {
+        requestStartTime: params.performanceMetricsRef.current.requestStartTime,
+        responseTime: responseTime,
+        cacheHit: false,
+        retryCount: retryCount
+      }
+      params.performanceMetricsRef.current = currentMetrics
+    } catch (error) {
+      console.error(`Error fetching availability (attempt ${retryCount + 1}):`, error)
+      throw error // Re-throw to let fetchWithRetry handle retry logic
+    }
+  }
+}
+
+const fetchWithRetry = async (
+  dateKey: string,
+  isBackgroundRefresh: boolean,
+  params: FetchCallbackParams
+): Promise<void> => {
+  const maxRetries = 3
+
+  if (!isBackgroundRefresh) {
+    params.setLoadingAvailability(true)
+  }
+
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const attemptFetch = createFetchAttempt(
+        dateKey,
+        attempt,
+        maxRetries,
+        params,
+        isBackgroundRefresh
+      )
+      await attemptFetch()
+      
+      // Success
+      if (!isBackgroundRefresh) {
+        params.setLoadingAvailability(false)
+      }
+      return
+    } catch (error) {
+      if (attempt === maxRetries - 1) {
+        // Final failure
+        if (!isBackgroundRefresh) {
+          params.setLoadingAvailability(false)
+          params.setAvailableTimes([])
+          params.setBookedTimes([])
+          throw error
+        }
+      } else {
+        // Wait before retry
+        const backoffDelay = 100 * Math.pow(3, attempt)
+        await new Promise(resolve => setTimeout(resolve, backoffDelay))
+      }
+    }
+  }
+}
+
+const handleCacheHit = (
+  dateParam: string,
+  now: number,
+  params: FetchCallbackParams
+): void => {
+  const cachedData = params.availabilityCache[dateParam]
+  params.setAvailableTimes(cachedData.availableTimes)
+  params.setBookedTimes(cachedData.bookedTimes)
+  
+  params.performanceMetricsRef.current = {
+    ...params.performanceMetricsRef.current,
+    responseTime: Date.now() - now,
+    cacheHit: true
+  }
+  
+  // If cache is stale but valid, trigger background refresh
+  if (params.isCacheStale(dateParam)) {
+    fetchWithRetry(dateParam, true, params).catch(() => {
+      // Silently handle background refresh errors
+    }) // Background refresh
+  }
+}
+
+const useFetchAvailabilityCallback = (params: FetchCallbackParams): ((fetchDate: Date) => Promise<void>) => {
   return useCallback(async (fetchDate: Date) => {
     const dateParam = fetchDate.toISOString().split('T')[0]
-    if (availabilityCache[dateParam]) {
-      const cachedData = availabilityCache[dateParam]
-      setAvailableTimes(cachedData.availableTimes)
-      setBookedTimes(cachedData.bookedTimes)
+    const now = Date.now()
+    
+    // Reset performance metrics for new request
+    params.performanceMetricsRef.current = {
+      requestStartTime: now,
+      cacheHit: false,
+      retryCount: 0
+    }
+
+    // Check cache validity first
+    if (params.isCacheValid(dateParam)) {
+      handleCacheHit(dateParam, now, params)
       return
     }
 
-    setLoadingAvailability(true)
     try {
-      const res = await fetch(`/api/availability?date=${dateParam}`)
-      if (!res.ok) {
-        throw new Error('Failed to fetch availability')
-      }
-      const data: AvailabilityData = await res.json()
-      setAvailableTimes(data.availableTimes)
-      setBookedTimes(data.bookedTimes)
-      setAvailabilityCache(prev => ({ ...prev, [dateParam]: data }))
+      await fetchWithRetry(dateParam, false, params)
     } catch (error) {
-      console.error('Error fetching availability:', error)
-      setAvailableTimes([])
-      setBookedTimes([])
-    } finally {
-      setLoadingAvailability(false)
+      // Error already handled by fetchWithRetry
+      console.error('Failed to fetch availability:', error)
     }
-  }, [availabilityCache, setAvailabilityCache, setAvailableTimes, setBookedTimes, setLoadingAvailability])
+  }, [params])
 }
 
-export const useAvailability = (
-  date: Date | undefined
-): UseAvailabilityReturn => {
-  const { availabilityCache, setAvailabilityCache } = useAvailabilityCache()
-  const {
-    availableTimes,
-    setAvailableTimes,
-    bookedTimes,
-    setBookedTimes,
-    loadingAvailability,
-    setLoadingAvailability,
-  } = useAvailabilityState()
-
-  const fetchAvailability = useFetchAvailabilityCallback(
-    availabilityCache,
-    setAvailabilityCache,
-    setAvailableTimes,
-    setBookedTimes,
-    setLoadingAvailability
-  )
-
+const useAvailabilityEffects = (
+  date: Date | undefined,
+  fetchAvailability: (date: Date) => Promise<void>,
+  setAvailableTimes: React.Dispatch<React.SetStateAction<string[]>>,
+  setBookedTimes: React.Dispatch<React.SetStateAction<string[]>>
+): void => {
   useEffect(() => {
     if (date) {
       fetchAvailability(date)
@@ -112,12 +271,60 @@ export const useAvailability = (
       setBookedTimes([])
     }
   }, [date, fetchAvailability, setAvailableTimes, setBookedTimes])
+}
+
+const useCompatibilityCache = (availabilityCache: Record<string, CacheEntry>): Record<string, AvailabilityData> => {
+  return Object.fromEntries(
+    Object.entries(availabilityCache).map(([key, entry]) => [
+      key,
+      {
+        availableTimes: entry.availableTimes,
+        bookedTimes: entry.bookedTimes,
+        date: entry.date,
+        cachedAt: entry.cachedAt
+      }
+    ])
+  )
+}
+
+export const useAvailability = (
+  date: Date | undefined
+): UseAvailabilityReturn => {
+  const cacheHooks = useAvailabilityCache()
+  const stateHooks = useAvailabilityState()
+  
+  // Performance metrics tracking
+  const performanceMetricsRef = useRef<AvailabilityPerformanceMetrics>({
+    cacheHit: false
+  })
+
+  const fetchCallbackParams: FetchCallbackParams = {
+    ...cacheHooks,
+    ...stateHooks,
+    performanceMetricsRef
+  }
+
+  const fetchAvailability = useFetchAvailabilityCallback(fetchCallbackParams)
+
+  // Force refresh availability (bypasses cache)
+  const refreshAvailability = useCallback(async (refreshDate: Date) => {
+    const dateParam = refreshDate.toISOString().split('T')[0]
+    cacheHooks.invalidateCache(dateParam)
+    await fetchAvailability(refreshDate)
+  }, [cacheHooks, fetchAvailability])
+
+  useAvailabilityEffects(date, fetchAvailability, stateHooks.setAvailableTimes, stateHooks.setBookedTimes)
+
+  const compatibilityCache = useCompatibilityCache(cacheHooks.availabilityCache)
 
   return {
-    availableTimes,
-    bookedTimes,
-    loadingAvailability,
+    availableTimes: stateHooks.availableTimes,
+    bookedTimes: stateHooks.bookedTimes,
+    loadingAvailability: stateHooks.loadingAvailability,
     fetchAvailability,
-    availabilityCache,
+    availabilityCache: compatibilityCache,
+    performanceMetrics: performanceMetricsRef.current,
+    invalidateCache: cacheHooks.invalidateCache,
+    refreshAvailability,
   }
 }

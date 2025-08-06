@@ -118,21 +118,7 @@ git push origin [branch-name]    # Push to trigger deployment/preview
 
 **Pre-Commit Hook Configuration**:
 
-```json
-// package.json
-{
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged && npm run test:critical && npm run security:scan",
-      "pre-push": "npm run test:full && npm run build:verify"
-    }
-  },
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx}": ["eslint --fix", "prettier --write"],
-    "*.{json,md,css}": ["prettier --write"]
-  }
-}
-```
+See [Package.json Pre-commit Configuration](reference/tool-configurations.md#packagejson-pre-commit-configuration) for complete setup.
 
 ### Pull Request Process (Appetite-Scoped)
 
@@ -300,46 +286,10 @@ npm run a11y:contrast         # Color contrast validation
 
 ### Automated Code Review Integration
 
-**ESLint Configuration** (.eslintrc.js):
+**Configuration Files**:
 
-```javascript
-module.exports = {
-  extends: [
-    'next/core-web-vitals',
-    '@typescript-eslint/recommended',
-    'plugin:accessibility/recommended',
-    'plugin:security/recommended',
-  ],
-  rules: {
-    // Enforce code quality
-    'no-console': 'warn',
-    'no-debugger': 'error',
-    'prefer-const': 'error',
-
-    // Accessibility enforcement
-    'jsx-a11y/alt-text': 'error',
-    'jsx-a11y/aria-labels': 'error',
-
-    // Security rules
-    'security/detect-object-injection': 'error',
-    'security/detect-sql-injection': 'error',
-  },
-}
-```
-
-**Prettier Configuration** (.prettierrc):
-
-```json
-{
-  "semi": false,
-  "singleQuote": true,
-  "tabWidth": 2,
-  "trailingComma": "es5",
-  "printWidth": 80,
-  "bracketSpacing": true,
-  "arrowParens": "avoid"
-}
-```
+- [ESLint Configuration (.eslintrc.js)](reference/tool-configurations.md#eslint-configuration-eslintrcjs)
+- [Prettier Configuration (.prettierrc)](reference/tool-configurations.md#prettier-configuration-prettierrc)
 
 ## Design Review Process
 
@@ -552,161 +502,15 @@ git push origin main             # Push to main (or feature branch)
 
 ### Vercel Configuration (Zero-Maintenance Deployment)
 
-**vercel.json**:
+See [Vercel Configuration (vercel.json)](reference/tool-configurations.md#vercel-configuration-verceljson) for complete configuration.
 
-```json
-{
-  "framework": "nextjs",
-  "buildCommand": "npm run build",
-  "devCommand": "npm run dev",
-  "installCommand": "npm ci",
-  "functions": {
-    "app/api/**/*.ts": {
-      "runtime": "nodejs18.x"
-    }
-  },
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        }
-      ]
-    }
-  ]
-}
-```
+### GitHub Actions Workflow
 
-### GitHub Actions Workflow (.github/workflows/ci.yml)
-
-```yaml
-name: CI/CD Pipeline
-
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-
-jobs:
-  quality-gates:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Lint and format check
-        run: |
-          npm run lint
-          npm run prettier:check
-
-      - name: Type checking
-        run: npm run type-check
-
-      - name: Security scan
-        run: npm run security:scan
-
-      - name: Critical tests
-        run: npm run test:critical
-
-      - name: Build verification
-        run: npm run build
-
-      - name: Accessibility audit
-        run: npm run a11y:ci
-
-      - name: Performance budget
-        run: npm run lighthouse:ci
-
-  full-test-suite:
-    runs-on: ubuntu-latest
-    needs: quality-gates
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run full test suite
-        run: npm run test:coverage
-
-      - name: E2E tests
-        run: npm run test:e2e:ci
-
-      - name: Upload coverage
-        uses: codecov/codecov-action@v3
-
-  deploy-preview:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    needs: quality-gates
-    steps:
-      - name: Deploy to Vercel Preview
-        uses: amondnet/vercel-action@v20
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.ORG_ID }}
-          vercel-project-id: ${{ secrets.PROJECT_ID }}
-```
+See [GitHub Actions CI/CD Workflow](reference/tool-configurations.md#github-actions-cicd-workflow-githubworkflowsciyml) for complete workflow configuration.
 
 ### Package.json Scripts (Complete Toolchain)
 
-```json
-{
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
-    "lint:check": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "prettier": "prettier --write .",
-    "prettier:check": "prettier --check .",
-    "type-check": "tsc --noEmit",
-
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:critical": "jest --testPathPattern=critical --passWithNoTests",
-    "test:unit": "jest --testPathPattern=unit",
-    "test:integration": "jest --testPathPattern=integration",
-    "test:e2e": "playwright test",
-    "test:e2e:headed": "playwright test --headed",
-    "test:e2e:ci": "playwright test --reporter=github",
-    "test:coverage": "jest --coverage",
-    "test:full": "npm run test && npm run test:e2e",
-
-    "a11y:test": "jest --testPathPattern=accessibility",
-    "a11y:audit": "lighthouse --only-categories=accessibility",
-    "a11y:ci": "jest --testPathPattern=accessibility --passWithNoTests",
-
-    "security:scan": "audit-ci --config audit-ci.json",
-    "security:test": "jest --testPathPattern=security",
-
-    "lighthouse:ci": "lhci autorun",
-    "perf:budget": "bundlesize",
-    "bundle:analyze": "ANALYZE=true npm run build",
-
-    "quality:all": "npm run lint && npm run type-check && npm run test:critical && npm run security:scan",
-    "ci:verify": "npm run quality:all && npm run build"
-  }
-}
-```
+See [Complete Package.json Scripts](reference/tool-configurations.md#complete-packagejson-scripts) for all development, testing, and quality scripts.
 
 ## Performance & Accessibility Standards
 
@@ -719,67 +523,19 @@ jobs:
 - First Input Delay (FID): < 100 milliseconds
 - Total Bundle Size: < 1MB initial load
 
-**Lighthouse CI Configuration** (.lighthouserc.js):
+**Configuration Files**:
 
-```javascript
-module.exports = {
-  ci: {
-    collect: {
-      startServerCommand: 'npm run start',
-      url: ['http://localhost:3000', 'http://localhost:3000/booking'],
-    },
-    assert: {
-      assertions: {
-        'categories:performance': ['error', { minScore: 0.85 }],
-        'categories:accessibility': ['error', { minScore: 0.95 }],
-        'categories:seo': ['error', { minScore: 0.9 }],
-        'categories:best-practices': ['error', { minScore: 0.9 }],
-      },
-    },
-  },
-}
-```
+- [Lighthouse CI Configuration (.lighthouserc.js)](reference/tool-configurations.md#lighthouse-ci-configuration-lighthousercjs)
 
 ### Accessibility Compliance (WCAG 2.1 AA)
 
 **Automated Testing Integration**:
 
-```javascript
-// jest.accessibility.config.js
-module.exports = {
-  testMatch: ['**/__tests__/**/*.a11y.test.{js,ts}'],
-  setupFilesAfterEnv: ['<rootDir>/jest.a11y.setup.js'],
-}
-
-// jest.a11y.setup.js
-import { configureAxe } from 'jest-axe'
-import 'jest-axe/extend-expect'
-
-const axe = configureAxe({
-  rules: {
-    'color-contrast': { enabled: true },
-    'focus-order-semantics': { enabled: true },
-    'keyboard-navigation': { enabled: true },
-  },
-})
-```
+See [Jest Accessibility Configuration](reference/tool-configurations.md#jest-accessibility-configuration) for complete accessibility testing setup.
 
 **Component Accessibility Testing**:
 
-```typescript
-// Example: BookingForm.a11y.test.tsx
-import { render } from '@testing-library/react'
-import { axe, toHaveNoViolations } from 'jest-axe'
-import BookingForm from '../BookingForm'
-
-expect.extend(toHaveNoViolations)
-
-test('BookingForm has no accessibility violations', async () => {
-  const { container } = render(<BookingForm />)
-  const results = await axe(container)
-  expect(results).toHaveNoViolations()
-})
-```
+Standard pattern for testing components - see accessibility configuration reference above for setup details.
 
 ## Emergency & Recovery Procedures
 

@@ -14,6 +14,7 @@ This index captures organizational learning to improve future appetite estimatio
 - [successful-testing-patterns-and-proven-approaches.md](./successful-testing-patterns-and-proven-approaches.md) - Documented approaches that worked well repeatedly across testing, development, and deployment
 - [debugging-failures-and-recovery-strategies.md](./debugging-failures-and-recovery-strategies.md) - Root cause analysis and recovery strategies from major failures and debugging sessions
 - [complexity-estimation-framework-and-historical-calibration.md](./complexity-estimation-framework-and-historical-calibration.md) - Complexity estimation accuracy and calibration over time with historical data
+- [technical-debt-resolution-achievements.md](./technical-debt-resolution-achievements.md) - Major technical debt resolution successes with appetite management and pattern effectiveness metrics
 
 **Agent-Specific Memory Banks**
 
@@ -24,16 +25,18 @@ This index captures organizational learning to improve future appetite estimatio
 ## Enhanced Search Guide
 
 **When implementing testing strategies** → Check: [`successful-testing-patterns-and-proven-approaches.md`](./successful-testing-patterns-and-proven-approaches.md) for proven testing approaches
-**When debugging complex issues** → Check: [`debugging-failures-and-recovery-strategies.md`](./debugging-failures-and-recovery-strategies.md) for similar failure patterns and solutions  
+**When debugging complex issues** → Check: [`debugging-failures-and-recovery-strategies.md`](./debugging-failures-and-recovery-strategies.md) for similar failure patterns and solutions
 **When estimating feature complexity** → Check: [`complexity-estimation-framework-and-historical-calibration.md`](./complexity-estimation-framework-and-historical-calibration.md) for historical accuracy data
 **When setting appetite boundaries** → Check: [`complexity-estimation-framework-and-historical-calibration.md`](./complexity-estimation-framework-and-historical-calibration.md) for realistic time allocation
 **When choosing technical approaches** → Check: [`successful-testing-patterns-and-proven-approaches.md`](./successful-testing-patterns-and-proven-approaches.md) for established patterns that work
+**When reviewing technical debt resolution examples** → Check: [`technical-debt-resolution-achievements.md`](./technical-debt-resolution-achievements.md) for successful resolution strategies and appetite management
 
 **Enhanced Semantic Search Terms**:
 
 - **Testing**: test patterns, testing success, proven approaches, test architecture, testing strategies, jest, playwright, msw, react-testing-library
 - **Debugging**: debug strategies, failure recovery, troubleshooting patterns, error resolution, bug fixes, root-cause analysis
 - **Complexity**: complexity scoring, appetite estimation, effort calibration, complexity factors, estimation accuracy, forecasting
+- **Technical Debt**: debt resolution, refactoring success, component decomposition, eslint resolution, appetite management, pattern effectiveness
 
 ## Recent Success Patterns (Last 6 Months)
 

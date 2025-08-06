@@ -2,8 +2,8 @@
 [metadata]
 type = "pattern_index"
 last_updated = "2025-08-06"
-total_patterns = 42
-documented_patterns = 42
+total_patterns = 43
+documented_patterns = 43
 missing_patterns = 0
 token_cost_estimate = "medium"
 
@@ -75,6 +75,10 @@ This index helps agents find proven implementation approaches before starting ne
 
 - [Dynamic Email Template Pattern](./dynamic-email-template-pattern.md) - customizable email content with A/B testing
 - [Notification System Pattern](./notification-system-pattern.md) - multi-channel notifications (in-app, push, email, SMS)
+
+**Documentation Frameworks**
+
+- [Lean Requirements Tracking Pattern](./lean-requirements-tracking-pattern.md) - anti-enterprise pattern replacing complex tracking with business-appropriate simplicity
 
 **Real-Time Features**
 
@@ -279,8 +283,8 @@ This index helps agents find proven implementation approaches before starting ne
 
 ## Current Pattern Statistics
 
-- **Total Documented Patterns**: 41 (up from 35)
-- **Recently Added**: 6 patterns (2025-08-06)
+- **Total Documented Patterns**: 43 (up from 42)
+- **Recently Added**: 1 pattern (2025-08-06) - Lean Requirements Tracking
 - **Pattern Coverage**: Complete for identified business needs
 - **Implementation Complexity Resolved**: 30+ units
 - **Critical Gaps Remaining**: None identified

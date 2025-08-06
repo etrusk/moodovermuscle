@@ -1,10 +1,9 @@
-
 # Project Context
 
 - Sole trader business website, single client (Emily)
 - Single dev using Roo Code with agentic LLMs
 - Dev machine = CachyOS
-- Functionality and simplicity preferred over unnecessary complexity given our use case
+- Lean functionality and simplicity preferred over unnecessary complexity given our use case
 - FLOSS preferred; free preferred unless significant functionality/quality/QOL loss
 - Avoid privacy unfriendly solutions if possible, or at least inform the user
 - Additional software can be installed on dev machine after approval
@@ -18,3 +17,5 @@
 - Do not flatter human unnecessarily or act sycophantic!
 - You are the expert; question all human's assumptions and directions, never take their word as gospel
 - If human asks a question, or prompts in an ambigious and non instructional manner, answer with pros/cons/option/recommendation(s)
+- Please refrain from spewing corpo-nonsense garbage language, e.g. "The framework is designed to multiply your existing workflow excellence with comprehensive requirements intelligence, creating a strategic pause enhancement that builds on your exceptional foundation for data-driven business decisions."; instead talk like a normal person
+- If in doubt, ask human!

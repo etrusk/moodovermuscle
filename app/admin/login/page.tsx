@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAdminAuth } from '@/lib/auth/useAdminAuth'
 import { Button } from '@/components/ui/button'
@@ -17,13 +17,38 @@ export default function AdminLoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   
-  const { login, isAuthenticated } = useAdminAuth()
+  const { login, isAuthenticated, isLoading: authLoading } = useAdminAuth()
   const router = useRouter()
 
-  // Redirect if already authenticated
+  // Handle navigation after authentication state changes
+  useEffect(() => {
+    if (isAuthenticated && !authLoading) {
+      router.push('/admin/dashboard')
+    }
+  }, [isAuthenticated, authLoading, router])
+
+  // Show loading spinner while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <Loader2 className="mx-auto h-8 w-8 animate-spin text-blue-600" />
+          <p className="mt-2 text-sm text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Show loading UI while redirecting (no router.push during render)
   if (isAuthenticated) {
-    router.push('/admin/dashboard')
-    return null
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <Loader2 className="mx-auto h-8 w-8 animate-spin text-blue-600" />
+          <p className="mt-2 text-sm text-gray-600">Redirecting to dashboard...</p>
+        </div>
+      </div>
+    )
   }
 
   const handleSubmit = async (e: React.FormEvent) => {

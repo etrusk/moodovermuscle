@@ -384,11 +384,30 @@ if (typeof Element !== 'undefined') {
   Element.prototype.scrollIntoView = jest.fn()
 }
 
-// Mock console methods to reduce noise in tests
+// React violation detection: Catch setState-during-render violations
+const originalConsoleError = console.error
+const originalConsoleWarn = console.warn
+
 global.console = {
   ...console,
-  warn: jest.fn(),
-  error: jest.fn(),
+  warn: jest.fn((message, ...args) => {
+    // Still call original for debugging if needed
+    // originalConsoleWarn.call(console, message, ...args)
+  }),
+  error: jest.fn((message, ...args) => {
+    // Detect React state management violations
+    if (typeof message === 'string') {
+      if (message.includes('Cannot update a component') && message.includes('while rendering a different component')) {
+        throw new Error(`React setState-during-render violation detected: ${message}`)
+      }
+      if (message.includes('Warning: Cannot update during an existing state transition')) {
+        throw new Error(`React state transition violation detected: ${message}`)
+      }
+    }
+    
+    // Still call original for debugging if needed
+    // originalConsoleError.call(console, message, ...args)
+  }),
 }
 
 // MSW setup is now handled in a separate file (__tests__/setup/msw-setup.js)

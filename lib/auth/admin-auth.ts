@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken'
+import { SignJWT, jwtVerify } from 'jose'
 import bcrypt from 'bcryptjs'
 
 export interface AdminUser {
@@ -28,13 +28,18 @@ const ADMIN_USER = {
   email: 'emily@moodovermuscle.com.au',
   name: 'Emily',
   // Password: 'Emily2025!' (hashed with bcrypt)
-  passwordHash: '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+  passwordHash: '$2b$10$TxurKCRrHneGuehrqu24WueBLoLfqRtN6HnS.9qQ6Tq.zWv7TEF5e',
   isActive: true,
 }
 
 export class AdminAuthService {
   private readonly JWT_SECRET = process.env.ADMIN_JWT_SECRET ?? 'fallback-secret-key'
   private readonly TOKEN_EXPIRY = '8h' // Admin sessions expire after 8 hours
+  
+  // Edge Runtime compatible secret as Uint8Array
+  private getSecretKey(): Uint8Array {
+    return new TextEncoder().encode(this.JWT_SECRET)
+  }
 
   async authenticateAdmin(
     email: string,
@@ -63,34 +68,45 @@ export class AdminAuthService {
       lastLogin: new Date(),
     }
 
-    const token = this.generateAdminToken(user)
+    const token = await this.generateAdminToken(user)
     
     console.log(`Successful admin login: ${normalizedEmail}`)
     return { user, token }
   }
 
-  private generateAdminToken(user: AdminUser): string {
-    const payload: AdminTokenPayload = {
+  private async generateAdminToken(user: AdminUser): Promise<string> {
+    const payload = {
       adminId: user.id,
       email: user.email,
       name: user.name,
-      iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + 8 * 60 * 60, // 8 hours
     }
 
-    return jwt.sign(payload, this.JWT_SECRET, { expiresIn: this.TOKEN_EXPIRY })
+    const secret = this.getSecretKey()
+    
+    return await new SignJWT(payload)
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setExpirationTime(this.TOKEN_EXPIRY)
+      .sign(secret)
   }
 
   async verifyAdminToken(token: string): Promise<AdminTokenPayload | null> {
     try {
-      const payload = jwt.verify(token, this.JWT_SECRET) as AdminTokenPayload
+      const secret = this.getSecretKey()
+      const { payload } = await jwtVerify(token, secret)
 
       // Verify admin is still active (simple check since we only have one admin)
       if (payload.adminId !== ADMIN_USER.id || !ADMIN_USER.isActive) {
         return null
       }
 
-      return payload
+      return {
+        adminId: payload.adminId as string,
+        email: payload.email as string,
+        name: payload.name as string,
+        iat: payload.iat as number,
+        exp: payload.exp as number,
+      }
     } catch (error) {
       console.warn('Invalid admin token:', error)
       return null
@@ -112,7 +128,7 @@ export class AdminAuthService {
       lastLogin: new Date(),
     }
 
-    return this.generateAdminToken(user)
+    return await this.generateAdminToken(user)
   }
 }
 

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { useAdminAuth } from '@/lib/auth/useAdminAuth'
 import { Button } from '@/components/ui/button'
 import { LogOut, Loader2 } from 'lucide-react'
@@ -13,6 +13,14 @@ export default function AdminLayout({
 }) {
   const { user, isLoading, isAuthenticated, logout } = useAdminAuth()
   const router = useRouter()
+  const pathname = usePathname()
+  
+  // Allow login page to render without authentication checks
+  const isLoginPage = pathname === '/admin/login'
+  
+  if (isLoginPage) {
+    return <div className="min-h-screen bg-gray-50">{children}</div>
+  }
 
   useEffect(() => {
     // Redirect to login if not authenticated after loading

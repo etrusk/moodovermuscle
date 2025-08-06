@@ -99,6 +99,8 @@ This index helps agents find proven implementation approaches before starting ne
 
 - [Comprehensive Quality Gates Pattern](./quality-gate-comprehensive-pattern.md) - complexity detection, coverage thresholds, pre-commit automation
 - [Time Format Validation Debugging Pattern](./debugging-time-format-validation-pattern.md) - systematic format mismatch identification + standardization
+- [JWT Configuration Debugging Pattern](./debugging-jwt-configuration-pattern.md) - systematic JWT authentication conflict resolution for duplicate expiration settings
+- [React State Management During Render Debugging Pattern](./react-state-management-during-render-debugging-pattern.md) - setState-during-render violation detection and resolution
 
 **TypeScript Patterns**
 
@@ -190,6 +192,8 @@ This index helps agents find proven implementation approaches before starting ne
 - **Handoffs**: Include relevant patterns in agent handoff context
 
 **Before debugging test failures** → Check: time format validation debugging pattern for systematic format mismatch resolution
+
+**Before debugging JWT authentication issues** → Check: JWT configuration debugging pattern for systematic parameter conflict resolution
 
 **Quality Gates for Patterns**:
 
@@ -283,8 +287,8 @@ This index helps agents find proven implementation approaches before starting ne
 
 ## Current Pattern Statistics
 
-- **Total Documented Patterns**: 43 (up from 42)
-- **Recently Added**: 1 pattern (2025-08-06) - Lean Requirements Tracking
+- **Total Documented Patterns**: 44 (up from 43)
+- **Recently Added**: 2 patterns (2025-08-06) - Lean Requirements Tracking, JWT Configuration Debugging
 - **Pattern Coverage**: Complete for identified business needs
 - **Implementation Complexity Resolved**: 30+ units
 - **Critical Gaps Remaining**: None identified

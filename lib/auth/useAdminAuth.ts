@@ -103,23 +103,20 @@ export function useAdminAuth(): AdminSession & {
         method: 'DELETE',
         credentials: 'include',
       })
-      
-      setSession({
-        user: null,
-        isLoading: false,
-        isAuthenticated: false,
-      })
-      
-      router.push('/admin/login')
     } catch (error) {
       console.error('Logout error:', error)
-      // Even if logout API fails, clear local session
+    } finally {
+      // Always clear session
       setSession({
         user: null,
         isLoading: false,
         isAuthenticated: false,
       })
-      router.push('/admin/login')
+      
+      // Use setTimeout to ensure navigation happens after state update completes
+      setTimeout(() => {
+        router.push('/admin/login')
+      }, 0)
     }
   }
 

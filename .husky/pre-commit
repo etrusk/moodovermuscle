@@ -15,7 +15,7 @@ pnpm run test:critical
 
 # Step 4: Security vulnerability scan
 echo "🔒 Running security audit..."
-npm audit --audit-level moderate --production
+pnpm run security:scan
 
 # Step 5: Build verification
 echo "🏗️  Verifying build..."

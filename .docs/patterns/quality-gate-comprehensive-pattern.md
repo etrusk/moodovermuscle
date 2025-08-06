@@ -54,7 +54,11 @@ Update `.eslintrc.json` with complexity rules and balanced test file overrides:
   },
   "overrides": [
     {
-      "files": ["**/__tests__/**/*.{ts,tsx,js,jsx}", "**/*.test.{ts,tsx,js,jsx}", "**/*.spec.{ts,tsx,js,jsx}"],
+      "files": [
+        "**/__tests__/**/*.{ts,tsx,js,jsx}",
+        "**/*.test.{ts,tsx,js,jsx}",
+        "**/*.spec.{ts,tsx,js,jsx}"
+      ],
       "rules": {
         "max-lines-per-function": ["error", { "max": 150 }],
         "max-lines": ["error", { "max": 600 }],
@@ -72,6 +76,7 @@ Update `.eslintrc.json` with complexity rules and balanced test file overrides:
 ```
 
 **Key Improvements**:
+
 - **Balanced Test File Overrides**: Test files get more lenient rules (150-line functions vs 50, complexity 15 vs 10) while maintaining quality
 - **Multiple TypeScript Projects**: Support for both main and test tsconfig files
 - **Prisma Generated Code**: Ignore auto-generated files from linting
@@ -141,7 +146,7 @@ pnpm run test:critical
 
 # Step 4: Security vulnerability scan
 echo "🔒 Running security audit..."
-pnpm audit --audit-level moderate --production
+pnpm run security:scan
 
 # Step 5: Build verification
 echo "🏗️  Verifying build..."
@@ -312,6 +317,7 @@ This pattern works with existing GitHub Actions:
 ### Technical Debt Detection Success
 
 **Quality Gates Working as Designed**: Implementation successfully detected 50+ existing violations in main codebase:
+
 - 20+ functions exceeding 50-line limit
 - 2 files exceeding 300-line limit (chart.tsx: 420 lines, sidebar.tsx: 738 lines)
 - Multiple complexity violations (functions with complexity > 10)
@@ -321,6 +327,7 @@ This pattern works with existing GitHub Actions:
 ### Test File Override Strategy
 
 **Balanced Approach Proven Effective**:
+
 - Test files legitimately need longer functions for setup/mocking
 - 150-line function limit vs 50 for main code strikes right balance
 - Complexity 15 vs 10 accommodates test scenario complexity
@@ -329,14 +336,18 @@ This pattern works with existing GitHub Actions:
 
 ### Package Manager Consistency
 
-**Critical Fix Applied**:
-- Changed security scan from `npm audit` to `pnpm audit` for consistency
-- Prevents "missing package-lock.json" errors in pnpm projects
-- Ensures security scanning works in all environments
+**Critical Fix Applied (2025-08-06)**:
+
+- ✅ Changed security scan from `npm audit` to `pnpm run security:scan` for consistency
+- ✅ Uses standardized script from package.json instead of hardcoded commands
+- ✅ Prevents "missing package-lock.json" errors in pnpm projects
+- ✅ Ensures security scanning works in all environments
+- **Result**: Pre-commit hook now uses consistent package manager throughout all quality gates
 
 ### Implementation Strategy
 
 **Bypass Pre-commit for Quality Gates Implementation**:
+
 - Use `git commit --no-verify` when committing quality gates themselves
 - Document existing technical debt rather than fixing during implementation
 - Quality gates should detect existing issues, not block their own deployment
@@ -344,7 +355,7 @@ This pattern works with existing GitHub Actions:
 ---
 
 **Pattern Created**: 2025-08-04
-**Last Updated**: 2025-08-04
+**Last Updated**: 2025-08-06
 **Effectiveness**: High - Successfully prevents technical debt accumulation and detects existing issues
 **Maintenance**: Low - Self-enforcing through automation
 **Team Adoption**: Medium - Requires discipline during initial setup, balanced test overrides improve adoption

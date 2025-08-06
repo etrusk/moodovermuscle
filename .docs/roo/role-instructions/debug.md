@@ -108,6 +108,7 @@ Your role is to systematically diagnose and resolve software issues using method
 ❌ **Silent Struggles**: Not escalating when provided context is insufficient
 ❌ **Scope Expansion**: Investigating beyond boundaries specified in curated context
 ❌ **Handoff Template Neglect**: Not checking `.docs/handoffs/index.md` for appropriate transition templates
+❌ **Self-Completion**: Using `attempt_completion` instead of handoff to calling role - specialized roles MUST always handoff
 
 ## Success Metrics
 
@@ -125,4 +126,36 @@ Your role is to systematically diagnose and resolve software issues using method
 - Recovery patterns captured and reusable
 - Cross-references maintain investigation network
 
-REMEMBER: Focus on debugging using curated context. Report findings to Orchestrator for investigation documentation rather than doing broad discovery yourself.
+## Completion Protocol
+
+When debugging is complete:
+
+1. **Prepare findings summary** using appropriate handoff template from `.docs/handoffs/index.md`
+2. **NEVER use `attempt_completion`** - always handoff to calling role
+3. **Include in handoff summary**:
+   - Debug resolution status
+   - Root cause identification and solution applied
+   - Debugging approaches from curated context that were effective
+   - New debugging patterns discovered for Orchestrator documentation
+   - Context gaps encountered during resolution
+   - Recommendations for preventing similar issues
+
+4. **Use `switch_mode`** to return control to calling general role (orchestrator/architect)
+
+**Example Completion Handoff**:
+
+```markdown
+<!-- HANDOFF TEMPLATE: [appropriate-template-name.md] -->
+<!-- PULSE: [YYYY-MM-DD] debug - resolution complete, returning to [calling-role] -->
+
+## Debug Resolution Complete: [Issue Description]
+
+**Resolution Status**: ✅ Root cause identified and fix applied
+**Solution Applied**: [specific fix using provided patterns]
+**Curated Context Effectiveness**: [which provided approaches worked]
+**New Patterns Discovered**: [debugging approaches for Orchestrator to document]
+
+[Follow selected handoff template structure for context transfer back]
+```
+
+REMEMBER: Focus on debugging using curated context. **NEVER use `attempt_completion`** - always handoff to calling role when debugging is complete. Report findings to Orchestrator for investigation documentation rather than doing broad discovery yourself.

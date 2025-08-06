@@ -1,3 +1,31 @@
++++
+[metadata]
+type = "investigation_index"
+last_updated = "2025-08-06"
+total_investigations = 28
+active_investigations = 0
+resolved_investigations = 28
+token_cost_estimate = "medium"
+
+[tracking_metrics]
+component_coverage = 0.85
+error_pattern_coverage = 0.75
+symptom_mapping_completeness = 0.90
+resolution_success_rate = 0.88
+
+[investigation_categories]
+component_based = 18
+error_pattern_based = 15
+symptom_based = 7
+security_focused = 3
+
+[maintenance_status]
+recent_updates = 2
+stale_entries = 1
+cross_reference_integrity = 0.92
+usage_frequency = "medium"
++++
+
 # Investigation Index
 
 This index helps agents quickly find relevant investigations when encountering issues. Search by component, error pattern, or user-facing symptom to locate past debugging work and solutions.

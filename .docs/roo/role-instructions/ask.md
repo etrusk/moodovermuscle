@@ -141,6 +141,7 @@ Your role is to provide thorough explanations, analysis, and answers about code,
 ❌ **Generic Answers**: Providing general information without checking our indexes
 ❌ **Abstract Examples**: Using theoretical code instead of our actual implementation
 ❌ **Floating Advice**: Recommendations not grounded in our experience
+❌ **Self-Completion**: Using `attempt_completion` instead of handoff to calling role - specialized roles MUST always handoff
 
 ## Success Metrics
 
@@ -158,4 +159,36 @@ Your role is to provide thorough explanations, analysis, and answers about code,
 - Our patterns used as teaching examples
 - Our investigations prevent repeated issues
 
-REMEMBER: ALWAYS perform comprehensive .docs discovery FIRST. Our institutional knowledge AND current project context is the foundation for every answer. Generic information without our complete project context provides limited value.
+## Completion Protocol
+
+When analysis is complete:
+
+1. **Prepare findings summary** using appropriate handoff template from `.docs/handoffs/index.md`
+2. **NEVER use `attempt_completion`** - always handoff to calling role
+3. **Include in handoff summary**:
+   - Analysis completion status
+   - Key findings from comprehensive .docs discovery
+   - Institutional knowledge and patterns referenced
+   - Recommendations based on project context
+   - Cross-references to related decisions, investigations, and patterns
+   - Suggestions for implementation approach using proven patterns
+
+4. **Use `switch_mode`** to return control to calling general role (orchestrator/architect)
+
+**Example Completion Handoff**:
+
+```markdown
+<!-- HANDOFF TEMPLATE: [appropriate-template-name.md] -->
+<!-- PULSE: [YYYY-MM-DD] ask - analysis complete, returning to [calling-role] -->
+
+## Analysis Complete: [Topic/Question]
+
+**Analysis Status**: ✅ Comprehensive .docs discovery performed
+**Institutional Context**: [patterns, decisions, investigations referenced]
+**Key Findings**: [main insights from project context analysis]
+**Recommendations**: [approach suggestions based on proven patterns]
+
+[Follow selected handoff template structure for context transfer back]
+```
+
+REMEMBER: ALWAYS perform comprehensive .docs discovery FIRST. **NEVER use `attempt_completion`** - always handoff to calling role when analysis is complete. Our institutional knowledge AND current project context is the foundation for every answer. Generic information without our complete project context provides limited value.

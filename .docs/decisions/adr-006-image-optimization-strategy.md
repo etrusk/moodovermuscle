@@ -1,8 +1,36 @@
-# Decision: Image Optimization Strategy for Performance
++++
+[metadata]
+type = "architecture_decision_record"
+adr_number = "006"
+title = "Image Optimization Strategy for Performance"
+date = "2025-08-01"
+status = "accepted"
+category = "performance_scaling"
+complexity = "medium"
+impact = "high"
+
+[decision_context]
+domain = "performance"
+problem_space = "image_optimization"
+stakeholders = ["development_team", "frontend_team"]
+related_adrs = ["001", "016", "022"]
+
+[implementation_tracking]
+implementation_status = "completed"
+estimated_effort = "medium"
+breaking_changes = false
+rollback_complexity = "low"
++++
+
+# ADR-006: Image Optimization Strategy for Performance
 
 **Date**: 2025-08-01
-**Status**: Decided
-**Context**: Address performance debt and improve Core Web Vitals through comprehensive image optimization
+**Status**: Accepted
+**Deciders**: Development Team
+
+## Context
+
+Address performance debt and improve Core Web Vitals through comprehensive image optimization
 
 ## Problem
 

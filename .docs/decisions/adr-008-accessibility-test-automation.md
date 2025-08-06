@@ -1,8 +1,32 @@
++++
+[metadata]
+type = "architecture_decision_record"
+adr_number = "008"
+title = "Automated Accessibility Testing Implementation"
+date = "2025-08-02"
+status = "accepted"
+category = "development_workflow"
+complexity = "high"
+impact = "high"
+
+[decision_context]
+domain = "accessibility"
+problem_space = "test_automation"
+stakeholders = ["development_team", "qa_team", "accessibility_team"]
+related_adrs = ["003", "004", "021"]
+
+[implementation_tracking]
+implementation_status = "completed"
+estimated_effort = "high"
+breaking_changes = false
+rollback_complexity = "medium"
++++
+
 # ADR-008: Automated Accessibility Testing Implementation
 
-## Status
-
-Accepted
+**Date**: 2025-08-02
+**Status**: Accepted
+**Deciders**: Development Team
 
 ## Context
 

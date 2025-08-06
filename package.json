@@ -46,7 +46,7 @@
     "lighthouse:validate": "./scripts/lighthouse-quality-gates.sh",
     "lighthouse:check": "./scripts/lighthouse-quality-gates.sh",
     "security:scan": "pnpm audit --audit-level moderate --production",
-    "build:verify": "npm run type-check && next build >/dev/null 2>&1",
+    "build:verify": "pnpm run type-check && next build >/dev/null 2>&1",
     "prepare": "husky",
     "lint-staged": "lint-staged"
   },

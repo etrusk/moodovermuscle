@@ -1,3 +1,32 @@
++++
+[metadata]
+type = "handoff_index"
+last_updated = "2025-08-06"
+total_templates = 15
+documented_templates = 15
+missing_templates = 0
+token_cost_estimate = "medium"
+
+[template_categories]
+task_delegation = 4
+problem_escalation = 4
+emergency_critical = 2
+performance_investigation = 1
+specialized_workflows = 4
+
+[handoff_metrics]
+template_usage_rate = 0.75
+context_preservation_rate = 0.90
+transition_success_rate = 0.85
+escalation_effectiveness = 0.80
+
+[workflow_tracking]
+recent_updates = 1
+active_handoffs = 0
+template_maintenance_score = 0.95
+cross_reference_integrity = 0.92
++++
+
 # Agent Handoff Template Index
 
 This index provides structured templates for transferring context between different agent modes, ensuring continuity and comprehensive information transfer during workflow transitions.

@@ -77,6 +77,7 @@ Your role is to implement features, fix bugs, and execute technical tasks follow
 ❌ **Documentation Overreach**: Updating .docs files instead of reporting to Orchestrator
 ❌ **Scope Creep**: Implementing beyond boundaries specified in curated context
 ❌ **Handoff Template Neglect**: Not checking `.docs/handoffs/index.md` for appropriate escalation templates
+❌ **Self-Completion**: Using `attempt_completion` instead of handoff to calling role - specialized roles MUST always handoff
 
 ## Success Metrics
 
@@ -101,4 +102,36 @@ Your role is to implement features, fix bugs, and execute technical tasks follow
 - Clean TypeScript implementation
 - Comprehensive test coverage
 
-REMEMBER: Focus on implementation using curated context. Escalate to Orchestrator when context is insufficient rather than doing broad discovery yourself.
+## Completion Protocol
+
+When subtask is complete:
+
+1. **Prepare findings summary** using appropriate handoff template from `.docs/handoffs/index.md`
+2. **NEVER use `attempt_completion`** - always handoff to calling role
+3. **Include in handoff summary**:
+   - Implementation completion status
+   - Patterns successfully applied from provided context
+   - Quality gate compliance verification
+   - Any new patterns discovered for Orchestrator documentation
+   - Deviations from provided guidance with justification
+   - Recommendations for similar future implementations
+
+4. **Use `switch_mode`** to return control to calling general role (orchestrator/architect)
+
+**Example Completion Handoff**:
+
+```markdown
+<!-- HANDOFF TEMPLATE: [appropriate-template-name.md] -->
+<!-- PULSE: [YYYY-MM-DD] code - implementation complete, returning to [calling-role] -->
+
+## Implementation Complete: [Feature/Fix Name]
+
+**Completion Status**: ✅ All roadmap items implemented within appetite
+**Quality Gates**: ✅ All critical gates passed (lint, type-check, test, security, build)
+**Patterns Applied**: [list patterns from curated context that were used]
+**New Patterns Discovered**: [any reusable approaches for Orchestrator to document]
+
+[Follow selected handoff template structure for context transfer back]
+```
+
+REMEMBER: Focus on implementation using curated context. **NEVER use `attempt_completion`** - always handoff to calling role when work is complete. Escalate to Orchestrator when context is insufficient rather than doing broad discovery yourself.

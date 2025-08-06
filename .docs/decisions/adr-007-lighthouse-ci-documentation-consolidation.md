@@ -1,8 +1,36 @@
-# Decision: Lighthouse CI Documentation Consolidation
++++
+[metadata]
+type = "architecture_decision_record"
+adr_number = "007"
+title = "Lighthouse CI Documentation Consolidation"
+date = "2025-08-02"
+status = "accepted"
+category = "development_workflow"
+complexity = "medium"
+impact = "medium"
+
+[decision_context]
+domain = "documentation"
+problem_space = "documentation_consolidation"
+stakeholders = ["development_team", "documentation_team"]
+related_adrs = ["003", "008", "017"]
+
+[implementation_tracking]
+implementation_status = "completed"
+estimated_effort = "medium"
+breaking_changes = false
+rollback_complexity = "low"
++++
+
+# ADR-007: Lighthouse CI Documentation Consolidation
 
 **Date**: 2025-08-02
-**Status**: Decided
-**Context**: Eliminate documentation duplication and improve maintainability
+**Status**: Accepted
+**Deciders**: Development Team
+
+## Context
+
+Eliminate documentation duplication and improve maintainability
 
 ## Problem
 

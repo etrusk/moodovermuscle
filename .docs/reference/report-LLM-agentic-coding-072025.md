@@ -18,8 +18,6 @@ Based on extensive research into LLM-assisted coding practices, multi-agent work
 
 ## 1. SPEC-FIRST DEVELOPMENT METHODOLOGY
 
-**Your intuition about spec-first is validated** - the research overwhelmingly confirms this as the dominant pattern for AI-assisted development. This approach enables fresh implementations rather than complex modifications while dramatically reducing AI confusion.
-
 ### Three-Stage Specification Process
 
 **CORNERSTONE**: Start with a one-line description
@@ -86,7 +84,7 @@ Based on extensive research into LLM-assisted coding practices, multi-agent work
 
 **Persistent markdown files**: Create files that agents reference across sessions, building institutional knowledge over time.
 
-**Encyclopedia-style articles**: Write `.roo/rules/` files as comprehensive articles rather than commands, using highly descriptive filenames that embedding models can match effectively.
+**Encyclopedia-style articles**: Write docs as comprehensive articles rather than commands.
 
 **Structured data format**: Use TOML headers + Markdown content for machine-readable metadata combined with human-readable context.
 
@@ -112,7 +110,7 @@ Research reveals consistent patterns among successful multi-agent coding impleme
 
 **Burn mode implementation**: Allow unlimited tool calls for complex tasks when thorough exploration is needed.
 
-**Shared consistency**: Create shared `.roo/rules/` files for consistency across sessions and projects.
+**Shared consistency**: Create shared `.docs` files for consistency across sessions and projects.
 
 ### Mode Handoff Protocol
 

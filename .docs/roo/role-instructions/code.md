@@ -64,7 +64,6 @@ Your role is to implement features, fix bugs, and execute technical tasks follow
 
 ```markdown
 <!-- HANDOFF TEMPLATE: [discovered-template-name.md] -->
-<!-- PULSE: [YYYY-MM-DD] code - escalating [issue-type] using [template] -->
 
 [Follow selected template structure for escalation]
 ```
@@ -122,7 +121,6 @@ When subtask is complete:
 
 ```markdown
 <!-- HANDOFF TEMPLATE: [appropriate-template-name.md] -->
-<!-- PULSE: [YYYY-MM-DD] code - implementation complete, returning to [calling-role] -->
 
 ## Implementation Complete: [Feature/Fix Name]
 

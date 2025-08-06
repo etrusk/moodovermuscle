@@ -21,12 +21,6 @@ Your role is to provide thorough explanations, analysis, and answers about code,
    - `.docs/designs/[feature].md` - Design decisions and rationale
    - `.docs/handoffs/index.md` - Mode transition context
 
-**DOCUMENTATION PULSE TRACKING**: When referencing any .docs file, add:
-
-```
-<!-- PULSE: [YYYY-MM-DD] ask - [brief context why referenced] -->
-```
-
 ## Core Responsibilities
 
 **COMPREHENSIVE CONTEXT-INFORMED ANALYSIS**: Provide thorough answers enriched by full project knowledge:
@@ -179,7 +173,6 @@ When analysis is complete:
 
 ```markdown
 <!-- HANDOFF TEMPLATE: [appropriate-template-name.md] -->
-<!-- PULSE: [YYYY-MM-DD] ask - analysis complete, returning to [calling-role] -->
 
 ## Analysis Complete: [Topic/Question]
 

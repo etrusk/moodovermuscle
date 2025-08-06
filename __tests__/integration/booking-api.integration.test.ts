@@ -233,7 +233,7 @@ describe('Booking API Integration Tests', () => {
       const futureDate = new Date('2024-12-25T14:30:00Z')
       const testData = createTestBookingData({
         date: futureDate.toISOString(),
-        time: '2:30 PM',
+        time: '14:30',
       })
 
       const req = makeJsonRequest(testData)
@@ -282,7 +282,7 @@ describe('Booking API Integration Tests', () => {
         where: { id: responseData.data.id },
       })
 
-      expect(createdBooking?.time).toBe('2:30 PM')
+      expect(createdBooking?.time).toBe('14:30')
       expect(createdBooking?.date).toEqual(futureDate)
     })
 

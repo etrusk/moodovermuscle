@@ -17,11 +17,6 @@
 - ✅ `.docs/investigations/index.md` - Related issues and prevention measures analyzed
 - ✅ `.docs/memory/index.md` - Complexity insights and implementation lessons applied
 
-**Documentation Pulse Tracking**:
-
-```
-<!-- PULSE: [YYYY-MM-DD] architect - curated context for new feature implementation -->
-```
 
 ### Appetite Constraints (from spec.md analysis)
 

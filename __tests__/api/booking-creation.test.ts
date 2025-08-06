@@ -14,7 +14,7 @@ const mockBookingData: BookingData = {
   phone: '0412345678',
   service: '1-on-1 Personal Training',
   date: new Date(),
-  time: '10:00 AM',
+  time: '10:00',
   message: '',
   goals: 'community',
   experience: 'Beginner',

@@ -19,11 +19,6 @@
 - ✅ `.docs/workflows.md` - Quality gates and testing requirements confirmed
 - ✅ `.docs/memory/index.md` - Lessons from similar fix implementations applied
 
-**Documentation Pulse Tracking**:
-
-```
-<!-- PULSE: [YYYY-MM-DD] debug - curated fix context for code implementation -->
-```
 
 ### Curated Fix Context for Code
 

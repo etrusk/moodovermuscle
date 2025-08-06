@@ -153,7 +153,6 @@ Provide synthesis for routing decision.
 
 ```markdown
 <!-- HANDOFF TEMPLATE: [discovered-template-name.md] -->
-<!-- PULSE: [YYYY-MM-DD] orchestrator - using [template] for [scenario] -->
 
 [Follow template structure provided by Ask mode discovery]
 ```

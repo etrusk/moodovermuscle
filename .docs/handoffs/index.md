@@ -175,7 +175,6 @@ _(Space reserved for additional specialized handoff templates as workflow patter
 **All handoff templates must include**:
 
 - **Synthesized context provision** (for Orchestrator handoffs via Ask mode delegation) OR **Curated context provision** (for Architect handoffs) OR **No broad discovery required** (for Code/Debug handoffs)
-- **Documentation pulse tracking** for all .docs references
 - Clear appetite and complexity estimates (except emergency escalations)
 - Circuit breaker conditions and escalation triggers
 - **Role specialization alignment** with Navigator-Driver model
@@ -203,7 +202,6 @@ _(Space reserved for additional specialized handoff templates as workflow patter
 
 - Follow semantic naming: `[source-mode]-to-[target-mode]-[specific-scenario].md`
 - **Include synthesized context provision** (for Orchestrator handoffs via Ask mode) OR **curated context provision** (for Architect handoffs) OR **specify no broad discovery required** (for specialized roles)
-- **Add documentation pulse tracking** for all .docs references
 - Provide structured context transfer protocols aligned with role specialization
 - Define clear success criteria and escalation conditions
 - Reference institutional memory indexes appropriately for role type
@@ -253,12 +251,6 @@ OR
 
 **NO BROAD DISCOVERY REQUIRED**: [Context provided by comprehensive roles]
 
-**Documentation Pulse Tracking**:
-```
-
-<!-- PULSE: [YYYY-MM-DD] [role] - [context] -->
-
-```
 
 ## Current State
 

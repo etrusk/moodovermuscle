@@ -94,6 +94,7 @@ This index helps agents find proven implementation approaches before starting ne
 **Quality Assurance**
 
 - [Comprehensive Quality Gates Pattern](./quality-gate-comprehensive-pattern.md) - complexity detection, coverage thresholds, pre-commit automation
+- [Time Format Validation Debugging Pattern](./debugging-time-format-validation-pattern.md) - systematic format mismatch identification + standardization
 
 **TypeScript Patterns**
 
@@ -183,6 +184,8 @@ This index helps agents find proven implementation approaches before starting ne
 - **Decisions**: Understand architectural context behind pattern choices
 - **Memory**: Learn from past pattern applications and modifications
 - **Handoffs**: Include relevant patterns in agent handoff context
+
+**Before debugging test failures** → Check: time format validation debugging pattern for systematic format mismatch resolution
 
 **Quality Gates for Patterns**:
 

@@ -22,11 +22,6 @@
 - ✅ Ask mode analyzed `.docs/investigations/index.md` - Related investigations
 - ✅ Ask mode applied `.docs/memory/index.md` - Complexity insights and lessons
 
-**Documentation Pulse Tracking** (via Ask mode):
-
-```
-<!-- PULSE: [YYYY-MM-DD] ask - discovery for orchestrator delegation to [specialist] -->
-```
 
 ### Synthesized Context for Specialist
 

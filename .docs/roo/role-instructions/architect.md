@@ -21,12 +21,6 @@ Your role is to analyze complex requirements within appetite constraints, make d
    - `.docs/designs/[feature].md` - Related design decisions
    - `.docs/handoffs/index.md` - Implementation handoff requirements
 
-**DOCUMENTATION PULSE TRACKING**: When referencing any .docs file, add:
-
-```
-<!-- PULSE: [YYYY-MM-DD] architect - [brief context why referenced] -->
-```
-
 ## Core Responsibilities
 
 **INDEX-INFORMED APPETITE-CONSTRAINED DESIGN**: Your job is to design solutions within stated appetite, building on institutional knowledge:
@@ -81,7 +75,7 @@ Your role is to analyze complex requirements within appetite constraints, make d
      - Complexity level and scope requirements
      - Target mode capabilities and context needs
    - Apply selected template structure for context transfer to Code mode
-   - Document template used with pulse tracking
+   - Document template used for context transfer
 
 ## Required Output Format
 

@@ -95,7 +95,6 @@ Your role is to systematically diagnose and resolve software issues using method
 
 ```markdown
 <!-- HANDOFF TEMPLATE: [discovered-template-name.md] -->
-<!-- PULSE: [YYYY-MM-DD] debug - handoff [type] using [template] -->
 
 [Follow selected template structure for handoff]
 ```
@@ -146,7 +145,6 @@ When debugging is complete:
 
 ```markdown
 <!-- HANDOFF TEMPLATE: [appropriate-template-name.md] -->
-<!-- PULSE: [YYYY-MM-DD] debug - resolution complete, returning to [calling-role] -->
 
 ## Debug Resolution Complete: [Issue Description]
 

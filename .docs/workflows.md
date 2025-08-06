@@ -93,7 +93,7 @@ refactor(api): simplify user endpoint error handling
 # Automatic execution via husky pre-commit hooks
 npm run lint                     # ESLint + Prettier (auto-fix where possible)
 npm run type-check               # TypeScript compilation
-npm run test:critical            # Essential tests only (< 30 seconds)
+npm run test:critical            # Essential tests + documentation health (< 30 seconds)
 npm run security:scan            # Security vulnerability detection
 npm run build:verify             # Build verification
 ```
@@ -277,6 +277,12 @@ npm run a11y:contrast         # Color contrast validation
 - Complex integration test scenarios
 - Advanced E2E edge cases
 - Performance testing under load
+
+**Documentation Health**:
+
+- Automated staleness detection (integrated with `npm run test:critical`)
+- >90% documentation health score target (30-day threshold)
+- Zero-maintenance overhead monitoring via git timestamps
 
 **Documentation Quality**:
 

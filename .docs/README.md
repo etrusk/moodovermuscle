@@ -63,6 +63,28 @@
 - New patterns must be added to **[patterns](./patterns/index.md)** with usage examples
 - API changes must update contracts in **[api/specification.md](./api/specification.md)**
 
+### **Documentation Health & Maintenance**
+
+**Automated Staleness Detection** (Zero Maintenance Overhead):
+
+```bash
+# Check documentation health
+npm run docs:staleness      # Detailed staleness analysis with recommendations
+npm run test:critical       # Includes documentation health checks (integrated)
+```
+
+**Health Scoring System (30-day threshold)**:
+- **Current (0-30 days)**: Recently updated, likely accurate
+- **Stale (31+ days)**: Flagged for review or cleanup
+
+**Target Health Score: >90% current documentation**
+
+**System Benefits**:
+- Zero manual tracking overhead - uses git timestamps automatically
+- Integrated with critical test workflow for continuous monitoring
+- Clear maintenance recommendations with visual priority indicators
+- Supports 90% documentation size reduction target
+
 ### **Documentation Standards**
 
 - **Appetite-Focused**: All documentation organized around appetite constraints and scope boundaries
@@ -71,6 +93,7 @@
 - **Quality-First**: Critical vs. non-critical requirements clearly defined throughout
 - **Navigator-Driver Model**: Clear separation between human strategic decisions and AI tactical execution
 - **Knowledge Distribution**: Truck number principle ensures critical knowledge is distributed across team members
+- **Health-Monitored**: Automated staleness detection maintains documentation currency
 
 ## AI-Assisted Development Guidelines
 

@@ -47,6 +47,9 @@
     "lighthouse:check": "./scripts/lighthouse-quality-gates.sh",
     "security:scan": "pnpm audit --audit-level moderate --production",
     "build:verify": "pnpm run type-check && next build >/dev/null 2>&1",
+    "docs:staleness": "node scripts/check-docs-staleness.js",
+    "docs:staleness:verbose": "node scripts/check-docs-staleness.js --verbose",
+    "docs:staleness:json": "node scripts/check-docs-staleness.js --json",
     "prepare": "husky",
     "lint-staged": "lint-staged"
   },

@@ -69,6 +69,10 @@ This index helps agents quickly find relevant investigations when encountering i
 - [Bundle Size](./performance-bundle-size.md) - JavaScript bundle optimization
 - [Database Performance](./performance-database.md) - query optimization and indexing
 
+**Testing & Quality Assurance**
+
+- [Time Format Mismatch in Test Data](./time-format-mismatch-test-data.md) - 12-hour vs 24-hour format standardization [RESOLVED]
+
 ## By Error Pattern
 
 **Connection Issues**
@@ -128,6 +132,8 @@ This index helps agents quickly find relevant investigations when encountering i
 2. **By Error Pattern**: Have specific error types? Look in error pattern sections
 3. **By Symptom**: User reporting issues? Start with symptom mapping
 4. **Cross-Reference**: Many issues span multiple categories - check related sections
+
+**Before test implementation** → Check: time format mismatch issues for format standardization approaches
 
 **Adding New Investigations**:
 

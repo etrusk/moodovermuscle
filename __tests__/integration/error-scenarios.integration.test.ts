@@ -413,7 +413,7 @@ describe('Error Scenarios Integration Tests', () => {
             phone: null,
             service: '1-on-1 Personal Training',
             date: new Date('2025-12-01T10:00:00Z'),
-            time: `${10 + currentCall}:00 AM`,
+            time: `${10 + currentCall}:00`,
             message: null,
             goals: 'Community',
             experience: 'Beginner',
@@ -437,7 +437,7 @@ describe('Error Scenarios Integration Tests', () => {
         const testData = createTestBookingData({
           name: `Concurrent User ${i}`,
           email: `concurrent-${i}-${Date.now()}@example.com`,
-          time: `${10 + i}:00 AM`, // Use different times to avoid conflicts
+          time: `${10 + i}:00`, // Use different times to avoid conflicts
         })
         const req = makeJsonRequest(testData)
         return POST(req)

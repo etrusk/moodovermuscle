@@ -18,7 +18,7 @@ jest.mock('@/lib/prisma', () => ({
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   prisma: require('../setup/test-db').testDb,
 }))
-// Mock the prisma client
+
 // Mock email functions for integration tests
 jest.mock('@/lib/email', () => ({
   sendCustomerConfirmation: jest
@@ -28,6 +28,41 @@ jest.mock('@/lib/email', () => ({
     .fn()
     .mockResolvedValue({ success: true, messageId: 'test-id' }),
 }))
+
+// Helper functions for test setup
+const setupMockBooking = (testData: Record<string, unknown>, id = 'mock-booking-id'): Booking => {
+  return {
+    ...testData,
+    id,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    phone: (testData.phone as string) ?? null,
+    message: (testData.message as string) ?? null,
+    status: 'PENDING' as const,
+    sessionDuration: 60,
+    date: testData.date instanceof Date ? testData.date : new Date(testData.date as string),
+    name: testData.name as string,
+    email: testData.email as string,
+    service: testData.service as string,
+    time: testData.time as string,
+    goals: (testData.goals as string) ?? null,
+    experience: (testData.experience as string) ?? null,
+  } as Booking
+}
+
+const mockTransaction = (mockBooking: Booking): void => {
+  ;(testDb.$transaction as jest.Mock).mockImplementation(
+    async (callback: TransactionCallback) => {
+      const mockTx = {
+        booking: {
+          findFirst: jest.fn().mockResolvedValue(null),
+          create: jest.fn().mockResolvedValue(mockBooking),
+        },
+      }
+      return await callback(mockTx as unknown as Prisma.TransactionClient)
+    }
+  )
+}
 
 function makeJsonRequest(data: Record<string, unknown>): Request {
   return new Request('http://localhost/api/book-session', {
@@ -48,54 +83,23 @@ describe('Booking API Integration Tests', () => {
     await teardownIntegrationTest()
   })
 
-  describe('POST /api/book-session', () => {
+  describe('POST /api/book-session - Basic Operations', () => {
     it('should create a booking in the database with valid data', async () => {
       const testData = createTestBookingData()
-      const req = makeJsonRequest(testData)
+      const mockBooking = setupMockBooking(testData, 'mock-booking-id-123')
+      mockTransaction(mockBooking)
 
-      // Mock the database create function
-      const mockBookingId = 'mock-booking-id-123'
-      const mockBooking = {
-        ...createTestBookingData(),
-        id: mockBookingId,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        phone: testData.phone ?? null,
-        message: testData.message ?? null,
-        status: 'PENDING',
-        sessionDuration: 60,
-      }
-
-      ;(testDb.$transaction as jest.Mock).mockImplementation(
-        async (callback: TransactionCallback) => {
-          const mockTx = {
-            booking: {
-              findFirst: jest.fn().mockResolvedValue(null),
-              create: jest.fn().mockResolvedValue(mockBooking),
-            },
-          }
-          return await callback(mockTx as unknown as Prisma.TransactionClient)
-        }
-      )
-
-      const response = await POST(req)
+      const response = await POST(makeJsonRequest(testData))
       expect(response.status).toBe(201)
 
       const responseData = await response.json()
       expect(responseData.message).toBe('Booking submitted successfully!')
       expect(responseData.data).toHaveProperty('id')
 
-      // Verify booking was actually created in database
-      testDb.booking.findUnique.mockResolvedValue({
-        ...testData,
-        id: responseData.data.id,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        phone: testData.phone ?? null,
-        message: testData.message ?? null,
-        status: 'PENDING',
-        sessionDuration: 60,
-      })
+      // Verify booking creation
+      testDb.booking.findUnique.mockResolvedValue(
+        setupMockBooking(testData, responseData.data.id)
+      )
       const createdBooking = await testDb.booking.findUnique({
         where: { id: responseData.data.id },
       })
@@ -112,9 +116,8 @@ describe('Booking API Integration Tests', () => {
       const testData = createTestBookingData({
         email: 'invalid-email', // This should fail validation
       })
-      const req = makeJsonRequest(testData)
 
-      const response = await POST(req)
+      const response = await POST(makeJsonRequest(testData))
       expect(response.status).toBe(400)
 
       const responseData = await response.json()
@@ -127,44 +130,25 @@ describe('Booking API Integration Tests', () => {
         name: 'Test User',
         // Missing required fields
       }
-      const req = makeJsonRequest(incompleteData)
 
-      const response = await POST(req)
+      const response = await POST(makeJsonRequest(incompleteData))
       expect(response.status).toBe(400)
 
       const responseData = await response.json()
       expect(responseData.message).toBe('Invalid form data.')
       expect(responseData.errors).toBeDefined()
     })
+  })
 
+  describe('POST /api/book-session - Multiple Bookings', () => {
     it('should create multiple bookings without conflicts', async () => {
       const testData1 = createTestBookingData({ name: 'User 1' })
       const testData2 = createTestBookingData({ name: 'User 2' })
 
-      const req1 = makeJsonRequest(testData1)
-      const req2 = makeJsonRequest(testData2)
+      const mockBooking1 = setupMockBooking(testData1, 'mock-id-1')
+      const mockBooking2 = setupMockBooking(testData2, 'mock-id-2')
 
-      // Mock the database create function for both calls
-      const mockBooking1 = {
-        ...testData1,
-        id: 'mock-id-1',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        phone: testData1.phone ?? null,
-        message: testData1.message ?? null,
-        status: 'PENDING',
-        sessionDuration: 60,
-      }
-      const mockBooking2 = {
-        ...testData1,
-        id: 'mock-id-2',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        phone: testData2.phone ?? null,
-        message: testData2.message ?? null,
-        status: 'PENDING',
-        sessionDuration: 60,
-      }
+      // Setup transaction mocks for both bookings
       ;(testDb.$transaction as jest.Mock)
         .mockImplementationOnce(async (callback: TransactionCallback) => {
           const mockTx = {
@@ -185,50 +169,30 @@ describe('Booking API Integration Tests', () => {
           return await callback(mockTx as unknown as Prisma.TransactionClient)
         })
 
-      const response1 = await POST(req1)
-      const response2 = await POST(req2)
+      const response1 = await POST(makeJsonRequest(testData1))
+      const response2 = await POST(makeJsonRequest(testData2))
 
       expect(response1.status).toBe(201)
       expect(response2.status).toBe(201)
 
       const data1 = await response1.json()
       const data2 = await response2.json()
-
       expect(data1.data.id).not.toBe(data2.data.id)
 
-      // Verify both bookings exist in database
+      // Verify database calls
       testDb.booking.findUnique
-        .mockResolvedValueOnce({
-          ...testData1,
-          id: data1.data.id,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          phone: testData1.phone ?? null,
-          message: testData1.message ?? null,
-          status: 'PENDING',
-          sessionDuration: 60,
-        })
-        .mockResolvedValueOnce({
-          ...testData2,
-          id: data2.data.id,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          phone: testData2.phone ?? null,
-          message: testData2.message ?? null,
-          status: 'PENDING',
-          sessionDuration: 60,
-        })
-      const booking1 = await testDb.booking.findUnique({
-        where: { id: data1.data.id },
-      })
-      const booking2 = await testDb.booking.findUnique({
-        where: { id: data2.data.id },
-      })
+        .mockResolvedValueOnce(setupMockBooking(testData1, data1.data.id))
+        .mockResolvedValueOnce(setupMockBooking(testData2, data2.data.id))
+      
+      const booking1 = await testDb.booking.findUnique({ where: { id: data1.data.id } })
+      const booking2 = await testDb.booking.findUnique({ where: { id: data2.data.id } })
 
       expect(booking1?.name).toBe('User 1')
       expect(booking2?.name).toBe('User 2')
     })
+  })
 
+  describe('POST /api/book-session - Field Handling', () => {
     it('should handle date and time fields correctly', async () => {
       const futureDate = new Date('2024-12-25T14:30:00Z')
       const testData = createTestBookingData({
@@ -236,48 +200,17 @@ describe('Booking API Integration Tests', () => {
         time: '14:30',
       })
 
-      const req = makeJsonRequest(testData)
+      const mockBooking = setupMockBooking(testData, 'mock-booking-id-date-time')
+      mockTransaction(mockBooking)
 
-      // Mock the database create function
-      const mockBooking = {
-        ...testData,
-        id: 'mock-booking-id-date-time',
-        date: new Date(testData.date),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        phone: testData.phone ?? null,
-        message: testData.message ?? null,
-        status: 'PENDING',
-        sessionDuration: 60,
-      }
-      ;(testDb.$transaction as jest.Mock).mockImplementation(
-        async (callback: TransactionCallback) => {
-          const mockTx = {
-            booking: {
-              findFirst: jest.fn().mockResolvedValue(null),
-              create: jest.fn().mockResolvedValue(mockBooking),
-            },
-          }
-          return await callback(mockTx as unknown as Prisma.TransactionClient)
-        }
-      )
-
-      const response = await POST(req)
-
+      const response = await POST(makeJsonRequest(testData))
       expect(response.status).toBe(201)
 
       const responseData = await response.json()
-      testDb.booking.findUnique.mockResolvedValue({
-        ...testData,
-        id: responseData.data.id,
-        date: new Date(testData.date),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        phone: testData.phone ?? null,
-        message: testData.message ?? null,
-        status: 'PENDING',
-        sessionDuration: 60,
-      })
+      testDb.booking.findUnique.mockResolvedValue(
+        setupMockBooking(testData, responseData.data.id)
+      )
+      
       const createdBooking = await testDb.booking.findUnique({
         where: { id: responseData.data.id },
       })
@@ -292,46 +225,17 @@ describe('Booking API Integration Tests', () => {
         message: undefined,
       })
 
-      const req = makeJsonRequest(testData)
+      const mockBooking = setupMockBooking(testData, 'mock-booking-id-optional')
+      mockTransaction(mockBooking)
 
-      // Mock the database create function
-      const mockBooking = {
-        ...testData,
-        id: 'mock-booking-id-optional',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        phone: null,
-        message: null,
-        status: 'PENDING',
-        sessionDuration: 60,
-      }
-      ;(testDb.$transaction as jest.Mock).mockImplementation(
-        async (callback: TransactionCallback) => {
-          const mockTx = {
-            booking: {
-              findFirst: jest.fn().mockResolvedValue(null),
-              create: jest.fn().mockResolvedValue(mockBooking),
-            },
-          }
-          return await callback(mockTx as unknown as Prisma.TransactionClient)
-        }
-      )
-
-      const response = await POST(req)
-
+      const response = await POST(makeJsonRequest(testData))
       expect(response.status).toBe(201)
 
       const responseData = await response.json()
-      testDb.booking.findUnique.mockResolvedValue({
-        ...testData,
-        id: responseData.data.id,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        phone: null,
-        message: null,
-        status: 'PENDING',
-        sessionDuration: 60,
-      })
+      testDb.booking.findUnique.mockResolvedValue(
+        setupMockBooking(testData, responseData.data.id)
+      )
+      
       const createdBooking = await testDb.booking.findUnique({
         where: { id: responseData.data.id },
       })
@@ -339,14 +243,15 @@ describe('Booking API Integration Tests', () => {
       expect(createdBooking?.phone).toBeNull()
       expect(createdBooking?.message).toBeNull()
     })
+  })
 
+  describe('POST /api/book-session - Validation', () => {
     it('should validate service types', async () => {
       const testData = createTestBookingData({
         service: 'Invalid Service Type',
       })
 
-      const req = makeJsonRequest(testData)
-      const response = await POST(req)
+      const response = await POST(makeJsonRequest(testData))
 
       expect(response.status).toBe(400)
 
@@ -361,46 +266,17 @@ describe('Booking API Integration Tests', () => {
         experience: 'Intermediate',
       })
 
-      const req = makeJsonRequest(validData)
+      const mockBooking = setupMockBooking(validData, 'mock-booking-id-goals')
+      mockTransaction(mockBooking)
 
-      // Mock the database create function
-      const mockBooking = {
-        ...validData,
-        id: 'mock-booking-id-goals',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        phone: validData.phone ?? null,
-        message: validData.message ?? null,
-        status: 'PENDING',
-        sessionDuration: 60,
-      }
-      ;(testDb.$transaction as jest.Mock).mockImplementation(
-        async (callback: TransactionCallback) => {
-          const mockTx = {
-            booking: {
-              findFirst: jest.fn().mockResolvedValue(null),
-              create: jest.fn().mockResolvedValue(mockBooking),
-            },
-          }
-          return await callback(mockTx as unknown as Prisma.TransactionClient)
-        }
-      )
-
-      const response = await POST(req)
-
+      const response = await POST(makeJsonRequest(validData))
       expect(response.status).toBe(201)
 
       const responseData = await response.json()
-      testDb.booking.findUnique.mockResolvedValue({
-        ...validData,
-        id: responseData.data.id,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        phone: validData.phone ?? null,
-        message: validData.message ?? null,
-        status: 'PENDING',
-        sessionDuration: 60,
-      })
+      testDb.booking.findUnique.mockResolvedValue(
+        setupMockBooking(validData, responseData.data.id)
+      )
+      
       const createdBooking = await testDb.booking.findUnique({
         where: { id: responseData.data.id },
       })

@@ -354,6 +354,53 @@ npm run a11y:contrast         # Color contrast validation
 [What critical knowledge needs to be distributed?]
 ```
 
+## Role Routing & Completion Protocols
+
+### Documentation-First Task Routing
+
+**PRIMARY ROUTING RULE**: Documentation-related tasks with minimal/no code work → **Architect role**
+
+#### Task Assignment Decision Matrix
+| Task Type | Indicators | Primary Role | Justification |
+|-----------|------------|--------------|---------------|
+| **Documentation Creation** | Creating/updating .md files, README, guides | **Architect** | Technical writing expertise |
+| **System Design** | Architecture planning, design specs, roadmaps | **Architect** | Design and strategy focus |
+| **Workflow Definition** | Process documentation, role definitions | **Architect** | Process design expertise |
+| **Feature Implementation** | Writing application code, CRUD operations | **Code** | Implementation expertise |
+| **Bug Fixes** | Code debugging, test fixes, issue resolution | **Code/Debug** | Technical problem solving |
+| **Testing Implementation** | Writing tests, test data, test configuration | **Code** | Implementation detail |
+| **Information Requests** | Research, explanations, recommendations | **Ask** | Analysis and information |
+
+#### Collaboration Rules
+- **Architect CAN call Code**: When implementation work is needed after design
+- **Code CANNOT call Architect**: Must hand back instead of making design decisions
+- **Debug/Ask CANNOT initiate**: Always called by general roles (Orchestrator/Architect)
+
+### Mandatory Handoff Protocol
+
+**CRITICAL RULE**: Specialized roles (Code, Debug, Ask) MUST hand back to calling general role (Orchestrator, Architect) on task completion.
+
+#### Prohibited Behaviors
+❌ **Code role ending conversations** with `attempt_completion`
+❌ **Debug role providing final solutions** without handoff to calling role
+❌ **Ask role concluding tasks** independently
+❌ **Any specialized role making** `attempt_completion` calls
+
+#### Required Behaviors
+✅ **Hand back to calling role** with comprehensive status update
+✅ **Document completion status** in .docs/current-task.md
+✅ **Provide clear handoff summary** of work completed
+✅ **Include next steps recommendations** for continuing work
+
+#### Role Completion Matrix
+| Role | Can End Tasks | Must Hand Back | Can Call Others | Completion Method |
+|------|---------------|----------------|-----------------|-------------------|
+| **Orchestrator** | ✅ Yes | ❌ No | ✅ All roles | `attempt_completion` |
+| **Architect** | ✅ Yes | ❌ No | ✅ Code, Debug, Ask | `attempt_completion` |
+| **Code** | ❌ Never | ✅ Always | ❌ None | Hand back only |
+| **Debug** | ❌ Never | ✅ Always | ❌ None | Hand back only |
+| **Ask** | ❌ Never | ✅ Always | ❌ None | Hand back only |
+
 ## Agent Collaboration Workflows
 
 ### Enhanced Orchestration with Mandatory Deployment Gates
@@ -361,13 +408,15 @@ npm run a11y:contrast         # Color contrast validation
 **Orchestrated Task Flow** (Updated Standard):
 
 ```
-Architect (Design) → Code (Implementation) → Architect (Mandatory Deployment + Cleanup) → Complete
+Architect (Design + Documentation) → Code (Implementation) → Architect (Mandatory Deployment + Cleanup) → Complete
 ```
 
-**Automatic Transition Triggers**:
+**Role Transition Requirements**:
 
-- Code mode signals "READY_FOR_CLEANUP" when all implementation complete
-- Architect mode automatically handles deployment + cleanup phase (never manual prompting)
+- **Architect** handles all documentation and design work first
+- **Code** called only when implementation needed, must hand back when complete
+- **Debug** called only for technical problems, must hand back with solution
+- **Ask** called only for information needs, must hand back with answers
 - **CRITICAL**: All deployment gates must complete before task considered finished
 
 **Mandatory Deployment Gate Sequence** (Never Skip):
@@ -379,10 +428,11 @@ Architect (Design) → Code (Implementation) → Architect (Mandatory Deployment
 5. **Documentation Updates**: Patterns, memory, current-task completion
 6. **Task Completion**: Only after all gates verified
 
-**Orchestrator Anti-Pattern Prevention**:
+**Workflow Anti-Pattern Prevention**:
 
-- ❌ **Premature Completion**: Using `attempt_completion` before git operations
-- ❌ **Deployment Skipping**: Marking tasks complete without push verification
+- ❌ **Inappropriate Task Routing**: Documentation tasks to Code role
+- ❌ **Premature Completion**: Specialized roles using `attempt_completion`
+- ❌ **Conversation Termination**: Code/Debug/Ask ending without handoff
 - ❌ **Quality Gate Bypass**: Skipping any critical gates for speed
 - ❌ **Documentation Debt**: Completing without pattern/memory updates
 
@@ -488,6 +538,93 @@ git push origin main             # Push to main (or feature branch)
 **Tests Failing**: [Specific test failures]
 **Quality Gates**: [Which gates are failing]
 **Expected Behavior**: [What should happen]
+```
+
+### Mandatory Handoff Templates (Required Format)
+
+#### Code → Architect Handoff (Required Format)
+```markdown
+## Implementation Complete - Handing Back to Architect
+
+### Work Completed
+- [x] Feature implementation: [specific description]
+- [x] Tests written and passing: [test coverage details]
+- [x] Quality gates validated: [specific gates passed]
+- [x] Documentation updated: [what was documented]
+
+### Files Modified/Created
+- `path/to/file.ts`: [description of changes made]
+- `path/to/test.ts`: [test coverage added]
+- `.docs/current-task.md`: [progress updates made]
+
+### Technical Details
+- **Patterns Applied**: [from institutional memory]
+- **New Patterns Identified**: [for future documentation]
+- **Quality Status**: All critical gates passed ✅
+- **Appetite Status**: [within/exceeding boundaries]
+
+### Ready For Architect
+- [ ] Final documentation review and updates
+- [ ] Pattern extraction and indexing
+- [ ] Deployment verification and cleanup
+- [ ] Next phase planning
+
+**STATUS**: Implementation complete. Handing back to Architect for final review and deployment.
+```
+
+#### Debug → Calling Role Handoff (Required Format)
+```markdown
+## Debug Analysis Complete - Handing Back to [Calling Role]
+
+### Issue Resolution
+- **Root Cause**: [specific problem identified]
+- **Solution Applied**: [exact fix implemented]
+- **Verification Method**: [how fix was confirmed]
+- **Files Modified**: [list of changed files]
+
+### Prevention Recommendations
+- [architectural improvements to prevent recurrence]
+- [testing enhancements needed]
+- [documentation updates required]
+
+### Institutional Memory Updates
+- **Investigation Outcome**: [for .docs/investigations/]
+- **Pattern Discovery**: [any debugging patterns to preserve]
+- **Complexity Insights**: [for future estimation]
+
+### Next Steps for [Calling Role]
+- [recommended follow-up actions]
+- [quality gate re-validation needed]
+- [additional testing suggested]
+
+**STATUS**: Issue resolved and verified. Handing back for task continuation.
+```
+
+#### Ask → Calling Role Handoff (Required Format)
+```markdown
+## Information Provided - Handing Back to [Calling Role]
+
+### Questions Answered
+- **Primary Question**: [restate original question]
+- **Comprehensive Answer**: [detailed response provided]
+- **Supporting Context**: [additional background shared]
+
+### Recommendations Provided
+- **Immediate Actions**: [next steps suggested]
+- **Long-term Considerations**: [strategic implications]
+- **Risk Assessment**: [potential issues identified]
+
+### Decision Support
+- **Options Analysis**: [pros/cons where applicable]
+- **Resource Requirements**: [time/complexity estimates]
+- **Success Criteria**: [how to measure outcomes]
+
+### Ready for [Calling Role] Decision
+- [summary of key decision points]
+- [recommended approach based on analysis]
+- [any follow-up information needs identified]
+
+**STATUS**: Analysis complete. Information provided for informed decision-making.
 ```
 
 ### Agent Mode Transitions

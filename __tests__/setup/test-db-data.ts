@@ -1,4 +1,4 @@
-export function createTestBookingData(overrides = {}) {
+export function createTestBookingData(overrides = {}): Record<string, unknown> {
   return {
     name: 'Integration Test User',
     email: `test-integration-${Date.now()}@example.com`,

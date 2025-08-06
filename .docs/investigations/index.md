@@ -2,8 +2,8 @@
 [metadata]
 type = "investigation_index"
 last_updated = "2025-08-06"
-total_investigations = 28
-active_investigations = 0
+total_investigations = 29
+active_investigations = 1
 resolved_investigations = 28
 token_cost_estimate = "medium"
 
@@ -72,6 +72,7 @@ This index helps agents quickly find relevant investigations when encountering i
 **Testing & Quality Assurance**
 
 - [Time Format Mismatch in Test Data](./time-format-mismatch-test-data.md) - 12-hour vs 24-hour format standardization [RESOLVED]
+- [Git Staging and Pre-commit Hook Bypass](./git-staging-pre-commit-hook-bypass-2025-08-06.md) - Quality gate circumvention through --no-verify flag usage [ACTIVE]
 
 ## By Error Pattern
 
@@ -99,6 +100,10 @@ This index helps agents quickly find relevant investigations when encountering i
 - [Build Tool Issues](./pattern-build-tools.md) - webpack, babel, and bundler problems
 - [Environment Differences](./pattern-environment-differences.md) - dev vs production discrepancies
 
+**Quality Gate Issues**
+
+- [Pre-commit Hook Bypass](./git-staging-pre-commit-hook-bypass-2025-08-06.md) - improper use of --no-verify flag and staging confusion
+
 **Security Issues**
 
 - [Authentication Bypass](./pattern-auth-bypass.md) - security vulnerability investigations
@@ -116,6 +121,8 @@ This index helps agents quickly find relevant investigations when encountering i
 - "Emails not received" → [`booking-notification-delivery.md`](./booking-notification-delivery.md)
 - "Payment declined unexpectedly" → [`booking-payment-processing.md`](./booking-payment-processing.md)
 - "Site completely down" → [`pattern-service-unavailable.md`](./pattern-service-unavailable.md), [`db-connection-pool-issues.md`](./db-connection-pool-issues.md)
+- "Commit fails with same errors repeatedly" → [`git-staging-pre-commit-hook-bypass-2025-08-06.md`](./git-staging-pre-commit-hook-bypass-2025-08-06.md)
+- "ESLint errors persist after 'fixes'" → [`git-staging-pre-commit-hook-bypass-2025-08-06.md`](./git-staging-pre-commit-hook-bypass-2025-08-06.md)
 
 ## Usage Guide
 

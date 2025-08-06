@@ -98,6 +98,47 @@ npm run security:scan            # Security vulnerability detection
 npm run build:verify             # Build verification
 ```
 
+### Git Staging Awareness Protocol
+
+**CRITICAL**: Pre-commit hooks check staged content, not working directory content.
+
+**Mandatory Pre-commit Procedure**:
+
+```bash
+# 1. Check current status
+git status
+
+# 2. Verify local quality gates
+npm run lint
+npm run type-check
+
+# 3. Stage ALL current work (including fixes)
+git add .
+
+# 4. Commit with hooks enabled
+git commit -m "conventional commit message"
+
+# If commit fails:
+# - Make required fixes
+# - Re-stage with `git add .`
+# - Retry commit
+# NEVER use --no-verify unless documented emergency
+```
+
+**Common Anti-Patterns to Avoid**:
+
+- ❌ Committing with unstaged changes to modified files
+- ❌ Using `--no-verify` to bypass quality gates in routine development
+- ❌ Ignoring the root cause when hooks fail repeatedly with "same" errors
+- ❌ Assuming files are staged when `git status` shows "Changes not staged for commit"
+
+**--no-verify Flag Policy**:
+
+- **EMERGENCY ONLY**: Production down, critical security fix
+- **REQUIRES**: Explicit documentation of why bypass was necessary
+- **REQUIRES**: Immediate follow-up task to address bypassed issues
+- **NEVER**: Acceptable for routine development or scope pressure
+
 ### Mandatory Deployment Gates (Orchestration)
 
 **Critical Deployment Gates (Must Complete Before Task Completion)**:
@@ -281,7 +322,7 @@ npm run a11y:contrast         # Color contrast validation
 **Documentation Health**:
 
 - Automated staleness detection (integrated with `npm run test:critical`)
-- >90% documentation health score target (30-day threshold)
+- > 90% documentation health score target (30-day threshold)
 - Zero-maintenance overhead monitoring via git timestamps
 
 **Documentation Quality**:
@@ -361,17 +402,19 @@ npm run a11y:contrast         # Color contrast validation
 **PRIMARY ROUTING RULE**: Documentation-related tasks with minimal/no code work → **Architect role**
 
 #### Task Assignment Decision Matrix
-| Task Type | Indicators | Primary Role | Justification |
-|-----------|------------|--------------|---------------|
-| **Documentation Creation** | Creating/updating .md files, README, guides | **Architect** | Technical writing expertise |
-| **System Design** | Architecture planning, design specs, roadmaps | **Architect** | Design and strategy focus |
-| **Workflow Definition** | Process documentation, role definitions | **Architect** | Process design expertise |
-| **Feature Implementation** | Writing application code, CRUD operations | **Code** | Implementation expertise |
-| **Bug Fixes** | Code debugging, test fixes, issue resolution | **Code/Debug** | Technical problem solving |
-| **Testing Implementation** | Writing tests, test data, test configuration | **Code** | Implementation detail |
-| **Information Requests** | Research, explanations, recommendations | **Ask** | Analysis and information |
+
+| Task Type                  | Indicators                                    | Primary Role   | Justification               |
+| -------------------------- | --------------------------------------------- | -------------- | --------------------------- |
+| **Documentation Creation** | Creating/updating .md files, README, guides   | **Architect**  | Technical writing expertise |
+| **System Design**          | Architecture planning, design specs, roadmaps | **Architect**  | Design and strategy focus   |
+| **Workflow Definition**    | Process documentation, role definitions       | **Architect**  | Process design expertise    |
+| **Feature Implementation** | Writing application code, CRUD operations     | **Code**       | Implementation expertise    |
+| **Bug Fixes**              | Code debugging, test fixes, issue resolution  | **Code/Debug** | Technical problem solving   |
+| **Testing Implementation** | Writing tests, test data, test configuration  | **Code**       | Implementation detail       |
+| **Information Requests**   | Research, explanations, recommendations       | **Ask**        | Analysis and information    |
 
 #### Collaboration Rules
+
 - **Architect CAN call Code**: When implementation work is needed after design
 - **Code CANNOT call Architect**: Must hand back instead of making design decisions
 - **Debug/Ask CANNOT initiate**: Always called by general roles (Orchestrator/Architect)
@@ -381,25 +424,28 @@ npm run a11y:contrast         # Color contrast validation
 **CRITICAL RULE**: Specialized roles (Code, Debug, Ask) MUST hand back to calling general role (Orchestrator, Architect) on task completion.
 
 #### Prohibited Behaviors
+
 ❌ **Code role ending conversations** with `attempt_completion`
 ❌ **Debug role providing final solutions** without handoff to calling role
 ❌ **Ask role concluding tasks** independently
 ❌ **Any specialized role making** `attempt_completion` calls
 
 #### Required Behaviors
+
 ✅ **Hand back to calling role** with comprehensive status update
 ✅ **Document completion status** in .docs/current-task.md
 ✅ **Provide clear handoff summary** of work completed
 ✅ **Include next steps recommendations** for continuing work
 
 #### Role Completion Matrix
-| Role | Can End Tasks | Must Hand Back | Can Call Others | Completion Method |
-|------|---------------|----------------|-----------------|-------------------|
-| **Orchestrator** | ✅ Yes | ❌ No | ✅ All roles | `attempt_completion` |
-| **Architect** | ✅ Yes | ❌ No | ✅ Code, Debug, Ask | `attempt_completion` |
-| **Code** | ❌ Never | ✅ Always | ❌ None | Hand back only |
-| **Debug** | ❌ Never | ✅ Always | ❌ None | Hand back only |
-| **Ask** | ❌ Never | ✅ Always | ❌ None | Hand back only |
+
+| Role             | Can End Tasks | Must Hand Back | Can Call Others     | Completion Method    |
+| ---------------- | ------------- | -------------- | ------------------- | -------------------- |
+| **Orchestrator** | ✅ Yes        | ❌ No          | ✅ All roles        | `attempt_completion` |
+| **Architect**    | ✅ Yes        | ❌ No          | ✅ Code, Debug, Ask | `attempt_completion` |
+| **Code**         | ❌ Never      | ✅ Always      | ❌ None             | Hand back only       |
+| **Debug**        | ❌ Never      | ✅ Always      | ❌ None             | Hand back only       |
+| **Ask**          | ❌ Never      | ✅ Always      | ❌ None             | Hand back only       |
 
 ## Agent Collaboration Workflows
 
@@ -435,6 +481,8 @@ Architect (Design + Documentation) → Code (Implementation) → Architect (Mand
 - ❌ **Conversation Termination**: Code/Debug/Ask ending without handoff
 - ❌ **Quality Gate Bypass**: Skipping any critical gates for speed
 - ❌ **Documentation Debt**: Completing without pattern/memory updates
+- ❌ **Git Staging Confusion**: Committing with unstaged changes to modified files
+- ❌ **False Success Declaration**: Claiming completion when quality gates were bypassed
 
 ### Handoff Templates (Structured Context Transfer)
 
@@ -543,27 +591,32 @@ git push origin main             # Push to main (or feature branch)
 ### Mandatory Handoff Templates (Required Format)
 
 #### Code → Architect Handoff (Required Format)
+
 ```markdown
 ## Implementation Complete - Handing Back to Architect
 
 ### Work Completed
+
 - [x] Feature implementation: [specific description]
 - [x] Tests written and passing: [test coverage details]
 - [x] Quality gates validated: [specific gates passed]
 - [x] Documentation updated: [what was documented]
 
 ### Files Modified/Created
+
 - `path/to/file.ts`: [description of changes made]
 - `path/to/test.ts`: [test coverage added]
 - `.docs/current-task.md`: [progress updates made]
 
 ### Technical Details
+
 - **Patterns Applied**: [from institutional memory]
 - **New Patterns Identified**: [for future documentation]
 - **Quality Status**: All critical gates passed ✅
 - **Appetite Status**: [within/exceeding boundaries]
 
 ### Ready For Architect
+
 - [ ] Final documentation review and updates
 - [ ] Pattern extraction and indexing
 - [ ] Deployment verification and cleanup
@@ -573,26 +626,31 @@ git push origin main             # Push to main (or feature branch)
 ```
 
 #### Debug → Calling Role Handoff (Required Format)
+
 ```markdown
 ## Debug Analysis Complete - Handing Back to [Calling Role]
 
 ### Issue Resolution
+
 - **Root Cause**: [specific problem identified]
 - **Solution Applied**: [exact fix implemented]
 - **Verification Method**: [how fix was confirmed]
 - **Files Modified**: [list of changed files]
 
 ### Prevention Recommendations
+
 - [architectural improvements to prevent recurrence]
 - [testing enhancements needed]
 - [documentation updates required]
 
 ### Institutional Memory Updates
+
 - **Investigation Outcome**: [for .docs/investigations/]
 - **Pattern Discovery**: [any debugging patterns to preserve]
 - **Complexity Insights**: [for future estimation]
 
 ### Next Steps for [Calling Role]
+
 - [recommended follow-up actions]
 - [quality gate re-validation needed]
 - [additional testing suggested]
@@ -601,25 +659,30 @@ git push origin main             # Push to main (or feature branch)
 ```
 
 #### Ask → Calling Role Handoff (Required Format)
+
 ```markdown
 ## Information Provided - Handing Back to [Calling Role]
 
 ### Questions Answered
+
 - **Primary Question**: [restate original question]
 - **Comprehensive Answer**: [detailed response provided]
 - **Supporting Context**: [additional background shared]
 
 ### Recommendations Provided
+
 - **Immediate Actions**: [next steps suggested]
 - **Long-term Considerations**: [strategic implications]
 - **Risk Assessment**: [potential issues identified]
 
 ### Decision Support
+
 - **Options Analysis**: [pros/cons where applicable]
 - **Resource Requirements**: [time/complexity estimates]
 - **Success Criteria**: [how to measure outcomes]
 
 ### Ready for [Calling Role] Decision
+
 - [summary of key decision points]
 - [recommended approach based on analysis]
 - [any follow-up information needs identified]

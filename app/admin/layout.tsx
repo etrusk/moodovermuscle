@@ -14,20 +14,20 @@ export default function AdminLayout({
   const { user, isLoading, isAuthenticated, logout } = useAdminAuth()
   const router = useRouter()
   const pathname = usePathname()
-  
+
   // Allow login page to render without authentication checks
   const isLoginPage = pathname === '/admin/login'
-  
+
+  useEffect(() => {
+    // Redirect to login if not authenticated after loading (but not on login page)
+    if (!isLoginPage && !isLoading && !isAuthenticated) {
+      router.push('/admin/login')
+    }
+  }, [isLoginPage, isLoading, isAuthenticated, router])
+
   if (isLoginPage) {
     return <div className="min-h-screen bg-gray-50">{children}</div>
   }
-
-  useEffect(() => {
-    // Redirect to login if not authenticated after loading
-    if (!isLoading && !isAuthenticated) {
-      router.push('/admin/login')
-    }
-  }, [isLoading, isAuthenticated, router])
 
   // Show loading spinner while checking authentication
   if (isLoading) {
@@ -57,12 +57,12 @@ export default function AdminLayout({
                 MoodOverMuscle Admin
               </h1>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               <div className="text-sm text-gray-600">
                 Welcome, <span className="font-medium">{user.name}</span>
               </div>
-              
+
               <Button
                 variant="outline"
                 size="sm"

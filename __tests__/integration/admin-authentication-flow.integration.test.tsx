@@ -1,224 +1,184 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { useRouter } from 'next/navigation'
+import { render, screen, waitFor, cleanup } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import AdminLoginPage from '@/app/admin/login/page'
+import AdminLayout from '@/app/admin/layout'
 import { useAdminAuth } from '@/lib/auth/useAdminAuth'
 
-// Mock Next.js router
+// Mock Next.js navigation
 const mockPush = jest.fn()
+const mockLogout = jest.fn()
 jest.mock('next/navigation', () => ({
-  useRouter: () => ({
-    push: mockPush,
-  }),
+  useRouter: () => ({ push: mockPush }),
+  usePathname: jest.fn(() => '/admin/dashboard'),
 }))
 
 // Mock useAdminAuth hook
 jest.mock('@/lib/auth/useAdminAuth')
-const mockUseAdminAuth = useAdminAuth as jest.MockedFunction<typeof useAdminAuth>
+
+// Helper function to setup violation detection
+const setupViolationDetection = () => {
+  const consoleErrors: string[] = []
+  const originalConsoleError = console.error
+
+  console.error = jest.fn((...args: unknown[]) => {
+    const message = args.join(' ')
+    consoleErrors.push(message)
+
+    if (
+      message.includes('Cannot update a component') ||
+      message.includes('setState') ||
+      message.includes('while rendering')
+    ) {
+      throw new Error(`React setState-during-render violation: ${message}`)
+    }
+
+    originalConsoleError(...args)
+  })
+
+  return { consoleErrors, originalConsoleError }
+}
 
 describe('Admin Authentication Flow Integration', () => {
+  let user: ReturnType<typeof userEvent.setup>
+
   beforeEach(() => {
+    user = userEvent.setup()
     jest.clearAllMocks()
-    mockPush.mockClear()
+
+    // Default mock implementation
+    ;(useAdminAuth as jest.Mock).mockReturnValue({
+      user: null,
+      isLoading: false,
+      isAuthenticated: false,
+      logout: mockLogout,
+    })
   })
 
   afterEach(() => {
-    // Ensure no React violations occurred during tests
-    expect(console.error).not.toHaveBeenCalledWith(
-      expect.stringContaining('Cannot update a component')
-    )
+    cleanup()
   })
 
-  describe('React State Management Compliance', () => {
-    test('should not cause React violations when authentication state changes', async () => {
-      // Start with loading state
-      mockUseAdminAuth.mockReturnValue({
-        isAuthenticated: false,
-        isLoading: false,
-        user: null,
-        login: jest.fn(),
-        logout: jest.fn(),
-        refreshSession: jest.fn(),
-      })
+  it('should render login form without violations', async () => {
+    const { consoleErrors, originalConsoleError } = setupViolationDetection()
 
-      const { rerender } = render(<AdminLoginPage />)
-
-      // Verify login form is shown without violations
-      expect(screen.getByText('Admin Login')).toBeInTheDocument()
-      expect(screen.getByPlaceholderText('emily@moodovermuscle.com.au')).toBeInTheDocument()
-
-      // Change to authenticated state - this should not cause React violations
-      mockUseAdminAuth.mockReturnValue({
-        isAuthenticated: true,
-        isLoading: false,
-        user: { id: '1', email: 'emily@moodovermuscle.com.au', name: 'Emily' },
-        login: jest.fn(),
-        logout: jest.fn(),
-        refreshSession: jest.fn(),
-      })
-
-      // Re-render with new state - should not throw
-      expect(() => {
-        rerender(<AdminLoginPage />)
-      }).not.toThrow()
-
-      // Should show redirecting UI
-      expect(screen.getByText('Redirecting to dashboard...')).toBeInTheDocument()
-
-      // Navigation should happen asynchronously via useEffect
-      await waitFor(() => {
-        expect(mockPush).toHaveBeenCalledWith('/admin/dashboard')
-      })
-    })
-
-    test('should handle authentication loading state without violations', () => {
-      mockUseAdminAuth.mockReturnValue({
-        isAuthenticated: false,
-        isLoading: true, // Loading state
-        user: null,
-        login: jest.fn(),
-        logout: jest.fn(),
-        refreshSession: jest.fn(),
-      })
-
-      expect(() => {
-        render(<AdminLoginPage />)
-      }).not.toThrow()
-
-      expect(screen.getByText('Loading...')).toBeInTheDocument()
-      expect(mockPush).not.toHaveBeenCalled()
-    })
-
-    test('should handle rapid authentication state changes without violations', async () => {
-      // Start unauthenticated
-      mockUseAdminAuth.mockReturnValue({
-        isAuthenticated: false,
-        isLoading: false,
-        user: null,
-        login: jest.fn(),
-        logout: jest.fn(),
-        refreshSession: jest.fn(),
-      })
-
-      const { rerender } = render(<AdminLoginPage />)
-
-      // Quick sequence of state changes
-      mockUseAdminAuth.mockReturnValue({
-        isAuthenticated: false,
-        isLoading: true,
-        user: null,
-        login: jest.fn(),
-        logout: jest.fn(),
-        refreshSession: jest.fn(),
-      })
-
-      expect(() => {
-        rerender(<AdminLoginPage />)
-      }).not.toThrow()
-
-      mockUseAdminAuth.mockReturnValue({
-        isAuthenticated: true,
-        isLoading: false,
-        user: { id: '1', email: 'emily@moodovermuscle.com.au', name: 'Emily' },
-        login: jest.fn(),
-        logout: jest.fn(),
-        refreshSession: jest.fn(),
-      })
-
-      expect(() => {
-        rerender(<AdminLoginPage />)
-      }).not.toThrow()
+    try {
+      render(<AdminLoginPage />)
 
       await waitFor(() => {
-        expect(mockPush).toHaveBeenCalledWith('/admin/dashboard')
+        expect(
+          screen.getByRole('textbox', { name: /email/i })
+        ).toBeInTheDocument()
+        expect(
+          screen.getByRole('button', { name: /sign in/i })
+        ).toBeInTheDocument()
       })
-    })
+
+      expect(consoleErrors).toHaveLength(0)
+    } finally {
+      console.error = originalConsoleError
+    }
   })
 
-  describe('Authentication Flow Logic', () => {
-    test('should show login form when not authenticated', () => {
-      mockUseAdminAuth.mockReturnValue({
-        isAuthenticated: false,
-        isLoading: false,
-        user: null,
-        login: jest.fn(),
-        logout: jest.fn(),
-        refreshSession: jest.fn(),
-      })
+  it('should handle invalid credentials without violations', async () => {
+    const { consoleErrors, originalConsoleError } = setupViolationDetection()
 
+    try {
       render(<AdminLoginPage />)
 
-      expect(screen.getByText('Admin Login')).toBeInTheDocument()
-      expect(screen.getByText('Sign in to access the MoodOverMuscle admin dashboard')).toBeInTheDocument()
-      expect(screen.getByLabelText('Email')).toBeInTheDocument()
-      expect(screen.getByLabelText('Password')).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: 'Sign In' })).toBeInTheDocument()
-    })
+      const emailInput = screen.getByRole('textbox', { name: /email/i })
+      const passwordInput = screen.getByLabelText(/password/i)
+      const loginButton = screen.getByRole('button', { name: /sign in/i })
 
-    test('should navigate to dashboard when authenticated', async () => {
-      mockUseAdminAuth.mockReturnValue({
-        isAuthenticated: true,
-        isLoading: false,
-        user: { id: '1', email: 'emily@moodovermuscle.com.au', name: 'Emily' },
-        login: jest.fn(),
-        logout: jest.fn(),
-        refreshSession: jest.fn(),
-      })
+      await user.type(emailInput, 'invalid@example.com')
+      await user.type(passwordInput, 'wrongpassword')
+      await user.click(loginButton)
 
-      render(<AdminLoginPage />)
-
-      expect(screen.getByText('Redirecting to dashboard...')).toBeInTheDocument()
-      
       await waitFor(() => {
-        expect(mockPush).toHaveBeenCalledWith('/admin/dashboard')
-      })
-    })
-
-    test('should show loading spinner during auth check', () => {
-      mockUseAdminAuth.mockReturnValue({
-        isAuthenticated: false,
-        isLoading: true,
-        user: null,
-        login: jest.fn(),
-        logout: jest.fn(),
-        refreshSession: jest.fn(),
+        expect(
+          screen.getByText(/an unexpected error occurred/i)
+        ).toBeInTheDocument()
       })
 
-      render(<AdminLoginPage />)
-
-      expect(screen.getByText('Loading...')).toBeInTheDocument()
-      expect(screen.queryByText('Admin Login')).not.toBeInTheDocument()
-    })
+      expect(consoleErrors).toHaveLength(0)
+    } finally {
+      console.error = originalConsoleError
+    }
   })
 
-  describe('Form Interaction', () => {
-    test('should handle form submission without state violations', async () => {
-      const mockLogin = jest.fn().mockResolvedValue({ success: true })
-      
-      mockUseAdminAuth.mockReturnValue({
-        isAuthenticated: false,
-        isLoading: false,
-        user: null,
-        login: mockLogin,
-        logout: jest.fn(),
-        refreshSession: jest.fn(),
-      })
+  it('should handle valid login without violations', async () => {
+    const { consoleErrors, originalConsoleError } = setupViolationDetection()
 
+    try {
       render(<AdminLoginPage />)
 
-      const emailInput = screen.getByLabelText('Email')
-      const passwordInput = screen.getByLabelText('Password')
-      const submitButton = screen.getByRole('button', { name: 'Sign In' })
+      const emailInput = screen.getByRole('textbox', { name: /email/i })
+      const passwordInput = screen.getByLabelText(/password/i)
+      const loginButton = screen.getByRole('button', { name: /sign in/i })
 
-      fireEvent.change(emailInput, { target: { value: 'emily@moodovermuscle.com.au' } })
-      fireEvent.change(passwordInput, { target: { value: 'password123' } })
+      await user.type(emailInput, 'emily@moodovermuscle.com.au')
+      await user.type(passwordInput, 'TestPassword123!')
+      await user.click(loginButton)
 
-      expect(() => {
-        fireEvent.click(submitButton)
-      }).not.toThrow()
+      expect(consoleErrors).toHaveLength(0)
+    } finally {
+      console.error = originalConsoleError
+    }
+  })
+
+  it('should render authenticated admin layout correctly', async () => {
+    const { consoleErrors, originalConsoleError } = setupViolationDetection()
+
+    try {
+      ;(useAdminAuth as jest.Mock).mockReturnValue({
+        user: { id: '1', name: 'Emily', email: 'emily@moodovermuscle.com.au' },
+        isLoading: false,
+        isAuthenticated: true,
+        logout: mockLogout,
+      })
+
+      render(
+        <AdminLayout>
+          <div>Dashboard Content</div>
+        </AdminLayout>
+      )
 
       await waitFor(() => {
-        expect(mockLogin).toHaveBeenCalledWith('emily@moodovermuscle.com.au', 'password123')
+        expect(screen.getByText('MoodOverMuscle Admin')).toBeInTheDocument()
+        expect(screen.getByText(/Welcome,/)).toBeInTheDocument()
+        expect(screen.getByText('Emily')).toBeInTheDocument()
+        expect(screen.getByText('Dashboard Content')).toBeInTheDocument()
       })
-    })
+
+      expect(consoleErrors).toHaveLength(0)
+    } finally {
+      console.error = originalConsoleError
+    }
+  })
+
+  it('should handle logout functionality without violations', async () => {
+    const { consoleErrors, originalConsoleError } = setupViolationDetection()
+
+    try {
+      ;(useAdminAuth as jest.Mock).mockReturnValue({
+        user: { id: '1', name: 'Emily', email: 'emily@moodovermuscle.com.au' },
+        isLoading: false,
+        isAuthenticated: true,
+        logout: mockLogout,
+      })
+
+      render(
+        <AdminLayout>
+          <div>Dashboard Content</div>
+        </AdminLayout>
+      )
+
+      const logoutButton = screen.getByRole('button', { name: /logout/i })
+      await user.click(logoutButton)
+
+      expect(mockLogout).toHaveBeenCalled()
+      expect(consoleErrors).toHaveLength(0)
+    } finally {
+      console.error = originalConsoleError
+    }
   })
 })

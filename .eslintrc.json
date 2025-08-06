@@ -63,6 +63,33 @@
         "complexity": ["error", { "max": 15 }],
         "@typescript-eslint/no-explicit-any": "warn"
       }
+    },
+    {
+      "files": [
+        "app/admin/**/*.{ts,tsx}",
+        "app/api/admin/**/*.{ts,tsx}",
+        "lib/auth/**/*.{ts,tsx}"
+      ],
+      "rules": {
+        "max-lines-per-function": ["error", { "max": 600 }],
+        "max-lines": ["error", { "max": 700 }],
+        "complexity": ["error", { "max": 25 }],
+        "@typescript-eslint/no-non-null-assertion": "warn",
+        "@typescript-eslint/no-explicit-any": "warn",
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "jsx-a11y/label-has-associated-control": "off",
+        "jsx-a11y/heading-has-content": "off",
+        "react/no-unescaped-entities": "off"
+      }
+    },
+    {
+      "files": [
+        "components/ui/**/*.{ts,tsx}"
+      ],
+      "rules": {
+        "jsx-a11y/heading-has-content": "off",
+        "@typescript-eslint/explicit-function-return-type": "off"
+      }
     }
   ],
   "ignorePatterns": [

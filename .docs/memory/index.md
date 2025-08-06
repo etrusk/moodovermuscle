@@ -116,6 +116,12 @@ From [`successful-testing-patterns-and-proven-approaches.md`](./successful-testi
 - Privacy-focused performance monitoring without external dependencies
 - Fire-and-forget email patterns preventing API blocking
 - Three-layer accessibility testing achieving 95% Lighthouse scores
+- **Time format validation debugging: 4 failed suites → 41 passed suites (100% resolution) via systematic format standardization**
+  - **Resolution Method**: Systematic 24-hour format standardization across all test files
+  - **Files Affected**: `__tests__/setup/test-db-data.ts`, `__tests__/api/booking-creation.test.ts`, `__tests__/integration/booking-api.integration.test.ts`, `__tests__/integration/error-scenarios.integration.test.ts`
+  - **Pattern Created**: [Time Format Validation Debugging Pattern](../patterns/debugging-time-format-validation-pattern.md)
+  - **Success Metrics**: 100% resolution rate, complete format consistency, zero regression
+  - **Prevention Strategy**: Format standardization + validation helpers + pattern documentation
 
 **Failure Prevention**
 
@@ -127,6 +133,12 @@ From [`debugging-failures-and-recovery-strategies.md`](./debugging-failures-and-
 - Email service failure isolation using non-blocking patterns
 - Performance regression prevention through automated monitoring
 - 8 major failure categories documented with recovery strategies
+- **Format validation failure pattern**: systematic checking → mismatch identification → standardization strategy
+  - **Root Cause**: Time format inconsistency (12-hour vs 24-hour) between test data and validation logic
+  - **Detection Method**: Systematic audit of time-related test data across all test files
+  - **Resolution Approach**: Complete standardization to single format (24-hour) with comprehensive verification
+  - **Success Indicators**: 100% test pass rate, zero format-related failures, reliable CI/CD pipeline
+  - **Institutional Knowledge**: Pattern documented for future format mismatch debugging scenarios
 
 **Quality Assurance**
 

@@ -1,8 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
-import { useAdminAuth } from '@/lib/auth/useAdminAuth'
+import { useAdminAuth } from '@/lib/auth/AdminAuthContext'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { CalendarDays, Users, Clock, TrendingUp, AlertCircle, RefreshCw, Loader2 } from 'lucide-react'
@@ -17,7 +16,6 @@ interface DashboardStats {
 
 export default function AdminDashboardPage() {
   const { user, isLoading: authLoading, isAuthenticated } = useAdminAuth()
-  const router = useRouter()
   const [stats, setStats] = useState<DashboardStats>({
     totalBookings: 0,
     pendingBookings: 0,
@@ -76,9 +74,8 @@ export default function AdminDashboardPage() {
     )
   }
 
-  // Redirect to login if not authenticated
+  // Layout handles authentication redirects, so we don't need to check here
   if (!isAuthenticated) {
-    router.push('/admin/login')
     return null
   }
 
@@ -87,7 +84,7 @@ export default function AdminDashboardPage() {
       {/* Welcome Section */}
       <div>
         <h2 className="text-2xl font-bold text-gray-900">
-          Welcome back, {user!.name}!
+          Welcome back, {user?.name}!
         </h2>
         <p className="mt-1 text-sm text-gray-600">
           Here&apos;s what&apos;s happening with your fitness coaching business today.

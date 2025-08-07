@@ -2,18 +2,23 @@ import { render, screen, waitFor, cleanup } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import AdminLoginPage from '@/app/admin/login/page'
 import AdminLayout from '@/app/admin/layout'
-import { useAdminAuth } from '@/lib/auth/useAdminAuth'
+import { AdminAuthProvider } from '@/lib/auth/AdminAuthContext'
 
 // Mock Next.js navigation
 const mockPush = jest.fn()
+const mockReplace = jest.fn()
 const mockLogout = jest.fn()
 jest.mock('next/navigation', () => ({
-  useRouter: () => ({ push: mockPush }),
+  useRouter: () => ({ push: mockPush, replace: mockReplace }),
   usePathname: jest.fn(() => '/admin/dashboard'),
 }))
 
-// Mock useAdminAuth hook
-jest.mock('@/lib/auth/useAdminAuth')
+// Mock AdminAuthContext
+const mockUseAdminAuth = jest.fn()
+jest.mock('@/lib/auth/AdminAuthContext', () => ({
+  AdminAuthProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  useAdminAuth: () => mockUseAdminAuth(),
+}))
 
 // Helper function to setup violation detection
 const setupViolationDetection = () => {
@@ -46,7 +51,7 @@ describe('Admin Authentication Flow Integration', () => {
     jest.clearAllMocks()
 
     // Default mock implementation
-    ;(useAdminAuth as jest.Mock).mockReturnValue({
+    mockUseAdminAuth.mockReturnValue({
       user: null,
       isLoading: false,
       isAuthenticated: false,
@@ -62,7 +67,11 @@ describe('Admin Authentication Flow Integration', () => {
     const { consoleErrors, originalConsoleError } = setupViolationDetection()
 
     try {
-      render(<AdminLoginPage />)
+      render(
+        <AdminAuthProvider>
+          <AdminLoginPage />
+        </AdminAuthProvider>
+      )
 
       await waitFor(() => {
         expect(
@@ -83,7 +92,11 @@ describe('Admin Authentication Flow Integration', () => {
     const { consoleErrors, originalConsoleError } = setupViolationDetection()
 
     try {
-      render(<AdminLoginPage />)
+      render(
+        <AdminAuthProvider>
+          <AdminLoginPage />
+        </AdminAuthProvider>
+      )
 
       const emailInput = screen.getByRole('textbox', { name: /email/i })
       const passwordInput = screen.getByLabelText(/password/i)
@@ -109,7 +122,11 @@ describe('Admin Authentication Flow Integration', () => {
     const { consoleErrors, originalConsoleError } = setupViolationDetection()
 
     try {
-      render(<AdminLoginPage />)
+      render(
+        <AdminAuthProvider>
+          <AdminLoginPage />
+        </AdminAuthProvider>
+      )
 
       const emailInput = screen.getByRole('textbox', { name: /email/i })
       const passwordInput = screen.getByLabelText(/password/i)
@@ -129,7 +146,7 @@ describe('Admin Authentication Flow Integration', () => {
     const { consoleErrors, originalConsoleError } = setupViolationDetection()
 
     try {
-      ;(useAdminAuth as jest.Mock).mockReturnValue({
+      mockUseAdminAuth.mockReturnValue({
         user: { id: '1', name: 'Emily', email: 'emily@moodovermuscle.com.au' },
         isLoading: false,
         isAuthenticated: true,
@@ -137,9 +154,11 @@ describe('Admin Authentication Flow Integration', () => {
       })
 
       render(
-        <AdminLayout>
-          <div>Dashboard Content</div>
-        </AdminLayout>
+        <AdminAuthProvider>
+          <AdminLayout>
+            <div>Dashboard Content</div>
+          </AdminLayout>
+        </AdminAuthProvider>
       )
 
       await waitFor(() => {
@@ -159,7 +178,7 @@ describe('Admin Authentication Flow Integration', () => {
     const { consoleErrors, originalConsoleError } = setupViolationDetection()
 
     try {
-      ;(useAdminAuth as jest.Mock).mockReturnValue({
+      mockUseAdminAuth.mockReturnValue({
         user: { id: '1', name: 'Emily', email: 'emily@moodovermuscle.com.au' },
         isLoading: false,
         isAuthenticated: true,
@@ -167,9 +186,11 @@ describe('Admin Authentication Flow Integration', () => {
       })
 
       render(
-        <AdminLayout>
-          <div>Dashboard Content</div>
-        </AdminLayout>
+        <AdminAuthProvider>
+          <AdminLayout>
+            <div>Dashboard Content</div>
+          </AdminLayout>
+        </AdminAuthProvider>
       )
 
       const logoutButton = screen.getByRole('button', { name: /logout/i })

@@ -427,3 +427,28 @@ if (typeof navigator === 'undefined') {
     },
   };
 }
+
+// Mock jose library to prevent Node.js compatibility issues
+jest.mock('jose', () => ({
+  SignJWT: jest.fn().mockImplementation(() => ({
+    setProtectedHeader: jest.fn().mockReturnThis(),
+    setIssuedAt: jest.fn().mockReturnThis(),
+    setExpirationTime: jest.fn().mockReturnThis(),
+    sign: jest.fn().mockResolvedValue('mock-jwt-token'),
+  })),
+  jwtVerify: jest.fn().mockResolvedValue({
+    payload: {
+      adminId: 'test-admin-id',
+      email: 'admin@test.com',
+      name: 'Test Admin',
+      iat: Math.floor(Date.now() / 1000),
+      exp: Math.floor(Date.now() / 1000) + 3600,
+    },
+  }),
+}))
+
+// Mock bcryptjs to prevent Node.js compatibility issues
+jest.mock('bcryptjs', () => ({
+  compare: jest.fn().mockResolvedValue(true),
+  hash: jest.fn().mockResolvedValue('mock-hashed-password'),
+}))

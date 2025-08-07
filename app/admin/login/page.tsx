@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useAdminAuth } from '@/lib/auth/useAdminAuth'
+import { useAdminAuth } from '@/lib/auth/AdminAuthContext'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -23,7 +23,7 @@ export default function AdminLoginPage() {
   // Handle navigation after authentication state changes
   useEffect(() => {
     if (isAuthenticated && !authLoading) {
-      router.push('/admin/dashboard')
+      router.replace('/admin/dashboard')
     }
   }, [isAuthenticated, authLoading, router])
 
@@ -60,7 +60,7 @@ export default function AdminLoginPage() {
       const result = await login(email, password)
       
       if (result.success) {
-        router.push('/admin/dashboard')
+        // Don't navigate here - let the useEffect handle it after state update
       } else {
         setError(result.error ?? 'Login failed')
       }

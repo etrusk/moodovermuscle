@@ -2,15 +2,11 @@
 
 import { useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { useAdminAuth } from '@/lib/auth/useAdminAuth'
+import { AdminAuthProvider, useAdminAuth } from '@/lib/auth/AdminAuthContext'
 import { Button } from '@/components/ui/button'
 import { LogOut, Loader2 } from 'lucide-react'
 
-export default function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   const { user, isLoading, isAuthenticated, logout } = useAdminAuth()
   const router = useRouter()
   const pathname = usePathname()
@@ -21,7 +17,7 @@ export default function AdminLayout({
   useEffect(() => {
     // Redirect to login if not authenticated after loading (but not on login page)
     if (!isLoginPage && !isLoading && !isAuthenticated) {
-      router.push('/admin/login')
+      router.replace('/admin/login')
     }
   }, [isLoginPage, isLoading, isAuthenticated, router])
 
@@ -108,5 +104,17 @@ export default function AdminLayout({
         {children}
       </main>
     </div>
+  )
+}
+
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <AdminAuthProvider>
+      <AdminLayoutContent>{children}</AdminLayoutContent>
+    </AdminAuthProvider>
   )
 }

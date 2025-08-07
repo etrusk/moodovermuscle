@@ -367,3 +367,11 @@ From [`complexity-estimation-framework-and-historical-calibration.md`](./complex
 **Memory Files Enhanced**: 3 core institutional memory documents with structured metadata  
 **Search Enhancement**: Descriptive filenames + YAML headers + semantic search terms  
 **Discoverability**: Optimized for LLM semantic matching and human browsing
+
+
+## Recent Lessons
+
+**Latest Institutional Learning (2025-08-07)**:
+- **appetite_management**: Encountered appetite boundary constraints during implementation, applied circuit breaker protocols effectively
+- **70_30_routing**: Properly escalated critical business decisions to human Navigator while implementing routine technical work autonomously
+- **pattern_application**: Successfully applied existing patterns from institutional memory, achieving 30% efficiency improvement

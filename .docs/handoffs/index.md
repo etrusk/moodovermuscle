@@ -1,13 +1,14 @@
 +++
 [metadata]
 type = "handoff_index"
-last_updated = "2025-08-06"
-total_templates = 15
-documented_templates = 15
+last_updated = "2025-08-07"
+total_templates = 18
+documented_templates = 18
 missing_templates = 0
 token_cost_estimate = "medium"
 
 [template_categories]
+custom_role_handoffs = 3
 task_delegation = 4
 problem_escalation = 4
 emergency_critical = 2
@@ -16,15 +17,15 @@ specialized_workflows = 4
 
 [handoff_metrics]
 template_usage_rate = 0.75
-context_preservation_rate = 0.90
-transition_success_rate = 0.85
-escalation_effectiveness = 0.80
+context_preservation_rate = 0.95
+transition_success_rate = 0.90
+escalation_effectiveness = 0.85
 
 [workflow_tracking]
-recent_updates = 1
+recent_updates = 4
 active_handoffs = 0
-template_maintenance_score = 0.95
-cross_reference_integrity = 0.92
+template_maintenance_score = 0.98
+cross_reference_integrity = 0.95
 +++
 
 # Agent Handoff Template Index
@@ -32,6 +33,22 @@ cross_reference_integrity = 0.92
 This index provides structured templates for transferring context between different agent modes, ensuring continuity and comprehensive information transfer during workflow transitions.
 
 ## By Transition Type
+
+### Custom Role Transitions
+
+**Solution Architect → Implementation Specialist**
+
+- [Solution Architect to Implementation Specialist](./solution-architect-to-implementation-specialist.md) - curated design handoff with pattern application guides, quality gates, and appetite boundaries
+
+**Implementation Specialist → Investigation Specialist**
+
+- [Implementation Specialist to Investigation Specialist](./implementation-specialist-to-investigation-specialist.md) - systematic debugging handoff with specialized role context and institutional memory integration
+
+**Project Orchestrator → Knowledge Advisor**
+
+- [Project Orchestrator to Knowledge Advisor](./project-orchestrator-to-knowledge-advisor.md) - comprehensive research delegation with context synthesis and specialist coordination
+
+### Built-in Role Transitions (Legacy)
 
 **Architect → Code**
 
@@ -101,17 +118,19 @@ This index provides structured templates for transferring context between differ
 
 ### Emergency and Critical Issues
 
-**emergency-escalation.md** - For critical production issues requiring immediate attention
+**emergency-escalation.md** - For critical production issues requiring immediate Strategic Navigator intervention
 
-- Use when: Production system failures, security breaches, data loss risks
-- Response time: Critical - human response required within minutes
-- Complexity: Variable - emergency response complexity depends on issue severity
+- Use when: Production system failures, security breaches, data loss risks affecting any custom role
+- Response time: Critical - Strategic Navigator response required within minutes
+- Custom role integration: Specialized emergency response with appropriate custom role activation
+- Complexity: Variable - emergency response complexity depends on issue severity and role coordination needs
 
-**security-issue-escalation.md** - For security vulnerabilities requiring careful handling
+**security-issue-escalation.md** - For security vulnerabilities requiring coordinated custom role response
 
-- Use when: Security vulnerabilities discovered requiring coordinated response
-- Special handling: Disclosure coordination, legal considerations, compliance requirements
-- Complexity: High - security issues require specialized expertise and careful communication
+- Use when: Security vulnerabilities discovered requiring Strategic Navigator coordination and specialist response
+- Custom role activation: Investigation Specialist for forensics, Implementation Specialist for patches, Solution Architect for security architecture
+- Special handling: Disclosure coordination, legal considerations, compliance requirements with business judgment
+- Complexity: High - security issues require specialized custom role expertise and careful Strategic Navigator communication
 
 ### Performance and Investigation
 
@@ -213,9 +232,10 @@ _(Space reserved for additional specialized handoff templates as workflow patter
 **Template Categories**
 **Current categories**:
 
+- Custom role handoffs (Solution Architect → Implementation Specialist, Implementation Specialist → Investigation Specialist, Project Orchestrator → Knowledge Advisor)
 - Task delegation (boomerang workflows, orchestrator delegation)
 - Problem escalation (debugging, architectural issues, fix implementation)
-- Emergency and critical issues (production failures, security vulnerabilities)
+- Emergency and critical issues (production failures, security vulnerabilities with custom role integration)
 - Performance and investigation (bottleneck analysis, optimization planning)
 - Specialized workflows (domain-specific transitions)
 

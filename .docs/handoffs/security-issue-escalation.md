@@ -2,22 +2,33 @@
 
 ## Handoff Type: Security Escalation
 
-**From**: [Any Mode] → **To**: Human Navigator (Security Critical)  
+**From**: [Any Custom Role/Built-in Mode] → **To**: Strategic Navigator (Security Critical)
 **Context**: Security vulnerability identified requiring immediate assessment and coordinated response
 
 ## 🔒 SECURITY PROTOCOL ACTIVATED 🔒
 
-**CRITICAL**: Security issue requires specialized handling and human oversight
+**CRITICAL**: Security issue requires specialized handling and Strategic Navigator oversight
+
+### Custom Role Security Response Integration
+
+**Security escalation from custom roles**:
+
+- **Solution Architect**: Architecture security flaw (design vulnerability, system security weakness)
+- **Implementation Specialist**: Code security vulnerability (injection flaw, authentication bypass)
+- **Investigation Specialist**: Security breach investigation (forensic analysis, attack pattern identification)
+- **Project Orchestrator**: Multi-system security incident (coordinated attack, infrastructure compromise)
+- **Knowledge Advisor**: External security intelligence (threat landscape, vulnerability research)
+- **Strategic Navigator**: Business security decision (disclosure strategy, compliance response)
 
 ### Immediate Security Response Required
 
-**Human Navigator must**:
+**Strategic Navigator must**:
 
 1. **Acknowledge receipt** within [X minutes] for critical vulnerabilities
-2. **Assess security impact** using classification matrix
-3. **Coordinate disclosure handling** if external reporting involved
-4. **Activate security response** team if required
-5. **Manage communication** to prevent information leakage
+2. **Assess security impact** using classification matrix and business context
+3. **Coordinate disclosure handling** with business and legal considerations
+4. **Activate specialized security response** using appropriate custom roles
+5. **Manage communication** strategy to prevent information leakage while ensuring stakeholder awareness
 
 ### Security Contact Protocol
 
@@ -153,22 +164,76 @@
 [Additional security considerations, related vulnerabilities, or security architecture context]
 ```
 
-## Response Team Coordination
+## Custom Role Security Response Team Coordination
 
-**Required expertise**:
+**Specialized role activation for security response**:
 
-- [ ] Security specialist
-- [ ] Development lead for affected component
-- [ ] Infrastructure/DevOps for deployment
-- [ ] Legal counsel (if disclosure implications)
-- [ ] Communications (if public disclosure)
+### Investigation Specialist Security Response
+**Activate for**:
+- Security breach investigation and forensic analysis
+- Attack vector analysis and threat pattern identification
+- Root cause investigation of security incidents
 
-**Response roles and responsibilities**:
+**Investigation Specialist responsibilities**:
+- Systematic security investigation using institutional memory
+- Forensic analysis of security breach evidence
+- Pattern identification for threat intelligence
+- Prevention strategy development based on investigation findings
 
-- **Security lead**: [Responsibility for security assessment and strategy]
-- **Technical lead**: [Responsibility for fix implementation]
-- **Communications**: [Responsibility for disclosure and customer communication]
-- **Project management**: [Coordination and timeline management]
+### Implementation Specialist Security Response
+**Activate for**:
+- Security vulnerability code fixes and patches
+- Authentication/authorization implementation fixes
+- Input validation and sanitization implementations
+
+**Implementation Specialist responsibilities**:
+- Rapid security patch implementation using established security patterns
+- Security-focused code fixes with quality gate compliance
+- Deployment coordination for security patches
+- Security regression testing integration
+
+### Solution Architect Security Response
+**Activate for**:
+- Architectural security design flaws requiring system redesign
+- Security architecture review and hardening recommendations
+- Integration security assessment and secure design patterns
+
+**Solution Architect responsibilities**:
+- Security architecture assessment and redesign
+- Secure design pattern application for long-term security hardening
+- Integration security strategy and secure communication protocols
+- Security architecture documentation and constraint definition
+
+### Project Orchestrator Security Response
+**Activate for**:
+- Multi-system security incidents requiring coordination
+- Complex security response requiring multiple specialist coordination
+- Cross-domain security impact requiring orchestrated response
+
+**Project Orchestrator responsibilities**:
+- Multi-specialist security response coordination
+- Cross-system security impact assessment and response orchestration
+- Security response timeline management and milestone coordination
+- Stakeholder coordination for complex security incidents
+
+### Knowledge Advisor Security Response
+**Activate for**:
+- External threat intelligence research and analysis
+- Security vulnerability landscape research and competitive analysis
+- Unknown attack vector research and countermeasure identification
+
+**Knowledge Advisor responsibilities**:
+- External threat intelligence synthesis and institutional knowledge integration
+- Security research and vulnerability landscape analysis
+- Attack vector research and industry security pattern analysis
+- Security best practice research and implementation recommendation
+
+**Traditional response roles integration**:
+
+- **Strategic Navigator**: Business security strategy, disclosure coordination, stakeholder communication
+- **Security specialist**: Technical security assessment and validation (human expert)
+- **Legal counsel**: Disclosure implications and regulatory compliance (human expert)
+- **Communications**: Public disclosure and customer communication (human expert)
 
 ## Implementation and Testing Requirements
 

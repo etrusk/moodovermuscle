@@ -2,22 +2,33 @@
 
 ## Handoff Type: Emergency Escalation
 
-**From**: [Any Mode] → **To**: Human Navigator (Critical Path)  
+**From**: [Any Custom Role/Built-in Mode] → **To**: Strategic Navigator (Critical Path)
 **Context**: Critical production issue requiring immediate human intervention and decision-making
 
 ## 🚨 EMERGENCY PROTOCOL ACTIVATED 🚨
 
 **CRITICAL**: This is a priority escalation - all normal workflow suspended
 
+### Custom Role Emergency Response Integration
+
+**Emergency escalation from custom roles**:
+
+- **Solution Architect**: Architectural emergency (system design failure, major technical debt crisis)
+- **Implementation Specialist**: Implementation emergency (critical bug introduced, deployment failure)
+- **Investigation Specialist**: Investigation emergency (security breach detected, data corruption found)
+- **Project Orchestrator**: Coordination emergency (multiple system failure, cross-domain crisis)
+- **Knowledge Advisor**: Research emergency (critical knowledge gap, external dependency failure)
+- **Strategic Navigator**: Business emergency (regulatory compliance, strategic crisis)
+
 ### Immediate Actions Required
 
-**Human Navigator must**:
+**Strategic Navigator must**:
 
 1. **Acknowledge receipt** of this escalation within [X minutes]
 2. **Assess severity** using classification matrix below
-3. **Activate emergency response** protocols
-4. **Assign priority resources** to resolution
-5. **Coordinate communication** with stakeholders
+3. **Activate emergency response** protocols with appropriate custom role specialists
+4. **Assign priority resources** to resolution using specialized expertise
+5. **Coordinate communication** with stakeholders using business judgment
 
 ### Emergency Contact Protocol
 
@@ -145,32 +156,63 @@
 - [ ] Infrastructure changes: [Server, database, etc. changes]
 - [ ] Third-party service changes: [External service updates]
 
-## Decision Points Requiring Human Judgment
+## Decision Points Requiring Strategic Navigation
 
 **Critical decisions needed**:
 
-1. **Rollback decision**: [Trade-offs between rollback vs. forward fix]
-2. **Communication strategy**: [How much to communicate and when]
-3. **Resource allocation**: [How many people to pull onto this issue]
-4. **Timeline expectations**: [Realistic timeline for resolution]
+1. **Rollback decision**: [Trade-offs between rollback vs. forward fix - requires business judgment]
+2. **Communication strategy**: [How much to communicate and when - strategic decision]
+3. **Resource allocation**: [How many people to pull onto this issue - organizational decision]
+4. **Timeline expectations**: [Realistic timeline for resolution - stakeholder management]
+5. **Custom role deployment**: [Which specialized roles to activate for emergency response]
 
 **Business impact considerations**:
 
-- **Revenue impact**: [Estimated financial impact]
-- **Customer trust impact**: [Reputation considerations]
-- **Compliance implications**: [Any regulatory concerns]
-- **Strategic implications**: [Long-term business effects]
+- **Revenue impact**: [Estimated financial impact - Strategic Navigator assessment]
+- **Customer trust impact**: [Reputation considerations - Strategic Navigator judgment]
+- **Compliance implications**: [Any regulatory concerns - Strategic Navigator responsibility]
+- **Strategic implications**: [Long-term business effects - Strategic Navigator domain]
 
-## Escalation Chain
+## Custom Role Emergency Response Chain
 
+**Specialized role activation based on emergency type**:
+
+### Technical Emergency Response
+**Solution Architect activation**:
+- System architecture failure requiring immediate design decisions
+- Major technical debt causing cascading failures
+- Integration architecture breakdown
+
+**Implementation Specialist activation**:
+- Critical bug requiring immediate code fix
+- Deployment failure requiring rollback/hotfix
+- Production code requiring emergency patching
+
+**Investigation Specialist activation**:
+- Security breach requiring systematic investigation
+- Data corruption requiring forensic analysis
+- Performance crisis requiring root cause investigation
+
+### Coordination Emergency Response
+**Project Orchestrator activation**:
+- Multi-system failure requiring coordination
+- Cross-domain crisis requiring specialist orchestration
+- Complex emergency requiring multi-role response
+
+**Knowledge Advisor activation**:
+- External dependency failure requiring research
+- Unknown technology crisis requiring rapid learning
+- Competitive intelligence needed for crisis response
+
+### Traditional Escalation Chain
 **Current escalation level**: [Level reached]
-**Next escalation**: [Who to contact if current level insufficient]
+**Next escalation**: Strategic Navigator → External emergency contacts
 **Escalation triggers**:
 
-- If not resolved in [X hours]
-- If impact increases to [severity level]
-- If new systems become affected
-- If security implications discovered
+- If not resolved in [X hours] → Activate additional custom roles
+- If impact increases to [severity level] → Engage Strategic Navigator business judgment
+- If new systems become affected → Deploy Project Orchestrator for coordination
+- If security implications discovered → Immediate Investigation Specialist deployment
 
 ## Emergency Response Resources
 

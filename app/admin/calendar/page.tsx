@@ -21,7 +21,7 @@ import {
   MessageSquare,
   Target,
 } from 'lucide-react'
-import { useAdminAuth } from '@/lib/auth/useAdminAuth'
+import { useAdminAuth } from '@/lib/auth/AdminAuthContext'
 
 interface Booking {
   id: string

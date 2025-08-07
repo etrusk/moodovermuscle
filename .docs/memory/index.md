@@ -51,6 +51,9 @@ This index captures organizational learning to improve future appetite estimatio
 - [code/implementation-lessons-and-patterns.md](./code/implementation-lessons-and-patterns.md) - Implementation approaches, coding patterns, and technical lessons learned
 - [debug/troubleshooting-strategies-and-solutions.md](./debug/troubleshooting-strategies-and-solutions.md) - Debugging approaches, problem-solving strategies, and resolution patterns
 
+**Debugging Patterns**
+- [Multi-System Debugging](./debugging-multi-system-pattern.md) - cascading failure resolution approach (complexity: 6-7)
+
 ## Enhanced Search Guide
 
 **When implementing testing strategies** → Check: [`successful-testing-patterns-and-proven-approaches.md`](./successful-testing-patterns-and-proven-approaches.md) for proven testing approaches

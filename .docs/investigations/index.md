@@ -96,6 +96,7 @@ This index helps agents quickly find relevant investigations when encountering i
 
 **Build Failures**
 
+- [Next.js Build Cache Corruption](./nextjs-build-cache-corruption-2025-08-07.md) - cache corruption causing multi-system failures
 - [Dependency Conflicts](./pattern-dependency-conflicts.md) - package version incompatibilities
 - [Build Tool Issues](./pattern-build-tools.md) - webpack, babel, and bundler problems
 - [Environment Differences](./pattern-environment-differences.md) - dev vs production discrepancies
@@ -121,6 +122,9 @@ This index helps agents quickly find relevant investigations when encountering i
 - "Emails not received" → [`booking-notification-delivery.md`](./booking-notification-delivery.md)
 - "Payment declined unexpectedly" → [`booking-payment-processing.md`](./booking-payment-processing.md)
 - "Site completely down" → [`pattern-service-unavailable.md`](./pattern-service-unavailable.md), [`db-connection-pool-issues.md`](./db-connection-pool-issues.md)
+- "Development server won't start" → [`nextjs-build-cache-corruption-2025-08-07.md`](./nextjs-build-cache-corruption-2025-08-07.md)
+- "Components showing undefined errors" → [`nextjs-build-cache-corruption-2025-08-07.md`](./nextjs-build-cache-corruption-2025-08-07.md)
+- "Authentication keeps mounting/unmounting" → [`nextjs-build-cache-corruption-2025-08-07.md`](./nextjs-build-cache-corruption-2025-08-07.md)
 - "Commit fails with same errors repeatedly" → [`git-staging-pre-commit-hook-bypass-2025-08-06.md`](./git-staging-pre-commit-hook-bypass-2025-08-06.md)
 - "ESLint errors persist after 'fixes'" → [`git-staging-pre-commit-hook-bypass-2025-08-06.md`](./git-staging-pre-commit-hook-bypass-2025-08-06.md)
 

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { useAdminAuth } from '@/lib/auth/AdminAuthContext'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -16,6 +17,7 @@ interface DashboardStats {
 
 export default function AdminDashboardPage() {
   const { user, isLoading: authLoading, isAuthenticated } = useAdminAuth()
+  const router = useRouter()
   const [stats, setStats] = useState<DashboardStats>({
     totalBookings: 0,
     pendingBookings: 0,
@@ -190,15 +192,27 @@ export default function AdminDashboardPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Button className="w-full justify-start" variant="outline">
+            <Button
+              className="w-full justify-start"
+              variant="outline"
+              onClick={() => router.push('/admin/bookings')}
+            >
               <Users className="mr-2 h-4 w-4" />
               View All Bookings
             </Button>
-            <Button className="w-full justify-start" variant="outline">
+            <Button
+              className="w-full justify-start"
+              variant="outline"
+              onClick={() => router.push('/admin/bookings?filter=pending')}
+            >
               <Clock className="mr-2 h-4 w-4" />
               Review Pending Bookings
             </Button>
-            <Button className="w-full justify-start" variant="outline">
+            <Button
+              className="w-full justify-start"
+              variant="outline"
+              onClick={() => router.push('/admin/calendar')}
+            >
               <CalendarDays className="mr-2 h-4 w-4" />
               Check Today's Schedule
             </Button>

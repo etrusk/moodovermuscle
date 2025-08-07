@@ -1,16 +1,19 @@
 # Project Context
 
 - Sole trader business website, single client (Emily)
-- Single dev using Roo Code with agentic LLMs
+- Single dev using VSCodium Wayland with Roo Code extension, coding with agentic LLM help
 - Dev machine = CachyOS
+- Roo Code extensions documentation available at:.docs/roo/roo-code-docs.md
+- We are using default Roo Code role instructions, defined at: .docs/roo/role-instructions
+- When any role instructions change, notify human who will update Roo role definitons manually
+- Default Roo Code role definitions are in /roo not /.roo, latter is Roo Code app folder
+- We are using Claude Sonnet 4 for all roles through a Claude Code subscription which has token limits; we should ensure our docs and prompts are lean without losing key info
 - Lean functionality and simplicity preferred over unnecessary complexity given our use case
 - FLOSS preferred; free preferred unless significant functionality/quality/QOL loss
 - Avoid privacy unfriendly solutions if possible, or at least inform the user
 - Additional software can be installed on dev machine after approval
 - MoodOverMuscle is one word
 - Never directly edit this file, but feel free to suggest changes for approval
-- Default Roo Code role definitions are in /roo not /.roo, latter is Roo Code app folder
-- We are using Claude Sonnet 4 for all roles through a Claude Code subscription which has token limits; we should ensure our docs and prompts are lean without losing key info
 - Don't deprecate, just remove (unless there is a very good reason)
 - Don't explicitly document implicit things - i.e. Orchestrator role cannot use tools
 - Always use the generalised and future-proof solution instead of being ultra-specific; for example, instead of referencing direct files in .docs sub-folders, instead direct roles to index.md

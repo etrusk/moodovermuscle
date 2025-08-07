@@ -51,7 +51,22 @@
     "docs:staleness:verbose": "node scripts/check-docs-staleness.js --verbose",
     "docs:staleness:json": "node scripts/check-docs-staleness.js --json",
     "prepare": "husky",
-    "lint-staged": "lint-staged"
+    "lint-staged": "lint-staged",
+    "quality-gates": "node scripts/quality-gates.js",
+    "quality-gates:critical": "node scripts/quality-gates.js",
+    "preview-workflow": "node scripts/preview-workflow.js",
+    "workflow:detect": "node scripts/preview-workflow.js detect",
+    "workflow:create-preview": "node scripts/preview-workflow.js create-preview",
+    "workflow:approve": "node scripts/preview-workflow.js approve",
+    "workflow:reject": "node scripts/preview-workflow.js reject",
+    "memory:update": "node scripts/memory-updater.js update",
+    "deployment:gates": "pnpm run quality-gates && pnpm run memory:update",
+    "performance:validate": "node scripts/performance-validation.js validate",
+    "performance:report": "node scripts/performance-validation.js report",
+    "performance:appetite": "node scripts/performance-validation.js appetite",
+    "performance:tokens": "node scripts/performance-validation.js tokens",
+    "performance:quality": "node scripts/performance-validation.js quality",
+    "performance:memory": "node scripts/performance-validation.js memory"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

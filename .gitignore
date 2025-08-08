@@ -70,9 +70,13 @@ public/placeholder*
 *_IMPLEMENTATION*.md
 test-*.txt
 temp-*.md
-
 # Lighthouse CI reports
 .lighthouseci/
 *.lhr.json
 *.lhr.html
+
+# Generated workflow and quality gate files
+.preview-workflow-state.json
+.quality-gates-report.json
+
 

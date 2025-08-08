@@ -52,6 +52,7 @@ This index captures organizational learning to improve future appetite estimatio
 - [debug/troubleshooting-strategies-and-solutions.md](./debug/troubleshooting-strategies-and-solutions.md) - Debugging approaches, problem-solving strategies, and resolution patterns
 
 **Debugging Patterns**
+
 - [Multi-System Debugging](./debugging-multi-system-pattern.md) - cascading failure resolution approach (complexity: 6-7)
 
 ## Enhanced Search Guide
@@ -381,10 +382,18 @@ From [`complexity-estimation-framework-and-historical-calibration.md`](./complex
 **Search Enhancement**: Descriptive filenames + YAML headers + semantic search terms  
 **Discoverability**: Optimized for LLM semantic matching and human browsing
 
-
 ## Recent Lessons
 
+- **appetite_management**: Encountered appetite boundary constraints during implementation (2025-08-08)
+- **70_30_routing**: Properly escalated critical decisions to human (2025-08-08)
+- **70_30_routing**: Properly escalated critical decisions to human (2025-08-08)
+
+- **appetite_management**: Encountered appetite boundary constraints during implementation (2025-08-08)
+- **70_30_routing**: Properly escalated critical decisions to human (2025-08-08)
+- **70_30_routing**: Properly escalated critical decisions to human (2025-08-08)
+
 **Latest Institutional Learning (2025-08-07)**:
+
 - **appetite_management**: Encountered appetite boundary constraints during implementation, applied circuit breaker protocols effectively
 - **70_30_routing**: Properly escalated critical business decisions to human Navigator while implementing routine technical work autonomously
 - **pattern_application**: Successfully applied existing patterns from institutional memory, achieving 30% efficiency improvement

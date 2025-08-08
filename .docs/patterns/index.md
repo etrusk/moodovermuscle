@@ -192,6 +192,7 @@ This index helps agents find proven implementation approaches before starting ne
 
 - [Task Todo List Pattern](../reference/roo-code-documentation.md#task-todo-lists) - interactive progress tracking with systematic completion verification
 - [Completion Checklist Enforcement Pattern](../protocols/mandatory-completion-checklist.md) - role-specific templates ensuring quality gates, knowledge capture, and git compliance
+- [**Todo List Handback Protocol**](../protocols/todo-list-handback-protocol.md) - **MANDATORY**: All todo lists MUST end with explicit Navigator handback task - zero exceptions allowed
 
 **Git Operations & Version Control**
 

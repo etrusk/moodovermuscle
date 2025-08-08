@@ -13,6 +13,7 @@ Every task, regardless of specialist role, must include these mandatory items:
 [ ] Knowledge transfer documented (patterns updated if applicable)
 [ ] Institutional memory preserved (investigations/decisions updated if applicable)
 [ ] Handback verification with evidence of completion
+[ ] **MANDATORY: Navigator handback task completed [x] - "Hand back to Navigator for next phase coordination"**
 ```
 
 ## Role-Specific Templates
@@ -57,6 +58,7 @@ Every task, regardless of specialist role, must include these mandatory items:
 [ ] Appetite boundaries respected (no scope creep)
 [ ] Circuit breakers not violated
 [ ] Functionality not compromised for appetite
+[ ] **MANDATORY: Navigator handback task completed [x]**
 [ ] Ready for handback with evidence
 ```
 
@@ -98,6 +100,7 @@ Every task, regardless of specialist role, must include these mandatory items:
 ## Completion Verification
 [ ] Issue fully resolved
 [ ] No regression introduced
+[ ] **MANDATORY: Navigator handback task completed [x]**
 [ ] Ready for handback with verification evidence
 ```
 
@@ -146,6 +149,7 @@ Every task, regardless of specialist role, must include these mandatory items:
 ## Completion Verification
 [ ] Quality standards maintained
 [ ] No quality degradation
+[ ] **MANDATORY: Navigator handback task completed [x]**
 [ ] Ready for handback with metrics evidence
 ```
 

@@ -2,9 +2,9 @@
 [metadata]
 type = "investigation_index"
 last_updated = "2025-08-06"
-total_investigations = 29
+total_investigations = 30
 active_investigations = 1
-resolved_investigations = 28
+resolved_investigations = 29
 token_cost_estimate = "medium"
 
 [tracking_metrics]
@@ -14,7 +14,7 @@ symptom_mapping_completeness = 0.90
 resolution_success_rate = 0.88
 
 [investigation_categories]
-component_based = 18
+component_based = 19
 error_pattern_based = 15
 symptom_based = 7
 security_focused = 3
@@ -72,6 +72,7 @@ This index helps agents quickly find relevant investigations when encountering i
 **Testing & Quality Assurance**
 
 - [Time Format Mismatch in Test Data](./time-format-mismatch-test-data.md) - 12-hour vs 24-hour format standardization [RESOLVED]
+- [Jest Mock Hoisting Issues](./jest-mock-hoisting-issues-2025-08-08.md) - ES6 import conflicts with Jest module hoisting requiring inline mock factories [RESOLVED]
 - [Git Staging and Pre-commit Hook Bypass](./git-staging-pre-commit-hook-bypass-2025-08-06.md) - Quality gate circumvention through --no-verify flag usage [ACTIVE]
 
 ## By Error Pattern
@@ -93,6 +94,10 @@ This index helps agents quickly find relevant investigations when encountering i
 - [TypeScript Compilation](./pattern-typescript-compilation.md) - type checking and compilation issues
 - [Runtime Type Mismatches](./pattern-runtime-type-mismatches.md) - dynamic typing problems
 - [API Contract Violations](./pattern-api-contracts.md) - interface mismatch debugging
+
+**Test Configuration Issues**
+
+- [Jest Mock Hoisting](./jest-mock-hoisting-issues-2025-08-08.md) - ES6 import timing conflicts with Jest module hoisting system
 
 **Build Failures**
 
@@ -127,6 +132,9 @@ This index helps agents quickly find relevant investigations when encountering i
 - "Authentication keeps mounting/unmounting" → [`nextjs-build-cache-corruption-2025-08-07.md`](./nextjs-build-cache-corruption-2025-08-07.md)
 - "Commit fails with same errors repeatedly" → [`git-staging-pre-commit-hook-bypass-2025-08-06.md`](./git-staging-pre-commit-hook-bypass-2025-08-06.md)
 - "ESLint errors persist after 'fixes'" → [`git-staging-pre-commit-hook-bypass-2025-08-06.md`](./git-staging-pre-commit-hook-bypass-2025-08-06.md)
+- "Tests require mixed import/require syntax" → [`jest-mock-hoisting-issues-2025-08-08.md`](./jest-mock-hoisting-issues-2025-08-08.md)
+- "Jest mocks don't work with ES6 imports" → [`jest-mock-hoisting-issues-2025-08-08.md`](./jest-mock-hoisting-issues-2025-08-08.md)
+- "Variable hoisting errors in test files" → [`jest-mock-hoisting-issues-2025-08-08.md`](./jest-mock-hoisting-issues-2025-08-08.md)
 
 ## Usage Guide
 

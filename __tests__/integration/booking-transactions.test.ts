@@ -2,17 +2,24 @@
 /**
  * @jest-environment node
  */
-import { POST } from '@/app/api/book-session/route'
-import { testDb } from '../setup/test-db'
-import { createTestBookingData } from '../setup/test-db-data'
-import * as email from '@/lib/email'
-import { setupIntegrationTest, teardownIntegrationTest } from '../setup/test-helpers'
 
-jest.setTimeout(15000)
-
+// Mock Prisma before any imports to ensure proper hoisting
 jest.mock('@/lib/prisma', () => ({
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  prisma: require('../setup/test-db').testDb,
+  // Inline mock factory - no external dependencies during hoisting
+  prisma: {
+    booking: {
+      create: jest.fn(),
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+      findFirst: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+      count: jest.fn(),
+    },
+    $transaction: jest.fn(),
+    $connect: jest.fn(),
+    $disconnect: jest.fn(),
+  },
 }))
 
 jest.mock('@/lib/email', () => ({
@@ -20,6 +27,16 @@ jest.mock('@/lib/email', () => ({
   sendAdminNotification: jest.fn().mockResolvedValue({ success: true }),
 }));
 
+import { POST } from '@/app/api/book-session/route'
+import { prisma } from '@/lib/prisma'
+import { createTestBookingData } from '../setup/test-db-data'
+import * as email from '@/lib/email'
+import { setupIntegrationTest, teardownIntegrationTest } from '../setup/test-helpers'
+
+// Get the mocked prisma instance
+const mockPrisma = prisma as jest.Mocked<typeof prisma>
+
+jest.setTimeout(15000)
 
 function makeJsonRequest(data: Record<string, unknown>): Request {
   return new Request('http://localhost/api/book-session', {
@@ -34,7 +51,7 @@ function makeJsonRequest(data: Record<string, unknown>): Request {
 describe('Booking Transactions Integration Tests', () => {
   beforeEach(async () => {
     await setupIntegrationTest()
-    testDb.$transaction.mockImplementation(async (cb: any) => await cb(testDb))
+    ;(mockPrisma.$transaction as jest.Mock).mockImplementation(async (cb: any) => await cb(mockPrisma))
   })
 
   afterAll(async () => {
@@ -45,7 +62,7 @@ describe('Booking Transactions Integration Tests', () => {
     const data = createTestBookingData()
     const req = makeJsonRequest(data)
 
-    testDb.booking.findFirst.mockResolvedValue(null)
+    ;(mockPrisma.booking.findFirst as jest.Mock).mockResolvedValue(null)
     const created: any = {
       ...data,
       id: 'trans-success-id',
@@ -56,7 +73,7 @@ describe('Booking Transactions Integration Tests', () => {
       phone: (data as any).phone ?? null,
       message: (data as any).message ?? null,
     }
-    testDb.booking.create.mockResolvedValue(created)
+    ;(mockPrisma.booking.create as jest.Mock).mockResolvedValue(created)
 
     const response = await POST(req)
     expect(response.status).toBe(201)
@@ -76,20 +93,20 @@ describe('Booking Transactions Integration Tests', () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     }
-    testDb.booking.findFirst.mockResolvedValue(conflictBooking)
+    ;(mockPrisma.booking.findFirst as jest.Mock).mockResolvedValue(conflictBooking)
 
     const response = await POST(req)
     expect(response.status).toBe(409)
     const resData = await response.json()
     expect(resData.message).toMatch(/Booking conflict/)
-    expect(testDb.booking.create).not.toHaveBeenCalled()
+    expect(mockPrisma.booking.create).not.toHaveBeenCalled()
   })
 
   it('Email failure does not roll back booking transaction', async () => {
     const data = createTestBookingData()
     const req = makeJsonRequest(data)
 
-    testDb.booking.findFirst.mockResolvedValue(null)
+    ;(mockPrisma.booking.findFirst as jest.Mock).mockResolvedValue(null)
     const created: any = {
       ...data,
       id: 'email-fail-id',
@@ -100,7 +117,7 @@ describe('Booking Transactions Integration Tests', () => {
       phone: (data as any).phone ?? null,
       message: (data as any).message ?? null,
     }
-    testDb.booking.create.mockResolvedValue(created)
+    ;(mockPrisma.booking.create as jest.Mock).mockResolvedValue(created)
 
     jest.spyOn(email, 'sendCustomerConfirmation').mockRejectedValue(new Error('Email send failure'))
     const response = await POST(req)
@@ -114,7 +131,7 @@ describe('Booking Transactions Integration Tests', () => {
     const req1 = makeJsonRequest(data)
     const req2 = makeJsonRequest(data)
 
-    testDb.booking.findFirst
+    ;(mockPrisma.booking.findFirst as jest.Mock)
       .mockResolvedValueOnce(null)
       .mockResolvedValueOnce({
         id: 'existing',
@@ -134,7 +151,7 @@ describe('Booking Transactions Integration Tests', () => {
       phone: (data as any).phone ?? null,
       message: (data as any).message ?? null,
     }
-    testDb.booking.create.mockResolvedValue(created)
+    ;(mockPrisma.booking.create as jest.Mock).mockResolvedValue(created)
 
     const [res1, res2] = await Promise.all([POST(req1), POST(req2)])
     const statuses = [res1.status, res2.status].sort()

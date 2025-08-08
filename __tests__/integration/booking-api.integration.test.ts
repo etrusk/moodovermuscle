@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 import { POST } from '@/app/api/book-session/route'
-import { testDb } from '../setup/test-db'
+import { prisma } from '@/lib/prisma'
 import { createTestBookingData } from '../setup/test-db-data'
 import {
   setupIntegrationTest,
@@ -10,13 +10,29 @@ import {
 } from '../setup/test-helpers'
 import type { Booking, Prisma } from '@/lib/generated/prisma'
 
+// Get the mocked prisma instance with proper typing
+const mockPrisma = prisma as jest.Mocked<typeof prisma>
+
 jest.setTimeout(15000)
 
 type TransactionCallback = (tx: Prisma.TransactionClient) => Promise<Booking>
 
 jest.mock('@/lib/prisma', () => ({
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  prisma: require('../setup/test-db').testDb,
+  // Inline mock factory - no external dependencies during hoisting
+  prisma: {
+    booking: {
+      create: jest.fn(),
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+      findFirst: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+      count: jest.fn(),
+    },
+    $transaction: jest.fn(),
+    $connect: jest.fn(),
+    $disconnect: jest.fn(),
+  },
 }))
 
 // Mock email functions for integration tests
@@ -51,7 +67,7 @@ const setupMockBooking = (testData: Record<string, unknown>, id = 'mock-booking-
 }
 
 const mockTransaction = (mockBooking: Booking): void => {
-  ;(testDb.$transaction as jest.Mock).mockImplementation(
+  ;(mockPrisma.$transaction as jest.Mock).mockImplementation(
     async (callback: TransactionCallback) => {
       const mockTx = {
         booking: {
@@ -97,10 +113,10 @@ describe('Booking API Integration Tests', () => {
       expect(responseData.data).toHaveProperty('id')
 
       // Verify booking creation
-      testDb.booking.findUnique.mockResolvedValue(
+      ;(mockPrisma.booking.findUnique as jest.Mock).mockResolvedValue(
         setupMockBooking(testData, responseData.data.id)
       )
-      const createdBooking = await testDb.booking.findUnique({
+      const createdBooking = await mockPrisma.booking.findUnique({
         where: { id: responseData.data.id },
       })
 
@@ -149,7 +165,7 @@ describe('Booking API Integration Tests', () => {
       const mockBooking2 = setupMockBooking(testData2, 'mock-id-2')
 
       // Setup transaction mocks for both bookings
-      ;(testDb.$transaction as jest.Mock)
+      ;(mockPrisma.$transaction as jest.Mock)
         .mockImplementationOnce(async (callback: TransactionCallback) => {
           const mockTx = {
             booking: {
@@ -180,12 +196,12 @@ describe('Booking API Integration Tests', () => {
       expect(data1.data.id).not.toBe(data2.data.id)
 
       // Verify database calls
-      testDb.booking.findUnique
+      mockPrisma.booking.findUnique
         .mockResolvedValueOnce(setupMockBooking(testData1, data1.data.id))
         .mockResolvedValueOnce(setupMockBooking(testData2, data2.data.id))
       
-      const booking1 = await testDb.booking.findUnique({ where: { id: data1.data.id } })
-      const booking2 = await testDb.booking.findUnique({ where: { id: data2.data.id } })
+      const booking1 = await mockPrisma.booking.findUnique({ where: { id: data1.data.id } })
+      const booking2 = await mockPrisma.booking.findUnique({ where: { id: data2.data.id } })
 
       expect(booking1?.name).toBe('User 1')
       expect(booking2?.name).toBe('User 2')
@@ -207,11 +223,11 @@ describe('Booking API Integration Tests', () => {
       expect(response.status).toBe(201)
 
       const responseData = await response.json()
-      testDb.booking.findUnique.mockResolvedValue(
+      mockPrisma.booking.findUnique.mockResolvedValue(
         setupMockBooking(testData, responseData.data.id)
       )
       
-      const createdBooking = await testDb.booking.findUnique({
+      const createdBooking = await mockPrisma.booking.findUnique({
         where: { id: responseData.data.id },
       })
 
@@ -232,11 +248,11 @@ describe('Booking API Integration Tests', () => {
       expect(response.status).toBe(201)
 
       const responseData = await response.json()
-      testDb.booking.findUnique.mockResolvedValue(
+      mockPrisma.booking.findUnique.mockResolvedValue(
         setupMockBooking(testData, responseData.data.id)
       )
       
-      const createdBooking = await testDb.booking.findUnique({
+      const createdBooking = await mockPrisma.booking.findUnique({
         where: { id: responseData.data.id },
       })
 
@@ -273,11 +289,11 @@ describe('Booking API Integration Tests', () => {
       expect(response.status).toBe(201)
 
       const responseData = await response.json()
-      testDb.booking.findUnique.mockResolvedValue(
+      mockPrisma.booking.findUnique.mockResolvedValue(
         setupMockBooking(validData, responseData.data.id)
       )
       
-      const createdBooking = await testDb.booking.findUnique({
+      const createdBooking = await mockPrisma.booking.findUnique({
         where: { id: responseData.data.id },
       })
 

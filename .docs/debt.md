@@ -49,16 +49,6 @@
 
 ### Test Suite Technical Debt
 
-#### Jest Mock Hoisting Issues - MEDIUM PRIORITY
-
-- **Issue**: Jest mocks require `require()` syntax to avoid variable hoisting errors with ES6 imports
-- **Impact**: Inconsistent import patterns between test and source files
-- **Priority**: Medium
-- **Files Affected**: Integration test files with Prisma mocks
-- **Resolution Plan**: Investigate Jest configuration options for proper ES6 module hoisting
-- **Target Resolution**: Next development cycle (2-3 hours)
-- **Status**: Workaround implemented - `require()` syntax used in mocks
-
 ### Performance Debt
 
 #### Bundle Size Optimization
@@ -154,6 +144,20 @@
 - **Resolution**: Local Chromium with privacy-hardened configuration
 - **Results**: Automated performance monitoring without privacy compromise
 
+#### ✅ Jest Mock Hoisting Issues Resolution (2025-08-08)
+
+- **Issue**: Jest mocks required `require()` syntax to avoid variable hoisting errors with ES6 imports
+- **Impact**: Inconsistent import patterns between test and source files affecting development velocity
+- **Resolution**: Implemented inline mock factory pattern eliminating external dependencies during Jest's hoisting phase
+- **Files Resolved**:
+  - `__tests__/integration/booking-api.integration.test.ts` - Converted from require() to inline pattern
+  - `__tests__/integration/database.integration.test.ts` - Updated mock factory with ES6 imports
+  - `__tests__/integration/booking-transactions.test.ts` - Complete rewrite using new pattern
+- **Results**: 100% ES6 import consistency across all integration tests, zero hoisting issues, full TypeScript support maintained
+- **Patterns Created**: [Jest Mock Hoisting Solution Pattern](./patterns/jest-mock-hoisting-solution.md)
+- **Investigation Documentation**: [Jest Mock Hoisting Investigation](./investigations/jest-mock-hoisting-issues-2025-08-08.md)
+- **Quality Gates**: All critical gates passed (129 tests successful with new configuration)
+- **Business Value**: Improved code consistency, developer experience, and maintainability across integration test suite
 ## Debt Management Process
 
 ### Tracking Workflow
@@ -210,8 +214,8 @@
 ---
 
 **Last Updated**: 2025-08-08
-**Active Debt Items**: 5 items (1 medium, 4 low priority)
-**Recent Major Resolution**: Calendar Component Test Complexity - Applied systematic testing patterns, improved from 17/40 to 20/40 tests passing with major performance improvements
+**Active Debt Items**: 4 items (0 medium, 4 low priority)
+**Recent Major Resolution**: Jest Mock Hoisting Issues - Implemented inline mock factory pattern achieving 100% ES6 import consistency across integration tests
 **Next Review**: Weekly debt assessment in development planning
 
 ## Strategic Debt Management Notes

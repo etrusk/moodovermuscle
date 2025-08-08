@@ -101,6 +101,7 @@ This index helps agents find proven implementation approaches before starting ne
 - [Time Format Validation Debugging Pattern](./debugging-time-format-validation-pattern.md) - systematic format mismatch identification + standardization
 - [JWT Configuration Debugging Pattern](./debugging-jwt-configuration-pattern.md) - systematic JWT authentication conflict resolution for duplicate expiration settings
 - [React State Management During Render Debugging Pattern](./react-state-management-during-render-debugging-pattern.md) - setState-during-render violation detection and resolution
+- [Human-Verified Visual Debugging Pattern](./debugging-human-verified-visual-pattern.md) - mandatory human verification protocol for visual UI bug fixes
 
 **TypeScript Patterns**
 
@@ -301,3 +302,4 @@ This index helps agents find proven implementation approaches before starting ne
 - [Comprehensive Quality Gates Pattern](./quality-gate-comprehensive-pattern.md) - validated in production with 78.2s execution time
 - [Real-Time API Integration Pattern](./real-time-api-integration-pattern.md) - confirmed <500ms response times
 - [JWT Configuration Debugging Pattern](./debugging-jwt-configuration-pattern.md) - successfully resolved authentication conflicts
+- [Human-Verified Visual Debugging Pattern](./debugging-human-verified-visual-pattern.md) - successfully resolved calendar grid alignment issue that resisted automated testing

@@ -151,6 +151,19 @@ This index captures organizational learning to improve future appetite estimatio
 **Detection Method**: Comprehensive context discovery revealed authentication issues that documentation had missed
 **Quality Gate**: No task completion without verified end-user functionality testing
 
+### Human-Verified Visual Debugging Pattern ⭐⭐⭐
+
+**Applied**: Calendar grid alignment UI fix (Aug 2025)
+**Success Rate**: 100% (resolved persistent visual issue that resisted multiple automated attempts)
+**Appetite Accuracy**: Within 1-hour budget constraint for institutional memory capture
+**Key Learning**: Browser automation can report false success for visual UI issues. Automated testing claimed success while visual problems persisted. Mandatory human verification prevents false resolution claims for layout and display issues.
+**Critical Discovery**: Technical solutions must be verified by human inspection before marking visual bugs as resolved
+**Resolution Approach**: Three-part technical solution - CSS class conflict identification, targeted specificity override with !important declarations, human visual confirmation
+**Pattern Effectiveness**: Resolved issue immediately after human verification identified actual root cause (react-day-picker CSS override)
+**Institutional Value**: Establishes protocol requiring human verification for all visual UI bug fixes
+**Prevention Strategy**: All visual layout issues must include human confirmation step before completion documentation
+**Business Impact**: Prevents false resolution claims that leave actual user-facing issues unresolved
+
 ## Learning Categories
 
 **Complexity Estimation**

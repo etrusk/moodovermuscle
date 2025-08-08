@@ -93,6 +93,8 @@ describe('Booking Transactions Integration Tests', () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     }
+    
+    // Mock the availability checking to find the conflict - this will be used by validateRealTimeAvailability
     ;(mockPrisma.booking.findFirst as jest.Mock).mockResolvedValue(conflictBooking)
 
     const response = await POST(req)

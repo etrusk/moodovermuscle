@@ -5,6 +5,17 @@
 # Phase 3: Quality & Deployment Integration
 echo "🚀 Running deployment gates..."
 
+# Circuit breaker verification - blocks commit on quality failures
+echo "🔥 Running circuit breaker verification..."
+pnpm run circuit-breakers:verify
+
+# Only proceed if circuit breakers pass
+if [ $? -ne 0 ]; then
+  echo "🚨 Circuit breakers triggered - commit blocked"
+  echo "Run 'pnpm run circuit-breakers:status' for guidance"
+  exit 1
+fi
+
 # Check for functionality changes first
 if ! pnpm run workflow:detect; then
   echo "⚠️  Functionality changes detected - preview workflow required"

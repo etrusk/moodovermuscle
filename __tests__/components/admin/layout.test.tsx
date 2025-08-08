@@ -19,14 +19,16 @@ jest.mock('next/navigation', () => ({
   usePathname: () => mockPathname(),
 }))
 
-// Mock AdminAuthContext
-const mockUseAdminAuth = jest.fn()
+// Mock AdminAuthContext - using inline factory pattern from Jest Mock Hoisting Pattern
 const mockLogout = jest.fn()
 
 jest.mock('@/lib/auth/AdminAuthContext', () => ({
   AdminAuthProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  useAdminAuth: () => mockUseAdminAuth(),
+  useAdminAuth: jest.fn(),
 }))
+
+// Get the mocked useAdminAuth function
+const mockUseAdminAuth = useAdminAuth as jest.MockedFunction<typeof useAdminAuth>
 
 // Test data constants
 const mockUser = {
@@ -70,7 +72,9 @@ describe('AdminLayout Component', () => {
       user: mockUser,
       isLoading: false,
       isAuthenticated: true,
+      login: jest.fn(),
       logout: mockLogout,
+      refreshSession: jest.fn(),
     })
 
     // Default to dashboard path
@@ -88,7 +92,9 @@ describe('AdminLayout Component', () => {
         user: null,
         isLoading: true,
         isAuthenticated: false,
+        login: jest.fn(),
         logout: mockLogout,
+        refreshSession: jest.fn(),
       })
 
       const { container } = render(
@@ -109,7 +115,9 @@ describe('AdminLayout Component', () => {
         user: null,
         isLoading: false,
         isAuthenticated: false,
+        login: jest.fn(),
         logout: mockLogout,
+        refreshSession: jest.fn(),
       })
       mockPathname.mockReturnValue('/admin/dashboard')
 
@@ -129,7 +137,9 @@ describe('AdminLayout Component', () => {
         user: null,
         isLoading: false,
         isAuthenticated: false,
+        login: jest.fn(),
         logout: mockLogout,
+        refreshSession: jest.fn(),
       })
       mockPathname.mockReturnValue('/admin/login')
 
@@ -148,7 +158,9 @@ describe('AdminLayout Component', () => {
         user: null,
         isLoading: false,
         isAuthenticated: false,
+        login: jest.fn(),
         logout: mockLogout,
+        refreshSession: jest.fn(),
       })
       mockPathname.mockReturnValue('/admin/dashboard')
 
@@ -179,7 +191,9 @@ describe('AdminLayout Component', () => {
           user: null,
           isLoading: true,
           isAuthenticated: false,
+          login: jest.fn(),
           logout: mockLogout,
+          refreshSession: jest.fn(),
         })
 
         const { rerender } = render(
@@ -195,7 +209,9 @@ describe('AdminLayout Component', () => {
           user: mockUser,
           isLoading: false,
           isAuthenticated: true,
+          login: jest.fn(),
           logout: mockLogout,
+          refreshSession: jest.fn(),
         })
 
         rerender(
@@ -362,7 +378,9 @@ describe('AdminLayout Component', () => {
         user: customUser,
         isLoading: false,
         isAuthenticated: true,
+        login: jest.fn(),
         logout: mockLogout,
+        refreshSession: jest.fn(),
       })
 
       render(
@@ -502,7 +520,9 @@ describe('AdminLayout Component', () => {
         user: null,
         isLoading: false,
         isAuthenticated: true,  // Edge case: authenticated but no user
+        login: jest.fn(),
         logout: mockLogout,
+        refreshSession: jest.fn(),
       })
 
       const { container } = render(
@@ -529,14 +549,18 @@ describe('AdminLayout Component', () => {
             user: null,
             isLoading: false,
             isAuthenticated: false,
+            login: jest.fn(),
             logout: mockLogout,
+            refreshSession: jest.fn(),
           })
         } else {
           mockUseAdminAuth.mockReturnValue({
             user: mockUser,
             isLoading: false,
             isAuthenticated: true,
+            login: jest.fn(),
             logout: mockLogout,
+            refreshSession: jest.fn(),
           })
         }
 
@@ -582,7 +606,9 @@ describe('AdminLayout Component', () => {
         for (const state of states) {
           mockUseAdminAuth.mockReturnValue({
             ...state,
+            login: jest.fn(),
             logout: mockLogout,
+            refreshSession: jest.fn(),
           })
 
           rerender(

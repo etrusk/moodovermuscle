@@ -8,11 +8,28 @@ import { useAdminAuth } from '@/lib/auth/AdminAuthContext'
 // Extend Jest matchers for accessibility
 expect.extend(toHaveNoViolations)
 
-// Mock AdminAuthContext
-const mockUseAdminAuth = jest.fn()
+// Mock AdminAuthContext - using inline factory pattern from Jest Mock Hoisting Pattern
+const mockLogout = jest.fn()
+const mockLogin = jest.fn()
+const mockRefreshSession = jest.fn()
+
 jest.mock('@/lib/auth/AdminAuthContext', () => ({
-  useAdminAuth: () => mockUseAdminAuth(),
+  useAdminAuth: jest.fn(() => ({
+    user: {
+      id: '1',
+      name: 'Emily',
+      email: 'emily@moodovermuscle.com.au'
+    },
+    isLoading: false,
+    isAuthenticated: true,
+    login: jest.fn(),
+    logout: jest.fn(),
+    refreshSession: jest.fn(),
+  })),
 }))
+
+// Get the mocked useAdminAuth function
+const mockUseAdminAuth = useAdminAuth as jest.MockedFunction<typeof useAdminAuth>
 
 // Mock fetch globally
 const mockFetch = jest.fn()
@@ -33,7 +50,7 @@ const mockBookings = [
     phone: '+61 400 123 456',
     service: 'Personal Training',
     date: '2025-08-10', // Sunday
-    time: '10:00',
+    time: '10:00:00', // Include seconds for consistent parsing
     duration: 60,
     status: 'PENDING' as const,
     goals: 'Lose weight and build strength',
@@ -45,12 +62,12 @@ const mockBookings = [
   },
   {
     id: 'booking-2',
-    name: 'Mike Johnson', 
+    name: 'Mike Johnson',
     email: 'mike@example.com',
     phone: '+61 400 987 654',
     service: 'Group Class',
     date: '2025-08-10', // Same day - multiple bookings
-    time: '14:30',
+    time: '14:30:00', // Include seconds for consistent parsing
     duration: 45,
     status: 'CONFIRMED' as const,
     goals: 'Improve fitness',
@@ -65,7 +82,7 @@ const mockBookings = [
     phone: '+61 400 555 111',
     service: 'Mums & Bubs Class',
     date: '2025-08-11', // Monday
-    time: '09:00',
+    time: '09:00:00',
     duration: 60,
     status: 'COMPLETED' as const,
     experience: 'Beginner',
@@ -79,7 +96,7 @@ const mockBookings = [
     phone: '+61 400 777 888', 
     service: 'Personal Training',
     date: '2025-08-12', // Tuesday
-    time: '16:00',
+    time: '16:00:00',
     duration: 60,
     status: 'CANCELLED' as const,
     goals: 'Rehabilitation',
@@ -112,13 +129,16 @@ describe('AdminCalendarPage Component', () => {
     user = userEvent.setup()
     jest.clearAllMocks()
     
-    // Default authenticated user - ensure consistent return value
-    mockUseAdminAuth.mockImplementation(() => ({
+    // Default authenticated user - use direct return value pattern from Admin Component Testing Pattern
+    // Ensure mock is properly reset and configured for each test
+    mockUseAdminAuth.mockReturnValue({
       user: mockUser,
       isLoading: false,
       isAuthenticated: true,
-      logout: jest.fn(),
-    }))
+      login: mockLogin,
+      logout: mockLogout,
+      refreshSession: mockRefreshSession,
+    })
 
     // Reset the json mock function for each test with proper timing
     mockSuccessResponse.json.mockClear()
@@ -150,11 +170,14 @@ describe('AdminCalendarPage Component', () => {
 
   describe('Authentication and User Management', () => {
     it('returns empty fragment when user is not available', () => {
+      // Clear any previous mocks and set explicit null user state
       mockUseAdminAuth.mockReturnValue({
         user: null,
         isLoading: false,
-        isAuthenticated: true,
-        logout: jest.fn(),
+        isAuthenticated: false,
+        login: jest.fn(),
+        logout: mockLogout,
+        refreshSession: jest.fn(),
       })
 
       const { container } = render(<AdminCalendarPage />)
@@ -440,6 +463,13 @@ describe('AdminCalendarPage Component', () => {
     it('displays booking times in correct format', async () => {
       render(<AdminCalendarPage />)
 
+      // Wait for calendar to load and data to be fetched
+      await waitFor(() => {
+        expect(screen.getByText('Sarah Miller')).toBeInTheDocument()
+        expect(screen.getByText('Mike Johnson')).toBeInTheDocument()
+      }, { timeout: 10000 })
+      
+      // Then check for formatted times
       await waitFor(() => {
         expect(screen.getByText('10:00 AM')).toBeInTheDocument()
         expect(screen.getByText('2:30 PM')).toBeInTheDocument()

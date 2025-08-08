@@ -85,7 +85,9 @@ describe('AdminDashboardPage Component', () => {
         user: null,
         isLoading: true,
         isAuthenticated: false,
+        login: jest.fn(),
         logout: jest.fn(),
+        refreshSession: jest.fn(),
       })
 
       const { container } = render(<AdminDashboardPage />)
@@ -102,7 +104,9 @@ describe('AdminDashboardPage Component', () => {
         user: null,
         isLoading: false,
         isAuthenticated: false,
+        login: jest.fn(),
         logout: jest.fn(),
+        refreshSession: jest.fn(),
       })
 
       const { container } = render(<AdminDashboardPage />)
@@ -179,7 +183,9 @@ describe('AdminDashboardPage Component', () => {
         user: null,
         isLoading: false,
         isAuthenticated: true,
+        login: jest.fn(),
         logout: jest.fn(),
+        refreshSession: jest.fn(),
       })
 
       render(<AdminDashboardPage />)
@@ -350,7 +356,9 @@ describe('AdminDashboardPage Component', () => {
         user: newUser,
         isLoading: false,
         isAuthenticated: true,
+        login: jest.fn(),
         logout: jest.fn(),
+        refreshSession: jest.fn(),
       })
 
       rerender(<AdminDashboardPage />)

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -236,14 +236,14 @@ export default function BookingsPage(): React.JSX.Element {
       {/* Filters */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Filters</CardTitle>
+          <h2 className="font-semibold tracking-tight text-lg">Filters</h2>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
               <label htmlFor="status-filter" className="block text-sm font-medium mb-1">Status</label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger>
+                <SelectTrigger id="status-filter">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -259,6 +259,7 @@ export default function BookingsPage(): React.JSX.Element {
             <div>
               <label htmlFor="search-input" className="block text-sm font-medium mb-1">Search</label>
               <Input
+                id="search-input"
                 placeholder="Search by name, email, or service"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -268,6 +269,7 @@ export default function BookingsPage(): React.JSX.Element {
             <div>
               <label htmlFor="date-from" className="block text-sm font-medium mb-1">From Date</label>
               <Input
+                id="date-from"
                 type="date"
                 value={dateFrom}
                 onChange={(e) => setDateFrom(e.target.value)}
@@ -277,6 +279,7 @@ export default function BookingsPage(): React.JSX.Element {
             <div>
               <label htmlFor="date-to" className="block text-sm font-medium mb-1">To Date</label>
               <Input
+                id="date-to"
                 type="date"
                 value={dateTo}
                 onChange={(e) => setDateTo(e.target.value)}

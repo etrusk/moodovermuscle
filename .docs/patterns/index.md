@@ -94,6 +94,7 @@ This index helps agents find proven implementation approaches before starting ne
 - [Component Test Pattern](./test-component-pattern.md) - React component testing with MSW
 - [E2E Test Pattern](./test-e2e-pattern.md) - end-to-end user journey testing
 - [Mock Pattern](./test-mock-pattern.md) - external service mocking strategies
+- [Admin Component Testing Pattern](./admin-component-testing-pattern.md) - comprehensive admin interface testing with authentication, API integration, and workflows
 
 **Quality Assurance**
 
@@ -185,6 +186,12 @@ This index helps agents find proven implementation approaches before starting ne
 
 - [Orchestrated Task Completion Pattern](./orchestrated-task-completion-pattern.md) - mandatory cleanup phase with automatic Architect mode transition
 - [Systematic Git Workflow Pattern](./git-workflow-systematic-pattern.md) - automated git operations with quality gates, knowledge integration, and stash recovery
+- [Mandatory Completion Protocol Pattern](../protocols/mandatory-completion-checklist.md) - standardized completion checklists for all specialist roles with quality gate enforcement
+
+**Task Management & Todo Lists**
+
+- [Task Todo List Pattern](../reference/roo-code-documentation.md#task-todo-lists) - interactive progress tracking with systematic completion verification
+- [Completion Checklist Enforcement Pattern](../protocols/mandatory-completion-checklist.md) - role-specific templates ensuring quality gates, knowledge capture, and git compliance
 
 **Git Operations & Version Control**
 
@@ -305,6 +312,11 @@ This index helps agents find proven implementation approaches before starting ne
 ## Recently Updated
 
 - [from Pattern](./applied-patterns.md#from) - successfully applied 2025-08-08
+- [from Pattern](./applied-patterns.md#from) - successfully applied 2025-08-08
+- [3 existing Pattern](./applied-patterns.md#3-existing) - successfully applied 2025-08-08
+- [**: Pattern](./new-patterns.md#**:) - developed 2025-08-08
+
+
 - [3 existing Pattern](./applied-patterns.md#3-existing) - successfully applied 2025-08-08
 - [\*\*: Pattern](./new-patterns.md#**:) - developed 2025-08-08
 

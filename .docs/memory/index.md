@@ -394,6 +394,11 @@ From [`complexity-estimation-framework-and-historical-calibration.md`](./complex
 
 **Latest Institutional Learning (2025-08-07)**:
 
+- **appetite_management**: Encountered appetite boundary constraints during implementation (2025-08-08)
+- **70_30_routing**: Properly escalated critical decisions to human (2025-08-08)
+- **70_30_routing**: Properly escalated critical decisions to human (2025-08-08)
+
+
 - **appetite_management**: Encountered appetite boundary constraints during implementation, applied circuit breaker protocols effectively
 - **70_30_routing**: Properly escalated critical business decisions to human Navigator while implementing routine technical work autonomously
 - **pattern_application**: Successfully applied existing patterns from institutional memory, achieving 30% efficiency improvement

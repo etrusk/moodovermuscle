@@ -349,6 +349,72 @@ Benefits:
 
 ### Task Todo Lists
 
+For complex, multi-step tasks, Roo Code automatically creates interactive todo lists that enable systematic progress tracking and ensure no critical steps are missed.
+
+#### When Todo Lists Are Created
+
+Todo lists are automatically created when tasks involve:
+
+- Multiple implementation steps requiring coordination
+- Quality gate verification processes
+- Git operations and knowledge transfer requirements
+- Complex workflows spanning multiple files or systems
+- Tasks that benefit from step-by-step progress tracking
+
+#### Todo List Features
+
+- **Progress Tracking**: Visual status indicators for each task item
+- **Interactive Management**: Update status and descriptions dynamically
+- **Persistent State**: Maintains progress across sessions and mode switches
+- **Completion Verification**: Ensures all critical steps are completed before task completion
+
+#### Status Indicators
+
+- `[ ]` **Pending**: Task not yet started
+- `[-]` **In Progress**: Currently being worked on
+- `[x]` **Completed**: Fully finished with no unresolved issues
+
+#### Best Practices
+
+- **Single Active Task**: Only mark one item as "in progress" at a time
+- **Complete Before Next**: Mark tasks as completed immediately after finishing all work
+- **Add New Items**: When discovering additional actionable items, add them immediately
+- **Clear Descriptions**: Use descriptive names that clearly identify the task scope
+
+#### Mandatory Completion Items
+
+All todo lists for implementation tasks must include these critical items:
+
+```markdown
+[ ] Primary objective achieved
+[ ] Quality gates verified (lint, type-check, test, security, build)
+[ ] Git operations completed (add, commit with conventional message)
+[ ] Knowledge transfer documented (patterns updated if applicable)
+[ ] Institutional memory preserved (investigations/decisions updated if applicable)
+[ ] Handback verification with evidence of completion
+```
+
+#### Integration with Completion Protocols
+
+Todo lists integrate with Roo Code's completion protocols to ensure:
+
+- **Quality Gate Enforcement**: All critical quality gates must pass before completion
+- **Knowledge Preservation**: Reusable patterns and insights are captured
+- **Git Workflow Compliance**: Changes are properly committed with conventional messages
+- **Systematic Handback**: Clear evidence of completion provided for verification
+
+#### Managing Complex Workflows
+
+For tasks requiring multiple phases:
+
+1. **Break Down**: Divide complex tasks into logical, sequential steps
+2. **Dependencies**: Order items by dependencies and prerequisites
+3. **Scope Control**: Keep individual items focused and achievable
+4. **Progress Updates**: Update status immediately when work is completed
+5. **Quality Integration**: Include quality verification at appropriate points
+
+### Task Todo Lists
+
 For complex, multi-step tasks, Roo Code automatically creates interactive todo lists that:
 
 - Track progress through workflows

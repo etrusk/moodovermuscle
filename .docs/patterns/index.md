@@ -184,6 +184,13 @@ This index helps agents find proven implementation approaches before starting ne
 **Orchestration & Workflow**
 
 - [Orchestrated Task Completion Pattern](./orchestrated-task-completion-pattern.md) - mandatory cleanup phase with automatic Architect mode transition
+- [Systematic Git Workflow Pattern](./git-workflow-systematic-pattern.md) - automated git operations with quality gates, knowledge integration, and stash recovery
+
+**Git Operations & Version Control**
+
+- [Branch Management Pattern](./git-branch-management-pattern.md) - feature branch workflows with automated stash recovery
+- [Conventional Commit Pattern](./git-conventional-commit-pattern.md) - structured commit messages with pattern and investigation references
+- [Quality-Gated Commit Pattern](./git-quality-gated-commit-pattern.md) - mandatory quality gate execution before commits
 
 **Integration with Other Indexes**:
 

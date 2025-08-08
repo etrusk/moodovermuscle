@@ -71,3 +71,8 @@ public/placeholder*
 test-*.txt
 temp-*.md
 
+# Lighthouse CI reports
+.lighthouseci/
+*.lhr.json
+*.lhr.html
+

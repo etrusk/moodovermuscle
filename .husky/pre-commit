@@ -6,7 +6,7 @@
 echo "🚀 Running deployment gates..."
 
 # Check for functionality changes first
-if pnpm run workflow:detect; then
+if ! pnpm run workflow:detect; then
   echo "⚠️  Functionality changes detected - preview workflow required"
   echo "Run 'pnpm run workflow:create-preview' before committing"
   exit 1

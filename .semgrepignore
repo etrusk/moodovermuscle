@@ -36,4 +36,4 @@ lib/generated/
 
 # OS files
 .DS_Store
-Thumbs.db
+Thumbs.db# Test change for pre-commit hook verification

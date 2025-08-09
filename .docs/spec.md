@@ -1,4 +1,4 @@
-# MoodOverMuscle: Appetite-Based Specification
+# MoodOverMuscle: LLM-Optimized Development Specification
 
 ## CORNERSTONE
 
@@ -144,11 +144,11 @@ enum BookingStatus {
 }
 ```
 
-## Current Appetite
+## Current Development Scope
 
 **Problem**: Solo fitness trainer needs a reliable booking system that eliminates double-bookings and provides real-time availability checking.
 
-**Appetite**: 4-6 weeks of focused development effort to achieve transaction-safe booking with calendar integration.
+**Business Boundaries**: 4-6 weeks of focused development effort to achieve transaction-safe booking with calendar integration.
 
 **Scope**: Transform existing MVP booking system into production-ready platform with conflict prevention and admin dashboard.
 
@@ -211,7 +211,7 @@ enum BookingStatus {
 
 ### Time Constraints
 
-- **4-6 Week Appetite**: Focused development sprint with clear scope boundaries
+- **4-6 Week Business Boundaries**: Focused development sprint with clear scope boundaries and quality gates
 - **Daily Progress**: Visible progress with working increments
 - **User Testing**: Emily can manually test features as they're completed
 
@@ -219,7 +219,7 @@ enum BookingStatus {
 
 ### Phase 1: Transaction Safety Foundation (Week 1-2)
 
-**Appetite**: 8-12 hours focused development
+**Business Boundaries**: 8-12 hours focused development
 
 **Deliverables**:
 
@@ -232,7 +232,7 @@ enum BookingStatus {
 
 ### Phase 2: Real-Time Availability (Week 3-4)
 
-**Appetite**: 10-15 hours focused development
+**Business Boundaries**: 10-15 hours focused development
 
 **Deliverables**:
 
@@ -245,7 +245,7 @@ enum BookingStatus {
 
 ### Phase 3: Admin Dashboard Foundation (Week 5-6)
 
-**Appetite**: 12-18 hours focused development
+**Business Boundaries**: 12-18 hours focused development
 
 **Deliverables**:
 
@@ -341,13 +341,13 @@ enum BookingStatus {
 - **Phase 2**: `/api/availability` (read availability)
 - **Phase 3**: `/api/bookings` (admin CRUD operations)
 
-## Circuit Breakers & Scope Protection
+## Quality Gates & Business Protection
 
 ### When to Stop and Re-evaluate
 
-- Transaction implementation exceeds 2 weeks effort
-- Availability API response times consistently >1 second
-- Admin dashboard requires authentication complexity beyond simple password
+- Transaction implementation exceeds 2 weeks effort and quality cannot be maintained
+- Availability API response times consistently >1 second without acceptable workarounds
+- Admin dashboard requires authentication complexity beyond simple password affecting security
 - Any feature requires breaking existing functionality
 
 ### Scope Boundaries
@@ -356,15 +356,15 @@ enum BookingStatus {
 - **Out of Scope**: Multi-user auth, payment processing, advanced analytics
 - **Future Scope**: Multi-trainer support, customer portal, mobile app
 
-### Appetite Renewal Triggers
+### Business Boundary Expansion Triggers
 
-- Core transaction safety completed ahead of schedule
-- Emily requests specific admin features during testing
-- Performance improvements show significant user benefit
+- Core transaction safety completed ahead of schedule with quality maintained
+- Emily requests specific admin features during testing within quality constraints
+- Performance improvements show significant user benefit without compromising quality
 - New business requirements emerge from usage patterns
 
 ---
 
 **Last Updated**: 2025-08-03  
-**Current Appetite**: 4-6 weeks focused development  
+**Current Business Boundaries**: 4-6 weeks focused development within quality gates  
 **Next Review**: Weekly progress check-ins with scope adjustment

@@ -29,6 +29,10 @@ pnpm run quality-gates:critical
 # Update institutional memory
 pnpm run memory:update
 
+# Run Semgrep security analysis
+echo "🔒 Running Semgrep security analysis..."
+pnpm run security:semgrep
+
 # Run traditional pre-commit tasks
 echo "📝 Running lint-staged (ESLint + Prettier)..."
 pnpm exec lint-staged

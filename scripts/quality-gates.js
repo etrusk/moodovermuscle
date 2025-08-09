@@ -111,6 +111,11 @@ class QualityGateRunner {
         description: 'Security vulnerability detection'
       },
       {
+        name: 'security-semgrep',
+        command: 'pnpm run security:semgrep',
+        description: 'Semgrep static security analysis'
+      },
+      {
         name: 'build-verify',
         command: 'pnpm run build >/dev/null 2>&1',
         description: 'Production build verification'

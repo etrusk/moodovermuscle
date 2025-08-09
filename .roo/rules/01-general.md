@@ -13,6 +13,22 @@
 - **Testing**: Jest, Playwright, accessibility testing
 - **Quality**: ESLint, Prettier, Husky pre-commit hooks
 
+## Role Configuration
+
+**DISALLOWED ROLES** (default Roo modes not permitted):
+- `code` - Use `implementation-specialist` for development work
+- `debug` - Use `investigation-specialist` for troubleshooting
+- `ask` - Use `navigator` for strategic questions and coordination
+- `architect` - Use `navigator` for architectural planning
+- `orchestrator` - Use `navigator` for multi-phase coordination
+
+**ALLOWED ROLES** (specialized MoodOverMuscle modes):
+- `implementation-specialist` - Appetite-constrained development execution
+- `investigation-specialist` - Systematic issue diagnosis and resolution
+- `quality-specialist` - Comprehensive testing and production readiness
+- `deployment-specialist` - Production deployment and client approval workflows
+- `navigator` - Strategic project coordination and business context integration
+
 ## Mandatory Quality Gates
 
 **CRITICAL GATES** (must pass before any commit):

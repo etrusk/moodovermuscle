@@ -1,25 +1,25 @@
-# Appetite-Based Development Workflows
+# LLM-Optimized Development Workflows
 
 ## Workflow Philosophy
 
-**Appetite-Driven Development**: Workflows optimized for single developer + agentic LLM collaboration with time-boxed appetites rather than deadline-driven timelines.
+**LLM-Optimized Development**: Workflows optimized for single developer + agentic LLM collaboration with business boundary constraints and quality-first principles rather than deadline-driven timelines.
 
 **Core Principles**:
 
-- **Quality Gates Over Speed**: Critical gates never bypassed regardless of appetite pressure
+- **Quality Gates Over Speed**: Critical gates never bypassed regardless of business boundary pressure
 - **Agent Collaboration**: Workflows designed for Architect → Code → Debug → Resolution handoffs
-- **Scope Flexibility**: Features shaped to fit appetite rather than appetite extended for features
-- **Institutional Memory**: Patterns captured for future appetite estimation and risk assessment
+- **Scope Flexibility**: Features shaped to fit business boundaries rather than boundaries extended for features
+- **Institutional Memory**: Patterns captured for future business boundary estimation and risk assessment
 
 ## Git & Deployment Process
 
 ### Branch Strategy: Preview-First GitHub Flow
 
 - **Main Branch**: `main` (production-ready, auto-deploys to Vercel Production)
-- **Feature Development**: Appetite-scoped branches from main
+- **Feature Development**: Business boundary-scoped branches from main
 - **Vercel Integration**: Automatic preview deploys on all PRs (Vercel Preview environment)
 - **Preview-First Rule**: ALL functionality changes MUST go to preview for client approval before production
-- **Appetite Gates**: Required scope validation before appetite completion
+- **Quality Gates**: Required scope validation before business boundary completion
 
 #### Preview-First Workflow Requirements
 
@@ -48,10 +48,10 @@
 - Internal tooling improvements
 - Bug fixes that don't change user-facing functionality
 
-### Branch Naming Conventions (Appetite-Aware)
+### Branch Naming Conventions (Business Boundary-Aware)
 
 ```
-feature/profile-editing                    # Appetite-scoped feature
+feature/profile-editing                    # Business boundary-scoped feature
 feature/calendar-integration              # Clear scope indication
 hotfix/security-patch                     # Emergency fixes
 investigation/performance-analysis        # Investigation branch
@@ -59,8 +59,8 @@ investigation/performance-analysis        # Investigation branch
 
 **Branch Lifecycle**:
 
-- Create from main: `git checkout -b feature/appetite-description`
-- Short-lived: Complete within single appetite
+- Create from main: `git checkout -b feature/boundary-description`
+- Short-lived: Complete within single business boundary
 - Auto-delete after merge to keep repository clean
 
 ### Commit Message Standards (Conventional Commits)
@@ -161,14 +161,14 @@ git push origin [branch-name]    # Push to trigger deployment/preview
 
 See [Package.json Pre-commit Configuration](reference/tool-configurations.md#packagejson-pre-commit-configuration) for complete setup.
 
-### Pull Request Process (Appetite-Scoped)
+### Pull Request Process (Business Boundary-Scoped)
 
 #### PR Template (Quality-Focused)
 
 ```markdown
 ## Changes Made
 
-Brief description of what was implemented within appetite scope.
+Brief description of what was implemented within business boundary scope.
 
 ## Preview-First Workflow Compliance
 
@@ -194,11 +194,11 @@ Brief description of what was implemented within appetite scope.
 - [ ] E2E tests cover critical user paths
 - [ ] Manual testing completed on preview deployment
 
-## Appetite Compliance
+## Business Boundary Compliance
 
-- **Original Scope**: [Brief appetite description]
+- **Original Scope**: [Brief business boundary description]
 - **Delivered Scope**: [What was actually completed]
-- **Circuit Breakers**: None triggered | [Description if scope expanded]
+- **Quality Gates**: All passed | [Description if quality gates triggered]
 
 ## Review Notes
 
@@ -207,14 +207,14 @@ Any specific areas requiring reviewer attention or context for decisions made.
 
 ### Development Workflow (Quality-First)
 
-1. **Appetite Planning**: Review .docs/spec.md for current appetite scope
+1. **Business Boundary Planning**: Review .docs/spec.md for current business boundary scope
 2. **Design Review** (for complex features): Document design decisions before implementation
 3. **Branch Creation**: `git checkout -b feature/descriptive-name`
 4. **Environment Verification**: Ensure dev server, tests, and tools working
 5. **TDD Implementation**: Red-green-refactor with continuous quality gates
 6. **Continuous Integration**: Pre-commit hooks enforce quality automatically
 7. **Agent Collaboration**: Use .docs/handoffs/ templates for mode transitions
-8. **Quality Validation**: All gates must pass regardless of appetite pressure
+8. **Quality Validation**: All gates must pass regardless of business boundary pressure
 9. **Preview Deployment**: Automatic Vercel preview for functionality changes
 10. **Client Approval**: Required for all functionality changes via preview URL
 11. **Peer Review**: Required PR review before merge to main
@@ -362,7 +362,7 @@ npm run a11y:contrast         # Color contrast validation
 1. **Design Documentation**: Create design document in `.docs/designs/[feature-name].md`
 2. **Stakeholder Review**: Share with human navigator for business logic validation
 3. **Technical Review**: Validate against architectural constraints and patterns
-4. **Implementation Planning**: Break down into appetite-sized tasks
+4. **Implementation Planning**: Break down into business boundary-sized tasks
 5. **Pattern Identification**: Identify reusable patterns for institutional memory
 
 ### Design Document Template
@@ -380,7 +380,7 @@ npm run a11y:contrast         # Color contrast validation
 
 ## Implementation Plan
 
-[Breakdown into appetite-sized tasks]
+[Breakdown into business boundary-sized tasks]
 
 ## Risks and Mitigations
 
@@ -542,12 +542,12 @@ git push origin main             # Push to main (or feature branch)
 ```markdown
 ## Implementation Complete Context
 
-**Implementation Summary**: [What was completed within appetite]
+**Implementation Summary**: [What was completed within business boundaries]
 **Patterns Applied**: [Institutional patterns used from memory]
 **New Patterns Identified**: [Reusable patterns discovered]
 **Technical Debt**: [Any deferred items documented]
 **Quality Status**: [Critical gates passed/failed]
-**Appetite Compliance**: [Within/exceeding boundaries]
+**Business Boundary Compliance**: [Within/exceeding boundaries]
 
 ## Mandatory Cleanup Scope
 

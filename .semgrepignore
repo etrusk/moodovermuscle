@@ -1,0 +1,39 @@
+# Semgrep ignore patterns for MoodOverMuscle
+# Generated files
+**/*.generated.*
+**/generated/**
+**/*.gen.js
+**/*.gen.ts
+
+# Dependencies
+node_modules/
+.pnpm/
+.next/
+dist/
+build/
+
+# Database generated files
+prisma/generated/
+lib/generated/
+
+# Test files (optional - remove if you want to scan tests)
+# **/__tests__/**
+# **/*.test.*
+# **/*.spec.*
+
+# Config files
+.env*
+*.log
+*.pid
+*.seed
+*.pid.lock
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -79,4 +79,6 @@ temp-*.md
 .preview-workflow-state.json
 .quality-gates-report.json
 
-
+# Docker data directories
+.docker/postgres-data/
+.docker/

@@ -203,6 +203,10 @@ This index helps agents find proven implementation approaches before starting ne
 - [Conventional Commit Pattern](./git-conventional-commit-pattern.md) - structured commit messages with pattern and investigation references
 - [Quality-Gated Commit Pattern](./git-quality-gated-commit-pattern.md) - mandatory quality gate execution before commits
 
+**Package Management & Maintenance**
+
+- [Package Version Testing Cleanup Pattern](./package-version-testing-cleanup-pattern.md) - systematic cleanup after testing multiple package versions, removes orphaned packages and cache
+
 **Integration with Other Indexes**:
 
 - **Investigations**: When debugging, check if pattern was implemented correctly
@@ -306,8 +310,8 @@ This index helps agents find proven implementation approaches before starting ne
 
 ## Current Pattern Statistics
 
-- **Total Documented Patterns**: 46 (up from 45)
-- **Recently Added**: 2 patterns (2025-08-09) - LLM-Optimized Testing Approach Pattern, Local Development Setup Pattern
+- **Total Documented Patterns**: 47 (up from 46)
+- **Recently Added**: 1 pattern (2025-10-04) - Package Version Testing Cleanup Pattern
 - **Pattern Coverage**: Complete for identified business needs
 - **Implementation Complexity Resolved**: 30+ units
 - **Critical Gaps Remaining**: None identified

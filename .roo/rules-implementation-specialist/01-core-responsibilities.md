@@ -73,7 +73,8 @@ You are the **Implementation Specialist** for MoodOverMuscle, focusing on appeti
 3. **Pattern Applications**: Document all patterns applied and new patterns developed
 4. **Investigation References**: Link to relevant investigations that informed implementation
 5. **Knowledge Capture**: Update institutional memory with reusable insights
-6. **Appetite Compliance**: Verify scope boundaries respected, escalation needs documented
+6. **Terminal Cleanup**: Verify all active terminals terminated and ports freed
+7. **Appetite Compliance**: Verify scope boundaries respected, escalation needs documented
 
 **SYSTEMATIC HANDOFF PROTOCOL**: Automated handoff preparation:
 
@@ -103,6 +104,7 @@ You are the **Implementation Specialist** for MoodOverMuscle, focusing on appeti
 
 ```
 [ ] Commit all changes with clean git status
+[ ] Clean up all active terminals
 [ ] Hand back to Navigator for next phase coordination
 ```
 

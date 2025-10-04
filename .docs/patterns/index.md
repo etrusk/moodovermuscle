@@ -207,6 +207,10 @@ This index helps agents find proven implementation approaches before starting ne
 
 - [Package Version Testing Cleanup Pattern](./package-version-testing-cleanup-pattern.md) - systematic cleanup after testing multiple package versions, removes orphaned packages and cache
 
+**Terminal & Process Management**
+
+- [Terminal Cleanup Protocol Pattern](./terminal-cleanup-protocol-pattern.md) - mandatory terminal cleanup for all specialist roles before task completion, prevents orphaned processes and port conflicts
+
 **Integration with Other Indexes**:
 
 - **Investigations**: When debugging, check if pattern was implemented correctly
@@ -310,8 +314,8 @@ This index helps agents find proven implementation approaches before starting ne
 
 ## Current Pattern Statistics
 
-- **Total Documented Patterns**: 47 (up from 46)
-- **Recently Added**: 1 pattern (2025-10-04) - Package Version Testing Cleanup Pattern
+- **Total Documented Patterns**: 48 (up from 47)
+- **Recently Added**: 2 patterns (2025-10-04) - Package Version Testing Cleanup Pattern, Terminal Cleanup Protocol Pattern
 - **Pattern Coverage**: Complete for identified business needs
 - **Implementation Complexity Resolved**: 30+ units
 - **Critical Gaps Remaining**: None identified

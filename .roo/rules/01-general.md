@@ -52,6 +52,31 @@ npm run build:verify      # Build verification
 - **Security issues**: Must resolve before commit, escalate if appetite impact
 - **Build failures**: Resolve compilation/build issues within scope
 
+## Mandatory Terminal Cleanup
+
+**CRITICAL REQUIREMENT**: All active terminals MUST be cleaned up before task completion.
+
+### Terminal Cleanup Protocol
+
+- **Identify Active Terminals**: Check for any running processes started during task
+- **Graceful Termination**: Stop processes cleanly (Ctrl+C or SIGTERM)
+- **Force Termination**: Kill hanging processes that don't respond
+- **Verify Cleanup**: Confirm no orphaned terminals remain
+
+### Common Cleanup Commands
+
+```bash
+# Check for active development processes
+ps aux | grep -E "npm|node|pnpm|yarn|next" | grep -v grep
+
+# Clean up common processes if found
+pkill -f "npm run dev" 2>/dev/null || true
+pkill -f "npm run test:watch" 2>/dev/null || true
+pkill -f "next dev" 2>/dev/null || true
+```
+
+For detailed terminal cleanup procedures, see [Terminal Cleanup Protocol](04-terminal-cleanup.md).
+
 ## Institutional Memory Compliance
 
 ### Pattern Discovery Protocol

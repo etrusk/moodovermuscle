@@ -44,6 +44,7 @@ This index captures organizational learning to improve future appetite estimatio
 - [debugging-failures-and-recovery-strategies.md](./debugging-failures-and-recovery-strategies.md) - Root cause analysis and recovery strategies from major failures and debugging sessions
 - [complexity-estimation-framework-and-historical-calibration.md](./complexity-estimation-framework-and-historical-calibration.md) - Complexity estimation accuracy and calibration over time with historical data
 - [technical-debt-resolution-achievements.md](./technical-debt-resolution-achievements.md) - Major technical debt resolution successes with appetite management and pattern effectiveness metrics
+- [technical-debt-management-approach.md](./technical-debt-management-approach.md) - Comprehensive technical debt management methodology focusing on LEAN DOCUMENTATION PROTOCOL
 
 **Agent-Specific Memory Banks**
 
@@ -63,6 +64,8 @@ This index captures organizational learning to improve future appetite estimatio
 **When setting appetite boundaries** → Check: [`complexity-estimation-framework-and-historical-calibration.md`](./complexity-estimation-framework-and-historical-calibration.md) for realistic time allocation
 **When choosing technical approaches** → Check: [`successful-testing-patterns-and-proven-approaches.md`](./successful-testing-patterns-and-proven-approaches.md) for established patterns that work
 **When reviewing technical debt resolution examples** → Check: [`technical-debt-resolution-achievements.md`](./technical-debt-resolution-achievements.md) for successful resolution strategies and appetite management
+
+**LEAN DEBT MANAGEMENT APPROACH**: All resolved technical debt items are immediately migrated from active debt tracking to institutional memory to maintain ultra-lean daily documentation. The debt register focuses exclusively on current active items while preserving all resolution knowledge in structured memory format for pattern recognition and future reference.
 
 **Enhanced Semantic Search Terms**:
 

@@ -348,7 +348,7 @@ describe('Error Scenarios Integration Tests', () => {
       expect(response.status).toBe(500)
       const responseData = await response.json()
       expect(responseData.message).toBe('Failed to submit booking.')
-      expect(responseData.error).toBe('Failed to create booking in database.')
+      expect(responseData.error).toBe('Failed to create booking in database: Database connection failed')
     })
   })
 

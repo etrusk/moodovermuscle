@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: moodovermuscle_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: moodovermuscle
+      POSTGRES_PASSWORD: secure_password
+      POSTGRES_DB: moodovermuscle_dev
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/postgres-init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U moodovermuscle -d moodovermuscle_dev"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    command: >
+      postgres 
+      -c shared_preload_libraries=pg_stat_statements
+      -c pg_stat_statements.track=all
+      -c max_connections=200
+      -c shared_buffers=256MB
+      -c effective_cache_size=1GB
+      -c work_mem=4MB
+      -c maintenance_work_mem=64MB
+      -c random_page_cost=1.1
+      -c temp_file_limit=2GB
+      -c log_min_duration_statement=200ms
+      -c log_checkpoints=on
+      -c log_connections=on
+      -c log_disconnections=on
+      -c log_lock_waits=on
+
+volumes:
+  postgres_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/.docker/postgres-data
+
+networks:
+  default:
+    name: moodovermuscle_network

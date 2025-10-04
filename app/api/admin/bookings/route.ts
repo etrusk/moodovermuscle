@@ -23,6 +23,7 @@ export async function GET(request: NextRequest) {
     const dateTo = searchParams.get('dateTo');
 
     // Build where clause
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: any = {};
     
     if (status && status !== 'ALL') {
@@ -36,7 +37,7 @@ export async function GET(request: NextRequest) {
       ];
     }
     
-    if (dateFrom || dateTo) {
+    if (dateFrom ?? dateTo) {
       where.date = {};
       if (dateFrom) {
         where.date.gte = new Date(dateFrom);
@@ -104,6 +105,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Update booking status with transaction safety and status tracking
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = await prisma.$transaction(async (tx: any) => {
       // Verify booking exists and get current status
       const existingBooking = await tx.booking.findUnique({

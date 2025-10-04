@@ -248,7 +248,7 @@ export default function BookingsPage(): React.JSX.Element {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="ALL">All Statuses</SelectItem>
-                  <SelectItem value="PENDING">Pending</SelectItem>
+                  <SelectItem value="PENDING" data-testid="status-filter-pending">Pending</SelectItem>
                   <SelectItem value="CONFIRMED">Confirmed</SelectItem>
                   <SelectItem value="CANCELLED">Cancelled</SelectItem>
                   <SelectItem value="COMPLETED">Completed</SelectItem>
@@ -302,7 +302,7 @@ export default function BookingsPage(): React.JSX.Element {
             <CardContent className="p-6">
               <div className="text-center py-8">
                 <Calendar className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No bookings found</h3>
+                <h2 className="text-lg font-medium text-gray-900 mb-2">No bookings found</h2>
                 <p className="text-gray-600">
                   {bookings.length === 0 
                     ? "No bookings have been created yet." 
@@ -323,8 +323,12 @@ export default function BookingsPage(): React.JSX.Element {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center gap-3">
-                      <h3 className="text-lg font-semibold">{booking.name}</h3>
-                      <Badge className={statusColors[booking.status]}>
+                      <h2 className="text-lg font-semibold">{booking.name}</h2>
+                      <Badge
+                        className={statusColors[booking.status]}
+                        data-testid={`booking-${booking.id}-status`}
+                        aria-label={`Booking status: ${statusLabels[booking.status]}`}
+                      >
                         {statusLabels[booking.status]}
                       </Badge>
                     </div>
@@ -349,9 +353,16 @@ export default function BookingsPage(): React.JSX.Element {
                     {/* Quick Actions */}
                     {getNextStatus(booking.status) && (
                       <Button
-                        onClick={() => updateBookingStatus(booking.id, getNextStatus(booking.status)!)}
+                        onClick={() => {
+                          const nextStatus = getNextStatus(booking.status);
+                          if (nextStatus) {
+                            updateBookingStatus(booking.id, nextStatus);
+                          }
+                        }}
                         variant="outline"
                         size="sm"
+                        data-testid={`booking-${booking.id}-mark-as-${getNextStatus(booking.status)?.toLowerCase()}`}
+                        aria-label={`Mark ${booking.name}'s booking as ${statusLabels[getNextStatus(booking.status) as keyof typeof statusLabels]}`}
                       >
                         Mark as {statusLabels[getNextStatus(booking.status) as keyof typeof statusLabels]}
                       </Button>
@@ -363,6 +374,8 @@ export default function BookingsPage(): React.JSX.Element {
                         variant="outline"
                         size="sm"
                         className="text-red-600 border-red-200 hover:bg-red-50"
+                        data-testid={`booking-${booking.id}-cancel`}
+                        aria-label={`Cancel ${booking.name}'s booking`}
                       >
                         Cancel
                       </Button>
@@ -371,15 +384,15 @@ export default function BookingsPage(): React.JSX.Element {
                     {/* Detail Modal */}
                     <Dialog>
                       <DialogTrigger asChild>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" aria-describedby={`booking-${booking.id}-details`}>
                           View Details
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto" aria-labelledby={`booking-${booking.id}-title`} aria-describedby={`booking-${booking.id}-details`}>
                         <DialogHeader>
-                          <DialogTitle className="flex items-center gap-3">
-                            <span>Booking Details</span>
-                            <Badge className={statusColors[booking.status]}>
+                          <DialogTitle id={`booking-${booking.id}-title`} className="flex items-center gap-3">
+                            <span>Booking Details - {booking.name}</span>
+                            <Badge className={statusColors[booking.status]} aria-label={`Status: ${statusLabels[booking.status]}`}>
                               {statusLabels[booking.status]}
                             </Badge>
                           </DialogTitle>
@@ -461,7 +474,7 @@ export default function BookingsPage(): React.JSX.Element {
                           </div>
                           
                           {/* Client Information */}
-                          {(booking.goals || booking.experience) && (
+                          {(booking.goals ?? booking.experience) && (
                             <div>
                               <h4 className="font-semibold mb-3 flex items-center gap-2">
                                 <Target className="h-4 w-4" />
@@ -501,7 +514,12 @@ export default function BookingsPage(): React.JSX.Element {
                             <div className="flex flex-wrap gap-2">
                               {getNextStatus(booking.status) && (
                                 <Button
-                                  onClick={() => updateBookingStatus(booking.id, getNextStatus(booking.status)!)}
+                                  onClick={() => {
+                                    const nextStatus = getNextStatus(booking.status);
+                                    if (nextStatus) {
+                                      updateBookingStatus(booking.id, nextStatus);
+                                    }
+                                  }}
                                   size="sm"
                                 >
                                   Mark as {statusLabels[getNextStatus(booking.status) as keyof typeof statusLabels]}

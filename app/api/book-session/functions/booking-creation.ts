@@ -16,6 +16,19 @@ export class BookingConflictError extends Error {
   }
 }
 
+function handleBookingError(error: unknown): never {
+  if (error instanceof BookingConflictError) {
+    throw error
+  }
+  console.error('Error creating booking:', error)
+  console.error('Error details:', {
+    name: error instanceof Error ? error.name : 'Unknown',
+    message: error instanceof Error ? error.message : String(error),
+    stack: error instanceof Error ? error.stack : undefined
+  })
+  throw new Error(`Failed to create booking in database: ${error instanceof Error ? error.message : String(error)}`)
+}
+
 export async function createBooking(
   bookingData: BookingData
 ): Promise<Booking> {
@@ -61,10 +74,6 @@ export async function createBooking(
 
     return newBooking
   } catch (error) {
-    if (error instanceof BookingConflictError) {
-      throw error
-    }
-    console.error('Error creating booking:', error)
-    throw new Error('Failed to create booking in database.')
+    handleBookingError(error)
   }
 }

@@ -1,10 +1,10 @@
 +++
 [metadata]
 type = "investigation_index"
-last_updated = "2025-08-06"
-total_investigations = 30
+last_updated = "2025-10-04"
+total_investigations = 31
 active_investigations = 1
-resolved_investigations = 29
+resolved_investigations = 30
 token_cost_estimate = "medium"
 
 [tracking_metrics]
@@ -62,6 +62,7 @@ This index helps agents quickly find relevant investigations when encountering i
 - [Availability Conflicts](./booking-availability-conflicts.md) - double-booking prevention and calendar sync
 - [Payment Processing](./booking-payment-processing.md) - payment gateway integration issues
 - [Notification Delivery](./booking-notification-delivery.md) - email/SMS delivery failures
+- [Time Format Constraint Fix](./booking-time-format-constraint-fix.md) - database constraint and format conversion issues [RESOLVED]
 
 **Performance**
 
@@ -123,6 +124,7 @@ This index helps agents quickly find relevant investigations when encountering i
 - "Login doesn't work" → [`auth-login-flow-errors.md`](./auth-login-flow-errors.md)
 - "Page loads slowly" → [`performance-database.md`](./performance-database.md), [`performance-bundle-size.md`](./performance-bundle-size.md)
 - "Form submission fails" → [`ui-form-validation.md`](./ui-form-validation.md), [`api-response-parsing.md`](./api-response-parsing.md)
+- "Bookings not saving to database" → [`booking-time-format-constraint-fix.md`](./booking-time-format-constraint-fix.md)
 - "Double bookings occur" → [`booking-availability-conflicts.md`](./booking-availability-conflicts.md)
 - "Emails not received" → [`booking-notification-delivery.md`](./booking-notification-delivery.md)
 - "Payment declined unexpectedly" → [`booking-payment-processing.md`](./booking-payment-processing.md)

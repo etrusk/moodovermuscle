@@ -107,6 +107,11 @@ When developing new reusable approaches:
 - Track complexity lessons for [`.docs/memory/index.md`](.docs/memory/index.md)
 - Preserve successful approaches for institutional memory
 
+### Technical Debt Resolution
+- **IMMEDIATE MEMORY MIGRATION**: All resolved technical debt items MUST be moved to [`.docs/memory/technical-debt-resolution-achievements.md`](.docs/memory/technical-debt-resolution-achievements.md) immediately upon completion
+- **LEAN DOCUMENTATION**: Active debt register [`.docs/debt.md`](.docs/debt.md) contains only unresolved items to maintain focus
+- **INSTITUTIONAL MEMORY**: Preserve all resolution strategies and success metrics for pattern recognition and future reference
+
 ## Handback Protocol
 
 ### Universal Completion Requirement

@@ -80,7 +80,7 @@ describe('createBooking', () => {
     mockTx.booking.findFirst.mockResolvedValue(null)
     mockTx.booking.create.mockRejectedValue(new Error('DB error'))
     await expect(createBooking(mockBookingData)).rejects.toThrow(
-      'Failed to create booking in database.'
+      'Failed to create booking in database: DB error'
     )
   })
 })

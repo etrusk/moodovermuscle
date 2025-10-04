@@ -275,10 +275,9 @@ describe('BookingsPage Component', () => {
       // Filter by PENDING status
       const statusSelect = screen.getByRole('combobox')
       await user.click(statusSelect)
-      // Use more specific selector to avoid multiple elements
-      await user.click(screen.getAllByText('Pending').find(el =>
-        el.tagName === 'SPAN' && el.getAttribute('id')?.includes('radix')
-      ) || screen.getAllByText('Pending')[1])
+      // Use data-testid for more reliable selection
+      const pendingOption = screen.getByTestId('status-filter-pending')
+      await user.click(pendingOption)
 
       // Should show filtered count
       await waitFor(() => {
@@ -335,10 +334,9 @@ describe('BookingsPage Component', () => {
       // Apply a status filter
       const statusSelect = screen.getByRole('combobox')
       await user.click(statusSelect)
-      // Use more specific selector to avoid multiple elements
-      await user.click(screen.getAllByText('Pending').find(el =>
-        el.tagName === 'SPAN' && el.getAttribute('id')?.includes('radix')
-      ) || screen.getAllByText('Pending')[1])
+      // Use data-testid for more reliable selection
+      const pendingOption = screen.getByTestId('status-filter-pending')
+      await user.click(pendingOption)
 
       // Apply search filter
       const searchInput = screen.getByPlaceholderText('Search by name, email, or service')

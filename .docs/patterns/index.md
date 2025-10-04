@@ -1,9 +1,9 @@
 +++
 [metadata]
 type = "pattern_index"
-last_updated = "2025-08-06"
-total_patterns = 43
-documented_patterns = 43
+last_updated = "2025-08-09"
+total_patterns = 45
+documented_patterns = 45
 missing_patterns = 0
 token_cost_estimate = "medium"
 
@@ -40,6 +40,8 @@ This index helps agents find proven implementation approaches before starting ne
 - [Connection Pool Pattern](./db-connection-pool-pattern.md) - efficient database connection management
 - [Migration Pattern](./db-migration-pattern.md) - safe schema changes and rollback procedures
 - [Audit Trail Pattern](./db-audit-trail-pattern.md) - change tracking and history preservation
+- [Local Development Setup Pattern](./local-development-setup-pattern.md) - Docker PostgreSQL with persistent volumes, environment configuration, and automated verification
+
 
 **API Endpoints**
 
@@ -95,6 +97,7 @@ This index helps agents find proven implementation approaches before starting ne
 - [E2E Test Pattern](./test-e2e-pattern.md) - end-to-end user journey testing
 - [Mock Pattern](./test-mock-pattern.md) - external service mocking strategies
 - [Admin Component Testing Pattern](./admin-component-testing-pattern.md) - comprehensive admin interface testing with authentication, API integration, and workflows
+- [LLM-Optimized Testing Approach Pattern](./llm-optimized-testing-approach-pattern.md) - multi-layer business protection with strategic exclusions for LLM development teams
 
 **Quality Assurance**
 
@@ -303,8 +306,8 @@ This index helps agents find proven implementation approaches before starting ne
 
 ## Current Pattern Statistics
 
-- **Total Documented Patterns**: 44 (up from 43)
-- **Recently Added**: 2 patterns (2025-08-06) - Lean Requirements Tracking, JWT Configuration Debugging
+- **Total Documented Patterns**: 46 (up from 45)
+- **Recently Added**: 2 patterns (2025-08-09) - LLM-Optimized Testing Approach Pattern, Local Development Setup Pattern
 - **Pattern Coverage**: Complete for identified business needs
 - **Implementation Complexity Resolved**: 30+ units
 - **Critical Gaps Remaining**: None identified

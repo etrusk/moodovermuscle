@@ -51,6 +51,9 @@ function makeJsonRequest(data: Record<string, unknown>): Request {
 describe('Booking Transactions Integration Tests', () => {
   beforeEach(async () => {
     await setupIntegrationTest()
+    // Reset all mocks
+    jest.clearAllMocks()
+    // Setup proper transaction mock that passes the transaction client
     ;(mockPrisma.$transaction as jest.Mock).mockImplementation(async (cb: any) => await cb(mockPrisma))
   })
 
@@ -93,6 +96,9 @@ describe('Booking Transactions Integration Tests', () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     }
+    
+    // Clear previous mock calls
+    ;(mockPrisma.booking.create as jest.Mock).mockClear()
     
     // Mock the availability checking to find the conflict - this will be used by validateRealTimeAvailability
     ;(mockPrisma.booking.findFirst as jest.Mock).mockResolvedValue(conflictBooking)

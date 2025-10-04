@@ -12,8 +12,8 @@
 
 -- Add partial unique constraint to prevent confirmed/pending bookings at same time
 -- This allows cancelled bookings to exist without blocking the slot
-CREATE UNIQUE INDEX CONCURRENTLY "booking_active_time_conflict_prevention" 
-ON "Booking" ("date", "time") 
+CREATE UNIQUE INDEX "booking_active_time_conflict_prevention"
+ON "Booking" ("date", "time")
 WHERE ("status" IN ('PENDING', 'CONFIRMED'));
 
 -- Add check constraint to ensure booking times are during business hours
@@ -45,10 +45,10 @@ CHECK (
 );
 
 -- Create index for efficient monitoring queries
-CREATE INDEX CONCURRENTLY "booking_monitoring_idx" 
+CREATE INDEX "booking_monitoring_idx"
 ON "Booking" ("status", "date", "createdAt")
 WHERE "status" IN ('PENDING', 'CONFIRMED');
 
 -- Create index for conflict detection logging
-CREATE INDEX CONCURRENTLY "booking_conflict_detection_idx" 
+CREATE INDEX "booking_conflict_detection_idx"
 ON "Booking" ("date", "time", "status", "updatedAt");

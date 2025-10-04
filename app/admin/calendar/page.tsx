@@ -521,7 +521,7 @@ export default function AdminCalendarPage(): React.JSX.Element {
               </div>
               
               {/* Client Information */}
-              {(selectedBooking.goals || selectedBooking.experience) && (
+              {(selectedBooking.goals ?? selectedBooking.experience) && (
                 <div>
                   <h4 className="font-semibold mb-3 flex items-center gap-2">
                     <Target className="h-4 w-4" />
@@ -562,12 +562,15 @@ export default function AdminCalendarPage(): React.JSX.Element {
                   {getNextStatus(selectedBooking.status) && (
                     <Button
                       onClick={() => {
-                        updateBookingStatus(selectedBooking.id, getNextStatus(selectedBooking.status)!)
+                        const nextStatus = getNextStatus(selectedBooking.status);
+                        if (nextStatus) {
+                          updateBookingStatus(selectedBooking.id, nextStatus);
+                        }
                         setSelectedBooking(null)
                       }}
                       size="sm"
                     >
-                      Mark as {statusLabels[getNextStatus(selectedBooking.status)! as keyof typeof statusLabels]}
+                      Mark as {statusLabels[getNextStatus(selectedBooking.status) as keyof typeof statusLabels]}
                     </Button>
                   )}
                   

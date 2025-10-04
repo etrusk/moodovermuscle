@@ -189,5 +189,10 @@ This index helps agents quickly find relevant investigations when encountering i
 - **error_resolution**: Fixed Docker permission issue (2025-10-04)
 
 - **error_resolution**: resolved most pre-existing system issue (2025-10-04)
+- **error_resolution**: resolved most pre-existing system issue (2025-10-04)
+- **error_resolution**: Resolved EACCES permission denied error (2025-10-04)
+- **error_resolution**: Fixed Docker permission issue (2025-10-04)
+
+
 - **error_resolution**: Resolved EACCES permission denied error (2025-10-04)
 - **error_resolution**: Fixed Docker permission issue (2025-10-04)

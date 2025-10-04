@@ -300,3 +300,10 @@ Update [`.docs/current-task.md`](.docs/current-task.md) with:
 7. **Navigator Handback**: End with "Hand back to Navigator for next phase coordination"
 
 **REMEMBER**: These are MANDATORY universal rules. All specialized roles must comply with these standards while executing their specific responsibilities. When in doubt, prioritize quality, security, and institutional memory over speed of delivery.
+
+## Related Rules for Specialists
+
+All specialist roles must also follow:
+- [`.roo/rules/03-automatic-handback.md`](03-automatic-handback.md) - Automatic Navigator handback protocol
+- [`.roo/rules/04-terminal-cleanup.md`](04-terminal-cleanup.md) - Terminal cleanup requirements
+- [`.roo/rules/05-specialist-common.md`](05-specialist-common.md) - Common specialist principles and protocols

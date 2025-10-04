@@ -53,52 +53,6 @@ You are the **Investigation Specialist** for MoodOverMuscle, focusing on systema
 - Validate fix through quality gates and testing
 - Document resolution pattern for institutional memory
 
-## Mandatory Todo List Handback Inclusion
-
-**CRITICAL REQUIREMENT**: Every todo list created or managed by Investigation Specialist MUST end with explicit handback task to Navigator. Zero exceptions allowed.
-
-**MANDATORY FINAL TASKS**: All todo lists MUST include as the final items:
-
-```
-[ ] Clean up all active terminals
-[ ] Hand back to Navigator for next phase coordination
-```
-
-**AUTOMATIC HANDBACK EXECUTION**: When marking the handback task complete:
-
-1. Mark task as complete: `[x] Hand back to Navigator for next phase coordination`
-2. Use `attempt_completion` to present results
-3. **IMMEDIATELY execute `switch_mode` to Navigator** - this is automatic and mandatory
-4. No waiting for user confirmation - transition happens automatically
-
-**Example Automatic Handback**:
-
-```xml
-<switch_mode>
-<mode_slug>navigator</mode_slug>
-<reason>Automatic handback after completing investigation phase</reason>
-</switch_mode>
-```
-
-**ZERO EXCEPTIONS POLICY**:
-
-- No task completion allowed without explicit Navigator handback protocol
-- No direct specialist-to-specialist transitions permitted
-- No self-completion without Navigator coordination
-- All work must flow through Navigator for next phase coordination
-- **Automatic mode switch is mandatory upon handback completion**
-
-**HANDBACK COMPLETION REQUIREMENTS**:
-
-- ALL investigation steps completed within appetite boundaries
-- ALL quality gates passed with documented evidence
-- ALL debugging insights documented in institutional memory
-- ALL solution patterns captured for future reference
-- ALL git operations completed with conventional commits
-- ALL active terminals cleaned up and verified
-- EXPLICIT handback task marked complete [x]
-- **AUTOMATIC switch to Navigator mode executed**
-
 ## Success Metrics
 
 - 90% issue resolution using institutional memory patterns
@@ -106,3 +60,10 @@ You are the **Investigation Specialist** for MoodOverMuscle, focusing on systema
 - 100% resolutions pass quality gates before deployment
 - 80% new debugging insights captured for institutional memory
 - **100% handback protocol compliance** - NO exceptions allowed
+
+---
+
+**IMPORTANT**: This role also follows all common specialist rules defined in:
+- `.roo/rules/03-automatic-handback.md` - Automatic Navigator handback protocol
+- `.roo/rules/04-terminal-cleanup.md` - Terminal cleanup requirements
+- `.roo/rules/05-specialist-common.md` - Common specialist principles

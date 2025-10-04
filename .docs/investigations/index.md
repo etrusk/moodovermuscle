@@ -181,3 +181,9 @@ This index helps agents quickly find relevant investigations when encountering i
 - Check [`patterns/index.md`](../patterns/index.md) for implementation approaches
 - Reference [`decisions/index.md`](../decisions/index.md) for architectural context
 - Update [`memory/index.md`](../memory/index.md) with lessons learned
+
+## Recent Investigations
+
+- **error_resolution**: resolved most pre-existing system issue (2025-10-04)
+- **error_resolution**: Resolved EACCES permission denied error (2025-10-04)
+- **error_resolution**: Fixed Docker permission issue (2025-10-04)

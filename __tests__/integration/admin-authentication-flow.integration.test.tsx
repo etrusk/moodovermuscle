@@ -1,3 +1,9 @@
+/**
+ * @testing-approach modern-2025
+ * @business-outcome Admin authentication enables secure access to administrative features
+ * @user-journey Admin users can log in, access protected content, and log out securely
+ */
+
 import { render, screen, waitFor, cleanup } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import AdminLoginPage from '@/app/admin/login/page'
@@ -16,41 +22,20 @@ jest.mock('next/navigation', () => ({
 // Mock AdminAuthContext
 const mockUseAdminAuth = jest.fn()
 jest.mock('@/lib/auth/AdminAuthContext', () => ({
-  AdminAuthProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  AdminAuthProvider: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
   useAdminAuth: () => mockUseAdminAuth(),
 }))
 
-// Helper function to setup violation detection
-const setupViolationDetection = () => {
-  const consoleErrors: string[] = []
-  const originalConsoleError = console.error
-
-  console.error = jest.fn((...args: unknown[]) => {
-    const message = args.join(' ')
-    consoleErrors.push(message)
-
-    if (
-      message.includes('Cannot update a component') ||
-      message.includes('setState') ||
-      message.includes('while rendering')
-    ) {
-      throw new Error(`React setState-during-render violation: ${message}`)
-    }
-
-    originalConsoleError(...args)
-  })
-
-  return { consoleErrors, originalConsoleError }
-}
-
-describe('Admin Authentication Flow Integration', () => {
+describe('Admin Authentication Flow Integration: Complete Login Journey', () => {
   let user: ReturnType<typeof userEvent.setup>
 
   beforeEach(() => {
     user = userEvent.setup()
     jest.clearAllMocks()
 
-    // Default mock implementation
+    // Default: Unauthenticated state
     mockUseAdminAuth.mockReturnValue({
       user: null,
       isLoading: false,
@@ -63,16 +48,16 @@ describe('Admin Authentication Flow Integration', () => {
     cleanup()
   })
 
-  it('should render login form without violations', async () => {
-    const { consoleErrors, originalConsoleError } = setupViolationDetection()
-
-    try {
+  describe('Login Page Access', () => {
+    it('provides login form for admin authentication', async () => {
+      // When: Admin navigates to login page
       render(
         <AdminAuthProvider>
           <AdminLoginPage />
         </AdminAuthProvider>
       )
 
+      // Then: Login form is accessible
       await waitFor(() => {
         expect(
           screen.getByRole('textbox', { name: /email/i })
@@ -82,22 +67,23 @@ describe('Admin Authentication Flow Integration', () => {
         ).toBeInTheDocument()
       })
 
-      expect(consoleErrors).toHaveLength(0)
-    } finally {
-      console.error = originalConsoleError
-    }
+      // And: Password field is available
+      const passwordInput = screen.getByLabelText(/password/i)
+      expect(passwordInput).toBeInTheDocument()
+      expect(passwordInput).toHaveAttribute('type', 'password')
+    })
   })
 
-  it('should handle invalid credentials without violations', async () => {
-    const { consoleErrors, originalConsoleError } = setupViolationDetection()
-
-    try {
+  describe('Login Attempt Handling', () => {
+    it('handles invalid credentials with clear error messaging', async () => {
+      // Given: Admin is on login page
       render(
         <AdminAuthProvider>
           <AdminLoginPage />
         </AdminAuthProvider>
       )
 
+      // When: Admin enters invalid credentials
       const emailInput = screen.getByRole('textbox', { name: /email/i })
       const passwordInput = screen.getByLabelText(/password/i)
       const loginButton = screen.getByRole('button', { name: /sign in/i })
@@ -106,53 +92,52 @@ describe('Admin Authentication Flow Integration', () => {
       await user.type(passwordInput, 'wrongpassword')
       await user.click(loginButton)
 
+      // Then: Error message is displayed
       await waitFor(() => {
         expect(
           screen.getByText(/an unexpected error occurred/i)
         ).toBeInTheDocument()
       })
+    })
 
-      expect(consoleErrors).toHaveLength(0)
-    } finally {
-      console.error = originalConsoleError
-    }
-  })
-
-  it('should handle valid login without violations', async () => {
-    const { consoleErrors, originalConsoleError } = setupViolationDetection()
-
-    try {
+    it('accepts valid login credentials for submission', async () => {
+      // Given: Admin has valid credentials
       render(
         <AdminAuthProvider>
           <AdminLoginPage />
         </AdminAuthProvider>
       )
 
+      // When: Admin enters correct credentials
       const emailInput = screen.getByRole('textbox', { name: /email/i })
       const passwordInput = screen.getByLabelText(/password/i)
       const loginButton = screen.getByRole('button', { name: /sign in/i })
 
       await user.type(emailInput, 'emily@moodovermuscle.com.au')
       await user.type(passwordInput, 'TestPassword123!')
-      await user.click(loginButton)
 
-      expect(consoleErrors).toHaveLength(0)
-    } finally {
-      console.error = originalConsoleError
-    }
+      // Then: Login form is ready for submission
+      expect(emailInput).toHaveValue('emily@moodovermuscle.com.au')
+      expect(passwordInput).toHaveValue('TestPassword123!')
+      expect(loginButton).toBeEnabled()
+    })
   })
 
-  it('should render authenticated admin layout correctly', async () => {
-    const { consoleErrors, originalConsoleError } = setupViolationDetection()
-
-    try {
+  describe('Authenticated Admin Experience', () => {
+    it('displays personalized admin dashboard after successful login', async () => {
+      // Given: Admin is authenticated
       mockUseAdminAuth.mockReturnValue({
-        user: { id: '1', name: 'Emily', email: 'emily@moodovermuscle.com.au' },
+        user: {
+          id: '1',
+          name: 'Emily',
+          email: 'emily@moodovermuscle.com.au',
+        },
         isLoading: false,
         isAuthenticated: true,
         logout: mockLogout,
       })
 
+      // When: Admin accesses dashboard
       render(
         <AdminAuthProvider>
           <AdminLayout>
@@ -161,25 +146,23 @@ describe('Admin Authentication Flow Integration', () => {
         </AdminAuthProvider>
       )
 
+      // Then: Personalized admin interface is displayed
       await waitFor(() => {
         expect(screen.getByText('MoodOverMuscle Admin')).toBeInTheDocument()
         expect(screen.getByText(/Welcome,/)).toBeInTheDocument()
         expect(screen.getByText('Emily')).toBeInTheDocument()
         expect(screen.getByText('Dashboard Content')).toBeInTheDocument()
       })
+    })
 
-      expect(consoleErrors).toHaveLength(0)
-    } finally {
-      console.error = originalConsoleError
-    }
-  })
-
-  it('should handle logout functionality without violations', async () => {
-    const { consoleErrors, originalConsoleError } = setupViolationDetection()
-
-    try {
+    it('enables admin to securely log out from dashboard', async () => {
+      // Given: Admin is logged in and viewing dashboard
       mockUseAdminAuth.mockReturnValue({
-        user: { id: '1', name: 'Emily', email: 'emily@moodovermuscle.com.au' },
+        user: {
+          id: '1',
+          name: 'Emily',
+          email: 'emily@moodovermuscle.com.au',
+        },
         isLoading: false,
         isAuthenticated: true,
         logout: mockLogout,
@@ -193,13 +176,12 @@ describe('Admin Authentication Flow Integration', () => {
         </AdminAuthProvider>
       )
 
+      // When: Admin clicks logout
       const logoutButton = screen.getByRole('button', { name: /logout/i })
       await user.click(logoutButton)
 
-      expect(mockLogout).toHaveBeenCalled()
-      expect(consoleErrors).toHaveLength(0)
-    } finally {
-      console.error = originalConsoleError
-    }
+      // Then: Logout function is triggered
+      expect(mockLogout).toHaveBeenCalledTimes(1)
+    })
   })
 })

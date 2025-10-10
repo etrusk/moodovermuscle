@@ -1,298 +1,252 @@
 /**
+ * @testing-approach modern-2025
+ * @migrated 2025-10-10
+ * @coverage behavior-focused
  * @jest-environment node
  */
 
-describe('Test Setup', () => {
-  it('should initialize test environment correctly', () => {
-    expect(true).toBe(true)
-  })
-})
+import { testDb } from '../setup/test-db'
+import {
+  setupIntegrationTest,
+  teardownIntegrationTest,
+} from '../setup/test-helpers'
 
-describe('/api/admin/bookings Integration Tests', () => {
-  describe('GET /api/admin/bookings - List Bookings', () => {
-    it('should return all bookings with valid authentication', () => {
-      // Test expected behavior for successful bookings retrieval
-      const mockResponse = {
-        status: 200,
-        json: () => Promise.resolve({
-          bookings: [
-            {
-              id: '1',
-              customerName: 'John Doe',
-              email: 'john@example.com',
-              date: '2024-03-15',
-              time: '10:00',
-              status: 'confirmed'
-            }
-          ],
-          pagination: {
-            page: 1,
-            limit: 10,
-            total: 1
-          }
-        })
-      }
+jest.setTimeout(15000)
 
-      expect(mockResponse.status).toBe(200)
-      
-      mockResponse.json().then(data => {
-        expect(data).toHaveProperty('bookings')
-        expect(data).toHaveProperty('pagination')
-        expect(Array.isArray(data.bookings)).toBe(true)
-      })
-    })
+jest.mock('@/lib/prisma', () => ({
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  prisma: require('../setup/test-db').testDb,
+}))
 
-    it('should support pagination', () => {
-      // Test expected behavior for paginated results
-      const mockResponse = {
-        status: 200,
-        json: () => Promise.resolve({
-          bookings: [],
-          pagination: {
-            page: 2,
-            limit: 10,
-            total: 25
-          }
-        })
-      }
-
-      expect(mockResponse.status).toBe(200)
-      
-      mockResponse.json().then(data => {
-        expect(data.pagination.page).toBe(2)
-        expect(data.pagination.limit).toBe(10)
-        expect(data.pagination.total).toBe(25)
-      })
-    })
-
-    it('should support status filtering', () => {
-      // Test expected behavior for status filtering
-      const mockResponse = {
-        status: 200,
-        json: () => Promise.resolve({
-          bookings: [
-            {
-              id: '1',
-              status: 'pending'
-            }
-          ],
-          pagination: {
-            page: 1,
-            limit: 10,
-            total: 1
-          }
-        })
-      }
-
-      expect(mockResponse.status).toBe(200)
-      
-      mockResponse.json().then(data => {
-        expect(data.bookings[0].status).toBe('pending')
-      })
-    })
-
-    it('should reject request without authentication', () => {
-      // Test expected behavior for unauthenticated request
-      const mockResponse = {
-        status: 401,
-        json: () => Promise.resolve({
-          error: 'Authentication required'
-        })
-      }
-
-      expect(mockResponse.status).toBe(401)
-      
-      mockResponse.json().then(data => {
-        expect(data).toHaveProperty('error')
-        expect(data.error).toContain('Authentication')
-      })
-    })
+describe('Admin Bookings API Integration', () => {
+  beforeEach(async () => {
+    await setupIntegrationTest()
   })
 
-  describe('GET /api/admin/bookings/[id] - Get Single Booking', () => {
-    it('should return specific booking with valid authentication', () => {
-      // Test expected behavior for single booking retrieval
-      const mockResponse = {
-        status: 200,
-        json: () => Promise.resolve({
-          id: '1',
-          customerName: 'John Doe',
+  afterAll(async () => {
+    await teardownIntegrationTest()
+  })
+
+  describe('Booking Management Workflow', () => {
+    it('retrieves all bookings with pagination', async () => {
+      // Create test bookings
+      await testDb.booking.createMany({
+        data: [
+          {
+            name: 'John Doe',
+            email: 'john@example.com',
+            phone: '+1234567890',
+            date: new Date('2024-03-15'),
+            time: '10:00 AM',
+            service: 'Personal Training',
+            status: 'CONFIRMED',
+          },
+          {
+            name: 'Jane Smith',
+            email: 'jane@example.com',
+            phone: '+1234567891',
+            date: new Date('2024-03-16'),
+            time: '11:00 AM',
+            service: 'Group Class',
+            status: 'PENDING',
+          },
+        ],
+      })
+
+      const bookings = await testDb.booking.findMany({
+        orderBy: { createdAt: 'desc' },
+        take: 10,
+      })
+
+      expect(bookings).toHaveLength(2)
+      expect(bookings[0]).toMatchObject({
+        name: expect.any(String),
+        status: expect.stringMatching(/^(PENDING|CONFIRMED|CANCELLED)$/),
+      })
+    })
+
+    it('filters bookings by status', async () => {
+      await testDb.booking.createMany({
+        data: [
+          {
+            name: 'Pending User',
+            email: 'pending@example.com',
+            phone: '+1111111111',
+            date: new Date('2024-03-15'),
+            time: '09:00 AM',
+            service: 'Personal Training',
+            status: 'PENDING',
+          },
+          {
+            name: 'Confirmed User',
+            email: 'confirmed@example.com',
+            phone: '+2222222222',
+            date: new Date('2024-03-16'),
+            time: '10:00 AM',
+            service: 'Group Class',
+            status: 'CONFIRMED',
+          },
+        ],
+      })
+
+      const pendingBookings = await testDb.booking.findMany({
+        where: { status: 'PENDING' },
+      })
+
+      const confirmedBookings = await testDb.booking.findMany({
+        where: { status: 'CONFIRMED' },
+      })
+
+      expect(pendingBookings).toHaveLength(1)
+      expect(pendingBookings[0].status).toBe('PENDING')
+      expect(confirmedBookings).toHaveLength(1)
+      expect(confirmedBookings[0].status).toBe('CONFIRMED')
+    })
+
+    it('retrieves specific booking by id', async () => {
+      const created = await testDb.booking.create({
+        data: {
+          name: 'John Doe',
           email: 'john@example.com',
           phone: '+1234567890',
-          date: '2024-03-15',
-          time: '10:00',
-          status: 'confirmed',
-          notes: 'Test booking'
-        })
-      }
+          date: new Date('2024-03-15'),
+          time: '10:00 AM',
+          service: 'Personal Training',
+          status: 'CONFIRMED',
+          message: 'Test booking notes',
+        },
+      })
 
-      expect(mockResponse.status).toBe(200)
-      
-      mockResponse.json().then(data => {
-        expect(data).toHaveProperty('id')
-        expect(data).toHaveProperty('customerName')
-        expect(data).toHaveProperty('email')
-        expect(data).toHaveProperty('status')
+      const booking = await testDb.booking.findUnique({
+        where: { id: created.id },
+      })
+
+      expect(booking).not.toBeNull()
+      expect(booking).toMatchObject({
+        id: created.id,
+        name: 'John Doe',
+        email: 'john@example.com',
+        status: 'CONFIRMED',
+        message: 'Test booking notes',
       })
     })
 
-    it('should return 404 for non-existent booking', () => {
-      // Test expected behavior for non-existent booking
-      const mockResponse = {
-        status: 404,
-        json: () => Promise.resolve({
-          error: 'Booking not found'
-        })
-      }
-
-      expect(mockResponse.status).toBe(404)
-      
-      mockResponse.json().then(data => {
-        expect(data).toHaveProperty('error')
-        expect(data.error).toContain('not found')
+    it('handles non-existent booking gracefully', async () => {
+      const booking = await testDb.booking.findUnique({
+        where: { id: 'non-existent-id' },
       })
+
+      expect(booking).toBeNull()
     })
   })
 
-  describe('PUT /api/admin/bookings/[id] - Update Booking', () => {
-    it('should update booking status with valid authentication', () => {
-      // Test expected behavior for booking status update
-      const mockResponse = {
-        status: 200,
-        json: () => Promise.resolve({
-          id: '1',
-          status: 'confirmed',
-          updatedAt: '2024-03-15T10:00:00Z'
-        })
-      }
-
-      expect(mockResponse.status).toBe(200)
-      
-      mockResponse.json().then(data => {
-        expect(data).toHaveProperty('id')
-        expect(data).toHaveProperty('status')
-        expect(data).toHaveProperty('updatedAt')
-        expect(data.status).toBe('confirmed')
+  describe('Booking Status Transitions', () => {
+    it('updates booking status from pending to confirmed', async () => {
+      const booking = await testDb.booking.create({
+        data: {
+          name: 'Jane Smith',
+          email: 'jane@example.com',
+          phone: '+1234567890',
+          date: new Date('2024-03-15'),
+          time: '10:00 AM',
+          service: 'Personal Training',
+          status: 'PENDING',
+        },
       })
+
+      const updated = await testDb.booking.update({
+        where: { id: booking.id },
+        data: { status: 'CONFIRMED' },
+      })
+
+      expect(updated.status).toBe('CONFIRMED')
+      expect(updated.id).toBe(booking.id)
     })
 
-    it('should validate booking status transitions', () => {
-      // Test expected behavior for status validation
-      const mockResponse = {
-        status: 400,
-        json: () => Promise.resolve({
-          error: 'Invalid status transition',
-          details: 'Cannot change from confirmed to pending'
-        })
-      }
-
-      expect(mockResponse.status).toBe(400)
-      
-      mockResponse.json().then(data => {
-        expect(data).toHaveProperty('error')
-        expect(data.error).toContain('Invalid status')
+    it('allows cancellation of confirmed booking', async () => {
+      const booking = await testDb.booking.create({
+        data: {
+          name: 'Cancel Test',
+          email: 'cancel@example.com',
+          phone: '+1234567890',
+          date: new Date('2024-03-15'),
+          time: '10:00 AM',
+          service: 'Personal Training',
+          status: 'CONFIRMED',
+        },
       })
-    })
 
-    it('should reject request without authentication', () => {
-      // Test expected behavior for unauthenticated request
-      const mockResponse = {
-        status: 401,
-        json: () => Promise.resolve({
-          error: 'Authentication required'
-        })
-      }
-
-      expect(mockResponse.status).toBe(401)
-      
-      mockResponse.json().then(data => {
-        expect(data).toHaveProperty('error')
-        expect(data.error).toContain('Authentication')
+      const cancelled = await testDb.booking.update({
+        where: { id: booking.id },
+        data: { status: 'CANCELLED' },
       })
+
+      expect(cancelled.status).toBe('CANCELLED')
     })
   })
 
-  describe('DELETE /api/admin/bookings/[id] - Delete Booking', () => {
-    it('should delete booking with valid authentication', () => {
-      // Test expected behavior for booking deletion
-      const mockResponse = {
-        status: 200,
-        json: () => Promise.resolve({
-          message: 'Booking deleted successfully',
-          deletedId: '1'
-        })
-      }
-
-      expect(mockResponse.status).toBe(200)
-      
-      mockResponse.json().then(data => {
-        expect(data).toHaveProperty('message')
-        expect(data).toHaveProperty('deletedId')
-        expect(data.message).toContain('deleted successfully')
+  describe('Booking Deletion', () => {
+    it('removes booking from system', async () => {
+      const booking = await testDb.booking.create({
+        data: {
+          name: 'Delete Test',
+          email: 'delete@example.com',
+          phone: '+1234567890',
+          date: new Date('2024-03-15'),
+          time: '10:00 AM',
+          service: 'Personal Training',
+          status: 'CONFIRMED',
+        },
       })
+
+      await testDb.booking.delete({
+        where: { id: booking.id },
+      })
+
+      const deleted = await testDb.booking.findUnique({
+        where: { id: booking.id },
+      })
+
+      expect(deleted).toBeNull()
     })
 
-    it('should return 404 when deleting non-existent booking', () => {
-      // Test expected behavior for deleting non-existent booking
-      const mockResponse = {
-        status: 404,
-        json: () => Promise.resolve({
-          error: 'Booking not found'
+    it('handles deletion of non-existent booking', async () => {
+      await expect(
+        testDb.booking.delete({
+          where: { id: 'non-existent-id' },
         })
-      }
-
-      expect(mockResponse.status).toBe(404)
-      
-      mockResponse.json().then(data => {
-        expect(data).toHaveProperty('error')
-        expect(data.error).toContain('not found')
-      })
-    })
-
-    it('should reject request without authentication', () => {
-      // Test expected behavior for unauthenticated request
-      const mockResponse = {
-        status: 401,
-        json: () => Promise.resolve({
-          error: 'Authentication required'
-        })
-      }
-
-      expect(mockResponse.status).toBe(401)
-      
-      mockResponse.json().then(data => {
-        expect(data).toHaveProperty('error')
-        expect(data.error).toContain('Authentication')
-      })
+      ).rejects.toThrow()
     })
   })
 
-  describe('Security', () => {
-    it('should include security headers', () => {
-      // Test expected security headers behavior
-      const securityHeaders = {
-        'x-content-type-options': 'nosniff',
-        'x-frame-options': 'DENY'
+  describe('Data Integrity', () => {
+    it('persists all booking fields correctly', async () => {
+      const bookingData = {
+        name: 'Full Data Test',
+        email: 'fulldata@example.com',
+        phone: '+1234567890',
+        date: new Date('2024-03-15'),
+        time: '10:00 AM',
+        service: 'Personal Training',
+        status: 'CONFIRMED' as const,
+        message: 'Complete booking with all fields',
+        goals: 'Test goals',
+        experience: 'Beginner',
       }
 
-      expect(securityHeaders['x-content-type-options']).toBe('nosniff')
-      expect(securityHeaders['x-frame-options']).toBe('DENY')
-    })
+      const created = await testDb.booking.create({
+        data: bookingData,
+      })
 
-    it('should only accept appropriate HTTP methods', () => {
-      // Test expected behavior for unsupported HTTP methods
-      const mockMethodNotAllowedResponse = {
-        status: 405,
-        json: () => Promise.resolve({
-          error: 'Method not allowed'
-        })
-      }
-
-      expect(mockMethodNotAllowedResponse.status).toBe(405)
-      
-      mockMethodNotAllowedResponse.json().then(data => {
-        expect(data).toHaveProperty('error')
-        expect(data.error).toContain('Method')
+      expect(created).toMatchObject({
+        name: bookingData.name,
+        email: bookingData.email,
+        phone: bookingData.phone,
+        service: bookingData.service,
+        status: bookingData.status,
+        message: bookingData.message,
+        goals: bookingData.goals,
+        experience: bookingData.experience,
       })
     })
   })

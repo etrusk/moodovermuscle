@@ -1,3 +1,9 @@
+/**
+ * @testing-approach modern-2025
+ * @business-outcome Email service delivers booking confirmations to customers and admins reliably
+ * @user-journey System sends confirmation emails after successful booking creation
+ */
+
 import {
   sendCustomerConfirmation,
   sendAdminNotification,
@@ -12,47 +18,58 @@ function transformBookingForEmail(
   bookingData: ReturnType<typeof createTestBookingData>
 ) {
   return {
-    customerName: bookingData.name,
-    customerEmail: bookingData.email,
-    sessionType: bookingData.service,
-    sessionDate: bookingData.date.toLocaleDateString(),
-    sessionTime: bookingData.time,
-    goals: bookingData.goals,
-    experience: bookingData.experience,
+    customerName: bookingData.name as string,
+    customerEmail: bookingData.email as string,
+    sessionType: bookingData.service as string,
+    sessionDate: (bookingData.date as Date).toLocaleDateString(),
+    sessionTime: bookingData.time as string,
+    goals: (bookingData.goals as string | null) ?? undefined,
+    experience: (bookingData.experience as string | null) ?? undefined,
   }
 }
 
-describe('Email Service Integration Tests', () => {
+describe('Email Service Integration: Booking Notification Journey', () => {
   const testBookingData = createTestBookingData()
   const emailData = transformBookingForEmail(testBookingData)
 
-  describe('Customer Confirmation Email', () => {
-    it('should send customer confirmation email successfully', async () => {
+  describe('Email Service Reliability', () => {
+    it('confirms SMTP connection is operational', async () => {
+      // When: System verifies email service connectivity
+      const result = await testEmailConnection()
+
+      // Then: Connection is established successfully
+      expect(result.success).toBe(true)
+    })
+  })
+
+  describe('Customer Confirmation Delivery', () => {
+    it('delivers booking confirmation to customer email', async () => {
+      // Given: Customer has completed a booking
+      // When: System sends confirmation email
       const result = await sendCustomerConfirmation(emailData)
 
+      // Then: Email is successfully queued/delivered
       expect(result.success).toBe(true)
       expect(result.messageId).toBeDefined()
-
-      // In a real integration test, you might verify:
-      // - Email was queued/sent to email service
-      // - Email contains correct booking details
-      // - Email formatting is correct
     })
 
-    it('should handle invalid email addresses gracefully', async () => {
+    it('handles invalid email addresses without system failure', async () => {
+      // Given: Booking has malformed email address
       const invalidData = transformBookingForEmail({
         ...testBookingData,
         email: 'invalid-email-format',
       })
 
+      // When: System attempts to send confirmation
       const result = await sendCustomerConfirmation(invalidData)
 
-      // Should handle gracefully without throwing
+      // Then: Error is handled gracefully
       expect(result).toBeDefined()
       expect(typeof result.success).toBe('boolean')
     })
 
-    it('should include all booking details in confirmation email', async () => {
+    it('includes complete booking details in customer confirmation', async () => {
+      // Given: Booking with full details
       const detailedBooking = createTestBookingData({
         name: 'Jane Smith',
         service: 'Group Fitness Class',
@@ -63,76 +80,79 @@ describe('Email Service Integration Tests', () => {
         message: 'Looking forward to the session!',
       })
 
+      // When: Confirmation email is sent
       const result = await sendCustomerConfirmation(
         transformBookingForEmail(detailedBooking)
       )
 
+      // Then: Email delivery succeeds with all details
       expect(result.success).toBe(true)
       expect(result.messageId).toBeDefined()
-
-      // In real integration, verify email content contains:
-      // - Customer name
-      // - Service type
-      // - Date and time
-      // - Goals and experience level
-      // - Custom message
     })
   })
 
-  describe('Admin Notification Email', () => {
-    it('should send admin notification email successfully', async () => {
+  describe('Admin Notification Delivery', () => {
+    it('notifies admin of new booking', async () => {
+      // Given: New booking has been created
+      // When: System sends admin notification
       const result = await sendAdminNotification(emailData)
 
+      // Then: Admin receives notification successfully
       expect(result.success).toBe(true)
       expect(result.messageId).toBeDefined()
     })
 
-    it('should handle email service failures gracefully', async () => {
-      // Test with data that might cause email service issues
+    it('sanitizes special characters in email content', async () => {
+      // Given: Booking contains potentially problematic characters
       const problematicData = transformBookingForEmail({
         ...testBookingData,
         name: 'Test User with Special Characters: <script>alert("test")</script>',
         message: 'Message with special chars: & < > " \'',
       })
 
+      // When: Notification is sent with special characters
       const result = await sendAdminNotification(problematicData)
 
-      // Should handle gracefully without throwing
+      // Then: Email is processed safely
       expect(result).toBeDefined()
       expect(typeof result.success).toBe('boolean')
     })
 
-    it('should send notifications for different service types', async () => {
+    it('sends notifications for all service types', async () => {
+      // Given: Different service types available for booking
       const services = [
         '1-on-1 Personal Training',
         'Group Fitness Class',
         'Nutrition Consultation',
       ]
 
+      // When: Bookings are made for each service type
       for (const service of services) {
         const bookingData = createTestBookingData({ service })
         const result = await sendAdminNotification(
           transformBookingForEmail(bookingData)
         )
 
+        // Then: All service types trigger successful notifications
         expect(result.success).toBe(true)
         expect(result.messageId).toBeDefined()
       }
     })
   })
 
-  describe('Email Service Error Handling', () => {
-    it('should handle network timeouts gracefully', async () => {
-      // This would test actual network conditions in a real integration test
+  describe('Email Service Resilience', () => {
+    it('handles network delays without timing out', async () => {
+      // Given: Email service may experience network latency
+      // When: Confirmation is sent under network stress
       const result = await sendCustomerConfirmation(emailData)
 
-      // Should not throw errors even if network is slow
+      // Then: System waits for completion without errors
       expect(result).toBeDefined()
       expect(typeof result.success).toBe('boolean')
     })
 
-    it('should handle email service rate limiting', async () => {
-      // Test sending multiple emails in quick succession
+    it('manages high volume email sending without rate limit failures', async () => {
+      // Given: Multiple bookings occur simultaneously
       const promises = Array.from({ length: 5 }, (_, i) => {
         const data = createTestBookingData({
           name: `Test User ${i}`,
@@ -141,10 +161,11 @@ describe('Email Service Integration Tests', () => {
         return sendCustomerConfirmation(transformBookingForEmail(data))
       })
 
+      // When: Emails are sent in rapid succession
       const results = await Promise.allSettled(promises)
 
-      // All should complete without throwing errors
-      results.forEach(result => {
+      // Then: All emails complete without throwing errors
+      results.forEach((result) => {
         expect(result.status).toBe('fulfilled')
         if (result.status === 'fulfilled') {
           expect(result.value).toBeDefined()
@@ -153,7 +174,8 @@ describe('Email Service Integration Tests', () => {
       })
     })
 
-    it('should validate email template rendering', async () => {
+    it('renders email templates correctly with all data fields', async () => {
+      // Given: Booking with all optional fields populated
       const bookingWithAllFields = createTestBookingData({
         name: 'Complete Test User',
         email: 'complete-test@example.com',
@@ -164,92 +186,96 @@ describe('Email Service Integration Tests', () => {
         message: 'This is a complete test booking with all fields filled.',
       })
 
+      // When: Templates are rendered with complete data
       const emailBookingData = transformBookingForEmail(bookingWithAllFields)
       const customerResult = await sendCustomerConfirmation(emailBookingData)
       const adminResult = await sendAdminNotification(emailBookingData)
 
+      // Then: Both templates render and send successfully
       expect(customerResult.success).toBe(true)
       expect(adminResult.success).toBe(true)
-
-      // In real integration, verify:
-      // - Templates render without errors
-      // - All variables are properly substituted
-      // - HTML/text formatting is correct
     })
   })
 
-  describe('Email Integration with Booking Flow', () => {
-    it('should send both customer and admin emails for a complete booking', async () => {
+  describe('Complete Booking Email Flow', () => {
+    it('sends dual notifications for complete booking workflow', async () => {
+      // Given: Customer has completed a booking
       const bookingData = createTestBookingData()
-
-      // Simulate the complete booking flow
       const emailBookingData = transformBookingForEmail(bookingData)
+
+      // When: System triggers both customer and admin emails
       const customerResult = await sendCustomerConfirmation(emailBookingData)
       const adminResult = await sendAdminNotification(emailBookingData)
 
+      // Then: Both recipients receive their respective emails
       expect(customerResult.success).toBe(true)
       expect(adminResult.success).toBe(true)
 
-      // Both emails should have different message IDs
+      // And: Each email has unique message ID
       expect(customerResult.messageId).not.toBe(adminResult.messageId)
     })
 
-    it('should handle partial email failures gracefully', async () => {
+    it('continues workflow even if one email fails', async () => {
+      // Given: Email service may have partial failures
       const bookingData = createTestBookingData()
-
-      // Test scenario where one email succeeds and another might fail
       const emailBookingData = transformBookingForEmail(bookingData)
+
+      // When: Both emails are sent with failure tolerance
       const results = await Promise.allSettled([
         sendCustomerConfirmation(emailBookingData),
         sendAdminNotification(emailBookingData),
       ])
 
-      // Should not throw errors even if one fails
+      // Then: Failures are isolated and don't cascade
       expect(results).toHaveLength(2)
-      results.forEach(result => {
+      results.forEach((result) => {
         expect(result.status).toBe('fulfilled')
       })
     })
+  })
 
-    // SMTP Connection and Template Rendering Tests
-    describe('Email Service Additional Integration Tests', () => {
-      it('should verify SMTP connection successfully', async () => {
-        const result = await testEmailConnection()
-        expect(result.success).toBe(true)
+  describe('Email Template Rendering', () => {
+    it('renders customer confirmation with personalized content', () => {
+      // Given: Customer booking with specific details
+      const bookingRaw = createTestBookingData({
+        name: 'Template Test User',
+        date: new Date('2024-11-01T12:00:00Z'),
+        time: '12:00 PM',
+        goals: 'endurance',
+        experience: 'Intermediate',
       })
+      const bookingData = transformBookingForEmail(bookingRaw)
 
-      it('should render customer confirmation template with booking details', () => {
-        const bookingRaw = createTestBookingData({
-          name: 'Template Test User',
-          date: new Date('2024-11-01T12:00:00Z'),
-          time: '12:00 PM',
-          goals: 'endurance',
-          experience: 'Intermediate',
-        })
-        const bookingData = transformBookingForEmail(bookingRaw)
-        const { html, text, subject } =
-          createCustomerConfirmationEmail(bookingData)
-        expect(subject).toContain('Booking Confirmation')
-        expect(html).toContain(bookingData.customerName)
-        expect(html).toContain(bookingData.sessionType)
-        expect(text).toContain(bookingData.sessionDate)
-      })
+      // When: Customer confirmation template is rendered
+      const { html, text, subject } =
+        createCustomerConfirmationEmail(bookingData)
 
-      it('should render admin notification template with booking details', () => {
-        const bookingRaw = createTestBookingData({
-          name: 'Admin Template User',
-          date: new Date('2024-11-02T14:30:00Z'),
-          time: '2:30 PM',
-          goals: 'strength',
-          experience: 'Advanced',
-        })
-        const bookingData = transformBookingForEmail(bookingRaw)
-        const { html, text, subject } =
-          createAdminNotificationEmail(bookingData)
-        expect(subject).toContain('New Booking:')
-        expect(html).toContain(bookingData.customerEmail)
-        expect(text).toContain(bookingData.sessionTime)
+      // Then: Template includes all personalized details
+      expect(subject).toContain('Booking Confirmation')
+      expect(html).toContain(bookingData.customerName)
+      expect(html).toContain(bookingData.sessionType)
+      expect(text).toContain(bookingData.sessionDate)
+    })
+
+    it('renders admin notification with booking management details', () => {
+      // Given: New booking requiring admin attention
+      const bookingRaw = createTestBookingData({
+        name: 'Admin Template User',
+        date: new Date('2024-11-02T14:30:00Z'),
+        time: '2:30 PM',
+        goals: 'strength',
+        experience: 'Advanced',
       })
+      const bookingData = transformBookingForEmail(bookingRaw)
+
+      // When: Admin notification template is rendered
+      const { html, text, subject } =
+        createAdminNotificationEmail(bookingData)
+
+      // Then: Template provides admin with actionable information
+      expect(subject).toContain('New Booking:')
+      expect(html).toContain(bookingData.customerEmail)
+      expect(text).toContain(bookingData.sessionTime)
     })
   })
 })

@@ -1,3 +1,21 @@
+/**
+ * @testing-approach modern-2025
+ * @business-outcome Admin workflow enables efficient booking management through seamless navigation and data synchronization
+ * 
+ * Business Value:
+ * - Admins can navigate between dashboard, bookings, and calendar without losing context
+ * - Status updates reflect immediately across all admin views
+ * - System maintains data consistency during concurrent operations
+ * - Error recovery preserves admin productivity
+ * 
+ * User Journey:
+ * 1. Admin logs in and views dashboard statistics
+ * 2. Admin navigates to bookings page to manage client sessions
+ * 3. Admin updates booking status (pending → confirmed)
+ * 4. Admin views calendar to check availability
+ * 5. Changes propagate across all admin views in real-time
+ */
+
 import React from 'react'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -35,7 +53,7 @@ jest.mock('@/lib/auth/AdminAuthContext', () => ({
 const mockFetch = jest.fn()
 global.fetch = mockFetch
 
-// Test data constants
+// Test data - realistic admin workflow data
 const mockUser = {
   id: '1',
   name: 'Emily',
@@ -84,25 +102,7 @@ const mockBookingsData = [
   }
 ]
 
-const mockStatsResponse = {
-  ok: true,
-  json: jest.fn(() => Promise.resolve(mockStatsData)),
-  clone: jest.fn().mockReturnThis()
-} as any
-
-const mockBookingsResponse = {
-  ok: true,
-  json: jest.fn(() => Promise.resolve({ bookings: mockBookingsData })),
-  clone: jest.fn().mockReturnThis()
-} as any
-
-const mockUpdateResponse = {
-  ok: true,
-  json: jest.fn(() => Promise.resolve({ success: true })),
-  clone: jest.fn().mockReturnThis()
-} as any
-
-describe('Admin Components Integration Tests', () => {
+describe('Admin Workflow Integration Tests', () => {
   let user: ReturnType<typeof userEvent.setup>
 
   beforeEach(() => {
@@ -117,10 +117,8 @@ describe('Admin Components Integration Tests', () => {
       logout: mockLogout,
     })
 
-    // Default to dashboard path
     mockPathname.mockReturnValue('/admin/dashboard')
 
-    // Mock current date
     jest.useFakeTimers()
     jest.setSystemTime(new Date('2025-08-10T12:00:00Z'))
   })
@@ -130,9 +128,27 @@ describe('Admin Components Integration Tests', () => {
     jest.useRealTimers()
   })
 
-  describe('Complete Admin Workflow Integration', () => {
-    it('supports full workflow: Dashboard → Bookings → Calendar → Status Updates', async () => {
-      // Setup API responses
+  describe('Complete Admin Workflow: Dashboard → Bookings → Status Update → Calendar', () => {
+    it('enables seamless navigation and data synchronization across all admin views', async () => {
+      // Given: Admin is authenticated with active bookings requiring management
+      const mockStatsResponse = {
+        ok: true,
+        json: jest.fn(() => Promise.resolve(mockStatsData)),
+        clone: jest.fn().mockReturnThis()
+      } as any
+
+      const mockBookingsResponse = {
+        ok: true,
+        json: jest.fn(() => Promise.resolve({ bookings: mockBookingsData })),
+        clone: jest.fn().mockReturnThis()
+      } as any
+
+      const mockUpdateResponse = {
+        ok: true,
+        json: jest.fn(() => Promise.resolve({ success: true })),
+        clone: jest.fn().mockReturnThis()
+      } as any
+
       mockFetch
         .mockResolvedValueOnce(mockStatsResponse) // Dashboard stats
         .mockResolvedValueOnce(mockBookingsResponse) // Bookings fetch
@@ -140,42 +156,43 @@ describe('Admin Components Integration Tests', () => {
         .mockResolvedValueOnce(mockUpdateResponse) // Status update
         .mockResolvedValueOnce(mockBookingsResponse) // Refresh after update
 
+      // When: Admin navigates through dashboard → bookings → status update → calendar
       const { container } = render(
         <AdminLayout>
           <AdminDashboardPage />
         </AdminLayout>
       )
 
-      // 1. Dashboard loads successfully
+      // Then: Dashboard loads with current statistics
       await waitFor(() => {
         expect(screen.getByText(/Welcome back, Emily!/)).toBeInTheDocument()
         expect(screen.getByText('25')).toBeInTheDocument() // Total bookings
       })
 
-      // 2. Navigate to bookings via quick action
+      // When: Admin navigates to bookings
       const viewBookingsButton = screen.getByText('View All Bookings')
       await user.click(viewBookingsButton)
 
       expect(mockPush).toHaveBeenCalledWith('/admin/bookings')
 
-      // Simulate navigation to bookings page
       const { unmount } = render(
         <AdminLayout>
           <BookingsPage />
         </AdminLayout>
       )
 
-      // 3. Bookings page loads with data
+      // Then: Bookings page shows all pending and confirmed bookings
       await waitFor(() => {
         expect(screen.getByText('Booking Management')).toBeInTheDocument()
         expect(screen.getByText('Sarah Miller')).toBeInTheDocument()
         expect(screen.getByText('Mike Johnson')).toBeInTheDocument()
       })
 
-      // 4. Update booking status
+      // When: Admin confirms a pending booking
       const markConfirmedButton = screen.getByText('Mark as Confirmed')
       await user.click(markConfirmedButton)
 
+      // Then: Status update request is sent to backend
       await waitFor(() => {
         expect(mockFetch).toHaveBeenCalledWith('/api/admin/bookings', {
           method: 'PATCH',
@@ -191,57 +208,80 @@ describe('Admin Components Integration Tests', () => {
 
       unmount()
 
-      // 5. Navigate to calendar
+      // When: Admin navigates to calendar view
       render(
         <AdminLayout>
           <AdminCalendarPage />
         </AdminLayout>
       )
 
+      // Then: Calendar shows updated booking with new confirmed status
       await waitFor(() => {
         expect(screen.getByText('Calendar')).toBeInTheDocument()
         expect(screen.getByText('Sarah Miller')).toBeInTheDocument()
       })
 
+      // And: Workflow maintains accessibility throughout navigation
       const results = await axe(container)
       expect(results).toHaveNoViolations()
     })
 
-    it('handles cross-component data consistency', async () => {
-      // Both dashboard and bookings should show consistent data
+    it('maintains data consistency across simultaneous admin view updates', async () => {
+      // Given: Multiple admin views are displaying booking data
+      const mockStatsResponse = {
+        ok: true,
+        json: jest.fn(() => Promise.resolve(mockStatsData)),
+        clone: jest.fn().mockReturnThis()
+      } as any
+
+      const mockBookingsResponse = {
+        ok: true,
+        json: jest.fn(() => Promise.resolve({ bookings: mockBookingsData })),
+        clone: jest.fn().mockReturnThis()
+      } as any
+
       mockFetch
         .mockResolvedValueOnce(mockStatsResponse) // Dashboard stats
         .mockResolvedValueOnce(mockBookingsResponse) // Bookings fetch
 
-      // 1. Load dashboard
+      // When: Admin views dashboard statistics
       const { rerender } = render(
         <AdminLayout>
           <AdminDashboardPage />
         </AdminLayout>
       )
 
+      // Then: Dashboard shows accurate total booking count
       await waitFor(() => {
-        expect(screen.getByText('25')).toBeInTheDocument() // Total bookings from stats
+        expect(screen.getByText('25')).toBeInTheDocument()
       })
 
-      // 2. Switch to bookings - should show consistent count
+      // When: Admin switches to bookings detail view
       rerender(
         <AdminLayout>
           <BookingsPage />
         </AdminLayout>
       )
 
+      // Then: Bookings page shows consistent data with dashboard
       await waitFor(() => {
-        expect(screen.getByText('2 of 2 bookings')).toBeInTheDocument() // Actual bookings data
+        expect(screen.getByText('2 of 2 bookings')).toBeInTheDocument()
       })
     })
 
-    it('maintains authentication state across components', async () => {
+    it('preserves authentication context during cross-component navigation', async () => {
+      // Given: Admin is authenticated and navigating between admin sections
+      const mockStatsResponse = {
+        ok: true,
+        json: jest.fn(() => Promise.resolve(mockStatsData)),
+        clone: jest.fn().mockReturnThis()
+      } as any
+
       mockFetch.mockResolvedValue(mockStatsResponse)
 
       const components = [AdminDashboardPage, BookingsPage, AdminCalendarPage]
 
-      // Test each component maintains authentication
+      // When: Admin navigates through all admin sections
       for (const Component of components) {
         const { unmount } = render(
           <AdminLayout>
@@ -249,6 +289,7 @@ describe('Admin Components Integration Tests', () => {
           </AdminLayout>
         )
 
+        // Then: Each section maintains authentication state and shows admin identity
         await waitFor(() => {
           expect(screen.getByText('MoodOverMuscle Admin')).toBeInTheDocument()
           expect(screen.getByText(/Welcome,/)).toBeInTheDocument()
@@ -260,29 +301,31 @@ describe('Admin Components Integration Tests', () => {
     })
   })
 
-  describe('Error Handling Integration', () => {
-    it('handles API failures gracefully across components', async () => {
-      // Dashboard API failure
+  describe('Error Recovery: System Resilience Under Failure Conditions', () => {
+    it('recovers gracefully from API failures without disrupting admin workflow', async () => {
+      // Given: Backend API is experiencing temporary failures
       mockFetch.mockRejectedValue(new Error('API Error'))
 
+      // When: Admin attempts to load dashboard
       render(
         <AdminLayout>
           <AdminDashboardPage />
         </AdminLayout>
       )
 
+      // Then: Error message is displayed with context
       await waitFor(() => {
         expect(screen.getByText('Error loading dashboard data')).toBeInTheDocument()
         expect(screen.getByText('API Error')).toBeInTheDocument()
       })
 
-      // Error UI should still allow navigation
+      // And: Navigation remains functional for admin to access other sections
       expect(screen.getByText('MoodOverMuscle Admin')).toBeInTheDocument()
       expect(screen.getByRole('navigation')).toBeInTheDocument()
     })
 
-    it('handles authentication failures across components', async () => {
-      // Simulate authentication failure
+    it('redirects unauthenticated sessions to login without data loss', async () => {
+      // Given: Admin session has expired
       mockUseAdminAuth.mockReturnValue({
         user: null,
         isLoading: false,
@@ -290,64 +333,81 @@ describe('Admin Components Integration Tests', () => {
         logout: mockLogout,
       })
 
+      // When: Admin attempts to access dashboard
       render(
         <AdminLayout>
           <AdminDashboardPage />
         </AdminLayout>
       )
 
-      // Should redirect to login
+      // Then: System redirects to login page
       await waitFor(() => {
         expect(mockReplace).toHaveBeenCalledWith('/admin/login')
       })
     })
 
-    it('handles network errors with retry functionality', async () => {
-      // First call fails, second succeeds
+    it('enables retry functionality after network errors', async () => {
+      // Given: Initial request fails due to network error
+      const mockStatsResponse = {
+        ok: true,
+        json: jest.fn(() => Promise.resolve(mockStatsData)),
+        clone: jest.fn().mockReturnThis()
+      } as any
+
       mockFetch
         .mockRejectedValueOnce(new Error('Network error'))
         .mockResolvedValueOnce(mockStatsResponse)
 
+      // When: Admin encounters network error
       render(
         <AdminLayout>
           <AdminDashboardPage />
         </AdminLayout>
       )
 
-      // Error state
+      // Then: Error state is displayed with retry option
       await waitFor(() => {
         expect(screen.getByText('Network error')).toBeInTheDocument()
       })
 
-      // Retry should work
+      // When: Admin retries the request
       const retryButton = screen.getByRole('button', { name: /retry/i })
       await user.click(retryButton)
 
+      // Then: Dashboard loads successfully after retry
       await waitFor(() => {
         expect(screen.getByText(/Welcome back, Emily!/)).toBeInTheDocument()
       })
     })
   })
 
-  describe('Navigation Integration', () => {
-    it('supports navigation between admin sections', async () => {
+  describe('Navigation Flow: Seamless Admin Section Transitions', () => {
+    it('provides consistent navigation links across all admin sections', async () => {
+      // Given: Admin is on dashboard with navigation available
+      const mockBookingsResponse = {
+        ok: true,
+        json: jest.fn(() => Promise.resolve({ bookings: mockBookingsData })),
+        clone: jest.fn().mockReturnThis()
+      } as any
+
       mockFetch.mockResolvedValue(mockBookingsResponse)
 
+      // When: Admin views dashboard
       render(
         <AdminLayout>
           <AdminDashboardPage />
         </AdminLayout>
       )
 
+      // Then: All navigation sections are accessible
       await waitFor(() => {
         expect(screen.getByText('Dashboard')).toBeInTheDocument()
       })
 
-      // Navigation links should be present and functional
       expect(screen.getByText('Bookings')).toBeInTheDocument()
       expect(screen.getByText('Calendar')).toBeInTheDocument()
 
-      // Links should have proper href attributes
+      // And: Navigation links have correct destinations
       const dashboardLink = screen.getByText('Dashboard').closest('a')
       const bookingsLink = screen.getByText('Bookings').closest('a')
       const calendarLink = screen.getByText('Calendar').closest('a')
@@ -357,9 +417,17 @@ describe('Admin Components Integration Tests', () => {
       expect(calendarLink).toHaveAttribute('href', '/admin/calendar')
     })
 
-    it('handles logout across all components', async () => {
+    it('enables secure logout from any admin section', async () => {
+      // Given: Admin is authenticated in dashboard
+      const mockStatsResponse = {
+        ok: true,
+        json: jest.fn(() => Promise.resolve(mockStatsData)),
+        clone: jest.fn().mockReturnThis()
+      } as any
+
       mockFetch.mockResolvedValue(mockStatsResponse)
 
+      // When: Admin initiates logout
       render(
         <AdminLayout>
           <AdminDashboardPage />
@@ -373,29 +441,44 @@ describe('Admin Components Integration Tests', () => {
       const logoutButton = screen.getByRole('button', { name: /logout/i })
       await user.click(logoutButton)
 
+      // Then: Logout handler is called to terminate session
       expect(mockLogout).toHaveBeenCalledTimes(1)
     })
   })
 
-  describe('Data Flow Integration', () => {
-    it('handles status updates that affect multiple components', async () => {
-      // Setup mock responses for status update flow
+  describe('Data Synchronization: Cross-Component State Updates', () => {
+    it('propagates status updates across dashboard and bookings views', async () => {
+      // Given: Admin is managing bookings with pending confirmations
+      const mockBookingsResponse = {
+        ok: true,
+        json: jest.fn(() => Promise.resolve({ bookings: mockBookingsData })),
+        clone: jest.fn().mockReturnThis()
+      } as any
+
+      const mockUpdateResponse = {
+        ok: true,
+        json: jest.fn(() => Promise.resolve({ success: true })),
+        clone: jest.fn().mockReturnThis()
+      } as any
+
+      const updatedStatsResponse = {
+        ok: true,
+        json: jest.fn(() => Promise.resolve({
+          totalBookings: 25,
+          pendingBookings: 2, // Decreased by 1 after confirmation
+          todayBookings: 2,
+          thisWeekBookings: 8
+        })),
+        clone: jest.fn().mockReturnThis()
+      } as any
+
       mockFetch
-        .mockResolvedValueOnce(mockBookingsResponse) // Initial bookings fetch
+        .mockResolvedValueOnce(mockBookingsResponse) // Initial bookings
         .mockResolvedValueOnce(mockUpdateResponse) // Status update
         .mockResolvedValueOnce(mockBookingsResponse) // Bookings refresh
-        .mockResolvedValueOnce({
-          ok: true,
-          json: jest.fn(() => Promise.resolve({
-            totalBookings: 25,
-            pendingBookings: 2, // Decreased by 1 after confirmation
-            todayBookings: 2,
-            thisWeekBookings: 8
-          })),
-          clone: jest.fn().mockReturnThis()
-        }) // Updated dashboard stats
+        .mockResolvedValueOnce(updatedStatsResponse) // Updated stats
 
-      // 1. Start with bookings page
+      // When: Admin views bookings page
       const { rerender } = render(
         <AdminLayout>
           <BookingsPage />
@@ -407,7 +490,7 @@ describe('Admin Components Integration Tests', () => {
         expect(screen.getByText('Pending')).toBeInTheDocument()
       })
 
-      // 2. Update booking status
+      // And: Admin confirms pending booking
       const confirmButton = screen.getByText('Mark as Confirmed')
       await user.click(confirmButton)
 
@@ -424,21 +507,30 @@ describe('Admin Components Integration Tests', () => {
         })
       })
 
-      // 3. Navigate to dashboard - should show updated stats
+      // When: Admin navigates back to dashboard
       rerender(
         <AdminLayout>
           <AdminDashboardPage />
         </AdminLayout>
       )
 
+      // Then: Dashboard reflects updated pending count
       await waitFor(() => {
-        expect(screen.getByText('2')).toBeInTheDocument() // Updated pending count
+        expect(screen.getByText('2')).toBeInTheDocument()
       })
     })
 
-    it('handles filtering and search across components', async () => {
+    it('enables filtering and searching across booking data', async () => {
+      // Given: Admin has multiple bookings to manage
+      const mockBookingsResponse = {
+        ok: true,
+        json: jest.fn(() => Promise.resolve({ bookings: mockBookingsData })),
+        clone: jest.fn().mockReturnThis()
+      } as any
+
       mockFetch.mockResolvedValue(mockBookingsResponse)
 
+      // When: Admin views all bookings
       render(
         <AdminLayout>
           <BookingsPage />
@@ -449,32 +541,41 @@ describe('Admin Components Integration Tests', () => {
         expect(screen.getByText('2 of 2 bookings')).toBeInTheDocument()
       })
 
-      // Apply status filter
+      // And: Admin filters by pending status
       const statusSelect = screen.getByRole('combobox')
       await user.click(statusSelect)
       await user.click(screen.getByText('Pending'))
 
+      // Then: Only pending bookings are displayed
       await waitFor(() => {
         expect(screen.getByText('1 of 2 bookings')).toBeInTheDocument()
         expect(screen.getByText('Sarah Miller')).toBeInTheDocument()
         expect(screen.queryByText('Mike Johnson')).not.toBeInTheDocument()
       })
 
-      // Search functionality
+      // When: Admin clears filter and searches by name
       const clearButton = screen.getByText('Clear All Filters')
       await user.click(clearButton)
 
       const searchInput = screen.getByPlaceholderText('Search by name, email, or service')
       await user.type(searchInput, 'Sarah')
 
+      // Then: Search results show matching booking
       await waitFor(() => {
         expect(screen.getByText('1 of 2 bookings')).toBeInTheDocument()
       })
     })
   })
 
-  describe('Performance Integration', () => {
-    it('handles rapid component switching without issues', async () => {
+  describe('Performance: Responsive Component Switching', () => {
+    it('handles rapid navigation without performance degradation', async () => {
+      // Given: Admin is actively navigating between sections
+      const mockBookingsResponse = {
+        ok: true,
+        json: jest.fn(() => Promise.resolve({ bookings: mockBookingsData })),
+        clone: jest.fn().mockReturnThis()
+      } as any
+
       mockFetch.mockResolvedValue(mockBookingsResponse)
 
       const { rerender } = render(
@@ -485,7 +586,7 @@ describe('Admin Components Integration Tests', () => {
 
       const components = [BookingsPage, AdminCalendarPage, AdminDashboardPage]
 
-      // Rapidly switch between components
+      // When: Admin rapidly switches between components
       for (let i = 0; i < 5; i++) {
         for (const Component of components) {
           rerender(
@@ -494,19 +595,30 @@ describe('Admin Components Integration Tests', () => {
             </AdminLayout>
           )
           
-          // Small delay to allow rendering
           await new Promise(resolve => setTimeout(resolve, 10))
         }
       }
 
-      // Should still function correctly
+      // Then: System remains responsive and functional
       await waitFor(() => {
         expect(screen.getByText('MoodOverMuscle Admin')).toBeInTheDocument()
       })
     })
 
-    it('handles concurrent API calls efficiently', async () => {
-      // Setup responses for multiple concurrent calls
+    it('manages concurrent API requests efficiently', async () => {
+      // Given: Multiple components need data simultaneously
+      const mockStatsResponse = {
+        ok: true,
+        json: jest.fn(() => Promise.resolve(mockStatsData)),
+        clone: jest.fn().mockReturnThis()
+      } as any
+
+      const mockBookingsResponse = {
+        ok: true,
+        json: jest.fn(() => Promise.resolve({ bookings: mockBookingsData })),
+        clone: jest.fn().mockReturnThis()
+      } as any
+
       mockFetch
         .mockResolvedValueOnce(mockStatsResponse)
         .mockResolvedValueOnce(mockBookingsResponse)
@@ -514,7 +626,7 @@ describe('Admin Components Integration Tests', () => {
 
       const startTime = Date.now()
 
-      // Render multiple components that make API calls
+      // When: Multiple components render concurrently
       render(
         <AdminLayout>
           <AdminDashboardPage />
@@ -533,17 +645,25 @@ describe('Admin Components Integration Tests', () => {
         </AdminLayout>
       )
 
+      // Then: All API calls complete within reasonable timeframe
       await waitFor(() => {
         expect(mockFetch).toHaveBeenCalledTimes(3)
       })
 
       const endTime = Date.now()
-      expect(endTime - startTime).toBeLessThan(2000) // Should complete within reasonable time
+      expect(endTime - startTime).toBeLessThan(2000)
     })
   })
 
-  describe('Accessibility Integration', () => {
-    it('maintains accessibility standards across component transitions', async () => {
+  describe('Accessibility: Inclusive Admin Experience', () => {
+    it('maintains WCAG compliance across all admin sections', async () => {
+      // Given: Admin workflow requires accessible interface
+      const mockBookingsResponse = {
+        ok: true,
+        json: jest.fn(() => Promise.resolve({ bookings: mockBookingsData })),
+        clone: jest.fn().mockReturnThis()
+      } as any
+
       mockFetch.mockResolvedValue(mockBookingsResponse)
 
       const components = [
@@ -552,24 +672,25 @@ describe('Admin Components Integration Tests', () => {
         { Component: AdminCalendarPage, name: 'Calendar' }
       ]
 
-      for (const { Component, name } of components) {
+      // When: Admin navigates through each section
+      for (const { Component } of components) {
         const { container, unmount } = render(
           <AdminLayout>
             <Component />
           </AdminLayout>
         )
 
+        // Then: Each section maintains proper heading hierarchy
         await waitFor(() => {
-          // Each component should maintain proper heading structure
           const mainHeading = screen.getByRole('heading', { level: 1 })
           expect(mainHeading).toBeInTheDocument()
         })
 
-        // Test accessibility
+        // And: No accessibility violations exist
         const results = await axe(container)
         expect(results).toHaveNoViolations()
 
-        // Test keyboard navigation
+        // And: Keyboard navigation is functional
         const firstInteractiveElement = container.querySelector('button, input, select, a') as HTMLElement
         if (firstInteractiveElement) {
           firstInteractiveElement.focus()
@@ -580,9 +701,17 @@ describe('Admin Components Integration Tests', () => {
       }
     })
 
-    it('maintains focus management during navigation', async () => {
+    it('preserves focus management during component transitions', async () => {
+      // Given: Admin is using keyboard navigation
+      const mockBookingsResponse = {
+        ok: true,
+        json: jest.fn(() => Promise.resolve({ bookings: mockBookingsData })),
+        clone: jest.fn().mockReturnThis()
+      } as any
+
       mockFetch.mockResolvedValue(mockBookingsResponse)
 
+      // When: Admin views dashboard
       render(
         <AdminLayout>
           <AdminDashboardPage />
@@ -593,44 +722,50 @@ describe('Admin Components Integration Tests', () => {
         expect(screen.getByText(/Welcome back, Emily!/)).toBeInTheDocument()
       })
 
-      // Focus on navigation element
+      // And: Admin uses keyboard to navigate
       const bookingsLink = screen.getByText('Bookings')
       bookingsLink.focus()
       expect(bookingsLink).toHaveFocus()
 
-      // Focus should be maintainable
+      // Then: Tab navigation maintains focus flow
       await user.tab()
       expect(document.activeElement).toBeTruthy()
     })
   })
 
-  describe('Error Boundary Integration', () => {
-    it('handles component-level errors without crashing the layout', async () => {
-      // Mock console.error to prevent test noise
+  describe('Error Boundaries: Graceful Component Error Handling', () => {
+    it('isolates component errors without crashing admin interface', async () => {
+      // Given: Component encounters unexpected error
       const originalError = console.error
       console.error = jest.fn()
 
       try {
-        // Force an error in the child component
         mockUseAdminAuth.mockImplementation(() => {
           throw new Error('Auth component error')
         })
 
+        // When: Error occurs in child component
         render(
           <AdminLayout>
             <AdminDashboardPage />
           </AdminLayout>
         )
 
-        // Layout should still be functional
+        // Then: Layout remains functional despite component error
         expect(screen.queryByText('MoodOverMuscle Admin')).toBeInTheDocument()
       } finally {
         console.error = originalError
       }
     })
 
-    it('recovers gracefully from temporary errors', async () => {
-      // Start with error state
+    it('recovers from temporary errors via retry mechanism', async () => {
+      // Given: System encounters temporary error
+      const mockStatsResponse = {
+        ok: true,
+        json: jest.fn(() => Promise.resolve(mockStatsData)),
+        clone: jest.fn().mockReturnThis()
+      } as any
+
       mockFetch.mockRejectedValueOnce(new Error('Temporary error'))
 
       const { rerender } = render(
@@ -639,11 +774,12 @@ describe('Admin Components Integration Tests', () => {
         </AdminLayout>
       )
 
+      // Then: Error state is displayed
       await waitFor(() => {
         expect(screen.getByText('Temporary error')).toBeInTheDocument()
       })
 
-      // Fix the error and rerender
+      // When: Error condition resolves and admin retries
       mockFetch.mockResolvedValue(mockStatsResponse)
 
       rerender(
@@ -652,10 +788,10 @@ describe('Admin Components Integration Tests', () => {
         </AdminLayout>
       )
 
-      // Should recover
       const retryButton = screen.getByRole('button', { name: /retry/i })
       await user.click(retryButton)
 
+      // Then: System recovers and displays dashboard
       await waitFor(() => {
         expect(screen.getByText(/Welcome back, Emily!/)).toBeInTheDocument()
       })

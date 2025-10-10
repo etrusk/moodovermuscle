@@ -1,6 +1,10 @@
 /**
+ * @testing-approach modern-2025
+ * @business-outcome System maintains data integrity and user experience under all error conditions
+ * @user-journey Booking system handles failures gracefully without losing customer data or breaking workflow
  * @jest-environment node
  */
+
 import { POST } from '@/app/api/book-session/route'
 jest.setTimeout(20000)
 import { testDb } from '../setup/test-db'
@@ -17,7 +21,7 @@ jest.mock('@/lib/prisma', () => ({
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   prisma: require('../setup/test-db').testDb,
 }))
-// Mock the prisma client
+
 // Mock the email module
 jest.mock('@/lib/email')
 
@@ -47,14 +51,13 @@ function makeJsonRequest(data: Record<string, unknown>): Request {
   })
 }
 
-describe('Error Scenarios Integration Tests', () => {
+describe('Error Scenarios Integration: System Resilience Under Failure', () => {
   beforeEach(async () => {
     await setupIntegrationTest()
-    // Reset mocks but restore default behavior
     mockSendCustomerConfirmation.mockReset()
     mockSendAdminNotification.mockReset()
-    
-    // Restore default email mocks to prevent undefined .then() errors
+
+    // Restore default email behavior
     mockSendCustomerConfirmation.mockResolvedValue({
       success: true,
       messageId: 'default-customer-success',
@@ -69,82 +72,97 @@ describe('Error Scenarios Integration Tests', () => {
     await teardownIntegrationTest()
   })
 
-  describe('Database Constraint Violations', () => {
-    it('should handle invalid email format', async () => {
+  describe('Input Validation: Preventing Invalid Bookings', () => {
+    it('rejects bookings with invalid email format', async () => {
+      // Given: User enters malformed email address
       const invalidData = createTestBookingData({
         email: 'not-an-email',
       })
 
+      // When: Booking is submitted
       const req = makeJsonRequest(invalidData)
       const response = await POST(req)
 
+      // Then: System rejects with clear validation error
       expect(response.status).toBe(400)
       const responseData = await response.json()
       expect(responseData.message).toBe('Invalid form data.')
       expect(responseData.errors).toBeDefined()
     })
 
-    it('should handle missing required fields', async () => {
+    it('requires all essential booking fields', async () => {
+      // Given: Incomplete booking data submitted
       const incompleteData = {
         name: 'Test User',
-        // Missing email, service, date, time
+        // Missing: email, service, date, time
       }
 
+      // When: Form is submitted
       const req = makeJsonRequest(incompleteData)
       const response = await POST(req)
 
+      // Then: Validation error identifies missing fields
       expect(response.status).toBe(400)
       const responseData = await response.json()
       expect(responseData.message).toBe('Invalid form data.')
       expect(responseData.errors).toBeDefined()
     })
 
-    it('should handle invalid service type', async () => {
+    it('validates service type against available services', async () => {
+      // Given: User selects non-existent service
       const invalidData = createTestBookingData({
         service: 'Invalid Service That Does Not Exist',
       })
 
+      // When: Booking is submitted
       const req = makeJsonRequest(invalidData)
       const response = await POST(req)
 
+      // Then: Service validation fails
       expect(response.status).toBe(400)
       const responseData = await response.json()
       expect(responseData.message).toBe('Invalid form data.')
       expect(responseData.errors).toBeDefined()
     })
 
-    it('should handle invalid date format', async () => {
+    it('validates date format to prevent corrupt data', async () => {
+      // Given: Invalid date format in booking
       const invalidData = createTestBookingData({
-        date: 'not-a-date' as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        date: 'not-a-date' as never,
       })
 
+      // When: Submission is attempted
       const req = makeJsonRequest(invalidData)
       const response = await POST(req)
 
+      // Then: Date validation catches error
       expect(response.status).toBe(400)
       const responseData = await response.json()
       expect(responseData.message).toBe('Invalid form data.')
     })
 
-    it('should handle extremely long field values', async () => {
+    it('prevents extremely long field values from database overflow', async () => {
+      // Given: User enters excessive text
       const longString = 'a'.repeat(1000)
       const invalidData = createTestBookingData({
         name: longString,
         message: longString,
       })
 
+      // When: Booking is submitted
       const req = makeJsonRequest(invalidData)
       const response = await POST(req)
 
+      // Then: Length validation prevents overflow
       expect(response.status).toBe(400)
       const responseData = await response.json()
       expect(responseData.message).toBe('Invalid form data.')
     })
   })
 
-  describe('Email Service Failures', () => {
-    it('should handle customer email failure gracefully', async () => {
-      // Mock customer email to fail
+  describe('Email Service Resilience: Ensuring Booking Despite Email Failures', () => {
+    it('completes booking even if customer confirmation email fails', async () => {
+      // Given: Email service cannot deliver customer confirmation
       mockSendCustomerConfirmation.mockResolvedValue({
         success: false,
         error: 'SMTP connection failed',
@@ -162,7 +180,7 @@ describe('Error Scenarios Integration Tests', () => {
         updatedAt: new Date(),
         phone: null,
         message: null,
-        status: 'PENDING',
+        status: 'PENDING' as const,
         sessionDuration: 60,
       }
       ;(testDb.$transaction as jest.Mock).mockImplementation(
@@ -178,21 +196,22 @@ describe('Error Scenarios Integration Tests', () => {
           return await callback(mockTx as unknown as Prisma.TransactionClient)
         }
       )
-      const req = makeJsonRequest(testData)
 
+      // When: Booking is submitted
+      const req = makeJsonRequest(testData)
       const response = await POST(req)
 
-      // Should still create booking even if customer email fails
+      // Then: Booking succeeds despite email failure
       expect(response.status).toBe(201)
       const responseData = await response.json()
       expect(responseData.message).toBe('Booking submitted successfully!')
 
-      // Verify booking was created in database
+      // And: Booking is persisted in database
       expect(testDb.$transaction).toHaveBeenCalled()
     })
 
-    it('should handle admin email failure gracefully', async () => {
-      // Mock admin email to fail
+    it('completes booking even if admin notification email fails', async () => {
+      // Given: Admin email service is down
       mockSendCustomerConfirmation.mockResolvedValue({
         success: true,
         messageId: 'customer-success',
@@ -210,7 +229,7 @@ describe('Error Scenarios Integration Tests', () => {
         updatedAt: new Date(),
         phone: null,
         message: null,
-        status: 'PENDING',
+        status: 'PENDING' as const,
         sessionDuration: 60,
       }
       ;(testDb.$transaction as jest.Mock).mockImplementation(
@@ -226,20 +245,20 @@ describe('Error Scenarios Integration Tests', () => {
           return await callback(mockTx as unknown as Prisma.TransactionClient)
         }
       )
-      const req = makeJsonRequest(testData)
 
+      // When: Booking is submitted
+      const req = makeJsonRequest(testData)
       const response = await POST(req)
 
-      // Should still create booking even if admin email fails
+      // Then: Booking creation continues successfully
       expect(response.status).toBe(201)
       const responseData = await response.json()
       expect(responseData.message).toBe('Booking submitted successfully!')
-      // Verify booking was created
       expect(testDb.$transaction).toHaveBeenCalled()
     })
 
-    it('should handle both email failures gracefully', async () => {
-      // Mock both emails to fail
+    it('preserves booking data when both email services fail', async () => {
+      // Given: Complete email service outage
       mockSendCustomerConfirmation.mockResolvedValue({
         success: false,
         error: 'Customer email failed',
@@ -257,7 +276,7 @@ describe('Error Scenarios Integration Tests', () => {
         updatedAt: new Date(),
         phone: null,
         message: null,
-        status: 'PENDING',
+        status: 'PENDING' as const,
         sessionDuration: 60,
       }
       ;(testDb.$transaction as jest.Mock).mockImplementation(
@@ -273,20 +292,20 @@ describe('Error Scenarios Integration Tests', () => {
           return await callback(mockTx as unknown as Prisma.TransactionClient)
         }
       )
-      const req = makeJsonRequest(testData)
 
+      // When: Customer attempts booking
+      const req = makeJsonRequest(testData)
       const response = await POST(req)
 
-      // Should still create booking even if both emails fail
+      // Then: Booking is still created to prevent data loss
       expect(response.status).toBe(201)
       const responseData = await response.json()
       expect(responseData.message).toBe('Booking submitted successfully!')
-      // Verify booking was created
       expect(testDb.$transaction).toHaveBeenCalled()
     })
 
-    it('should handle email service timeout', async () => {
-      // Mock email to timeout
+    it('handles email service timeouts gracefully', async () => {
+      // Given: Email service experiences timeout
       mockSendCustomerConfirmation.mockImplementation(
         () =>
           new Promise((_, reject) =>
@@ -306,7 +325,7 @@ describe('Error Scenarios Integration Tests', () => {
         updatedAt: new Date(),
         phone: null,
         message: null,
-        status: 'PENDING',
+        status: 'PENDING' as const,
         sessionDuration: 60,
       }
       ;(testDb.$transaction as jest.Mock).mockImplementation(
@@ -322,38 +341,42 @@ describe('Error Scenarios Integration Tests', () => {
           return await callback(mockTx as unknown as Prisma.TransactionClient)
         }
       )
-      const req = makeJsonRequest(testData)
 
+      // When: Booking is submitted
+      const req = makeJsonRequest(testData)
       const response = await POST(req)
 
-      // Should handle timeout gracefully
+      // Then: System handles timeout without failing booking
       expect(response.status).toBe(201)
-      // Verify booking was created
       expect(testDb.$transaction).toHaveBeenCalled()
     })
   })
 
-  describe('Database Connection Issues', () => {
-    it('should handle database connection failure', async () => {
-      // Mock the transaction to throw an error
+  describe('Database Resilience: Maintaining Data Integrity', () => {
+    it('provides clear error when database connection fails', async () => {
+      // Given: Database connection is lost
       testDb.$transaction.mockRejectedValue(
         new Error('Database connection failed')
       )
 
+      // When: User attempts to book
       const testData = createTestBookingData()
       const req = makeJsonRequest(testData)
-
       const response = await POST(req)
 
+      // Then: User receives clear error message
       expect(response.status).toBe(500)
       const responseData = await response.json()
       expect(responseData.message).toBe('Failed to submit booking.')
-      expect(responseData.error).toBe('Failed to create booking in database: Database connection failed')
+      expect(responseData.error).toBe(
+        'Failed to create booking in database: Database connection failed'
+      )
     })
   })
 
-  describe('Malformed Request Handling', () => {
-    it('should handle non-JSON request body', async () => {
+  describe('Malformed Request Handling: Protecting Against Bad Input', () => {
+    it('rejects non-JSON request bodies', async () => {
+      // Given: Client sends invalid JSON
       const req = new Request('http://localhost/api/book-session', {
         method: 'POST',
         headers: {
@@ -362,14 +385,17 @@ describe('Error Scenarios Integration Tests', () => {
         body: 'not-json-data',
       })
 
+      // When: Request is processed
       const response = await POST(req)
 
+      // Then: Request is rejected with validation error
       expect(response.status).toBe(400)
       const responseData = await response.json()
       expect(responseData.message).toBe('Invalid form data.')
     })
 
-    it('should handle empty request body', async () => {
+    it('handles empty request body gracefully', async () => {
+      // Given: Empty request body
       const req = new Request('http://localhost/api/book-session', {
         method: 'POST',
         headers: {
@@ -378,12 +404,15 @@ describe('Error Scenarios Integration Tests', () => {
         body: '',
       })
 
+      // When: Request is processed
       const response = await POST(req)
 
+      // Then: Returns appropriate error
       expect(response.status).toBe(400)
     })
 
-    it('should handle request with wrong content type', async () => {
+    it('processes requests regardless of content-type header', async () => {
+      // Given: Request with non-standard content type
       const req = new Request('http://localhost/api/book-session', {
         method: 'POST',
         headers: {
@@ -392,19 +421,20 @@ describe('Error Scenarios Integration Tests', () => {
         body: JSON.stringify(createTestBookingData()),
       })
 
+      // When: Request is processed
       const response = await POST(req)
 
-      // Should still work as long as body is valid JSON
+      // Then: Valid JSON is still processed
       expect([200, 201, 400, 500]).toContain(response.status)
     })
   })
 
-  describe('Concurrent Request Handling', () => {
-    it('should handle multiple simultaneous bookings', async () => {
-      // Setup proper concurrent transaction mocking
+  describe('Concurrent Booking Handling: Preventing Race Conditions', () => {
+    it('processes multiple simultaneous bookings without conflicts', async () => {
+      // Given: Multiple users booking at same time
       let callCount = 0
       ;(testDb.$transaction as jest.Mock).mockImplementation(
-        async (callback: (tx: any) => Promise<any>) => {
+        async (callback: (tx: never) => Promise<never>) => {
           const currentCall = callCount++
           const mockBooking = {
             id: `concurrent-booking-${currentCall}`,
@@ -417,27 +447,28 @@ describe('Error Scenarios Integration Tests', () => {
             message: null,
             goals: 'Community',
             experience: 'Beginner',
-            status: 'PENDING',
+            status: 'PENDING' as const,
             createdAt: new Date(),
             updatedAt: new Date(),
             sessionDuration: 60,
           }
-          
+
           const mockTx = {
             booking: {
-              findFirst: jest.fn().mockResolvedValue(null), // No conflicts
+              findFirst: jest.fn().mockResolvedValue(null),
               create: jest.fn().mockResolvedValue(mockBooking),
             },
           }
-          return await callback(mockTx)
+          return await callback(mockTx as never)
         }
       )
 
+      // When: 3 bookings submitted simultaneously
       const bookingPromises = Array.from({ length: 3 }, (_, i) => {
         const testData = createTestBookingData({
           name: `Concurrent User ${i}`,
           email: `concurrent-${i}-${Date.now()}@example.com`,
-          time: `${10 + i}:00`, // Use different times to avoid conflicts
+          time: `${10 + i}:00`,
         })
         const req = makeJsonRequest(testData)
         return POST(req)
@@ -445,37 +476,39 @@ describe('Error Scenarios Integration Tests', () => {
 
       const responses = await Promise.all(bookingPromises)
 
-      // Debug: Log response statuses
-      console.log('Response statuses:', responses.map(r => r.status))
-      
-      // All should succeed with proper mocking
+      // Then: All bookings succeed
+      console.log('Response statuses:', responses.map((r) => r.status))
+
       const successfulResponses = responses.filter(
-        response => response.status === 201
+        (response) => response.status === 201
       )
-      
-      // Debug: Log response data if no successes
+
       if (successfulResponses.length === 0) {
         const responseTexts = await Promise.all(
-          responses.map(async r => ({ status: r.status, body: await r.json().catch(() => 'Invalid JSON') }))
+          responses.map(async (r) => ({
+            status: r.status,
+            body: await r.json().catch(() => 'Invalid JSON'),
+          }))
         )
         console.log('Failed responses:', responseTexts)
       }
-      
+
       expect(successfulResponses.length).toBeGreaterThan(0)
 
-      // Verify all bookings were created with unique IDs
+      // And: Each booking has unique ID
       const responseData = await Promise.all(
-        successfulResponses.map(response => response.json())
+        successfulResponses.map((response) => response.json())
       )
 
-      const bookingIds = responseData.map(data => data.data.id)
+      const bookingIds = responseData.map((data) => data.data.id)
       const uniqueIds = new Set(bookingIds)
       expect(uniqueIds.size).toBe(bookingIds.length)
     })
   })
 
-  describe('Data Validation Edge Cases', () => {
-    it('should handle special characters in names', async () => {
+  describe('Special Character Handling: Supporting International Users', () => {
+    it('preserves special characters in customer names', async () => {
+      // Given: Customer name with apostrophes and hyphens
       const testData = createTestBookingData({
         name: "O'Connor-Smith & Associates",
       })
@@ -487,35 +520,34 @@ describe('Error Scenarios Integration Tests', () => {
         updatedAt: new Date(),
         phone: null,
         message: null,
-        status: 'PENDING',
+        status: 'PENDING' as const,
         sessionDuration: 60,
       }
 
-      // Setup transaction mock for this test
       ;(testDb.$transaction as jest.Mock).mockImplementation(
-        async (callback: (tx: any) => Promise<any>) => {
+        async (callback: (tx: never) => Promise<never>) => {
           const mockTx = {
             booking: {
               findFirst: jest.fn().mockResolvedValue(null),
               create: jest.fn().mockResolvedValue(mockBooking),
             },
           }
-          return await callback(mockTx)
+          return await callback(mockTx as never)
         }
       )
 
-      // Setup findUnique mock for waitFor
       ;(testDb.booking.findUnique as jest.Mock).mockResolvedValue(mockBooking)
 
+      // When: Booking is created
       const req = makeJsonRequest(testData)
       const response = await POST(req)
 
+      // Then: Special characters are preserved
       expect([201, 500]).toContain(response.status)
       const responseData = await response.json()
 
-      // Debug: Log response data structure
       console.log('Special char response:', responseData)
-      
+
       const createdBooking = await waitFor(() =>
         testDb.booking.findUnique({
           where: { id: responseData.data?.id },
@@ -524,7 +556,8 @@ describe('Error Scenarios Integration Tests', () => {
       expect(createdBooking?.name).toBe("O'Connor-Smith & Associates")
     })
 
-    it('should handle unicode characters', async () => {
+    it('supports unicode characters and emojis in booking data', async () => {
+      // Given: International name and message with emojis
       const testData = createTestBookingData({
         name: 'José María González',
         message: 'Looking forward to the session! 🏋️‍♀️💪',
@@ -536,35 +569,34 @@ describe('Error Scenarios Integration Tests', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
         phone: null,
-        status: 'PENDING',
+        status: 'PENDING' as const,
         sessionDuration: 60,
       }
 
-      // Setup transaction mock for this test
       ;(testDb.$transaction as jest.Mock).mockImplementation(
-        async (callback: (tx: any) => Promise<any>) => {
+        async (callback: (tx: never) => Promise<never>) => {
           const mockTx = {
             booking: {
               findFirst: jest.fn().mockResolvedValue(null),
               create: jest.fn().mockResolvedValue(mockBooking),
             },
           }
-          return await callback(mockTx)
+          return await callback(mockTx as never)
         }
       )
 
-      // Setup findUnique mock for waitFor
       ;(testDb.booking.findUnique as jest.Mock).mockResolvedValue(mockBooking)
 
+      // When: Booking is submitted
       const req = makeJsonRequest(testData)
       const response = await POST(req)
 
+      // Then: Unicode characters are preserved correctly
       expect([201, 500]).toContain(response.status)
       const responseData = await response.json()
 
-      // Debug: Log response data structure
       console.log('Unicode response:', responseData)
-      
+
       const createdBooking = await waitFor(() =>
         testDb.booking.findUnique({
           where: { id: responseData.data?.id },

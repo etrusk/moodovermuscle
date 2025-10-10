@@ -1,6 +1,10 @@
 /**
+ * @testing-approach modern-2025
+ * @migrated 2025-10-10
+ * @coverage behavior-focused
  * @jest-environment node
  */
+
 import { POST } from '@/app/api/book-session/[id]/status/route'
 import { NextRequest } from 'next/server'
 import { testDb } from '../setup/test-db'
@@ -23,7 +27,6 @@ jest.mock('@/lib/email', () => ({
   sendAdminNotification: jest.fn().mockResolvedValue({ success: true }),
 }))
 
-// Define BookingStatus enum locally to avoid Prisma client import issues
 const BookingStatus = {
   PENDING: 'PENDING',
   CONFIRMED: 'CONFIRMED',
@@ -39,7 +42,7 @@ function makeStatusRequest(id: string, status: string): NextRequest {
   }) as NextRequest
 }
 
-describe('Booking Status Transition API', () => {
+describe('Booking Status Lifecycle Integration', () => {
   beforeEach(async () => {
     await setupIntegrationTest()
     ;(testDb.$transaction as jest.Mock).mockImplementation(
@@ -53,89 +56,208 @@ describe('Booking Status Transition API', () => {
     await teardownIntegrationTest()
   })
 
-  it('Successfully transitions PENDING to CONFIRMED and creates audit + emails', async () => {
-    const bookingId = 'bid-1'
-    const original = {
-      id: bookingId,
-      name: 'Alice',
-      email: 'alice@example.com',
-      phone: null,
-      service: 'Yoga',
-      date: new Date('2025-08-10'),
-      time: '10:00',
-      message: null,
-      goals: null,
-      experience: null,
-      status: BookingStatus.PENDING,
-      sessionDuration: 60,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }
-    const updated = {
-      ...original,
-      status: BookingStatus.CONFIRMED,
-      updatedAt: new Date(),
-    }
+  describe('Valid Status Transitions', () => {
+    it('transitions booking from pending to confirmed with audit trail', async () => {
+      const bookingId = 'booking-transition-1'
+      const pendingBooking = {
+        id: bookingId,
+        name: 'Alice Smith',
+        email: 'alice@example.com',
+        phone: null,
+        service: 'Yoga',
+        date: new Date('2025-08-10'),
+        time: '10:00',
+        message: null,
+        goals: null,
+        experience: null,
+        status: BookingStatus.PENDING,
+        sessionDuration: 60,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+      
+      const confirmedBooking = {
+        ...pendingBooking,
+        status: BookingStatus.CONFIRMED,
+        updatedAt: new Date(),
+      }
 
-    testDb.booking.findUnique.mockResolvedValue(original)
-    testDb.booking.update.mockResolvedValue(updated)
-    ;(
-      testDb.bookingStatusChange as unknown as { create: jest.Mock }
-    ).create.mockResolvedValue({
-      id: 'c1',
-      fromStatus: 'PENDING',
-      toStatus: 'CONFIRMED',
-      bookingId,
-      createdAt: new Date(),
+      testDb.booking.findUnique.mockResolvedValue(pendingBooking)
+      testDb.booking.update.mockResolvedValue(confirmedBooking)
+      ;(
+        testDb.bookingStatusChange as unknown as { create: jest.Mock }
+      ).create.mockResolvedValue({
+        id: 'change-1',
+        fromStatus: 'PENDING',
+        toStatus: 'CONFIRMED',
+        bookingId,
+        createdAt: new Date(),
+      })
+
+      const request = makeStatusRequest(bookingId, 'CONFIRMED')
+      const response = await POST(request, { params: { id: bookingId } })
+      
+      expect(response.status).toBe(200)
+      const body = await response.json()
+      expect(body).toEqual(confirmedBooking)
+
+      // Verify audit trail created
+      expect(
+        (testDb.bookingStatusChange as unknown as { create: jest.Mock }).create
+      ).toHaveBeenCalledWith({
+        data: {
+          bookingId,
+          fromStatus: BookingStatus.PENDING,
+          toStatus: BookingStatus.CONFIRMED,
+        },
+      })
     })
 
-    const req = makeStatusRequest(bookingId, 'CONFIRMED')
-    const res = await POST(req, { params: { id: bookingId } })
-    expect(res.status).toBe(200)
-    const body = await res.json()
-    expect(body).toEqual(updated)
+    it('sends customer notification on confirmation', async () => {
+      const bookingId = 'booking-notification-1'
+      const booking = {
+        id: bookingId,
+        status: BookingStatus.PENDING,
+        email: 'customer@example.com',
+      }
 
-    expect(testDb.booking.update).toHaveBeenCalledWith({
-      where: { id: bookingId },
-      data: { status: BookingStatus.CONFIRMED },
+      testDb.booking.findUnique.mockResolvedValue(booking as unknown as Booking)
+      testDb.booking.update.mockResolvedValue({
+        ...booking,
+        status: BookingStatus.CONFIRMED,
+      } as unknown as Booking)
+      ;(
+        testDb.bookingStatusChange as unknown as { create: jest.Mock }
+      ).create.mockResolvedValue({})
+
+      const request = makeStatusRequest(bookingId, 'CONFIRMED')
+      await POST(request, { params: { id: bookingId } })
+
+      expect(email.sendCustomerConfirmation).toHaveBeenCalled()
+      expect(email.sendAdminNotification).toHaveBeenCalled()
     })
-    expect(
-      (testDb.bookingStatusChange as unknown as { create: jest.Mock }).create
-    ).toHaveBeenCalledWith({
-      data: {
+  })
+
+  describe('Invalid Status Transitions', () => {
+    it('prevents transition from cancelled to confirmed', async () => {
+      const bookingId = 'booking-invalid-1'
+      const cancelledBooking = { 
+        id: bookingId, 
+        status: BookingStatus.CANCELLED 
+      }
+      
+      testDb.booking.findUnique.mockResolvedValue(
+        cancelledBooking as unknown as Booking
+      )
+
+      const request = makeStatusRequest(bookingId, 'CONFIRMED')
+      const response = await POST(request, { params: { id: bookingId } })
+      
+      expect(response.status).toBe(400)
+      const body = await response.json()
+      expect(body.error).toMatch(/Cannot transition/i)
+      
+      // Verify no status change occurred
+      expect(testDb.booking.update).not.toHaveBeenCalled()
+      expect(
+        (testDb.bookingStatusChange as unknown as { create: jest.Mock }).create
+      ).not.toHaveBeenCalled()
+    })
+
+    it('rejects invalid status values', async () => {
+      const bookingId = 'booking-invalid-status'
+      const booking = {
+        id: bookingId,
+        status: BookingStatus.PENDING,
+      }
+
+      testDb.booking.findUnique.mockResolvedValue(booking as unknown as Booking)
+
+      const request = makeStatusRequest(bookingId, 'INVALID_STATUS')
+      const response = await POST(request, { params: { id: bookingId } })
+      
+      expect(response.status).toBe(400)
+      const body = await response.json()
+      expect(body.error).toBeDefined()
+    })
+  })
+
+  describe('Non-existent Booking Handling', () => {
+    it('returns 404 for missing booking', async () => {
+      const bookingId = 'non-existent-booking'
+      testDb.booking.findUnique.mockResolvedValue(null)
+
+      const request = makeStatusRequest(bookingId, 'CONFIRMED')
+      const response = await POST(request, { params: { id: bookingId } })
+      
+      expect(response.status).toBe(404)
+      const body = await response.json()
+      expect(body.error).toBe('Booking not found')
+    })
+  })
+
+  describe('Audit Trail Verification', () => {
+    it('creates status change record for every transition', async () => {
+      const bookingId = 'booking-audit-1'
+      const original = {
+        id: bookingId,
+        status: BookingStatus.PENDING,
+      }
+
+      testDb.booking.findUnique.mockResolvedValue(original as unknown as Booking)
+      testDb.booking.update.mockResolvedValue({
+        ...original,
+        status: BookingStatus.CONFIRMED,
+      } as unknown as Booking)
+      ;(
+        testDb.bookingStatusChange as unknown as { create: jest.Mock }
+      ).create.mockResolvedValue({
+        id: 'audit-1',
         bookingId,
         fromStatus: BookingStatus.PENDING,
         toStatus: BookingStatus.CONFIRMED,
-      },
+        createdAt: new Date(),
+      })
+
+      const request = makeStatusRequest(bookingId, 'CONFIRMED')
+      await POST(request, { params: { id: bookingId } })
+
+      const createCall = (
+        testDb.bookingStatusChange as unknown as { create: jest.Mock }
+      ).create.mock.calls[0][0]
+
+      expect(createCall.data).toMatchObject({
+        bookingId,
+        fromStatus: BookingStatus.PENDING,
+        toStatus: BookingStatus.CONFIRMED,
+      })
     })
-    expect(email.sendCustomerConfirmation).toHaveBeenCalled()
-    expect(email.sendAdminNotification).toHaveBeenCalled()
   })
 
-  it('Rejects invalid status transition', async () => {
-    const bookingId = 'bid-2'
-    const original = { id: bookingId, status: BookingStatus.CANCELLED }
-    testDb.booking.findUnique.mockResolvedValue(original as unknown as Booking)
+  describe('Database Transaction Integrity', () => {
+    it('updates booking status within transaction', async () => {
+      const bookingId = 'booking-transaction-1'
+      const booking = {
+        id: bookingId,
+        status: BookingStatus.PENDING,
+      }
 
-    const req = makeStatusRequest(bookingId, 'CONFIRMED')
-    const res = await POST(req, { params: { id: bookingId } })
-    expect(res.status).toBe(400)
-    const body = await res.json()
-    expect(body.error).toMatch(/Cannot transition/)
-    expect(testDb.booking.update).not.toHaveBeenCalled()
-    expect(
-      (testDb.bookingStatusChange as unknown as { create: jest.Mock }).create
-    ).not.toHaveBeenCalled()
-  })
+      testDb.booking.findUnique.mockResolvedValue(booking as unknown as Booking)
+      testDb.booking.update.mockResolvedValue({
+        ...booking,
+        status: BookingStatus.CONFIRMED,
+      } as unknown as Booking)
+      ;(
+        testDb.bookingStatusChange as unknown as { create: jest.Mock }
+      ).create.mockResolvedValue({})
 
-  it('Returns 404 for non-existent booking', async () => {
-    const bookingId = 'missing'
-    testDb.booking.findUnique.mockResolvedValue(null)
+      const request = makeStatusRequest(bookingId, 'CONFIRMED')
+      await POST(request, { params: { id: bookingId } })
 
-    const req = makeStatusRequest(bookingId, 'CONFIRMED')
-    const res = await POST(req, { params: { id: bookingId } })
-    expect(res.status).toBe(404)
-    const body = await res.json()
-    expect(body.error).toBe('Booking not found')
+      expect(testDb.booking.update).toHaveBeenCalledWith({
+        where: { id: bookingId },
+        data: { status: BookingStatus.CONFIRMED },
+      })
+    })
   })
 })

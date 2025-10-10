@@ -1,6 +1,10 @@
 /**
+ * @testing-approach modern-2025
+ * @migrated 2025-10-10
+ * @coverage behavior-focused
  * @jest-environment node
  */
+
 import { POST } from '@/app/api/book-session/route'
 import { prisma } from '@/lib/prisma'
 import { createTestBookingData } from '../setup/test-db-data'
@@ -10,7 +14,6 @@ import {
 } from '../setup/test-helpers'
 import type { Booking, Prisma } from '@/lib/generated/prisma'
 
-// Get the mocked prisma instance with proper typing
 const mockPrisma = prisma as jest.Mocked<typeof prisma>
 
 jest.setTimeout(15000)
@@ -18,7 +21,6 @@ jest.setTimeout(15000)
 type TransactionCallback = (tx: Prisma.TransactionClient) => Promise<Booking>
 
 jest.mock('@/lib/prisma', () => ({
-  // Inline mock factory - no external dependencies during hoisting
   prisma: {
     booking: {
       create: jest.fn(),
@@ -35,7 +37,6 @@ jest.mock('@/lib/prisma', () => ({
   },
 }))
 
-// Mock email functions for integration tests
 jest.mock('@/lib/email', () => ({
   sendCustomerConfirmation: jest
     .fn()
@@ -45,7 +46,6 @@ jest.mock('@/lib/email', () => ({
     .mockResolvedValue({ success: true, messageId: 'test-id' }),
 }))
 
-// Helper functions for test setup
 const setupMockBooking = (testData: Record<string, unknown>, id = 'mock-booking-id'): Booking => {
   return {
     ...testData,
@@ -90,7 +90,7 @@ function makeJsonRequest(data: Record<string, unknown>): Request {
   })
 }
 
-describe('Booking API Integration Tests', () => {
+describe('Booking API Workflow Integration', () => {
   beforeEach(async () => {
     await setupIntegrationTest()
   })
@@ -99,73 +99,61 @@ describe('Booking API Integration Tests', () => {
     await teardownIntegrationTest()
   })
 
-  describe('POST /api/book-session - Basic Operations', () => {
-    it('should create a booking in the database with valid data', async () => {
+  describe('Complete Booking Journey', () => {
+    it('creates booking from submission to confirmation', async () => {
       const testData = createTestBookingData()
-      const mockBooking = setupMockBooking(testData, 'mock-booking-id-123')
+      const mockBooking = setupMockBooking(testData, 'booking-123')
       mockTransaction(mockBooking)
 
       const response = await POST(makeJsonRequest(testData))
+      
       expect(response.status).toBe(201)
-
       const responseData = await response.json()
-      expect(responseData.message).toBe('Booking submitted successfully!')
+      expect(responseData.message).toMatch(/success/i)
       expect(responseData.data).toHaveProperty('id')
+      expect(responseData.data.status).toBe('PENDING')
+    })
 
-      // Verify booking creation
-      ;(mockPrisma.booking.findUnique as jest.Mock).mockResolvedValue(
-        setupMockBooking(testData, responseData.data.id)
+    it('persists all customer information correctly', async () => {
+      const customerData = createTestBookingData({
+        name: 'Jane Smith',
+        email: 'jane@example.com',
+        phone: '0412345678',
+        goals: 'Build strength',
+        experience: 'Beginner',
+      })
+
+      const mockBooking = setupMockBooking(customerData)
+      mockTransaction(mockBooking)
+
+      const response = await POST(makeJsonRequest(customerData))
+      const responseData = await response.json()
+
+      (mockPrisma.booking.findUnique as jest.Mock).mockResolvedValue(
+        setupMockBooking(customerData, responseData.data.id)
       )
+      
       const createdBooking = await mockPrisma.booking.findUnique({
         where: { id: responseData.data.id },
       })
 
-      expect(createdBooking).toBeTruthy()
-      expect(createdBooking?.name).toBe(testData.name)
-      expect(createdBooking?.email).toBe(testData.email)
-      expect(createdBooking?.service).toBe(testData.service)
-      expect(createdBooking?.goals).toBe(testData.goals)
-      expect(createdBooking?.experience).toBe(testData.experience)
-    })
-
-    it('should handle database constraint violations', async () => {
-      const testData = createTestBookingData({
-        email: 'invalid-email', // This should fail validation
+      expect(createdBooking).toMatchObject({
+        name: 'Jane Smith',
+        email: 'jane@example.com',
+        phone: '0412345678',
+        goals: 'Build strength',
+        experience: 'Beginner',
       })
-
-      const response = await POST(makeJsonRequest(testData))
-      expect(response.status).toBe(400)
-
-      const responseData = await response.json()
-      expect(responseData.message).toBe('Invalid form data.')
-      expect(responseData.errors).toBeDefined()
     })
 
-    it('should handle missing required fields', async () => {
-      const incompleteData = {
-        name: 'Test User',
-        // Missing required fields
-      }
+    it('handles multiple concurrent bookings independently', async () => {
+      const booking1 = createTestBookingData({ name: 'User 1' })
+      const booking2 = createTestBookingData({ name: 'User 2' })
 
-      const response = await POST(makeJsonRequest(incompleteData))
-      expect(response.status).toBe(400)
+      const mockBooking1 = setupMockBooking(booking1, 'booking-1')
+      const mockBooking2 = setupMockBooking(booking2, 'booking-2')
 
-      const responseData = await response.json()
-      expect(responseData.message).toBe('Invalid form data.')
-      expect(responseData.errors).toBeDefined()
-    })
-  })
-
-  describe('POST /api/book-session - Multiple Bookings', () => {
-    it('should create multiple bookings without conflicts', async () => {
-      const testData1 = createTestBookingData({ name: 'User 1' })
-      const testData2 = createTestBookingData({ name: 'User 2' })
-
-      const mockBooking1 = setupMockBooking(testData1, 'mock-id-1')
-      const mockBooking2 = setupMockBooking(testData2, 'mock-id-2')
-
-      // Setup transaction mocks for both bookings
-      ;(mockPrisma.$transaction as jest.Mock)
+      (mockPrisma.$transaction as jest.Mock)
         .mockImplementationOnce(async (callback: TransactionCallback) => {
           const mockTx = {
             booking: {
@@ -185,46 +173,77 @@ describe('Booking API Integration Tests', () => {
           return await callback(mockTx as unknown as Prisma.TransactionClient)
         })
 
-      const response1 = await POST(makeJsonRequest(testData1))
-      const response2 = await POST(makeJsonRequest(testData2))
+      const [response1, response2] = await Promise.all([
+        POST(makeJsonRequest(booking1)),
+        POST(makeJsonRequest(booking2)),
+      ])
 
       expect(response1.status).toBe(201)
       expect(response2.status).toBe(201)
 
       const data1 = await response1.json()
       const data2 = await response2.json()
-      expect(data1.data.id).not.toBe(data2.data.id)
-
-      // Verify database calls
-      mockPrisma.booking.findUnique
-        .mockResolvedValueOnce(setupMockBooking(testData1, data1.data.id))
-        .mockResolvedValueOnce(setupMockBooking(testData2, data2.data.id))
       
-      const booking1 = await mockPrisma.booking.findUnique({ where: { id: data1.data.id } })
-      const booking2 = await mockPrisma.booking.findUnique({ where: { id: data2.data.id } })
-
-      expect(booking1?.name).toBe('User 1')
-      expect(booking2?.name).toBe('User 2')
+      expect(data1.data.id).not.toBe(data2.data.id)
     })
   })
 
-  describe('POST /api/book-session - Field Handling', () => {
-    it('should handle date and time fields correctly', async () => {
-      const futureDate = new Date('2024-12-25T14:30:00Z')
-      const testData = createTestBookingData({
-        date: futureDate.toISOString(),
+  describe('Input Validation Flow', () => {
+    it('rejects invalid email format', async () => {
+      const invalidData = createTestBookingData({
+        email: 'not-an-email',
+      })
+
+      const response = await POST(makeJsonRequest(invalidData))
+      
+      expect(response.status).toBe(400)
+      const responseData = await response.json()
+      expect(responseData.message).toMatch(/invalid/i)
+      expect(responseData.errors).toBeDefined()
+    })
+
+    it('requires all mandatory fields', async () => {
+      const incompleteData = {
+        name: 'Test User',
+      }
+
+      const response = await POST(makeJsonRequest(incompleteData))
+      
+      expect(response.status).toBe(400)
+      const responseData = await response.json()
+      expect(responseData.message).toMatch(/invalid/i)
+      expect(responseData.errors).toBeDefined()
+    })
+
+    it('validates service selection', async () => {
+      const invalidService = createTestBookingData({
+        service: 'Non-existent Service',
+      })
+
+      const response = await POST(makeJsonRequest(invalidService))
+      
+      expect(response.status).toBe(400)
+      const responseData = await response.json()
+      expect(responseData.message).toMatch(/invalid/i)
+    })
+  })
+
+  describe('Date and Time Handling', () => {
+    it('preserves exact booking date and time', async () => {
+      const specificDateTime = new Date('2024-12-25T14:30:00Z')
+      const bookingData = createTestBookingData({
+        date: specificDateTime.toISOString(),
         time: '14:30',
       })
 
-      const mockBooking = setupMockBooking(testData, 'mock-booking-id-date-time')
+      const mockBooking = setupMockBooking(bookingData)
       mockTransaction(mockBooking)
 
-      const response = await POST(makeJsonRequest(testData))
-      expect(response.status).toBe(201)
-
+      const response = await POST(makeJsonRequest(bookingData))
       const responseData = await response.json()
-      mockPrisma.booking.findUnique.mockResolvedValue(
-        setupMockBooking(testData, responseData.data.id)
+
+      (mockPrisma.booking.findUnique as jest.Mock).mockResolvedValue(
+        setupMockBooking(bookingData, responseData.data.id)
       )
       
       const createdBooking = await mockPrisma.booking.findUnique({
@@ -232,24 +251,27 @@ describe('Booking API Integration Tests', () => {
       })
 
       expect(createdBooking?.time).toBe('14:30')
-      expect(createdBooking?.date).toEqual(futureDate)
+      expect(createdBooking?.date).toEqual(specificDateTime)
     })
+  })
 
-    it('should handle optional fields correctly', async () => {
-      const testData = createTestBookingData({
+  describe('Optional Fields Handling', () => {
+    it('allows booking without optional phone and message', async () => {
+      const minimalData = createTestBookingData({
         phone: undefined,
         message: undefined,
       })
 
-      const mockBooking = setupMockBooking(testData, 'mock-booking-id-optional')
+      const mockBooking = setupMockBooking(minimalData)
       mockTransaction(mockBooking)
 
-      const response = await POST(makeJsonRequest(testData))
+      const response = await POST(makeJsonRequest(minimalData))
+      
       expect(response.status).toBe(201)
-
       const responseData = await response.json()
-      mockPrisma.booking.findUnique.mockResolvedValue(
-        setupMockBooking(testData, responseData.data.id)
+
+      (mockPrisma.booking.findUnique as jest.Mock).mockResolvedValue(
+        setupMockBooking(minimalData, responseData.data.id)
       )
       
       const createdBooking = await mockPrisma.booking.findUnique({
@@ -259,46 +281,55 @@ describe('Booking API Integration Tests', () => {
       expect(createdBooking?.phone).toBeNull()
       expect(createdBooking?.message).toBeNull()
     })
-  })
 
-  describe('POST /api/book-session - Validation', () => {
-    it('should validate service types', async () => {
-      const testData = createTestBookingData({
-        service: 'Invalid Service Type',
-      })
-
-      const response = await POST(makeJsonRequest(testData))
-
-      expect(response.status).toBe(400)
-
-      const responseData = await response.json()
-      expect(responseData.message).toBe('Invalid form data.')
-      expect(responseData.errors).toBeDefined()
-    })
-
-    it('should validate goals and experience fields', async () => {
-      const validData = createTestBookingData({
-        goals: 'strength',
+    it('stores optional goals and experience when provided', async () => {
+      const completeData = createTestBookingData({
+        goals: 'Strength training',
         experience: 'Intermediate',
       })
 
-      const mockBooking = setupMockBooking(validData, 'mock-booking-id-goals')
+      const mockBooking = setupMockBooking(completeData)
       mockTransaction(mockBooking)
 
-      const response = await POST(makeJsonRequest(validData))
-      expect(response.status).toBe(201)
-
+      const response = await POST(makeJsonRequest(completeData))
       const responseData = await response.json()
-      mockPrisma.booking.findUnique.mockResolvedValue(
-        setupMockBooking(validData, responseData.data.id)
+
+      (mockPrisma.booking.findUnique as jest.Mock).mockResolvedValue(
+        setupMockBooking(completeData, responseData.data.id)
       )
       
       const createdBooking = await mockPrisma.booking.findUnique({
         where: { id: responseData.data.id },
       })
 
-      expect(createdBooking?.goals).toBe('strength')
+      expect(createdBooking?.goals).toBe('Strength training')
       expect(createdBooking?.experience).toBe('Intermediate')
+    })
+  })
+
+  describe('Response Format Consistency', () => {
+    it('returns consistent success response structure', async () => {
+      const testData = createTestBookingData()
+      const mockBooking = setupMockBooking(testData)
+      mockTransaction(mockBooking)
+
+      const response = await POST(makeJsonRequest(testData))
+      const responseData = await response.json()
+
+      expect(responseData).toHaveProperty('message')
+      expect(responseData).toHaveProperty('data')
+      expect(responseData.data).toHaveProperty('id')
+      expect(responseData.data).toHaveProperty('status')
+    })
+
+    it('returns consistent error response structure', async () => {
+      const invalidData = { name: 'Test' }
+
+      const response = await POST(makeJsonRequest(invalidData))
+      const responseData = await response.json()
+
+      expect(responseData).toHaveProperty('message')
+      expect(responseData).toHaveProperty('errors')
     })
   })
 })

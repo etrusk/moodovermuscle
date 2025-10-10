@@ -2,116 +2,79 @@
 
 ## Quick Start
 
-- **[Current Project Status](./current-task.md)** - Active development tasks and session state
-- **[Project Specification](./spec.md)** - Appetite-based project requirements and scope
-- **[API Specification](./api/specification.md)** - Technical API documentation and contracts
-- **[Technical Debt Tracking](./debt.md)** - Active and resolved technical debt items
-
-## Core Architecture & Design
-
-- **[System Architecture](./architecture.md)** - Technical architecture, constraints, and design patterns
-- **[Development Workflows](./workflows.md)** - Appetite-based development processes and quality gates
+- **[Current Project Status](./current-task.md)** - Active development tasks
+- **[Project Specification](./spec.md)** - Business requirements and scope
+- **[System Architecture](./architecture.md)** - Technical architecture and constraints
+- **[Development Workflows](./workflow.md)** - Development processes and quality gates
 
 ## Documentation Structure
 
-### **Agent Collaboration**
+### Core Documents
 
-- **[Handoff Templates](./handoffs/index.md)** - Structured transitions between development modes with template selection guidance
-- **[Pattern Library](./patterns/index.md)** - Reusable implementation patterns and solutions
+- **[spec.md](./spec.md)** - Business requirements for solo trainer (Emily) with 50-100 bookings/month
+- **[architecture.md](./architecture.md)** - Tech stack (Next.js 14, Prisma, PostgreSQL), security, patterns
+- **[workflow.md](./workflow.md)** - Pre-commit enforcement, preview-first deployment, Git standards
+- **[current-task.md](./current-task.md)** - Active work tracking
 
-### **Institutional Knowledge**
+### Pattern Library
 
-- **[Memory Index](./memory/index.md)** - Successful approaches, debugging strategies, and complexity insights
-- **[Decision Records](./decisions/index.md)** - Architectural decisions and their rationale
-- **[Investigations](./investigations/index.md)** - Problem analysis and resolution documentation
+- **[patterns/index.md](./patterns/index.md)** - Reusable code patterns (auth, forms, database, testing)
 
-### **System Integration**
+### Known Issues
 
-- **[API Specification](./api/specification.md)** - Interface contracts and integration points
+- **[investigations/index.md](./investigations/index.md)** - Common issues and solutions (DST bugs, Prisma patterns, etc.)
 
 ## Navigation Guide
 
-### **For Development Tasks**
+### Starting Development
 
-1. **Current Context**: Review **[current-task.md](./current-task.md)** for active work and session state
-2. **Pattern Discovery**: Search **[patterns](./patterns/index.md)** for proven implementation approaches
-3. **Agent Handoffs**: **MANDATORY** - Check **[handoff templates](./handoffs/index.md)** for appropriate transition template before any mode handoff
-4. **Technical Constraints**: Reference **[architecture.md](./architecture.md)** for system design boundaries
-5. **Quality Processes**: Follow **[workflows.md](./workflows.md)** for quality gates and preview-first deployment
-6. **Knowledge Distribution**: Check **[memory](./memory/index.md)** for institutional knowledge and truck number tracking
+1. Review **[current-task.md](./current-task.md)** for context
+2. Check **[patterns/index.md](./patterns/index.md)** for similar implementations
+3. Reference **[architecture.md](./architecture.md)** for system constraints
+4. Follow **[workflow.md](./workflow.md)** for quality gates
 
-### **For Architecture & Design**
+### Debugging Issues
 
-1. Start with **[spec.md](./spec.md)** for project scope and appetite
-2. Review **[architecture.md](./architecture.md)** for system design
-3. Check **[decisions](./decisions/index.md)** for architectural rationale
-4. Reference **[memory](./memory/index.md)** for complexity insights
+1. Check **[investigations/index.md](./investigations/index.md)** for known issues
+2. Reference pattern files for implementation details
+3. Update investigations if new solution discovered
 
-### **For Debugging & Investigation**
+### Architecture Decisions
 
-1. Check **[investigations](./investigations/index.md)** for similar issues
-2. Use **[memory/debugging-failures](./memory/debugging-failures-and-recovery-strategies.md)** for proven approaches
-3. Apply **[handoff templates](./handoffs/index.md)** for debug escalation
-4. Document findings in appropriate investigation files
+1. Review **[spec.md](./spec.md)** for business context
+2. Check **[architecture.md](./architecture.md)** for existing patterns
+3. Consider scale (50-100 bookings/month, solo trainer)
 
-## Quality Assurance
+## Quality Standards
 
-### **Critical Documents**
+### Pre-Commit Gates (Automatic)
 
-- All changes must pass quality gates defined in **[workflows.md](./workflows.md)**
-- Architecture decisions require ADR documentation in **[decisions](./decisions/index.md)**
-- New patterns must be added to **[patterns](./patterns/index.md)** with usage examples
-- API changes must update contracts in **[api/specification.md](./api/specification.md)**
+All commits must pass:
+- ESLint + Prettier (auto-fix)
+- TypeScript compilation
+- Critical tests
+- Security scan
+- Build verification
 
-### **Documentation Health & Maintenance**
+See **[workflow.md](./workflow.md)** for details.
 
-**Automated Staleness Detection** (Zero Maintenance Overhead):
+### Preview-First Deployment
 
-```bash
-# Check documentation health
-npm run docs:staleness      # Detailed staleness analysis with recommendations
-npm run test:critical       # Includes documentation health checks (integrated)
-```
+Functionality changes require:
+1. Create PR (triggers Vercel preview)
+2. Share preview URL with client
+3. Get explicit approval
+4. Merge to production
 
-**Health Scoring System (30-day threshold)**:
-- **Current (0-30 days)**: Recently updated, likely accurate
-- **Stale (31+ days)**: Flagged for review or cleanup
+## Key Principles
 
-**Target Health Score: >90% current documentation**
-
-**System Benefits**:
-- Zero manual tracking overhead - uses git timestamps automatically
-- Integrated with critical test workflow for continuous monitoring
-- Clear maintenance recommendations with visual priority indicators
-- Supports 90% documentation size reduction target
-
-### **Documentation Standards**
-
-- **Appetite-Focused**: All documentation organized around appetite constraints and scope boundaries
-- **Agent-Friendly**: Templates and indexes optimized for agent collaboration workflows
-- **Pattern-Based**: Reusable solutions documented for complexity estimation and implementation guidance
-- **Quality-First**: Critical vs. non-critical requirements clearly defined throughout
-- **Navigator-Driver Model**: Clear separation between human strategic decisions and AI tactical execution
-- **Knowledge Distribution**: Truck number principle ensures critical knowledge is distributed across team members
-- **Health-Monitored**: Automated staleness detection maintains documentation currency
-
-## AI-Assisted Development Guidelines
-
-### **Navigator-Driver Model**
-
-- **Human Navigator**: Sets strategic direction, makes business decisions, provides quality oversight
-- **AI Driver**: Handles tactical implementation, follows established patterns, executes within constraints
-- **Clear Boundaries**: 70% routine work (AI), 30% critical decisions (human escalation)
-
-### **Automation Principles**
-
-- **Maximize Automation**: Automate repetitive tasks while preserving human oversight for critical decisions
-- **Prevent Documentation Drift**: Enhance documentation through automated pattern capture and institutional memory
-- **Knowledge Distribution**: Ensure critical knowledge is shared across multiple team members (truck number principle)
-- **Quality Gates**: Automated quality enforcement with human escalation for critical failures
+- **Scale-Appropriate**: Solutions sized for 50-100 bookings/month
+- **Pattern-First**: Check patterns before implementing
+- **Quality-Enforced**: Pre-commit hooks prevent bad code
+- **Simple Solutions**: Booking form, not distributed system
 
 ---
 
-**Last Updated**: 2025-08-04  
-**Documentation Status**: Comprehensive coverage of appetite-based development workflow  
-**Next Review**: Quarterly review of pattern effectiveness and agent collaboration efficiency
+**Last Updated**: 2025-10-10  
+**Documentation Status**: Lean and focused - 7 core files
+**Next Review**: When major features change system architecture

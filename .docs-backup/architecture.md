@@ -317,26 +317,6 @@ const chromeFlags = [
 
 ## Security Architecture & Constraints
 
-### Authentication & Authorization
-
-**JWT Token Strategy:**
-- **Access Tokens**: 15-minute lifetime for security
-- **Refresh Tokens**: 7-day lifetime with rotation
-- **Storage**: HTTP-only cookies (prevents XSS attacks)
-- **Algorithm**: RS256 signing for asymmetric verification
-- **Payload**: Minimal user info (userId, role, email)
-
-**Session Management:**
-- Hybrid approach: Stateless JWT + server-side session tracking
-- Session timeout: 24 hours of inactivity
-- Automatic token refresh for active sessions
-- Concurrent sessions: Up to 3 per user (last-in-first-out)
-
-**Admin Authentication:**
-- Simple password-based access for Emily (solo trainer)
-- Bcrypt password hashing with salt rounds
-- Rate limiting on login attempts (5 attempts per 15 minutes)
-
 ### Input Validation Strategy (Defense in Depth)
 
 ```typescript
@@ -368,19 +348,8 @@ const securityHeaders = [
 ]
 ```
 
-### Rate Limiting Strategy
+### Rate Limiting Strategy (Simple & Effective)
 
-**Booking Endpoints:**
-- Anonymous users: 5 requests per 15 minutes per IP
-- Authenticated users: 20 requests per 15 minutes
-- Protects against booking spam and DoS attacks
-
-**Authentication Endpoints:**
-- Login attempts: 5 per 15 minutes per IP
-- Token refresh: 10 per hour per user
-- Prevents brute force attacks
-
-**Implementation:**
 ```typescript
 // In-memory rate limiting (sufficient for current scale)
 const limiter = rateLimit({

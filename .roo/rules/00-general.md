@@ -91,6 +91,50 @@ Next.js 14 booking platform for personal training/wellness services. TypeScript,
 
 **Behavior:** Runs all quality gates, reports pass/fail
 
+## 70/30 Decision Routing
+
+**AI Handles Autonomously (70%)**:
+- Code structure and organization (using established patterns)
+- Testing implementation (following proven testing patterns)
+- Documentation generation (updates to existing files only)
+- UI component implementation (applying UI patterns)
+- CRUD operations (using database patterns)
+- Error handling patterns (applying established error handling)
+- Performance optimizations (within defined constraints)
+- Refactoring (with tests after every change)
+
+**Escalate to Human (30%)**:
+- Business rule implementation and validation logic
+- Security policy decisions
+- User experience flows and interface design decisions
+- Integration strategies (architectural decisions)
+- Data modeling and schema design
+- Authentication/authorization logic
+- Scope boundary decisions
+
+## Documentation Creation Policy
+
+**CRITICAL**: **NEVER create new documentation files unless explicitly requested by the user.**
+
+**Updates ONLY**:
+- Update existing `.docs/` files when adding new patterns, investigations, or memory
+- Update existing rule files when clarifying practices
+- Update `README.md` when core functionality changes
+
+**NEVER Create**:
+- New analysis documents
+- New strategy documents
+- New planning documents
+- New reference documents
+- New guides or tutorials
+
+**If You Think Documentation is Needed**:
+1. Ask user explicitly: "Should I create a new documentation file for [topic]?"
+2. Wait for confirmation
+3. Only proceed after explicit approval
+
+**Rationale**: Prevents documentation bloat and maintains lean, focused documentation structure.
+
 ## YAGNI Enforcement
 
 **Don't create until actually needed:**

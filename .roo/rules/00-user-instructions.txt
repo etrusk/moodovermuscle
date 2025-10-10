@@ -6,13 +6,11 @@
 
 - Never directly edit this file, but feel free to suggest changes for approval
 - We are using Claude Sonnet 4 for all roles through a Claude Code subscription which has token limits; we should ensure our docs and prompts are lean without losing key info
-- We want LLMs to make their own decisions where possible, and only explicitly mandate sterring and rules where we run into repeated issues; for example instead of mandating "always commit and push", better to state "decide if git operations are needed"
 - Don't deprecate, just remove (unless there is a very good reason)
-- Don't explicitly document very specific solutions, always try to generalise and make instructions applicable to various scenarios
-- Always use the generalised and future-proof solution instead of being ultra-specific; for example, instead of referencing direct files in .docs sub-folders, instead direct roles to index.md
 
 # AI <> Human Interaction
 
 - Do not flatter human unnecessarily or act sycophantic!
-- You are the expert; question all human's assumptions and directions, never take their word as gospel
+- If something is unclear or ambiguities remain, ask questions to human until fully resolved; do this prior to continuing further output.
+- You are the expert; question all human's assumptions and directions with scientific rigor, never take their word as gospel
 - If human asks a question, voices concerns, etc, answer with pros/cons/option/recommendation(s)

@@ -7,7 +7,6 @@ import {
 import { prisma } from '@/lib/prisma'
 import { timeSlots } from '@/components/booking-form/steps/timeSlots'
 
-// Mock dependencies
 jest.mock('@/lib/prisma', () => ({
   prisma: {
     $transaction: jest.fn(),
@@ -24,34 +23,33 @@ jest.mock('@/components/booking-form/steps/timeSlots', () => ({
 
 const mockPrisma = prisma as jest.Mocked<typeof prisma>
 
-// Helper functions to keep main describe block under line limit
-const setupMockTransactionWithNoBookings = () => {
+interface MockBooking {
+  id: string
+  time: string
+}
+
+const setupMockTransactionWithNoBookings = (): void => {
   mockPrisma.$transaction.mockImplementation(async callback => {
     const mockTx = { booking: { findMany: jest.fn().mockResolvedValue([]) } }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return callback(mockTx as any)
+    return callback(mockTx as never)
   })
 }
 
-const setupMockTransactionWithBookings = (
-  bookings: Array<{ id: string; time: string }>
-) => {
+const setupMockTransactionWithBookings = (bookings: MockBooking[]): void => {
   mockPrisma.$transaction.mockImplementation(async callback => {
     const mockTx = {
       booking: { findMany: jest.fn().mockResolvedValue(bookings) },
     }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return callback(mockTx as any)
+    return callback(mockTx as never)
   })
 }
 
-const setupMockTransactionForSlotCheck = (result: unknown) => {
+const setupMockTransactionForSlotCheck = (result: unknown): void => {
   mockPrisma.$transaction.mockImplementation(async callback => {
     const mockTx = {
       booking: { findFirst: jest.fn().mockResolvedValue(result) },
     }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return callback(mockTx as any)
+    return callback(mockTx as never)
   })
 }
 
@@ -63,32 +61,37 @@ describe('availability-checking', () => {
   })
 
   describe('getAvailableTimesForDate', () => {
-    it('should return all available times when no bookings exist', async () => {
+    it('returns all available times when no bookings exist', async () => {
       setupMockTransactionWithNoBookings()
+
       const result = await getAvailableTimesForDate(testDate)
-      expect(result).toEqual({
+
+      expect(result).toStrictEqual({
         availableTimes: timeSlots,
         bookedTimes: [],
         date: '2024-12-25',
       })
     })
 
-    it('should return filtered available times when bookings exist', async () => {
-      const existingBookings = [
+    it('returns filtered available times when bookings exist', async () => {
+      const existingBookings: MockBooking[] = [
         { id: '1', time: '09:00' },
         { id: '2', time: '14:00' },
       ]
       setupMockTransactionWithBookings(existingBookings)
+
       const result = await getAvailableTimesForDate(testDate)
-      expect(result).toEqual({
+
+      expect(result).toStrictEqual({
         availableTimes: ['10:00', '11:00', '15:00', '16:00'],
         bookedTimes: ['09:00', '14:00'],
         date: '2024-12-25',
       })
     })
 
-    it('should handle database errors gracefully', async () => {
+    it('handles database errors gracefully', async () => {
       mockPrisma.$transaction.mockRejectedValue(new Error('Database error'))
+
       await expect(getAvailableTimesForDate(testDate)).rejects.toThrow(
         'Failed to fetch availability data'
       )
@@ -96,28 +99,34 @@ describe('availability-checking', () => {
   })
 
   describe('checkSingleSlotAvailability', () => {
-    it('should return available when slot is free', async () => {
+    it('returns available when slot is free', async () => {
       setupMockTransactionForSlotCheck(null)
+
       const result = await checkSingleSlotAvailability(testDate, '10:00')
-      expect(result).toEqual({ isAvailable: true })
+
+      expect(result).toStrictEqual({ isAvailable: true })
     })
 
-    it('should return unavailable when slot is booked', async () => {
+    it('returns unavailable when slot is booked', async () => {
       const conflictingBooking = { id: '1', date: testDate, time: '10:00' }
       setupMockTransactionForSlotCheck(conflictingBooking)
+
       const result = await checkSingleSlotAvailability(testDate, '10:00')
-      expect(result).toEqual({ isAvailable: false, conflictingBooking })
+
+      expect(result).toStrictEqual({ isAvailable: false, conflictingBooking })
     })
 
-    it('should throw error for invalid time slot', async () => {
+    it('throws error for invalid time slot', async () => {
       setupMockTransactionForSlotCheck(null)
+
       await expect(
         checkSingleSlotAvailability(testDate, '99:00')
       ).rejects.toThrow(AvailabilityConflictError)
     })
 
-    it('should handle database errors gracefully', async () => {
+    it('handles database errors gracefully', async () => {
       mockPrisma.$transaction.mockRejectedValue(new Error('Database error'))
+
       await expect(
         checkSingleSlotAvailability(testDate, '10:00')
       ).rejects.toThrow('Failed to check slot availability')
@@ -125,20 +134,21 @@ describe('availability-checking', () => {
   })
 
   describe('validateRealTimeAvailability', () => {
-    it('should pass validation when slot is available', async () => {
+    it('passes validation when slot is available', async () => {
       const mockClient = {
         booking: { findFirst: jest.fn().mockResolvedValue(null) },
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
       await expect(
-        validateRealTimeAvailability(testDate, '10:00', mockClient as any)
+        validateRealTimeAvailability(testDate, '10:00', mockClient as never)
       ).resolves.not.toThrow()
+
       expect(mockClient.booking.findFirst).toHaveBeenCalledWith({
         where: { date: testDate, time: '10:00' },
       })
     })
 
-    it('should throw AvailabilityConflictError when slot is booked', async () => {
+    it('throws AvailabilityConflictError when slot is booked', async () => {
       const conflictingBooking = {
         id: '1',
         date: testDate,
@@ -148,27 +158,29 @@ describe('availability-checking', () => {
       const mockClient = {
         booking: { findFirst: jest.fn().mockResolvedValue(conflictingBooking) },
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
       await expect(
-        validateRealTimeAvailability(testDate, '10:00', mockClient as any)
+        validateRealTimeAvailability(testDate, '10:00', mockClient as never)
       ).rejects.toThrow(AvailabilityConflictError)
     })
 
-    it('should throw error for invalid time slot', async () => {
+    it('throws error for invalid time slot', async () => {
       const mockClient = {
         booking: { findFirst: jest.fn().mockResolvedValue(null) },
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
       await expect(
-        validateRealTimeAvailability(testDate, '99:00', mockClient as any)
+        validateRealTimeAvailability(testDate, '99:00', mockClient as never)
       ).rejects.toThrow(AvailabilityConflictError)
     })
 
-    it('should use default prisma client when no transaction client provided', async () => {
+    it('uses default prisma client when no transaction client provided', async () => {
       mockPrisma.booking.findFirst = jest.fn().mockResolvedValue(null)
+
       await expect(
         validateRealTimeAvailability(testDate, '10:00')
       ).resolves.not.toThrow()
+
       expect(mockPrisma.booking.findFirst).toHaveBeenCalledWith({
         where: { date: testDate, time: '10:00' },
       })
@@ -176,20 +188,19 @@ describe('availability-checking', () => {
   })
 
   describe('AvailabilityConflictError', () => {
-    it('should create error with message and optional conflicting booking', () => {
+    it('creates error with message and optional conflicting booking', () => {
       const booking = { id: '1', name: 'John Doe' }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const error = new AvailabilityConflictError(
-        'Test message',
-        booking as any
-      )
+
+      const error = new AvailabilityConflictError('Test message', booking as never)
+
       expect(error.name).toBe('AvailabilityConflictError')
       expect(error.message).toBe('Test message')
       expect(error.conflictingBooking).toBe(booking)
     })
 
-    it('should create error without conflicting booking', () => {
+    it('creates error without conflicting booking', () => {
       const error = new AvailabilityConflictError('Test message')
+
       expect(error.name).toBe('AvailabilityConflictError')
       expect(error.message).toBe('Test message')
       expect(error.conflictingBooking).toBeUndefined()

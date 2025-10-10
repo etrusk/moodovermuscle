@@ -1,5 +1,4 @@
 import { validateBookingRequest } from '@/app/api/book-session/functions/booking-validation'
-import { bookingSchema } from '@/lib/schemas'
 
 function makeJsonRequest(
   data: Record<string, unknown> | string,
@@ -12,12 +11,12 @@ function makeJsonRequest(
       'Content-Type': 'application/json',
       ...headers,
     },
-    body: body,
+    body,
   })
 }
 
 describe('validateBookingRequest', () => {
-  it('should return success true for valid data', async () => {
+  it('returns success true for valid data', async () => {
     const validData = {
       name: 'Jane Doe',
       email: 'jane@example.com',
@@ -27,16 +26,20 @@ describe('validateBookingRequest', () => {
       goals: 'community',
     }
     const req = makeJsonRequest(validData)
+
     const result = await validateBookingRequest(req)
+
     expect(result.success).toBe(true)
     expect(result.data).toBeDefined()
     expect(result.error).toBeNull()
   })
 
-  it('should return success false for invalid data', async () => {
+  it('returns success false for invalid data', async () => {
     const invalidData = { name: 'a' }
     const req = makeJsonRequest(invalidData)
+
     const result = await validateBookingRequest(req)
+
     expect(result.success).toBe(false)
     expect(result.data).toBeNull()
     expect(result.error).toBeDefined()
@@ -44,9 +47,11 @@ describe('validateBookingRequest', () => {
     expect(response.errors).toBeDefined()
   })
 
-  it('should return success false for malformed JSON', async () => {
+  it('returns success false for malformed JSON', async () => {
     const req = makeJsonRequest('not-a-json')
+
     const result = await validateBookingRequest(req)
+
     expect(result.success).toBe(false)
     expect(result.data).toBeNull()
     expect(result.error).toBeDefined()

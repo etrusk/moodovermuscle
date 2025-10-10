@@ -31,7 +31,7 @@ describe('sendBookingNotifications', () => {
     jest.clearAllMocks()
   })
 
-  it('should call both email functions with correct data', () => {
+  it('calls both email functions with correct data', () => {
     mockedEmail.sendCustomerConfirmation.mockResolvedValue({
       success: true,
       messageId: '1',
@@ -64,7 +64,7 @@ describe('sendBookingNotifications', () => {
     })
   })
 
-  it('should handle email sending failures gracefully', async () => {
+  it('handles email sending failures gracefully', async () => {
     mockedEmail.sendCustomerConfirmation.mockResolvedValue({
       success: false,
       error: 'Failed to send',
@@ -79,7 +79,6 @@ describe('sendBookingNotifications', () => {
 
     sendBookingNotifications(mockBooking)
 
-    // Using setTimeout to allow promises to resolve/reject
     await new Promise((resolve) => setTimeout(resolve, 0))
 
     expect(consoleErrorSpy).toHaveBeenCalledWith(

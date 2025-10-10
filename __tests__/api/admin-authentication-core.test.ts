@@ -1,10 +1,14 @@
 /**
+ * @testing-approach modern-2025
+ * @migrated 2025-10-10
+ * @coverage behavior-focused
+ *
  * API-level Admin Authentication Tests
- * 
+ *
  * Strategic Context: CORE functionality testing per Navigator's controlled technical debt approach.
  * Tests admin authentication at the API level without requiring complex component mocking,
  * providing reliable verification of authentication business logic.
- * 
+ *
  * Business Protection: Verifies authentication endpoints work correctly independent of UI complexity,
  * ensuring admin access control functions as expected for business protection.
  */
@@ -30,86 +34,87 @@ describe('Admin Authentication API Core Tests', () => {
     password: 'wrongpassword'
   }
 
-  describe('POST /api/admin/login', () => {
-    it('returns JWT token for valid credentials', async () => {
-      const request = new NextRequest('http://localhost:3000/api/admin/login', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-        },
-        body: JSON.stringify(validCredentials)
-      })
+  // Helper to create login requests
+  const createLoginRequest = (credentials: Record<string, unknown>) =>
+    new NextRequest('http://localhost:3000/api/admin/login', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(credentials)
+    })
 
+  // Helper to create session requests
+  const createSessionRequest = (token?: string, includeHeader = true) => {
+    const headers: Record<string, string> = {}
+    if (token && includeHeader) {
+      headers['authorization'] = `Bearer ${token}`
+    }
+    if (token) {
+      headers['cookie'] = `admin-token=${token}`
+    }
+    return new NextRequest('http://localhost:3000/api/admin/session', {
+      method: 'GET',
+      headers
+    })
+  }
+
+  describe('POST /api/admin/login', () => {
+    it('authenticates admin with valid credentials', async () => {
+      const request = createLoginRequest(validCredentials)
       const response = await loginHandler(request)
       const data = await response.json()
 
       expect(response.status).toBe(200)
-      expect(data.success).toBe(true)
-      expect(data.token).toBe('mock-jwt-token')
-      expect(data.user).toEqual({
-        email: validCredentials.email,
-        name: 'Emily'
+      expect(data).toMatchObject({
+        success: true,
+        token: expect.any(String),
+        user: {
+          email: validCredentials.email,
+          name: 'Emily'
+        }
       })
     })
 
-    it('rejects invalid credentials with 401', async () => {
-      const request = new NextRequest('http://localhost:3000/api/admin/login', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-        },
-        body: JSON.stringify(invalidCredentials)
-      })
-
+    it('prevents authentication with invalid credentials', async () => {
+      const request = createLoginRequest(invalidCredentials)
       const response = await loginHandler(request)
       const data = await response.json()
 
       expect(response.status).toBe(401)
-      expect(data.success).toBe(false)
-      expect(data.error).toBe('Invalid credentials')
+      expect(data).toMatchObject({
+        success: false,
+        error: 'Invalid credentials'
+      })
       expect(data.token).toBeUndefined()
     })
 
-    it('rejects malformed request body with 400', async () => {
-      const request = new NextRequest('http://localhost:3000/api/admin/login', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-        },
-        body: JSON.stringify({ email: 'test@example.com' }) // Missing password
-      })
-
+    it('validates required authentication fields', async () => {
+      const request = createLoginRequest({ email: 'test@example.com' }) // Missing password
       const response = await loginHandler(request)
       const data = await response.json()
 
       expect(response.status).toBe(400)
-      expect(data.success).toBe(false)
-      expect(data.error).toContain('required')
+      expect(data).toMatchObject({
+        success: false,
+        error: expect.stringMatching(/required/i)
+      })
     })
 
-    it('rejects empty request body with 400', async () => {
-      const request = new NextRequest('http://localhost:3000/api/admin/login', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-        },
-        body: '{}'
-      })
-
+    it('requires both email and password', async () => {
+      const request = createLoginRequest({})
       const response = await loginHandler(request)
       const data = await response.json()
 
       expect(response.status).toBe(400)
-      expect(data.success).toBe(false)
-      expect(data.error).toContain('Email and password are required')
+      expect(data).toMatchObject({
+        success: false,
+        error: expect.stringMatching(/email and password are required/i)
+      })
     })
 
-    it('handles invalid JSON gracefully', async () => {
+    it('handles malformed request data', async () => {
       const request = new NextRequest('http://localhost:3000/api/admin/login', {
         method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-        },
+        headers: { 'content-type': 'application/json' },
         body: 'invalid-json{'
       })
 
@@ -117,155 +122,117 @@ describe('Admin Authentication API Core Tests', () => {
       const data = await response.json()
 
       expect(response.status).toBe(400)
-      expect(data.success).toBe(false)
-      expect(data.error).toContain('Invalid request')
+      expect(data).toMatchObject({
+        success: false,
+        error: expect.stringMatching(/invalid request/i)
+      })
     })
 
-    it('enforces rate limiting concepts (simulated)', async () => {
-      // Simulate multiple rapid requests from same source
-      const requests = Array.from({ length: 5 }, () =>
-        new NextRequest('http://localhost:3000/api/admin/login', {
-          method: 'POST',
-          headers: {
-            'content-type': 'application/json',
-            'x-forwarded-for': '192.168.1.100'
-          },
-          body: JSON.stringify(invalidCredentials)
-        })
-      )
-
+    it('handles concurrent authentication attempts', async () => {
+      // Verify endpoint handles multiple rapid requests gracefully
+      const requests = Array.from({ length: 5 }, () => createLoginRequest(invalidCredentials))
       const responses = await Promise.all(requests.map(req => loginHandler(req)))
       
-      // All should fail due to invalid credentials
+      // All should fail consistently
       responses.forEach(response => {
         expect(response.status).toBe(401)
       })
 
-      // Note: Actual rate limiting would be implemented at middleware level
-      // This test verifies the endpoint handles multiple requests gracefully
+      // Note: Rate limiting implemented at middleware level
     })
   })
 
   describe('GET /api/admin/session', () => {
-    it('validates JWT token and returns user session', async () => {
-      const request = new NextRequest('http://localhost:3000/api/admin/session', {
-        method: 'GET',
-        headers: {
-          'authorization': 'Bearer mock-jwt-token',
-          'cookie': 'admin-token=mock-jwt-token'
-        }
-      })
-
+    it('validates session with valid token', async () => {
+      const request = createSessionRequest('mock-jwt-token')
       const response = await sessionHandler(request)
       const data = await response.json()
 
       expect(response.status).toBe(200)
-      expect(data.success).toBe(true)
-      expect(data.user).toEqual({
-        email: 'emily@moodovermuscle.com.au'
+      expect(data).toMatchObject({
+        success: true,
+        user: {
+          email: 'emily@moodovermuscle.com.au'
+        }
       })
     })
 
-    it('rejects request without authentication token', async () => {
-      const request = new NextRequest('http://localhost:3000/api/admin/session', {
-        method: 'GET'
-      })
-
+    it('prevents access without authentication', async () => {
+      const request = createSessionRequest()
       const response = await sessionHandler(request)
       const data = await response.json()
 
       expect(response.status).toBe(401)
-      expect(data.success).toBe(false)
-      expect(data.error).toBe('No token provided')
+      expect(data).toMatchObject({
+        success: false,
+        error: 'No token provided'
+      })
     })
 
-    it('rejects invalid JWT token', async () => {
-      // Mock jwt.verify to throw error for invalid token
+    it('prevents access with invalid token', async () => {
       const jwt = require('jsonwebtoken')
       jest.mocked(jwt.verify).mockImplementationOnce(() => {
         throw new Error('Invalid token')
       })
 
-      const request = new NextRequest('http://localhost:3000/api/admin/session', {
-        method: 'GET',
-        headers: {
-          'authorization': 'Bearer invalid-token'
-        }
-      })
-
+      const request = createSessionRequest('invalid-token')
       const response = await sessionHandler(request)
       const data = await response.json()
 
       expect(response.status).toBe(401)
-      expect(data.success).toBe(false)
-      expect(data.error).toBe('Invalid token')
+      expect(data).toMatchObject({
+        success: false,
+        error: 'Invalid token'
+      })
     })
 
-    it('rejects expired JWT token', async () => {
-      // Mock jwt.verify to return expired token
+    it('prevents access with expired token', async () => {
       const jwt = require('jsonwebtoken')
       jest.mocked(jwt.verify).mockImplementationOnce(() => ({
         email: 'emily@moodovermuscle.com.au',
         exp: Date.now() / 1000 - 3600 // Expired 1 hour ago
       }))
 
-      const request = new NextRequest('http://localhost:3000/api/admin/session', {
-        method: 'GET',
-        headers: {
-          'authorization': 'Bearer expired-token'
-        }
-      })
-
+      const request = createSessionRequest('expired-token')
       const response = await sessionHandler(request)
       const data = await response.json()
 
       expect(response.status).toBe(401)
-      expect(data.success).toBe(false)
-      expect(data.error).toBe('Token expired')
+      expect(data).toMatchObject({
+        success: false,
+        error: 'Token expired'
+      })
     })
 
     it('handles malformed authorization header', async () => {
       const request = new NextRequest('http://localhost:3000/api/admin/session', {
         method: 'GET',
-        headers: {
-          'authorization': 'InvalidFormat token'
-        }
+        headers: { 'authorization': 'InvalidFormat token' }
       })
 
       const response = await sessionHandler(request)
       const data = await response.json()
 
       expect(response.status).toBe(401)
-      expect(data.success).toBe(false)
-      expect(data.error).toBe('No token provided')
+      expect(data).toMatchObject({
+        success: false,
+        error: 'No token provided'
+      })
     })
   })
 
   describe('Authentication Flow Integration', () => {
-    it('complete login -> session validation flow', async () => {
-      // Step 1: Login with valid credentials
-      const loginRequest = new NextRequest('http://localhost:3000/api/admin/login', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-        },
-        body: JSON.stringify(validCredentials)
-      })
-
+    it('allows session access after successful login', async () => {
+      // Step 1: Authenticate
+      const loginRequest = createLoginRequest(validCredentials)
       const loginResponse = await loginHandler(loginRequest)
       const loginData = await loginResponse.json()
 
       expect(loginResponse.status).toBe(200)
-      expect(loginData.token).toBe('mock-jwt-token')
+      expect(loginData.token).toBeDefined()
 
-      // Step 2: Use token to validate session
-      const sessionRequest = new NextRequest('http://localhost:3000/api/admin/session', {
-        method: 'GET',
-        headers: {
-          'authorization': `Bearer ${loginData.token}`
-        }
-      })
-
+      // Step 2: Validate session with token
+      const sessionRequest = createSessionRequest(loginData.token, true)
       const sessionResponse = await sessionHandler(sessionRequest)
       const sessionData = await sessionResponse.json()
 
@@ -273,27 +240,17 @@ describe('Admin Authentication API Core Tests', () => {
       expect(sessionData.user.email).toBe(validCredentials.email)
     })
 
-    it('handles session validation after failed login', async () => {
-      // Step 1: Failed login attempt
-      const loginRequest = new NextRequest('http://localhost:3000/api/admin/login', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-        },
-        body: JSON.stringify(invalidCredentials)
-      })
-
+    it('prevents session access after failed login', async () => {
+      // Step 1: Failed authentication
+      const loginRequest = createLoginRequest(invalidCredentials)
       const loginResponse = await loginHandler(loginRequest)
       const loginData = await loginResponse.json()
 
       expect(loginResponse.status).toBe(401)
       expect(loginData.token).toBeUndefined()
 
-      // Step 2: Attempt session validation without valid token
-      const sessionRequest = new NextRequest('http://localhost:3000/api/admin/session', {
-        method: 'GET'
-      })
-
+      // Step 2: Session validation without token
+      const sessionRequest = createSessionRequest()
       const sessionResponse = await sessionHandler(sessionRequest)
       const sessionData = await sessionResponse.json()
 
@@ -303,52 +260,33 @@ describe('Admin Authentication API Core Tests', () => {
   })
 
   describe('Security Edge Cases', () => {
-    it('prevents SQL injection attempts in email field', async () => {
-      const request = new NextRequest('http://localhost:3000/api/admin/login', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: "'; DROP TABLE users; --",
-          password: 'password'
-        })
+    it('prevents SQL injection attempts', async () => {
+      const request = createLoginRequest({
+        email: "'; DROP TABLE users; --",
+        password: 'password'
       })
 
       const response = await loginHandler(request)
       
-      expect(response.status).toBe(401) // Should be treated as invalid credentials
+      expect(response.status).toBe(401) // Treated as invalid credentials
     })
 
-    it('handles extremely long input gracefully', async () => {
+    it('handles excessive input length gracefully', async () => {
       const longString = 'a'.repeat(10000)
-      
-      const request = new NextRequest('http://localhost:3000/api/admin/login', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: longString,
-          password: longString
-        })
+      const request = createLoginRequest({
+        email: longString,
+        password: longString
       })
 
       const response = await loginHandler(request)
       
-      expect(response.status).toBeLessThan(500) // Should not crash the server
+      expect(response.status).toBeLessThan(500) // No server crash
     })
 
-    it('validates email format in login request', async () => {
-      const request = new NextRequest('http://localhost:3000/api/admin/login', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: 'not-an-email',
-          password: 'password'
-        })
+    it('validates email format', async () => {
+      const request = createLoginRequest({
+        email: 'not-an-email',
+        password: 'password'
       })
 
       const response = await loginHandler(request)

@@ -92,6 +92,7 @@ This index helps agents find proven implementation approaches before starting ne
 
 **Testing Approaches**
 
+- [**Modern Testing Approach 2025**](./modern-testing-approach-2025.md) - **PRIMARY PATTERN**: Behavior-focused testing with semantic queries, minimal mocking, and user-centric assertions (Pattern Date: 2025-10-10)
 - [Integration Test Pattern](./test-integration-pattern.md) - database and API testing setup
 - [Component Test Pattern](./test-component-pattern.md) - React component testing with MSW
 - [E2E Test Pattern](./test-e2e-pattern.md) - end-to-end user journey testing

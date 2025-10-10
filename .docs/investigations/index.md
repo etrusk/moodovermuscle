@@ -1,198 +1,118 @@
-+++
-[metadata]
-type = "investigation_index"
-last_updated = "2025-10-04"
-total_investigations = 31
-active_investigations = 1
-resolved_investigations = 30
-token_cost_estimate = "medium"
+# Known Issues & Resolutions
 
-[tracking_metrics]
-component_coverage = 0.85
-error_pattern_coverage = 0.75
-symptom_mapping_completeness = 0.90
-resolution_success_rate = 0.88
+Reference for debugging similar issues. Check here before investigating problems.
 
-[investigation_categories]
-component_based = 19
-error_pattern_based = 15
-symptom_based = 7
-security_focused = 3
+## Time & Date Issues
 
-[maintenance_status]
-recent_updates = 2
-stale_entries = 1
-cross_reference_integrity = 0.92
-usage_frequency = "medium"
-+++
+### Time Format Validation
+**Problem**: Booking times failed validation in tests
+**Root Cause**: Inconsistent time format (12hr vs 24hr, with/without timezone)
+**Solution**: Standardized on ISO 8601 format throughout codebase
+**Code**: `lib/validation/time-utils.ts`
+**Prevention**: Always use `new Date().toISOString()` for API data
 
-# Investigation Index
+### DST Boundary Bugs
+**Problem**: Calendar availability incorrect at DST transitions
+**Root Cause**: Timezone conversion logic didn't account for DST changes
+**Solution**: Use `date-fns-tz` library for timezone-aware operations
+**Code**: `lib/utils/timezone.ts`
+**Prevention**: Always use timezone-aware date libraries
 
-This index helps agents quickly find relevant investigations when encountering issues. Search by component, error pattern, or user-facing symptom to locate past debugging work and solutions.
+## Testing Issues
 
-## By Component
+### Jest Mock Hoisting
+**Problem**: Mocks not hoisted in ES modules
+**Root Cause**: Jest hoisting doesn't work with `import` statements
+**Solution**: Use `jest.unstable_mockModule()` instead of `jest.mock()`
+**Code**: `tests/mocks/prisma-mock.ts`
+**Pattern**: Always use unstable_mockModule for ESM mocks
 
-**Auth System**
+### Transaction Test Failures
+**Problem**: Tests fail due to transaction rollback timing
+**Root Cause**: Race condition in async transaction cleanup
+**Solution**: Use `await prisma.$transaction()` with proper cleanup
+**Code**: `tests/integration/booking.test.ts`
+**Prevention**: Always await transaction completion in tests
 
-- [JWT Token Issues](./auth-jwt-token-issues.md) - token validation, expiry handling, and refresh logic debugging
-- [Session Management](./auth-session-management.md) - session persistence and timeout investigations
-- [Login Flow Errors](./auth-login-flow-errors.md) - authentication flow failures and redirects
+## Build Issues
 
-**Database**
+### Next.js Cache Corruption
+**Problem**: Stale cache caused build failures after dependency updates
+**Root Cause**: `.next/` directory cached outdated module resolution
+**Solution**: Clear `.next/` directory on dependency changes
+**Script**: `npm run clean && npm run build`
+**Prevention**: Add postinstall script to clean cache
 
-- [Connection Pool Issues](./db-connection-pool-issues.md) - database connection handling and pool exhaustion
-- [Query Performance](./db-query-performance.md) - slow queries and optimization investigations
-- [Transaction Conflicts](./db-transaction-conflicts.md) - concurrent access and deadlock resolution
-- [Migration Failures](./db-migration-failures.md) - schema migration issues and rollback procedures
+## Git/Commit Issues
 
-**API Integration**
+### Pre-Commit Hook Bypass
+**Problem**: Changes not staged caused pre-commit hooks to pass incorrectly
+**Root Cause**: Hooks run on staged files, unstaged changes bypassed checks
+**Solution**: Always `git add -A` before commit
+**Prevention**: Pre-commit hook now checks for unstaged changes
 
-- [External API Timeouts](./api-external-timeouts.md) - third-party service integration issues
-- [Rate Limiting](./api-rate-limiting.md) - API throttling and quota management
-- [Response Parsing](./api-response-parsing.md) - data transformation and validation errors
+## Database Issues
 
-**UI Components**
+### Booking Conflicts Not Detected
+**Problem**: Overlapping bookings allowed despite conflict detection
+**Root Cause**: Race condition in availability check
+**Solution**: Use `FOR UPDATE` lock in availability query
+**Code**: `lib/db/availability-check.ts`
+**Pattern**: Always use pessimistic locking for conflict-prone operations
 
-- [Form Validation](./ui-form-validation.md) - client-side validation failures and UX issues
-- [State Management](./ui-state-management.md) - React state synchronization problems
-- [Rendering Issues](./ui-rendering-issues.md) - component lifecycle and display problems
+### Prisma Relation Loading
+**Problem**: Relations undefined at runtime despite type showing them
+**Root Cause**: Forgot to use `include` in query
+**Solution**: Always explicitly `include` relations in Prisma queries
+**Pattern**: Never rely on implicit relation loading
 
-**Booking System**
+## Performance Issues
 
-- [Availability Conflicts](./booking-availability-conflicts.md) - double-booking prevention and calendar sync
-- [Payment Processing](./booking-payment-processing.md) - payment gateway integration issues
-- [Notification Delivery](./booking-notification-delivery.md) - email/SMS delivery failures
-- [Time Format Constraint Fix](./booking-time-format-constraint-fix.md) - database constraint and format conversion issues [RESOLVED]
+### Slow API Response Times
+**Problem**: Booking endpoint >1s response time
+**Root Cause**: N+1 query problem loading nested relations
+**Solution**: Use `include` with proper select to load relations in single query
+**Code**: `lib/db/booking-queries.ts`
+**Pattern**: Always profile queries, use Prisma's query logging
 
-**Performance**
+## Security Issues
 
-- [Memory Leaks](./performance-memory-leaks.md) - memory usage monitoring and optimization
-- [Bundle Size](./performance-bundle-size.md) - JavaScript bundle optimization
-- [Database Performance](./performance-database.md) - query optimization and indexing
+### JWT Token Rotation
+**Problem**: Long-lived access tokens presented security risk
+**Root Cause**: No refresh token mechanism
+**Solution**: Implement refresh token rotation with short-lived access tokens
+**Code**: `lib/auth/jwt-service.ts`
+**Pattern**: 15min access tokens, 7day refresh tokens with rotation
 
-**Testing & Quality Assurance**
+## Common Debugging Steps
 
-- [Time Format Mismatch in Test Data](./time-format-mismatch-test-data.md) - 12-hour vs 24-hour format standardization [RESOLVED]
-- [Jest Mock Hoisting Issues](./jest-mock-hoisting-issues-2025-08-08.md) - ES6 import conflicts with Jest module hoisting requiring inline mock factories [RESOLVED]
-- [Git Staging and Pre-commit Hook Bypass](./git-staging-pre-commit-hook-bypass-2025-08-06.md) - Quality gate circumvention through --no-verify flag usage [ACTIVE]
+### API Endpoint Issues
+1. Check request validation (Zod schema)
+2. Verify authentication middleware applied
+3. Check database query (enable Prisma logging)
+4. Verify response format matches expected structure
 
-## By Error Pattern
+### UI/Component Issues
+1. Check React DevTools for component state
+2. Verify props passed correctly
+3. Check browser console for errors
+4. Verify API calls returning expected data
 
-**Connection Issues**
+### Database Issues
+1. Enable Prisma query logging: `DEBUG=prisma:query`
+2. Check for N+1 queries
+3. Verify relations included explicitly
+4. Check for transaction deadlocks
 
-- [Network Timeouts](./pattern-network-timeouts.md) - handling unstable connections
-- [Service Unavailable](./pattern-service-unavailable.md) - graceful degradation strategies
-- [DNS Resolution](./pattern-dns-resolution.md) - domain resolution failures
+## When to Document New Issues
 
-**Validation Failures**
+**Document when:**
+- Issue took >1 hour to debug
+- Root cause non-obvious
+- Solution reusable for similar issues
+- Prevention pattern can be established
 
-- [Schema Validation](./pattern-schema-validation.md) - data structure validation errors
-- [Input Sanitization](./pattern-input-sanitization.md) - XSS prevention and data cleaning
-- [Business Rule Violations](./pattern-business-rules.md) - domain logic validation failures
-
-**Type Errors**
-
-- [TypeScript Compilation](./pattern-typescript-compilation.md) - type checking and compilation issues
-- [Runtime Type Mismatches](./pattern-runtime-type-mismatches.md) - dynamic typing problems
-- [API Contract Violations](./pattern-api-contracts.md) - interface mismatch debugging
-
-**Test Configuration Issues**
-
-- [Jest Mock Hoisting](./jest-mock-hoisting-issues-2025-08-08.md) - ES6 import timing conflicts with Jest module hoisting system
-
-**Build Failures**
-
-- [Next.js Build Cache Corruption](./nextjs-build-cache-corruption-2025-08-07.md) - cache corruption causing multi-system failures
-- [Dependency Conflicts](./pattern-dependency-conflicts.md) - package version incompatibilities
-- [Build Tool Issues](./pattern-build-tools.md) - webpack, babel, and bundler problems
-- [Environment Differences](./pattern-environment-differences.md) - dev vs production discrepancies
-
-**Quality Gate Issues**
-
-- [Pre-commit Hook Bypass](./git-staging-pre-commit-hook-bypass-2025-08-06.md) - improper use of --no-verify flag and staging confusion
-
-**Security Issues**
-
-- [Authentication Bypass](./pattern-auth-bypass.md) - security vulnerability investigations
-- [Data Exposure](./pattern-data-exposure.md) - information leakage prevention
-- [Injection Attacks](./pattern-injection-attacks.md) - SQL injection and XSS prevention
-
-## By Symptom
-
-**User-Facing Symptoms → Investigation Files**
-
-- "Login doesn't work" → [`auth-login-flow-errors.md`](./auth-login-flow-errors.md)
-- "Page loads slowly" → [`performance-database.md`](./performance-database.md), [`performance-bundle-size.md`](./performance-bundle-size.md)
-- "Form submission fails" → [`ui-form-validation.md`](./ui-form-validation.md), [`api-response-parsing.md`](./api-response-parsing.md)
-- "Bookings not saving to database" → [`booking-time-format-constraint-fix.md`](./booking-time-format-constraint-fix.md)
-- "Double bookings occur" → [`booking-availability-conflicts.md`](./booking-availability-conflicts.md)
-- "Emails not received" → [`booking-notification-delivery.md`](./booking-notification-delivery.md)
-- "Payment declined unexpectedly" → [`booking-payment-processing.md`](./booking-payment-processing.md)
-- "Site completely down" → [`pattern-service-unavailable.md`](./pattern-service-unavailable.md), [`db-connection-pool-issues.md`](./db-connection-pool-issues.md)
-- "Development server won't start" → [`nextjs-build-cache-corruption-2025-08-07.md`](./nextjs-build-cache-corruption-2025-08-07.md)
-- "Components showing undefined errors" → [`nextjs-build-cache-corruption-2025-08-07.md`](./nextjs-build-cache-corruption-2025-08-07.md)
-- "Authentication keeps mounting/unmounting" → [`nextjs-build-cache-corruption-2025-08-07.md`](./nextjs-build-cache-corruption-2025-08-07.md)
-- "Commit fails with same errors repeatedly" → [`git-staging-pre-commit-hook-bypass-2025-08-06.md`](./git-staging-pre-commit-hook-bypass-2025-08-06.md)
-- "ESLint errors persist after 'fixes'" → [`git-staging-pre-commit-hook-bypass-2025-08-06.md`](./git-staging-pre-commit-hook-bypass-2025-08-06.md)
-- "Tests require mixed import/require syntax" → [`jest-mock-hoisting-issues-2025-08-08.md`](./jest-mock-hoisting-issues-2025-08-08.md)
-- "Jest mocks don't work with ES6 imports" → [`jest-mock-hoisting-issues-2025-08-08.md`](./jest-mock-hoisting-issues-2025-08-08.md)
-- "Variable hoisting errors in test files" → [`jest-mock-hoisting-issues-2025-08-08.md`](./jest-mock-hoisting-issues-2025-08-08.md)
-
-## Usage Guide
-
-**When to Check Investigations**:
-
-- Before starting any debugging session
-- When encountering similar error messages or symptoms
-- During incident response to find past resolution patterns
-- When implementing fixes to avoid known failure modes
-
-**How to Search**:
-
-1. **By Component**: Know which system is failing? Check component sections first
-2. **By Error Pattern**: Have specific error types? Look in error pattern sections
-3. **By Symptom**: User reporting issues? Start with symptom mapping
-4. **Cross-Reference**: Many issues span multiple categories - check related sections
-
-**Before test implementation** → Check: time format mismatch issues for format standardization approaches
-
-**Adding New Investigations**:
-
-1. Create investigation file with format: `component-specific-issue-YYYY-MM-DD.md`
-2. Add entry to relevant sections in this index
-3. Include symptoms, error patterns, and component tags
-4. Cross-reference with related patterns and decisions
-
-**Investigation File Format**:
-
-```markdown
-# Investigation: [Title]
-
-**Date**: YYYY-MM-DD
-**Component**: [Primary system affected]
-**Symptom**: [User-facing issue description]
-**Resolution**: [Brief solution summary]
-**Prevention**: [How to avoid in future]
-**Related**: [Links to patterns, decisions, or other investigations]
-```
-
-**Cross-References**:
-
-- Check [`patterns/index.md`](../patterns/index.md) for implementation approaches
-- Reference [`decisions/index.md`](../decisions/index.md) for architectural context
-- Update [`memory/index.md`](../memory/index.md) with lessons learned
-
-## Recent Investigations
-
-- **error_resolution**: resolved most pre-existing system issue (2025-10-04)
-- **error_resolution**: Resolved EACCES permission denied error (2025-10-04)
-- **error_resolution**: Fixed Docker permission issue (2025-10-04)
-
-- **error_resolution**: resolved most pre-existing system issue (2025-10-04)
-- **error_resolution**: resolved most pre-existing system issue (2025-10-04)
-- **error_resolution**: Resolved EACCES permission denied error (2025-10-04)
-- **error_resolution**: Fixed Docker permission issue (2025-10-04)
-
-
-- **error_resolution**: Resolved EACCES permission denied error (2025-10-04)
-- **error_resolution**: Fixed Docker permission issue (2025-10-04)
+**Don't document:**
+- Typos or simple mistakes
+- One-off issues specific to local environment
+- Issues with obvious solutions

@@ -1,345 +1,127 @@
-+++
-[metadata]
-type = "pattern_index"
-last_updated = "2025-08-09"
-total_patterns = 45
-documented_patterns = 45
-missing_patterns = 0
-token_cost_estimate = "medium"
+# Pattern Index
 
-[usage_stats]
-weekly_consultations = 0
-most_referenced_patterns = []
-least_referenced_patterns = []
+Reference for proven, reusable code patterns. Always check this before implementing similar functionality.
 
-[quality_metrics]
-pattern_completeness = 1.0
-implementation_success_rate = 0.0
-update_frequency = "per_implementation"
-pattern_gaps_resolved = "2025-08-06"
-memory_bank_compliance = "complete"
-+++
+## Auth Patterns
 
-# Implementation Pattern Index
+### JWT Authentication
+**Location**: `lib/auth/jwt-service.ts`
+**Use for**: Login, token refresh, token validation
+**Key functions**: `generateToken()`, `refreshToken()`, `validateToken()`
 
-This index helps agents find proven implementation approaches before starting new work. Check here first to apply established patterns and avoid reinventing solutions.
+### Auth Middleware
+**Location**: `middleware/auth-middleware.ts`
+**Use for**: Protecting API routes
+**Pattern**: Verify JWT in Authorization header, attach user to request
 
-## By Feature Type
+## Form Patterns
 
-**Authentication Flows**
+### Zod Validation Schemas
+**Location**: `lib/validation/schemas.ts`
+**Use for**: Runtime input validation
+**Pattern**: Define schema, use `.parse()` for validation, catch ZodError
 
-- [JWT Middleware Pattern](./auth-jwt-middleware-pattern.md) - token validation + error handling
-- [User Registration Pattern](./auth-user-registration-pattern.md) - validation + database + response handling
-- [Password Reset Flow](./auth-password-reset-pattern.md) - secure token generation and email workflow
-- [Session Management Pattern](./auth-session-management-pattern.md) - session lifecycle and cleanup
-- [Admin Authentication Pattern](./admin-authentication-pattern.md) - role-based access control for admin features
+### Multi-Step Forms
+**Location**: `components/forms/MultiStepForm.tsx`
+**Use for**: Complex forms with multiple pages
+**Pattern**: State machine for step management, validate per-step
 
-**Database Operations**
+### Form Error Handling
+**Location**: `components/forms/FormError.tsx`
+**Use for**: Displaying validation errors
+**Pattern**: Map Zod errors to field-specific messages
 
-- [Transaction Safety Pattern](./db-transaction-safety-pattern.md) - ACID compliance and conflict detection
-- [Connection Pool Pattern](./db-connection-pool-pattern.md) - efficient database connection management
-- [Migration Pattern](./db-migration-pattern.md) - safe schema changes and rollback procedures
-- [Audit Trail Pattern](./db-audit-trail-pattern.md) - change tracking and history preservation
-- [Local Development Setup Pattern](./local-development-setup-pattern.md) - Docker PostgreSQL with persistent volumes, environment configuration, and automated verification
+## Database Patterns
 
+### Prisma Queries
+**Location**: `lib/db/booking-queries.ts`
+**Use for**: Booking CRUD operations
+**Pattern**: Use `include` for relations, proper error handling
 
-**API Endpoints**
+### Transaction Wrapper
+**Location**: `lib/db/transaction-wrapper.ts`
+**Use for**: Multiple operations in single transaction
+**Pattern**: Wrap in `prisma.$transaction()`, rollback on error
 
-- [RESTful CRUD Pattern](./api-crud-pattern.md) - consistent endpoint structure and responses
-- [Error Response Pattern](./api-error-response-pattern.md) - standardized error handling and status codes
-- [Validation Middleware Pattern](./api-validation-middleware-pattern.md) - request validation and sanitization
-- [Rate Limiting Pattern](./api-rate-limiting-pattern.md) - request throttling and quota management
-- [Function Decomposition Pattern](./api-function-decomposition-pattern.md) - breaking down complex endpoints into smaller, single-responsibility functions
-- [Bulk Operation Pattern](./bulk-operation-pattern.md) - transaction-safe bulk operations with progress tracking
-- [Real-Time API Integration Pattern](./real-time-api-integration-pattern.md) - 6-function decomposition approach for complex API endpoints with <500ms response times
+### Availability Checks
+**Location**: `lib/db/availability-check.ts`
+**Use for**: Preventing booking conflicts
+**Pattern**: Query overlapping time ranges, lock for update
 
-**Form Handling & Validation**
+## Testing Patterns
 
-- [Form Validation Pattern](./ui-form-validation-pattern.md) - client-side validation with error display
-- [Form State Management Separation Pattern](./form-state-management-separation-pattern.md) - extracting form state logic from UI components
+### Integration Tests
+**Location**: `tests/integration/booking.test.ts`
+**Use for**: API endpoint testing
+**Pattern**: Setup/teardown database, test full request/response cycle
 
-**UI Components**
+### Prisma Mocking
+**Location**: `tests/mocks/prisma-mock.ts`
+**Use for**: Mocking database in tests
+**Pattern**: Use `jest.unstable_mockModule()` for ESM compatibility
 
-- [Loading State Pattern](./ui-loading-state-pattern.md) - async operation feedback and skeleton loading
-- [Error Boundary Pattern](./ui-error-boundary-pattern.md) - React error handling and recovery
-- [Responsive Design Pattern](./ui-responsive-design-pattern.md) - mobile-first component architecture
-- [Component Decomposition Pattern](./ui-component-decomposition-pattern.md) - breaking down monolithic UI components into focused modules
-- [Chart Component Decomposition Pattern](./chart-component-decomposition-pattern.md) - specialized decomposition for data visualization components with parameter reduction
-- [Scheduling Component Decomposition Pattern](./scheduling-component-decomposition-pattern.md) - specialized decomposition for complex scheduling UI components
+### E2E Tests
+**Location**: `tests/e2e/booking-flow.spec.ts`
+**Use for**: User workflow testing
+**Pattern**: Playwright test, full browser automation
 
-**File Handling**
+## Component Patterns
 
-- [Upload Validation Pattern](./file-upload-validation-pattern.md) - secure file processing and storage
-- [Image Optimization Pattern](./file-image-optimization-pattern.md) - compression and format handling
-- [File Streaming Pattern](./file-streaming-pattern.md) - large file handling without memory issues
+### Component Decomposition
+**Principle**: Keep components <300 lines
+**Pattern**: Extract sub-components when component grows too large
+**Example**: BookingForm → BookingFormFields + BookingFormActions
 
-**Email & Communications**
+### State Management
+**Location**: Components use React Query for server state
+**Pattern**: `useQuery` for reads, `useMutation` for writes
+**Avoid**: Duplicating server state in local state
 
-- [Dynamic Email Template Pattern](./dynamic-email-template-pattern.md) - customizable email content with A/B testing
-- [Notification System Pattern](./notification-system-pattern.md) - multi-channel notifications (in-app, push, email, SMS)
+## API Patterns
 
-**Documentation Frameworks**
-
-- [Lean Requirements Tracking Pattern](./lean-requirements-tracking-pattern.md) - anti-enterprise pattern replacing complex tracking with business-appropriate simplicity
-
-**Real-Time Features**
-
-- [Real-Time Data Synchronization Pattern](./realtime-data-synchronization-pattern.md) - WebSocket-based live updates with conflict resolution
-
-**Analytics & Tracking**
-
-- [Analytics Integration Pattern](./analytics-integration-pattern.md) - privacy-first user behavior tracking
-
-**Testing Approaches**
-
-- [**Modern Testing Approach 2025**](./modern-testing-approach-2025.md) - **PRIMARY PATTERN**: Behavior-focused testing with semantic queries, minimal mocking, and user-centric assertions (Pattern Date: 2025-10-10)
-- [Integration Test Pattern](./test-integration-pattern.md) - database and API testing setup
-- [Component Test Pattern](./test-component-pattern.md) - React component testing with MSW
-- [E2E Test Pattern](./test-e2e-pattern.md) - end-to-end user journey testing
-- [Mock Pattern](./test-mock-pattern.md) - external service mocking strategies
-- [Admin Component Testing Pattern](./admin-component-testing-pattern.md) - comprehensive admin interface testing with authentication, API integration, and workflows
-- [LLM-Optimized Testing Approach Pattern](./llm-optimized-testing-approach-pattern.md) - multi-layer business protection with strategic exclusions for LLM development teams
-
-**Quality Assurance**
-
-- [Comprehensive Quality Gates Pattern](./quality-gate-comprehensive-pattern.md) - complexity detection, coverage thresholds, pre-commit automation
-- [Time Format Validation Debugging Pattern](./debugging-time-format-validation-pattern.md) - systematic format mismatch identification + standardization
-- [JWT Configuration Debugging Pattern](./debugging-jwt-configuration-pattern.md) - systematic JWT authentication conflict resolution for duplicate expiration settings
-- [React State Management During Render Debugging Pattern](./react-state-management-during-render-debugging-pattern.md) - setState-during-render violation detection and resolution
-- [Human-Verified Visual Debugging Pattern](./debugging-human-verified-visual-pattern.md) - mandatory human verification protocol for visual UI bug fixes
-
-**TypeScript Patterns**
-
-- [Interface Definition Pattern](./ts-interface-pattern.md) - API response and data structure typing
-- [Generic Utility Pattern](./ts-generic-utility-pattern.md) - reusable type-safe utilities
-- [Error Type Pattern](./ts-error-type-pattern.md) - typed error handling and union types
-- [Schema Validation Pattern](./ts-schema-validation-pattern.md) - runtime type checking with Zod
-
-## By Complexity Level
-
-**Simple (1-2 files, < 2 hours)**
-
-- [Basic CRUD Operations](./simple-crud-pattern.md) - single entity create/read/update/delete
-- [Form Component](./simple-form-pattern.md) - basic form with validation
-- [API Route Handler](./simple-api-route-pattern.md) - single endpoint implementation
-- [UI Component](./simple-ui-component-pattern.md) - stateless display component
-
-**Medium (3-5 files, 2-8 hours)**
-
-- [Authentication System](./medium-auth-system-pattern.md) - login/logout with JWT
-- [Booking Workflow](./medium-booking-workflow-pattern.md) - multi-step booking process
-- [Payment Integration](./medium-payment-integration-pattern.md) - third-party payment processing
-- [Email Notification System](./medium-email-system-pattern.md) - templated email sending
-
-**Complex (5+ files, 1+ days)**
-
-- [Multi-tenant Architecture](./complex-multi-tenant-pattern.md) - tenant isolation and data segregation
-- [Real-Time Data Synchronization Pattern](./realtime-data-synchronization-pattern.md) - WebSocket-based live updates with conflict resolution
-- [Admin Authentication Pattern](./admin-authentication-pattern.md) - role-based access control system
-- [Notification System Pattern](./notification-system-pattern.md) - multi-channel notification delivery
-- [Bulk Operation Pattern](./bulk-operation-pattern.md) - transaction-safe bulk operations with progress tracking
-- [Real-Time API Integration Pattern](./real-time-api-integration-pattern.md) - 6-function decomposition approach for complex API endpoints with <500ms response times
-- [File Processing Pipeline](./complex-file-pipeline-pattern.md) - async file processing workflow
-- [Audit and Compliance System](./complex-audit-system-pattern.md) - comprehensive change tracking
-
-## Usage Guide
-
-**Before Starting Implementation**:
-
-1. **Search by Feature Type**: Look for similar functionality patterns first
-2. **Check Complexity Level**: Estimate scope and find appropriate pattern complexity
-3. **Review Prerequisites**: Ensure dependencies and setup requirements are met
-4. **Adapt to Context**: Modify pattern for specific use case while maintaining core approach
-
-**When to Create New Patterns**:
-
-- No existing pattern covers the use case
-- Significant improvements to existing approach discovered
-- Reusable solution developed that others might need
-- Cross-cutting concern that spans multiple feature types
-
-**Pattern Documentation Format**:
-
-```markdown
-# Pattern: [Name]
-
-**Complexity**: Simple/Medium/Complex
-**Files Affected**: [Number and types]
-**Prerequisites**: [Dependencies, setup requirements]
-**Use Cases**: [When to apply this pattern]
-
-## Implementation Steps
-
-1. [Step-by-step implementation guide]
-2. [Include code examples and file structures]
-
-## Testing Strategy
-
-[How to test this pattern implementation]
-
-## Common Pitfalls
-
-[Known issues and how to avoid them]
-
-## Related Patterns
-
-[Links to complementary or alternative patterns]
+### API Route Structure
+**Location**: `app/api/bookings/route.ts`
+**Pattern**:
+```typescript
+export async function POST(request: Request) {
+  // 1. Parse and validate input (Zod)
+  // 2. Authenticate/authorize
+  // 3. Business logic
+  // 4. Return Response.json()
+}
 ```
 
-**Orchestration & Workflow**
-
-- [Orchestrated Task Completion Pattern](./orchestrated-task-completion-pattern.md) - mandatory cleanup phase with automatic Architect mode transition
-- [Systematic Git Workflow Pattern](./git-workflow-systematic-pattern.md) - automated git operations with quality gates, knowledge integration, and stash recovery
-- [Mandatory Completion Protocol Pattern](../protocols/mandatory-completion-checklist.md) - standardized completion checklists for all specialist roles with quality gate enforcement
-
-**Task Management & Todo Lists**
-
-- [Task Todo List Pattern](../reference/roo-code-documentation.md#task-todo-lists) - interactive progress tracking with systematic completion verification
-- [Completion Checklist Enforcement Pattern](../protocols/mandatory-completion-checklist.md) - role-specific templates ensuring quality gates, knowledge capture, and git compliance
-- [**Todo List Handback Protocol**](../protocols/todo-list-handback-protocol.md) - **MANDATORY**: All todo lists MUST end with explicit Navigator handback task - zero exceptions allowed
-
-**Git Operations & Version Control**
-
-- [Branch Management Pattern](./git-branch-management-pattern.md) - feature branch workflows with automated stash recovery
-- [Conventional Commit Pattern](./git-conventional-commit-pattern.md) - structured commit messages with pattern and investigation references
-- [Quality-Gated Commit Pattern](./git-quality-gated-commit-pattern.md) - mandatory quality gate execution before commits
-
-**Package Management & Maintenance**
-
-- [Package Version Testing Cleanup Pattern](./package-version-testing-cleanup-pattern.md) - systematic cleanup after testing multiple package versions, removes orphaned packages and cache
-
-**Terminal & Process Management**
-
-- [Terminal Cleanup Protocol Pattern](./terminal-cleanup-protocol-pattern.md) - mandatory terminal cleanup for all specialist roles before task completion, prevents orphaned processes and port conflicts
-
-**Integration with Other Indexes**:
-
-- **Investigations**: When debugging, check if pattern was implemented correctly
-- **Decisions**: Understand architectural context behind pattern choices
-- **Memory**: Learn from past pattern applications and modifications
-- **Handoffs**: Include relevant patterns in agent handoff context
-
-**Before debugging test failures** → Check: time format validation debugging pattern for systematic format mismatch resolution
-
-**Before debugging JWT authentication issues** → Check: JWT configuration debugging pattern for systematic parameter conflict resolution
-
-**Quality Gates for Patterns**:
-
-- All patterns must include working code examples
-- Test coverage requirements specified
-- Error handling approaches documented
-- Performance considerations noted
-- Security implications addressed
-
-**Implemented Quality Gates**:
-
-- [Comprehensive Quality Gates Pattern](./quality-gate-comprehensive-pattern.md) - Prevents technical debt through automated complexity detection, coverage enforcement, and security scanning
-
-**Pattern Evolution**:
-
-- Update patterns based on lessons learned
-- Deprecate patterns that are no longer recommended
-- Version patterns when significant changes occur
-- Cross-reference pattern updates with related investigations
-
-## Pattern Implementation Status
-
-### Recently Implemented Patterns (2025-08-06)
-
-**Phase 1 - High Priority (Critical Infrastructure)**
-
-- ✅ [Real-Time Data Synchronization Pattern](./realtime-data-synchronization-pattern.md) - WebSocket-based live updates with conflict resolution (Complexity: 7-8)
-- ✅ [Admin Authentication Pattern](./admin-authentication-pattern.md) - Role-based access control for admin features (Complexity: 5-6)
-
-**Phase 2 - Medium Priority (Enhanced Features)**
-
-- ✅ [Bulk Operation Pattern](./bulk-operation-pattern.md) - Transaction-safe bulk operations with progress tracking (Complexity: 4-5)
-- ✅ [Dynamic Email Template Pattern](./dynamic-email-template-pattern.md) - Customizable email content with A/B testing (Complexity: 3-4)
-
-**Phase 3 - Lower Priority (User Experience Enhancement)**
-
-- ✅ [Analytics Integration Pattern](./analytics-integration-pattern.md) - Privacy-first user behavior tracking (Complexity: 2-3)
-- ✅ [Notification System Pattern](./notification-system-pattern.md) - Multi-channel notifications (in-app, push, email, SMS) (Complexity: 5-6)
-
-### Implementation Benefits Achieved
-
-**Memory Bank Pattern Implementation**: Complete institutional knowledge capture system
-
-- **Total Complexity Addressed**: 30+ complexity units across 6 patterns
-- **Critical Security Gaps**: Resolved (Admin Authentication)
-- **Real-Time Capabilities**: Enabled (WebSocket infrastructure + Notifications)
-- **Business Intelligence**: Enhanced (Analytics + Email A/B Testing)
-- **Admin Productivity**: Improved (Bulk Operations + Authentication)
-- **User Engagement**: Expanded (Multi-channel Notifications)
-
-## Gap Management Process
-
-### When Gaps Are Identified
-
-1. **During Implementation**: If no pattern exists, document gap immediately
-2. **During Architecture**: Note pattern needs in design documents
-3. **During Debug**: If investigation reveals missing pattern, add to gaps
-4. **During Ask**: If analysis shows pattern would help, document it
-
-### Gap Tracking Workflow
-
-```markdown
-1. Identify gap during work
-2. Check if truly no pattern exists (search all indexes)
-3. Add to appropriate priority level
-4. Include all fields for context
-5. Reference in current-task.md if blocking
+### Error Response Format
+**Pattern**:
+```typescript
+{
+  success: false,
+  error: {
+    message: "Human-readable error",
+    code: "ERROR_CODE",
+    details: {} // Optional additional context
+  }
+}
 ```
 
-### Converting Gaps to Patterns
+## Common Implementation Approaches
 
-- **Trigger**: When implementing feature that needs the pattern
-- **Process**: Develop pattern during implementation
-- **Documentation**: Create pattern file and update index
-- **Review**: Validate pattern works before removing from gaps
-- **Cross-Reference**: Update investigations/decisions that relate
+### When to Extract a Pattern
 
-### Escalation Criteria
+**Extract when:**
+- Code duplicated 2+ times (5+ lines)
+- Clear reusable abstraction
+- Multiple similar implementations
 
-- **Critical Gaps**: Security patterns needed → Immediate escalation
-- **Blocking Gaps**: Preventing feature delivery → Include in handoff
-- **Accumulation**: >5 high-priority gaps → Review architecture approach
-- **Complexity**: Gap would require >8 complexity → Needs appetite planning
+**Don't extract when:**
+- Used only once
+- Highly specific to single use case
+- Abstraction adds more complexity than it removes
 
-## Gap Review Schedule
+### How to Apply Patterns
 
-- **Per Task**: Check if task creates or fills gaps
-- **Per Handoff**: Include relevant gaps in context
-- **Per Appetite**: Review all gaps during planning
-- **Pattern Creation**: Prioritize based on business impact
-
-## Current Pattern Statistics
-
-- **Total Documented Patterns**: 48 (up from 47)
-- **Recently Added**: 2 patterns (2025-10-04) - Package Version Testing Cleanup Pattern, Terminal Cleanup Protocol Pattern
-- **Pattern Coverage**: Complete for identified business needs
-- **Implementation Complexity Resolved**: 30+ units
-- **Critical Gaps Remaining**: None identified
-- **Pattern Maturity**: All new patterns marked as "Proven" status
-
-## Recently Updated
-
-- [from Pattern](./applied-patterns.md#from) - successfully applied 2025-08-08
-- [from Pattern](./applied-patterns.md#from) - successfully applied 2025-08-08
-- [3 existing Pattern](./applied-patterns.md#3-existing) - successfully applied 2025-08-08
-- [**: Pattern](./new-patterns.md#**:) - developed 2025-08-08
-
-
-- [3 existing Pattern](./applied-patterns.md#3-existing) - successfully applied 2025-08-08
-- [\*\*: Pattern](./new-patterns.md#**:) - developed 2025-08-08
-
-- [from Pattern](./applied-patterns.md#from) - successfully applied 2025-08-08
-- [3 existing Pattern](./applied-patterns.md#3-existing) - successfully applied 2025-08-08
-- [\*\*: Pattern](./new-patterns.md#**:) - developed 2025-08-08
-
-**Recently Validated Patterns (2025-08-07)**:
-
-- [Comprehensive Quality Gates Pattern](./quality-gate-comprehensive-pattern.md) - validated in production with 78.2s execution time
-- [Real-Time API Integration Pattern](./real-time-api-integration-pattern.md) - confirmed <500ms response times
-- [JWT Configuration Debugging Pattern](./debugging-jwt-configuration-pattern.md) - successfully resolved authentication conflicts
-- [Human-Verified Visual Debugging Pattern](./debugging-human-verified-visual-pattern.md) - successfully resolved calendar grid alignment issue that resisted automated testing
+1. Search this index for similar functionality
+2. Review referenced file for implementation details
+3. Copy pattern structure (don't duplicate code)
+4. Adapt pattern to specific use case
+5. If creating new pattern, document here only if genuinely reusable

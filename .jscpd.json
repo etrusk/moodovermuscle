@@ -1,0 +1,19 @@
+{
+  "threshold": 3,
+  "reporters": ["console"],
+  "ignore": [
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "node_modules/**",
+    ".next/**",
+    "build/**",
+    "dist/**"
+  ],
+  "format": ["typescript", "javascript"],
+  "minLines": 5,
+  "minTokens": 50,
+  "exitCode": 1,
+  "skipEmpty": true
+}

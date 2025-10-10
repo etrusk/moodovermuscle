@@ -1,186 +1,30 @@
-# Comprehensive Roo Code Overhaul Plan
+# MoodOverMuscle Roo Code Overhaul - Complete Implementation Plan
 
-## Index
+## Overview
 
-1. [Research Findings → Deliverables Matrix](#1-research-findings--deliverables-matrix)
-2. [Current State Assessment](#2-current-state-assessment)
-3. [Target State Architecture](#3-target-state-architecture)
-4. [Pre-commit Enforcement Layer](#4-pre-commit-enforcement-layer)
-5. [Mode Structure](#5-mode-structure)
-6. [Rules Consolidation](#6-rules-consolidation)
-7. [Documentation Consolidation](#7-documentation-consolidation)
-8. [Implementation Roadmap](#8-implementation-roadmap)
-9. [Validation & Success Metrics](#9-validation--success-metrics)
+Transform from over-engineered specialist system to lean, pre-commit enforced workflow with persistent behavioral modes.
+
+**Core Changes:**
+- Pre-commit enforcement (complexity, duplication, hallucinations)
+- 7 lean custom modes with persistent behaviors
+- Consolidate 146 documentation files → ~20 files
+- Remove manual protocols (handback, appetite tracking, quality verification)
 
 ---
 
-## 1. Research Findings → Deliverables Matrix
+## Phase 1: Pre-Commit Enforcement (20 minutes)
 
-| Research Finding | Evidence | Deliverable | Implementation |
-|-----------------|----------|-------------|----------------|
-| **8x code duplication increase** | GitClear 211M lines analysis | Pre-commit jscpd check | `npx jscpd` blocks >3% duplication |
-| **65% missing context issue** | Qodo developer survey | `.roo/context.md` + `.docs/patterns/index.md` | Context priming for every AI session |
-| **21.7% JS package hallucinations** | Package hallucination study | Pre-commit npm package validator | `scripts/check-npm-packages.js` |
-| **19% slower with AI (METR study)** | Experienced dev RCT | TDG workflow + constraints | Test mode enforces tests-first |
-| **7.2% delivery stability decrease** | Google DORA 2024 | Quality gates + appetite constraints | Quality mode runs full gate suite |
-| **Over-engineering spiral** | O'Reilly pattern analysis | AST-based complexity limits | `scripts/complexity-check.js` (AST) |
-| **Refactoring decline (25%→10%)** | GitClear temporal analysis | Dedicated Refactor mode | Weekly consolidation sprints |
-| **YAGNI violations** | Practitioner consensus | Constraint-based prompts | "No abstraction until 2nd use" rule |
-| **Pattern amnesia** | Industry case studies | Minimal pattern documentation | `.docs/patterns/index.md` (1-page) |
-| **Context awareness #1 issue** | 65% Qodo survey | Enhanced context template | `.roo/context.md` with WHY decisions |
-| **Hallucination detection gaps** | 21.7% persistent rate | TypeScript + npm validator | Existing type-check + new validator |
-| **Progressive refinement needed** | Google/Augment best practices | Navigator mode | Task decomposition before work |
-| **70/30 decision routing** | Solo+AI workflow research | Navigator delegation | Explicit human vs AI boundaries |
-| **Modular architecture critical** | MASAI 40% improvement | Architecture enforcement | `.roo/rules/00-general.md` boundaries |
-| **Quality gate bypass** | Multiple industry reports | Mandatory pre-commit gates | No bypasses allowed, enforced |
-| **Test-driven generation (TDG)** | Emerging practice 2024-2025 | Test mode precedence | Tests before implementation |
-| **Code churn 2x increase** | GitClear metrics | Git conventional commits | Pattern/investigation references |
-| **Technical debt acceleration** | Multiple sources | Debt tracking + resolution log | `.docs/debt.md` + achievements |
-| **Knowledge continuity loss** | Developer over-reliance | Session continuity protocol | End-of-session context capture |
-| **Constraint-based prompting** | Effective practice pattern | Mode customInstructions | Hard limits in all modes |
-
----
-
-## 2. Current State Assessment
-
-### Critical Problems
-
-**Configuration Bloat**:
-- 5 specialist modes (over-engineered for solo dev)
-- 12 Roo config files across 6 directories
-- Specialist role overlap and unclear boundaries
-- 146+ documentation files with significant duplication
-
-**Institutional Memory Chaos**:
-- 32 pattern files (should be 1-2 page index)
-- 10 memory files (redundant with patterns)
-- 18 handoff templates (automated away by modes)
-- Pattern discovery requires searching 32 files
-
-**Enforcement Gaps**:
-- Quality gates documented but not enforced
-- Manual handback protocol (should be automatic)
-- No duplication detection
-- No complexity enforcement
-- No hallucination detection
-
-**Documentation Debt**:
-- 36 ADRs (valuable but not in AI context)
-- Multiple backup directories
-- Redundant README files
-- Outdated specialist documentation
-
----
-
-## 3. Target State Architecture
-
-### Configuration Structure
-
-```
-.roo/
-├── context.md                    # Single context file (NEW)
-├── .roomodes                     # 5 lean modes (YAML)
-└── rules/
-    ├── 00-general.md             # Core principles (CONSOLIDATED)
-    ├── 01-coding-style.md        # Keep as-is
-    └── 02-anti-patterns.md       # Enforced + conceptual (NEW)
-
-.docs/
-├── patterns/
-│   └── index.md                  # 1-2 page pattern index (CONSOLIDATED)
-├── decisions/                    # ADRs (KEEP, not in AI context)
-├── investigations/               # Keep minimal (10 files OK)
-└── debt.md                       # Active debt only
-
-scripts/
-├── complexity-check.js           # AST-based (NEW)
-├── check-npm-packages.js         # Package validator (NEW)
-└── check-duplication.sh          # jscpd wrapper (NEW)
-
-.husky/
-└── pre-commit                    # Enforce all constraints (UPDATED)
-```
-
-### Deleted Structure
-
-```
-DELETE:
-.roo/rules/03-automatic-handback.md              → Merged into modes
-.roo/rules/04-terminal-cleanup.md                → Not needed
-.roo/rules/05-specialist-common.md               → Merged into 00-general.md
-.roo/rules-{specialist}/                          → All 5 directories
-.docs/handoffs/                                   → 18 files (automated)
-.docs/memory/ (partial)                           → Consolidated to patterns
-.docs/patterns/ (30 files)                        → Consolidated to index.md
-.docs/designs/                                    → Outdated planning docs
-.docs/protocols/                                  → Merged into rules
-.docs/backups/                                    → Archive elsewhere
-```
-
----
-
-## 4. Pre-commit Enforcement Layer
-
-### File: `.husky/pre-commit`
+### Step 1.1: Install Dependencies
 
 ```bash
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-
-echo "🔍 Running pre-commit quality gates..."
-
-# Get changed files for scoped checks
-CHANGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
-TS_JS_FILES=$(echo "$CHANGED_FILES" | grep -E '\.(ts|tsx|js|jsx)$' || true)
-
-# 1. Linting (existing)
-echo "📋 Running linter..."
-npm run lint || exit 1
-
-# 2. Type checking (existing - catches most hallucinations)
-echo "🔍 Type checking..."
-npm run type-check || exit 1
-
-# 3. Critical tests (existing)
-echo "🧪 Running critical tests..."
-npm run test:critical || exit 1
-
-# 4. NEW: Complexity check (AST-based)
-if [ -n "$TS_JS_FILES" ]; then
-  echo "📊 Checking code complexity..."
-  echo "$TS_JS_FILES" | xargs node scripts/complexity-check.js || exit 1
-fi
-
-# 5. NEW: Duplication check (scoped to changed files)
-if [ -n "$TS_JS_FILES" ]; then
-  echo "🔎 Checking code duplication..."
-  npx jscpd $TS_JS_FILES --threshold 3 --reporters console --min-lines 5 --min-tokens 50 || {
-    echo "❌ Duplication >3% detected. Run 'npm run refactor' to consolidate."
-    exit 1
-  }
-fi
-
-# 6. NEW: NPM package validation (catches 21.7% hallucination problem)
-if [ -n "$TS_JS_FILES" ]; then
-  echo "📦 Validating npm packages..."
-  echo "$TS_JS_FILES" | xargs node scripts/check-npm-packages.js || exit 1
-fi
-
-# 7. Security scan (existing)
-echo "🔒 Security scanning..."
-npm run security:scan || exit 1
-
-# 8. Build verification (existing)
-echo "🏗️  Build verification..."
-npm run build:verify || exit 1
-
-echo "✅ All pre-commit gates passed!"
+pnpm add -D jscpd @typescript-eslint/typescript-estree @typescript-eslint/parser
 ```
 
-### File: `scripts/complexity-check.js` (AST-based)
+### Step 1.2: Create Complexity Check Script
+
+**File**: `scripts/complexity-check.js`
 
 ```javascript
-#!/usr/bin/env node
 const fs = require('fs');
 const path = require('path');
 const parser = require('@typescript-eslint/typescript-estree');
@@ -189,85 +33,75 @@ const MAX_FUNCTION_LINES = 50;
 const MAX_FILE_LINES = 300;
 const MAX_PARAMS = 3;
 
-const CONFIG = {
-  loc: true,
-  range: true,
-  comment: false,
-  jsx: true
-};
-
 function analyzeFile(filePath) {
-  const content = fs.readFileSync(filePath, 'utf-8');
-  const lines = content.split('\n');
-  
-  // File length check
-  if (lines.length > MAX_FILE_LINES) {
-    console.error(`❌ ${filePath}: ${lines.length} lines (max ${MAX_FILE_LINES})`);
-    return false;
-  }
-  
-  let violations = [];
-  
   try {
-    const ast = parser.parse(content, CONFIG);
+    const content = fs.readFileSync(filePath, 'utf-8');
+    const lines = content.split('\n');
+    
+    // Check file size
+    if (lines.length > MAX_FILE_LINES) {
+      console.error(`❌ ${filePath}: ${lines.length} lines (max ${MAX_FILE_LINES})`);
+      return false;
+    }
+    
+    // Parse AST
+    const ast = parser.parse(content, {
+      loc: true,
+      range: true,
+      jsx: true,
+      ecmaVersion: 'latest',
+      sourceType: 'module'
+    });
+    
+    let violations = [];
     
     function visit(node) {
-      // Check all function types
-      const functionTypes = [
-        'FunctionDeclaration',
-        'FunctionExpression', 
-        'ArrowFunctionExpression',
-        'MethodDefinition'
-      ];
+      if (!node || typeof node !== 'object') return;
       
-      if (functionTypes.includes(node.type)) {
-        // Parameter count check
+      // Check all function types
+      if (['FunctionDeclaration', 'ArrowFunctionExpression', 
+           'FunctionExpression', 'MethodDefinition'].includes(node.type)) {
+        
         const params = node.params?.length || 0;
+        const lines = node.loc ? node.loc.end.line - node.loc.start.line : 0;
+        
         if (params > MAX_PARAMS) {
-          violations.push(
-            `${filePath}:${node.loc.start.line} - Function has ${params} parameters (max ${MAX_PARAMS})`
-          );
+          violations.push(`Line ${node.loc.start.line}: ${params} params (max ${MAX_PARAMS})`);
         }
         
-        // Function length check
-        if (node.loc) {
-          const funcLines = node.loc.end.line - node.loc.start.line;
-          if (funcLines > MAX_FUNCTION_LINES) {
-            violations.push(
-              `${filePath}:${node.loc.start.line} - Function is ${funcLines} lines (max ${MAX_FUNCTION_LINES})`
-            );
-          }
+        if (lines > MAX_FUNCTION_LINES) {
+          violations.push(`Line ${node.loc.start.line}: ${lines} lines (max ${MAX_FUNCTION_LINES})`);
         }
       }
       
       // Recurse through AST
       for (let key in node) {
-        const child = node[key];
-        if (child && typeof child === 'object') {
-          if (Array.isArray(child)) {
-            child.forEach(c => c && typeof c === 'object' && visit(c));
+        if (node[key] && typeof node[key] === 'object') {
+          if (Array.isArray(node[key])) {
+            node[key].forEach(visit);
           } else {
-            visit(child);
+            visit(node[key]);
           }
         }
       }
     }
     
     visit(ast);
+    
+    if (violations.length > 0) {
+      console.error(`❌ ${filePath}:`);
+      violations.forEach(v => console.error(`   ${v}`));
+      return false;
+    }
+    
+    return true;
   } catch (error) {
     console.error(`❌ ${filePath}: Parse error - ${error.message}`);
     return false;
   }
-  
-  if (violations.length > 0) {
-    violations.forEach(v => console.error(`❌ ${v}`));
-    return false;
-  }
-  
-  return true;
 }
 
-// Process files from stdin or args
+// Process files from arguments
 const files = process.argv.slice(2);
 
 if (files.length === 0) {
@@ -275,84 +109,68 @@ if (files.length === 0) {
   process.exit(0);
 }
 
-const allPassed = files.every(file => {
-  if (!fs.existsSync(file)) {
-    console.error(`❌ File not found: ${file}`);
-    return false;
-  }
-  return analyzeFile(file);
-});
+const allPassed = files.every(analyzeFile);
 
-if (!allPassed) {
-  console.error('\n💡 Tip: Break large functions into smaller utilities');
-  console.error('💡 Tip: Use object parameters for functions with >3 params');
-  console.error('💡 Tip: Split large files by responsibility\n');
+if (allPassed) {
+  console.log('✅ All complexity checks passed');
 }
 
 process.exit(allPassed ? 0 : 1);
 ```
 
-### File: `scripts/check-npm-packages.js`
+### Step 1.3: Create NPM Package Check Script
+
+**File**: `scripts/check-npm-packages.js`
 
 ```javascript
-#!/usr/bin/env node
 const fs = require('fs');
 const path = require('path');
 
-// Load package.json
 const packageJsonPath = path.join(process.cwd(), 'package.json');
+
 if (!fs.existsSync(packageJsonPath)) {
   console.error('❌ package.json not found');
   process.exit(1);
 }
 
 const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
+
 const installed = {
   ...packageJson.dependencies || {},
   ...packageJson.devDependencies || {}
 };
 
 function checkFile(filePath) {
-  const content = fs.readFileSync(filePath, 'utf-8');
-  
-  // Match: import/require from 'package' or '@scope/package'
-  // Excludes relative imports (starting with . or /)
-  const importRegex = /(?:import|require)\s*(?:.*?\s*from\s*)?['"]([^'".\/][^'"]*)['"]/g;
-  
-  let match;
-  const violations = [];
-  
-  while ((match = importRegex.exec(content)) !== null) {
-    const fullPath = match[1];
+  try {
+    const content = fs.readFileSync(filePath, 'utf-8');
     
-    // Extract base package name
-    const basePkg = fullPath.startsWith('@')
-      ? fullPath.split('/').slice(0, 2).join('/')  // @scope/package
-      : fullPath.split('/')[0];                     // package
+    // Match npm package imports (not relative paths)
+    const importRegex = /from ['"]([^'".\/][^'"]*)['"]/g;
+    let match;
+    let allValid = true;
     
-    // Check if package is installed
-    if (!installed[basePkg]) {
-      violations.push({
-        line: content.substring(0, match.index).split('\n').length,
-        package: basePkg,
-        fullPath: fullPath
-      });
+    while ((match = importRegex.exec(content)) !== null) {
+      const fullPath = match[1];
+      
+      // Extract base package name
+      const basePkg = fullPath.startsWith('@') 
+        ? fullPath.split('/').slice(0, 2).join('/')
+        : fullPath.split('/')[0];
+      
+      if (!installed[basePkg]) {
+        console.error(`❌ ${filePath}: Package '${basePkg}' not in package.json`);
+        console.error(`   Run: pnpm add ${basePkg}`);
+        allValid = false;
+      }
     }
-  }
-  
-  if (violations.length > 0) {
-    console.error(`\n❌ ${filePath}: Uninstalled packages detected`);
-    violations.forEach(v => {
-      console.error(`   Line ${v.line}: '${v.package}' not in package.json`);
-      console.error(`   → Run: pnpm add ${v.package}`);
-    });
+    
+    return allValid;
+  } catch (error) {
+    console.error(`❌ ${filePath}: ${error.message}`);
     return false;
   }
-  
-  return true;
 }
 
-// Process files
 const files = process.argv.slice(2);
 
 if (files.length === 0) {
@@ -360,24 +178,18 @@ if (files.length === 0) {
   process.exit(0);
 }
 
-const allPassed = files.every(file => {
-  if (!fs.existsSync(file)) {
-    console.error(`❌ File not found: ${file}`);
-    return false;
-  }
-  return checkFile(file);
-});
+const allPassed = files.every(checkFile);
 
-if (!allPassed) {
-  console.error('\n💡 Tip: AI may have hallucinated a package name');
-  console.error('💡 Tip: Search npm for similar package names');
-  console.error('💡 Tip: Check official docs for correct import path\n');
+if (allPassed) {
+  console.log('✅ All package imports valid');
 }
 
 process.exit(allPassed ? 0 : 1);
 ```
 
-### File: `.jscpd.json`
+### Step 1.4: Create jscpd Configuration
+
+**File**: `.jscpd.json`
 
 ```json
 {
@@ -389,1601 +201,1212 @@ process.exit(allPassed ? 0 : 1);
     "**/*.spec.ts",
     "**/*.spec.tsx",
     "node_modules/**",
-    "dist/**",
-    "build/**",
     ".next/**",
-    "coverage/**"
+    "build/**",
+    "dist/**"
   ],
   "format": ["typescript", "javascript"],
   "minLines": 5,
   "minTokens": 50,
   "exitCode": 1,
-  "silent": false
+  "skipEmpty": true
 }
 ```
 
-### Package Dependencies
+### Step 1.5: Update package.json Scripts
+
+**File**: `package.json` (add to scripts section)
 
 ```json
-// package.json additions
 {
-  "devDependencies": {
-    "jscpd": "^4.0.5",
-    "@typescript-eslint/typescript-estree": "^6.21.0"
-  },
   "scripts": {
-    "complexity-check": "git diff --cached --name-only --diff-filter=ACM | grep -E '\\.(ts|tsx|js|jsx)$' | xargs -r node scripts/complexity-check.js",
-    "duplication-check": "git diff --cached --name-only --diff-filter=ACM | grep -E '\\.(ts|tsx|js|jsx)$' | xargs -r npx jscpd --threshold 3",
-    "hallucination-check": "git diff --cached --name-only --diff-filter=ACM | grep -E '\\.(ts|tsx|js|jsx)$' | xargs -r node scripts/check-npm-packages.js"
+    "complexity-check": "node scripts/complexity-check.js",
+    "package-check": "node scripts/check-npm-packages.js",
+    "duplication-check": "jscpd --config .jscpd.json"
   }
 }
 ```
 
+### Step 1.6: Update Pre-Commit Hook
+
+**File**: `.husky/pre-commit`
+
+```bash
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "🔍 Running pre-commit checks..."
+
+# Get changed files
+CHANGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|tsx|js|jsx)$' | tr '\n' ' ')
+
+# Exit early if no relevant files changed
+if [ -z "$CHANGED_FILES" ]; then
+  echo "✅ No TypeScript/JavaScript files changed"
+  exit 0
+fi
+
+echo "📁 Checking files: $CHANGED_FILES"
+
+# 1. Lint (auto-fix enabled)
+echo "🎨 Running lint..."
+npm run lint || exit 1
+
+# 2. Type check
+echo "📘 Running type check..."
+npm run type-check || exit 1
+
+# 3. Critical tests
+echo "🧪 Running critical tests..."
+npm run test:critical || exit 1
+
+# 4. Complexity check (AST-based)
+echo "📊 Checking complexity..."
+echo $CHANGED_FILES | xargs node scripts/complexity-check.js || exit 1
+
+# 5. Package validation (hallucination detection)
+echo "📦 Checking package imports..."
+echo $CHANGED_FILES | xargs node scripts/check-npm-packages.js || exit 1
+
+# 6. Duplication check (scoped to changed files)
+echo "🔁 Checking duplication..."
+echo $CHANGED_FILES | xargs jscpd --threshold 3 --min-lines 5 --min-tokens 50 || exit 1
+
+# 7. Security scan (if configured)
+if command -v npm run security:scan &> /dev/null; then
+  echo "🔒 Running security scan..."
+  npm run security:scan || exit 1
+fi
+
+# 8. Build verification
+echo "🏗️ Verifying build..."
+npm run build:verify || exit 1
+
+echo "✅ All pre-commit checks passed!"
+```
+
 ---
 
-## 5. Mode Structure
+## Phase 2: Lean Custom Modes (15 minutes)
 
-### File: `.roomodes` (YAML)
+### Step 2.1: Replace .roomodes
+
+**File**: `.roomodes`
 
 ```yaml
 customModes:
-  # Test-Driven Generation (TDG)
-  - slug: test
-    name: "🧪 Test"
-    description: "Write tests BEFORE implementation - tests define requirements"
-    roleDefinition: |
-      You write comprehensive tests BEFORE any implementation code.
-      Tests define requirements and success criteria.
-      
-      Max 50 lines/function, 300 lines/file, 3 params.
-    whenToUse: "Before implementing any new feature or fixing bugs"
+  - slug: navigator
+    name: "🧭 Navigator"
+    description: "Entry point for all tasks. Routes simple work or delegates complex tasks."
+    roleDefinition: >-
+      You are the entry point for all user requests. You assess task complexity and either
+      handle simple queries directly or delegate complex work via boomerang tasks to
+      specialized modes. You have read and browser access but cannot modify code directly.
+    whenToUse: "Always - this is the user's starting point for all tasks"
     groups:
       - read
-      - - edit
-        - fileRegex: '\.(test|spec)\.(ts|tsx|js|jsx)$'
-          description: "Test files only"
+      - browser
     customInstructions: |
-      ## Test-Driven Generation Protocol
+      ## Your Role
+      1. Receive all new user requests
+      2. Assess complexity
+      3. Handle simple queries OR delegate via boomerang tasks
       
-      1. **Read existing tests** for patterns
-      2. **Write tests covering**:
-         - Happy path scenarios
-         - Edge cases (empty, null, max values)
-         - Error conditions
-         - Integration points
+      ## Routing Decision Tree
       
-      3. **Test structure** (AAA pattern):
-         - Arrange: Setup test data
-         - Act: Execute code under test
-         - Assert: Verify results
+      **Handle directly:**
+      - Simple questions (no code changes)
+      - Documentation lookups
+      - Clarification requests
       
-      4. **Before handback**:
-         ```bash
-         npm run test:critical
-         ```
+      **Delegate via new_task tool:**
+      - New feature → test mode (write tests first)
+      - Implement feature → implementation mode (with existing tests)
+      - Bug/issue → investigation mode
+      - Code review → review mode
+      - Refactoring → refactor mode
+      - Pre-deployment → quality mode
       
-      ## Context Sources
-      - Check `.roo/context.md` for project overview
-      - Review `.docs/patterns/index.md` for testing patterns
-      - See existing test files for examples
+      ## Delegation Format
+      Use new_task with:
+      - Clear objective and success criteria
+      - Target mode
+      - Relevant context (.docs/patterns/, .docs/investigations/)
       
-      **CRITICAL**: Tests must PASS after implementation. If implementation can't pass tests within appetite, escalate to Navigator.
-    source: project
+      ## What You Don't Track
+      - No handback checklists (automatic via attempt_completion)
+      - No quality verification (pre-commit enforces)
+      - No appetite tracking (pre-commit enforces limits)
 
-  # Implementation with Constraints
-  - slug: implement
-    name: "💻 Implement"
-    description: "Simplest code passing tests - enforced complexity limits"
-    roleDefinition: |
-      You implement the simplest solution that passes existing tests.
-      Pre-commit enforces: ≤50 lines/function, ≤300 lines/file, ≤3 params.
-      
-      YAGNI: No abstraction until 2nd use.
-    whenToUse: "After tests exist, to implement features within constraints"
+  - slug: test
+    name: "🧪 Test"
+    description: "Test-driven development. Write tests before implementation."
+    roleDefinition: >-
+      You are a test engineer who always writes tests BEFORE implementation.
+      Tests define requirements and acceptance criteria. You follow TDD principles
+      and use AAA pattern (Arrange, Act, Assert).
+    whenToUse: "Before implementing any new feature or fixing bugs"
     groups:
       - read
       - edit
       - command
     customInstructions: |
-      ## Constraint-Based Implementation
+      ## Always TDD
+      1. Check .docs/patterns/index.md for test patterns
+      2. Write tests covering: happy path, edge cases, errors
+      3. Use AAA pattern (Arrange, Act, Assert)
+      4. Tests must be clear and maintainable
       
-      **PREREQUISITE**: Tests must exist (check test files first).
+      ## Before Completion
+      Run: npm run test:critical
       
-      **Hard Limits** (pre-commit enforced):
+      Use attempt_completion with summary of tests written.
+
+  - slug: implementation
+    name: "💻 Implement"
+    description: "Pattern-first implementation. Simplest code passing tests."
+    roleDefinition: >-
+      You write the simplest code that passes tests. You always check institutional
+      memory (.docs/patterns/index.md) before writing code to apply existing patterns.
+      You respect complexity limits enforced by pre-commit hooks.
+    whenToUse: "After tests exist, for implementing features or fixes"
+    groups:
+      - read
+      - edit
+      - command
+    customInstructions: |
+      ## Before Writing Code
+      1. Check .docs/patterns/index.md for similar implementations
+      2. Apply existing patterns rather than creating new ones
+      3. Ensure tests exist (if not, suggest test mode first)
+      
+      ## Hard Limits (pre-commit enforced)
       - Function ≤ 50 lines
-      - File ≤ 300 lines  
-      - Parameters ≤ 3
+      - File ≤ 300 lines
+      - Params ≤ 3
       - Duplication ≤ 3%
       
-      **YAGNI Enforcement**:
-      - ❌ NO interfaces unless 2+ implementations exist NOW
-      - ❌ NO factories unless 2+ types exist NOW
-      - ❌ NO abstraction until 2nd identical use
-      - ✅ Search codebase BEFORE creating similar code
+      ## YAGNI Principle
+      - No interfaces until 2+ implementations exist
+      - No abstraction until 2nd use
+      - Search codebase before creating similar code
       
-      **Implementation Protocol**:
-      1. Read `.docs/patterns/index.md` for similar implementations
-      2. Check `.docs/investigations/index.md` for known issues
-      3. Implement simplest solution passing tests
-      4. Run quality gates before handback:
-         ```bash
-         npm run lint
-         npm run type-check
-         npm run test:critical
-         ```
+      ## Before Completion
+      Run: npm run lint && npm run type-check && npm run test:critical
+      Commit: git add -A && git commit -m "feat: [description]"
       
-      **Context Sources**:
-      - `.roo/context.md` - Project overview
-      - `.docs/patterns/index.md` - Proven approaches
-      - `.docs/investigations/index.md` - Known issues
-      
-      **Escalate to Navigator if**:
-      - Approaching complexity limits repeatedly
-      - Business logic decisions needed
-      - Security policy unclear
-      - Architecture changes required
-    source: project
+      Use attempt_completion with summary of implementation.
 
-  # Consolidation and Cleanup
+  - slug: investigation
+    name: "🐛 Investigation"
+    description: "Systematic debugging using institutional memory."
+    roleDefinition: >-
+      You are a debugging specialist who uses systematic approaches and institutional
+      memory. You always check .docs/investigations/index.md for similar issues before
+      starting, apply root cause analysis, and document findings.
+    whenToUse: "When bugs, test failures, or errors occur"
+    groups:
+      - read
+      - edit
+      - command
+      - browser
+    customInstructions: |
+      ## Before Debugging
+      1. Check .docs/investigations/index.md for similar issues
+      2. Apply proven debugging patterns from past resolutions
+      3. Use systematic diagnosis (reproduce, isolate, analyze, fix)
+      
+      ## After Resolution
+      1. Update .docs/investigations/index.md with new insights
+      2. Document: problem, root cause, solution, prevention
+      
+      ## Before Completion
+      Run: npm run test:critical
+      
+      Use attempt_completion with: root cause, fix applied, prevention strategy.
+
+  - slug: review
+    name: "👁️ Review"
+    description: "Find errors AI misses. Verify APIs exist."
+    roleDefinition: >-
+      You find errors that AI implementations miss: logic errors, security issues,
+      hallucinated APIs. You use browser tools to verify external APIs actually exist.
+      You don't modify code, only identify issues.
+    whenToUse: "After implementation, before deployment"
+    groups:
+      - read
+      - browser
+    customInstructions: |
+      ## What to Check
+      1. Edge cases and error handling
+      2. Security issues (SQL injection, XSS, CSRF)
+      3. APIs exist (use browser to verify documentation)
+      4. Over-engineering (unnecessary abstractions)
+      5. Pattern violations
+      
+      ## Output Format
+      For each issue:
+      - Severity: Critical / High / Medium / Low
+      - Description: What's wrong
+      - Fix: How to resolve
+      - Pattern: Reference to .docs/patterns/ if relevant
+      
+      Use attempt_completion with review findings.
+
   - slug: refactor
     name: "♻️ Refactor"
-    description: "Consolidate duplication - NEVER change behavior"
-    roleDefinition: |
-      You consolidate code duplication detected by jscpd.
-      NEVER change external behavior. Tests must pass after every change.
-    whenToUse: "When jscpd detects >3% duplication or for weekly cleanup"
+    description: "Consolidate duplication. Test after every change."
+    roleDefinition: >-
+      You consolidate code duplication while maintaining behavior. You NEVER change
+      behavior during refactoring. You test after EVERY extraction to ensure nothing broke.
+      If tests fail, you immediately revert.
+    whenToUse: "When jscpd detects >3% duplication or code smells identified"
     groups:
       - read
       - edit
       - command
     customInstructions: |
       ## Refactoring Protocol
+      1. Identify duplication (>5 lines repeated)
+      2. Extract to shared utility/function
+      3. Run tests IMMEDIATELY after extraction
+      4. If tests fail: REVERT and try different approach
+      5. Repeat for next duplication
       
-      **RULES**:
-      - NEVER change external behavior
-      - Run tests after EVERY change
-      - If tests fail: REVERT immediately
+      ## Rules
+      - NEVER change behavior
+      - Test after EVERY change (not at end)
+      - One extraction at a time
+      - If stuck after 3 attempts, stop and report
       
-      **Process**:
-      1. Run duplication check:
-         ```bash
-         npx jscpd --threshold 3
-         ```
+      ## Before Completion
+      Run: npm run test:critical
+      Ensure: All tests still passing
       
-      2. For each duplication found:
-         - Extract to shared utility
-         - Replace both instances
-         - Run tests: `npm run test:critical`
-         - If tests fail: REVERT
-      
-      3. Commit incrementally:
-         ```bash
-         git add -A
-         git commit -m "refactor: consolidate [description]"
-         ```
-      
-      **Context Sources**:
-      - `.docs/patterns/index.md` - Consolidation patterns
-      - Existing utilities for extraction targets
-      
-      **Before handback**:
-      ```bash
-      npm run lint
-      npm run type-check  
-      npm run test:critical
-      npx jscpd --threshold 3  # Verify duplication reduced
-      ```
-    source: project
+      Use attempt_completion with refactorings completed.
 
-  # Verification Layer
-  - slug: verify
-    name: "✓ Verify"
-    description: "Find errors AI misses + run quality gates"
-    roleDefinition: |
-      You perform systematic code review and quality gate execution.
-      Find logic errors, security issues, hallucinations, over-engineering.
-    whenToUse: "After implementation, before deployment"
+  - slug: quality
+    name: "🔍 Quality"
+    description: "Run all quality gates. No compromises."
+    roleDefinition: >-
+      You run comprehensive quality gates before deployment. You execute all checks
+      in order and report which pass or fail. You never compromise quality standards.
+    whenToUse: "Before deployment or when comprehensive validation needed"
     groups:
       - read
-      - browser
       - command
     customInstructions: |
-      ## Verification Protocol
+      ## Execute in Order
       
-      **Review Checklist**:
-      1. **Logic Errors**:
-         - Edge cases handled?
-         - Error conditions caught?
-         - Null/undefined checks present?
-      
-      2. **Security Issues**:
-         - SQL injection prevented? (parameterized queries)
-         - XSS prevented? (sanitized outputs)
-         - Auth checks present on protected routes?
-         - Input validation using Zod schemas?
-      
-      3. **Hallucination Detection**:
-         - All imports exist? (browser search official docs)
-         - APIs match documentation?
-         - Methods exist on objects?
-         - Deprecated APIs avoided?
-      
-      4. **Over-Engineering**:
-         - Interfaces with single implementation?
-         - Factories for single type?
-         - Unused abstractions?
-         - Violates YAGNI?
-      
-      5. **Quality Gates**:
-         ```bash
-         npm run lint
-         npm run type-check
-         npm run test:critical
-         npm run test:integration
-         npm run test:e2e
-         npm run security:scan
-         npm run build:verify
-         ```
-      
-      **Output Format**:
-      For each issue found:
-      - **Severity**: Critical/High/Medium/Low
-      - **Issue**: Specific problem description
-      - **Location**: File:line
-      - **Fix**: Recommended solution
-      - **Pattern**: Reference to `.docs/patterns/index.md` if applicable
-      
-      **Browser Verification**:
-      - Search official docs to verify APIs exist
-      - Check npm for package existence
-      - Validate method signatures match docs
-    source: project
-
-  # Investigation and Debugging  
-  - slug: investigate
-    name: "🐛 Debug"
-    description: "Systematic debugging using institutional memory"
-    roleDefinition: |
-      You perform systematic debugging using proven patterns.
-      Always check `.docs/investigations/index.md` for similar issues first.
-    whenToUse: "When bugs occur or tests fail"
-    groups:
-      - read
-      - edit
-      - command
-      - browser
-    customInstructions: |
-      ## Investigation Protocol
-      
-      **MANDATORY FIRST STEP**:
-      1. Check `.docs/investigations/index.md` for similar issues
-      2. If found: Apply proven solution pattern
-      3. If not found: Proceed with systematic diagnosis
-      
-      **Debugging Workflow**:
-      1. **Gather Context**:
-         - Reproduction steps
-         - Error messages (full stack traces)
-         - Expected vs actual behavior
-         - Recent changes (git log)
-      
-      2. **Systematic Diagnosis**:
-         - Binary search (comment out code to isolate)
-         - Add logging at boundaries
-         - Check assumptions with assertions
-         - Verify data shapes with console.log
-      
-      3. **Pattern-Informed Resolution**:
-         - Check `.docs/patterns/index.md` for debugging patterns
-         - Apply established solution approaches
-         - Avoid known anti-patterns
-      
-      4. **Fix Implementation**:
-         - Make minimal change to fix issue
-         - Run tests: `npm run test:critical`
-         - Verify fix resolves original issue
-      
-      5. **Knowledge Capture**:
-         - If new issue type: Document in `.docs/investigations/`
-         - Update patterns if reusable solution found
-      
-      **Before handback**:
       ```bash
       npm run lint
       npm run type-check
       npm run test:critical
+      npm run test:integration
+      npm run test:e2e
+      npm run security:scan
+      npm run build:verify
       ```
       
-      **Escalate to Navigator if**:
-      - Investigation exceeds appetite boundary
-      - Architectural changes needed
-      - Root cause requires infrastructure changes
-    source: project
-
-  # Coordination and Direction
-  - slug: navigator
-    name: "🧭 Navigator"
-    description: "Strategic coordination - route work, enforce appetite, validate handbacks"
-    roleDefinition: |
-      You coordinate all work, enforce appetite constraints, and route decisions.
-      You set direction, manage scope, and validate all specialist handbacks.
-      
-      70% to AI: implementation, tests, docs, CRUD
-      30% to Human: business logic, security, UX, integrations
-    whenToUse: "For project coordination, task breakdown, and decision routing"
-    groups:
-      - read
-      - browser
-      - mcp
-    customInstructions: |
-      ## Navigator Responsibilities
-      
-      **Task Decomposition**:
-      1. Break complex work into appetite-sized chunks
-      2. Define clear success criteria for each chunk
-      3. Identify which mode handles each chunk
-      4. Route to appropriate mode with context
-      
-      **70/30 Decision Routing**:
-      
-      **Route to AI (70% - Autonomous)**:
-      - Code structure and organization
-      - CRUD operations
-      - UI component implementation
-      - Test writing and documentation
-      - Error handling implementation
-      - Performance optimizations (within scope)
-      
-      **Route to Human (30% - Strategic)**:
-      - Business logic rule definitions
-      - Security policy decisions
-      - User experience flow decisions
-      - Data validation rules (business logic)
-      - Integration strategies
-      - Authentication/authorization logic
-      - Appetite boundary decisions
-      
-      **Appetite Enforcement**:
-      - Set clear circuit breakers for all work
-      - Monitor progress against boundaries
-      - Escalate immediately when boundaries approached
-      - NEVER allow scope expansion without human approval
-      
-      **Handback Validation**:
-      When receiving work from specialists, verify:
-      - [ ] All todo items completed
-      - [ ] Quality gates passed (evidence required)
-      - [ ] Git status clean (no uncommitted work)
-      - [ ] Patterns applied (document which ones)
-      - [ ] Knowledge captured (if new patterns/issues)
-      
-      **Mode Transition Template**:
-      ```markdown
-      ## Context
-      - Current situation: [brief description]
-      - Appetite: [time/complexity constraint]
-      - Circuit breaker: [stop condition]
-      
-      ## Task
-      - [ ] Specific todo item 1
-      - [ ] Specific todo item 2
-      - [ ] [Mode name] handback to Navigator
-      
-      ## Success Criteria
-      - [How to know it's done]
-      
-      ## Constraints
-      - Complexity: ≤50 lines/function
-      - Patterns: Check `.docs/patterns/index.md`
-      - Quality: All gates must pass
+      ## If Using Lighthouse CI
+      ```bash
+      npm run lighthouse:ci
       ```
       
-      **Context Sources**:
-      - `.roo/context.md` - Project overview
-      - `.docs/patterns/index.md` - Available patterns
-      - `.docs/investigations/index.md` - Known issues
-      - `.docs/debt.md` - Active technical debt
-    source: project
+      ## Report Format
+      - ✅ Gates passed
+      - ❌ Gates failed (with error details)
+      - Recommendations for fixing failures
+      
+      Use attempt_completion with quality gate report.
 ```
 
----
-
-## 6. Rules Consolidation
-
-### File: `.roo/rules/00-general.md` (Consolidated)
-
-```markdown
-# General Development Rules
-
-**MANDATORY**: These rules apply to ALL modes and override any conflicting instructions.
-
-## Project Context Reference
-
-**FIRST**: Always read `.roo/context.md` for current project state and recent decisions.
-
-## Core Principles
-
-### YAGNI (You Aren't Gonna Need It)
-- Implement features ONLY when actually needed
-- NO interfaces unless 2+ implementations exist NOW
-- NO factories unless 2+ types exist NOW
-- NO abstraction until 2nd identical use
-- Justify every abstraction with current, concrete use
-
-### DRY (Don't Repeat Yourself)
-- **BEFORE creating new code**: Search codebase for similar functionality
-- Consolidate duplication immediately when detected
-- Create reusable utilities for repeated logic
-- Pre-commit blocks >3% duplication
-
-### Modular Architecture
-- Each module has ONE clearly-defined responsibility
-- All inter-module communication through explicit interfaces
-- Maximum function length: 50 lines (enforced)
-- Maximum file length: 300 lines (enforced)
-- Maximum parameters: 3 (enforced)
-
-### KISS (Keep It Simple)
-- Simplest solution that works is almost always best
-- Avoid premature optimization
-- Clear is better than clever
-- Readable > concise
-
-## Institutional Memory Protocol
-
-### Mandatory Pattern Discovery
-**BEFORE starting any work**:
-1. Read `.docs/patterns/index.md` for similar implementations
-2. Check `.docs/investigations/index.md` for known issues
-3. Apply existing patterns rather than creating new approaches
-
-### Knowledge Capture
-**AFTER completing work**:
-- Document new reusable patterns in `.docs/patterns/index.md`
-- Record debugging insights in `.docs/investigations/`
-- Update `.docs/debt.md` if technical debt identified
-
-## Quality Gates (Pre-commit Enforced)
-
-**MANDATORY BEFORE EVERY COMMIT**:
-```bash
-npm run lint              # ESLint + Prettier
-npm run type-check        # TypeScript compilation
-npm run test:critical     # Essential tests
-npm run security:scan     # Security vulnerabilities
-npm run build:verify      # Build success
-# Plus: complexity, duplication, hallucination checks
-```
-
-**Never bypass quality gates**. If gates fail:
-- Fix the issue within scope
-- If fix exceeds appetite: Escalate to Navigator
-- If architectural change needed: Escalate to Navigator
-
-## 70/30 Decision Routing
-
-### Implement Autonomously (70%)
-- Code structure using established patterns
-- CRUD operations and database interactions
-- UI component implementation
-- Testing and documentation
-- Error handling patterns
-- Performance optimizations within scope
-
-### Escalate to Human (30%)
-- Business rule definitions
-- Security policy decisions
-- User experience flows
-- Data validation rules (business logic)
-- Integration strategies
-- Authentication/authorization logic
-
-## Appetite-Constrained Development
-
-### Scope Boundaries
-- Execute within defined appetite boundaries absolutely
-- Respect circuit breakers and scope limitations
-- Stop at boundaries and escalate rather than expand
-- Never compromise functionality to fit appetite
-
-### Escalation Triggers
-- Approaching appetite boundaries
-- Stuck in implementation loops (>3 attempts)
-- Business logic or security decisions required
-- Requirements ambiguity affecting scope
-- Quality gates repeatedly failing
-
-## Mode Handback Protocol
-
-**MANDATORY**: All non-Navigator modes must end work with:
-```markdown
-- [ ] [Mode name] handback to Navigator for next phase coordination
-```
-
-**Upon marking handback complete**:
-- Present results using attempt_completion
-- Automatically switch to Navigator mode
-- Include evidence of quality gate passage
-
-## Git Standards
-
-### Conventional Commits
-```
-feat(scope): description
-fix(scope): description  
-refactor(scope): description
-test(scope): description
-docs(scope): description
-```
-
-### Commit Message Structure
-```
-type(scope): brief description
-
-Patterns applied: [list from .docs/patterns/index.md]
-Investigations referenced: [list from .docs/investigations/]
-
-Closes #issue-number (if applicable)
-```
-
-## Anti-Patterns to Avoid
-
-### Development Anti-Patterns
-- ❌ Scope creep: Implementing beyond appetite boundaries
-- ❌ Pattern amnesia: Not checking patterns before implementation
-- ❌ Decision overreach: Making 30% decisions without escalation
-- ❌ Quality gate bypass: Skipping mandatory pre-commit checks
-- ❌ Hallucination blindness: Not verifying APIs exist
-
-### Technical Anti-Patterns
-- ❌ Over-engineering: Abstraction without 2+ use cases
-- ❌ Copy-paste coding: Not consolidating duplication
-- ❌ Magic numbers: Hard-coded values without constants
-- ❌ Error swallowing: Catching without proper handling
-- ❌ Any types: Using `any` instead of proper typing
-
-## Technology Stack Context
-
-**Stack**: Next.js 14, TypeScript, Prisma, PostgreSQL, Tailwind CSS
-
-**Key Constraints**:
-- Zero `any` types (TypeScript strict mode)
-- All inputs validated (Zod schemas at API boundaries)
-- API response time <500ms
-- Parameterized queries only (SQL injection prevention)
-- JWT for authentication, bcrypt for passwords
-
-## Success Metrics
-
-- 95%+ appetite compliance
-- 100% critical quality gate passage
-- 90%+ pattern reuse from institutional memory
-- Zero quality gate bypasses
-- 100% handback protocol compliance
-```
-
-### File: `.roo/rules/01-coding-style.md` (Keep as-is)
-
-*No changes - existing TypeScript/React standards are good*
-
-### File: `.roo/rules/02-anti-patterns.md` (New)
-
-```markdown
-# Anti-Patterns
-
-## Pre-commit Enforced (Will Block Commits)
-
-### Complexity Limits
-- **Function >50 lines** → BLOCKED by `complexity-check.js`
-- **File >300 lines** → BLOCKED by `complexity-check.js`
-- **Parameters >3** → BLOCKED by `complexity-check.js`
-
-**Fix**: Break into smaller functions, use object parameters, split files by responsibility.
-
-### Code Duplication
-- **>3% duplication** → BLOCKED by `jscpd`
-
-**Fix**: Run `npm run refactor` to consolidate duplication.
-
-### Package Hallucinations
-- **Uninstalled packages** → BLOCKED by `check-npm-packages.js`
-
-**Fix**: Install package (`pnpm add package-name`) or fix typo.
-
-### Quality Issues
-- **Linting failures** → BLOCKED by `npm run lint`
-- **Type errors** → BLOCKED by `npm run type-check`
-- **Test failures** → BLOCKED by `npm run test:critical`
-- **Security vulnerabilities** → BLOCKED by `npm run security:scan`
-- **Build failures** → BLOCKED by `npm run build:verify`
-
-**Fix**: Resolve issues before committing.
-
----
-
-## Conceptual Anti-Patterns (Not Enforced, But Critical)
-
-### Pattern Amnesia
-**Problem**: Implementing without checking `.docs/patterns/index.md`
-
-**Result**: Duplicating existing solutions, missing proven approaches
-
-**Fix**: ALWAYS check patterns before starting work
-
-### Context Blindness  
-**Problem**: Implementing without reading `.roo/context.md`
-
-**Result**: Missing project context, violating architectural decisions
-
-**Fix**: Read context file at start of every session
-
-### Decision Overreach
-**Problem**: Making 30% decisions (business logic, security, UX) without escalation
-
-**Result**: Misaligned implementation, rework required
-
-**Fix**: Escalate strategic decisions to Navigator/Human
-
-### YAGNI Violations
-**Problem**: Creating abstractions before 2nd use
-
-**Examples**:
-- Interface with 1 implementation
-- Factory for 1 type
-- Abstract class with no inheritance
-
-**Fix**: Inline the abstraction, create only when 2nd use appears
-
-### Over-Engineering Spiral
-**Problem**: AI wrapping simple problems in complex abstraction layers
-
-**Example**:
-```typescript
-// ❌ Over-engineered
-interface IUserService { }
-class UserServiceFactory { }
-class UserServiceProvider { }
-// For a simple CRUD operation!
-
-// ✅ Simple
-export async function getUser(id: string) { }
-```
-
-**Fix**: Use simplest solution, add abstraction only when needed
-
-### Hallucination Trust
-**Problem**: Not verifying AI-generated APIs/packages exist
-
-**Result**: Runtime errors, package installation failures
-
-**Fix**: Use browser to verify APIs in official docs
-
-### Quality Gate Bypass
-**Problem**: Committing without running gates, or using `--no-verify`
-
-**Result**: Technical debt accumulation, production bugs
-
-**Fix**: Let pre-commit hook run, fix issues properly
-
-### Test After Development
-**Problem**: Writing tests after implementation (not TDG)
-
-**Result**: Tests mirror implementation flaws, poor coverage
-
-**Fix**: Use Test mode BEFORE Implement mode
-
----
-
-## Detection and Prevention
-
-| Anti-Pattern | Detected By | Prevented By |
-|--------------|-------------|--------------|
-| Function >50 lines | Pre-commit | complexity-check.js |
-| File >300 lines | Pre-commit | complexity-check.js |
-| Params >3 | Pre-commit | complexity-check.js |
-| Duplication >3% | Pre-commit | jscpd |
-| Missing packages | Pre-commit | check-npm-packages.js |
-| Type errors | Pre-commit | npm run type-check |
-| Pattern amnesia | Code review | Mode customInstructions |
-| YAGNI violations | Code review | Mode customInstructions |
-| Over-engineering | Code review | Verify mode |
-| Decision overreach | Process | Navigator routing |
-
----
-
-## Quick Reference
-
-**Before coding**: Check patterns, check context, check investigations
-**During coding**: Stay within complexity limits, avoid duplication
-**After coding**: Run quality gates, capture new patterns
-**Before commit**: Pre-commit hook validates everything
-```
-
----
-
-## 7. Documentation Consolidation
-
-### File: `.roo/context.md` (New)
-
-```markdown
-# MoodOverMuscle Project Context
-
-**Last Updated**: [DATE] | **Update Weekly**
-
-## What We're Building
-
-Next.js 14 booking platform for personal training and wellness services.
-Focus: Real-time availability, conflict prevention, admin dashboard.
-
-## Why These Technologies
-
-| Technology | Decision | Rationale |
-|-----------|----------|-----------|
-| **Next.js 14** | App Router | Server components, better data fetching, streaming |
-| **TypeScript** | Strict mode | Type safety, better IDE support, fewer runtime errors |
-| **Prisma ORM** | PostgreSQL | Type-safe queries, migrations, excellent DX |
-| **PostgreSQL** | Relational DB | ACID for bookings, complex queries, data integrity |
-| **Zod** | Validation | Runtime type validation at API boundaries |
-| **Tailwind CSS** | Styling | Utility-first, no CSS file bloat, mobile-first |
-| **JWT** | Auth | Stateless, scalable, refresh token support |
-| **bcrypt** | Password hashing | Industry standard, configurable rounds |
-
-## Current Architecture
-
-```
-app/
-  api/              # API routes (Next.js)
-    bookings/       # Booking CRUD + availability
-    auth/           # Authentication (JWT)
-    admin/          # Admin operations
-  (routes)/         # Pages
-    booking/        # Public booking flow
-    admin/          # Admin dashboard (protected)
-    
-lib/
-  db/               # Prisma client + queries
-  validation/       # Zod schemas
-  auth/             # JWT utilities
-  
-components/
-  booking/          # Booking UI components
-  admin/            # Admin UI components
-  ui/               # Shared UI primitives
-  
-prisma/
-  schema.prisma     # Database schema
-  migrations/       # Database migrations
-```
-
-## Recent Changes (Last 30 Days)
-
-- **2025-01-10**: Added JWT refresh token rotation (ADR-009)
-- **2025-01-05**: Fixed calendar DST boundary issue (Investigation-2025-10-04)
-- **2024-12-20**: Decomposed booking form into steps (ADR-005)
-
-## Known Gotchas
-
-### Booking System
-- **Minimum gap**: Bookings <15min apart cause conflicts (check overlap logic)
-- **UTC conversion**: DST boundaries break timezone conversion (use date-fns-tz)
-- **Conflict detection**: Must check BOTH start/end time overlaps
-
-### Database
-- **Prisma relations**: Must use explicit `include` for nested data
-- **Transaction isolation**: Use `$transaction` for booking creation + availability update
-- **Connection pooling**: Max 10 connections in dev, 20 in prod (DATABASE_URL)
-
-### Authentication
-- **JWT refresh**: Implemented in `/api/auth/refresh` (24h access, 7d refresh)
-- **Session storage**: HTTP-only cookies for security
-- **Admin routes**: All require `middleware.ts` auth check
-
-### Testing
-- **Prisma mocking**: Use `jest-mock-extended` for Prisma client
-- **Time mocking**: Use `jest.useFakeTimers()` for date-dependent tests
-- **E2E**: Playwright requires separate test database
-
-## Performance Requirements
-
-| Metric | Target | Measured By |
-|--------|--------|-------------|
-| API response | <500ms | Lighthouse CI |
-| Page load (LCP) | <2.5s | Lighthouse CI |
-| Time to Interactive | <3.8s | Lighthouse CI |
-| Bundle size | <200KB (initial) | Next.js build output |
-
-## Security Requirements
-
-- All inputs validated with Zod schemas at API boundaries
-- Parameterized queries only (Prisma handles this)
-- JWT tokens in HTTP-only cookies
-- Password min 8 chars, bcrypt 10 rounds
-- Rate limiting: 100 req/15min per IP (API routes)
-- CSRF protection via SameSite cookies
-
-## Pattern Library Reference
-
-See `.docs/patterns/index.md` for:
-- Authentication patterns (JWT, session management)
-- Form handling patterns (multi-step, validation)
-- Database query patterns (availability checks, conflict detection)
-- Testing patterns (mocking, integration, E2E)
-- Component decomposition patterns
-
-## Investigation Reference
-
-See `.docs/investigations/index.md` for known issues:
-- Transaction test failures
-- Time format mismatches
-- Jest mock hoisting
-- Next.js build cache corruption
-
-## Active Technical Debt
-
-See `.docs/debt.md` for current debt items requiring attention.
-
----
-
-**For More Details**:
-- Architecture: `.docs/architecture.md`
-- Full specification: `.docs/spec.md`
-- Workflows: `.docs/workflows.md`
-- ADRs: `.docs/decisions/index.md`
-```
-
-### File: `.docs/patterns/index.md` (Consolidated from 32 files)
-
-```markdown
-# Pattern Library
-
-**Single source of truth for proven implementation approaches.**
-**ALWAYS check this before implementing anything.**
-
----
-
-## Quick Index
-
-- [Authentication](#authentication)
-- [Forms & Validation](#forms--validation)
-- [Database & Queries](#database--queries)
-- [Testing](#testing)
-- [Components](#components)
-- [API Design](#api-design)
-- [Real-time Features](#real-time-features)
-- [Performance](#performance)
-
----
-
-## Authentication
-
-### JWT Token Management
-**File**: `lib/auth/jwt-service.ts`
-
-```typescript
-// Token generation with refresh
-export async function generateTokenPair(userId: string) {
-  const accessToken = jwt.sign(
-    { userId, type: 'access' },
-    SECRET,
-    { expiresIn: '24h' }
-  );
-  
-  const refreshToken = jwt.sign(
-    { userId, type: 'refresh' },
-    REFRESH_SECRET,
-    { expiresIn: '7d' }
-  );
-  
-  return { accessToken, refreshToken };
-}
-```
-
-**Pattern**: Separate access (24h) and refresh (7d) tokens with rotation.
-**Investigation**: See `debugging-jwt-configuration-pattern.md` for common issues.
-
-### Admin Authentication
-**File**: `middleware.ts`
-
-```typescript
-export function middleware(request: NextRequest) {
-  const token = request.cookies.get('auth_token')?.value;
-  
-  if (!token) {
-    return NextResponse.redirect(new URL('/admin/login', request.url));
-  }
-  
-  try {
-    jwt.verify(token, SECRET);
-    return NextResponse.next();
-  } catch {
-    return NextResponse.redirect(new URL('/admin/login', request.url));
-  }
-}
-
-export const config = {
-  matcher: '/admin/:path*'
-};
-```
-
-**Pattern**: Middleware-based route protection for admin areas.
-
----
-
-## Forms & Validation
-
-### Multi-Step Form State
-**File**: `components/booking/BookingWizard.tsx`
-
-```typescript
-const [step, setStep] = useState(1);
-const [formData, setFormData] = useState<FormData>({});
-
-function updateField(field: keyof FormData, value: any) {
-  setFormData(prev => ({ ...prev, [field]: value }));
-}
-
-function nextStep() {
-  if (validateStep(step)) {
-    setStep(prev => prev + 1);
-  }
-}
-```
-
-**Pattern**: Centralized state, step-by-step validation.
-**Investigation**: See `form-state-management-separation-pattern.md` for state issues.
-
-### Zod Validation
-**File**: `lib/validation/booking-schema.ts`
-
-```typescript
-export const bookingSchema = z.object({
-  serviceId: z.string().uuid(),
-  datetime: z.coerce.date().refine(
-    (date) => date > new Date(),
-    'Date must be in future'
-  ),
-  clientEmail: z.string().email(),
-  clientName: z.string().min(2)
-});
-
-// Use in API route
-export async function POST(req: Request) {
-  const body = await req.json();
-  const validated = bookingSchema.parse(body); // Throws if invalid
-  // ...
-}
-```
-
-**Pattern**: Centralized schemas, validation at API boundary.
-
----
-
-## Database & Queries
-
-### Availability Check
-**File**: `lib/db/availability-queries.ts`
-
-```typescript
-export async function checkAvailability(
-  datetime: Date,
-  duration: number
-) {
-  const endTime = new Date(datetime.getTime() + duration * 60000);
-  
-  const conflicts = await prisma.booking.findMany({
-    where: {
-      OR: [
-        // New booking starts during existing booking
-        {
-          datetime: { lte: datetime },
-          endTime: { gt: datetime }
-        },
-        // New booking ends during existing booking
-        {
-          datetime: { lt: endTime },
-          endTime: { gte: endTime }
-        },
-        // New booking completely contains existing booking
-        {
-          datetime: { gte: datetime },
-          endTime: { lte: endTime }
-        }
-      ]
-    }
-  });
-  
-  return conflicts.length === 0;
-}
-```
-
-**Pattern**: Check BOTH start and end time overlaps (3 conditions).
-**Gotcha**: Missing any condition allows double bookings.
-
-### Prisma Transactions
-**File**: `app/api/bookings/route.ts`
-
-```typescript
-export async function POST(req: Request) {
-  const data = await req.json();
-  
-  const result = await prisma.$transaction(async (tx) => {
-    // Check availability
-    const available = await checkAvailability(data.datetime, data.duration);
-    if (!available) throw new Error('Time slot unavailable');
-    
-    // Create booking
-    const booking = await tx.booking.create({ data });
-    
-    // Update availability cache
-    await tx.availability.update({
-      where: { datetime: data.datetime },
-      data: { isBooked: true }
-    });
-    
-    return booking;
-  });
-  
-  return Response.json(result);
-}
-```
-
-**Pattern**: Use transactions for multi-operation consistency.
-
----
-
-## Testing
-
-### Prisma Mock Setup
-**File**: `tests/mocks/prisma.ts`
-
-```typescript
-import { PrismaClient } from '@prisma/client';
-import { mockDeep, mockReset, DeepMockProxy } from 'jest-mock-extended';
-
-jest.mock('@/lib/prisma', () => ({
-  __esModule: true,
-  default: mockDeep<PrismaClient>()
-}));
-
-beforeEach(() => {
-  mockReset(prismaMock);
-});
-
-export const prismaMock = prisma as unknown as DeepMockProxy<PrismaClient>;
-```
-
-**Pattern**: Single mock instance, reset between tests.
-**Investigation**: See `jest-mock-hoisting-solution.md` for hoisting issues.
-
-### Test-Driven Generation
-**File**: `tests/integration/booking.test.ts`
-
-```typescript
-describe('Booking creation', () => {
-  it('should create booking with valid data', async () => {
-    // ARRANGE
-    const validData = {
-      serviceId: 'uuid',
-      datetime: new Date(),
-      clientEmail: 'test@example.com'
-    };
-    
-    // ACT
-    const result = await createBooking(validData);
-    
-    // ASSERT
-    expect(result).toMatchObject({
-      id: expect.any(String),
-      status: 'confirmed'
-    });
-  });
-  
-  it('should reject past dates', async () => {
-    const pastDate = new Date('2020-01-01');
-    
-    await expect(
-      createBooking({ ...validData, datetime: pastDate })
-    ).rejects.toThrow('Date must be in future');
-  });
-});
-```
-
-**Pattern**: Write tests FIRST, implement AFTER (TDG).
-
----
-
-## Components
-
-### Component Decomposition
-Break large components at 300 lines or 5+ responsibilities.
-
-```typescript
-// ❌ Before: 500-line BookingForm component
-
-// ✅ After: Decomposed
-<BookingWizard>
-  <ServiceSelection />
-  <DateTimeSelection />
-  <ClientDetails />
-  <BookingSummary />
-</BookingWizard>
-```
-
-**Pattern**: One responsibility per component, composition over complexity.
-**Investigation**: See `component-decomposition-pattern.md` for approach.
-
----
-
-## API Design
-
-### Standard Response Format
-**File**: `lib/api/response.ts`
-
-```typescript
-export function successResponse<T>(data: T, status = 200) {
-  return Response.json({ success: true, data }, { status });
-}
-
-export function errorResponse(message: string, status = 400) {
-  return Response.json({ success: false, error: message }, { status });
-}
-
-// Usage
-export async function GET(req: Request) {
-  try {
-    const bookings = await getBookings();
-    return successResponse(bookings);
-  } catch (error) {
-    return errorResponse('Failed to fetch bookings', 500);
-  }
-}
-```
-
-**Pattern**: Consistent response shape across all API routes.
-
----
-
-## Real-time Features
-
-### WebSocket Connection Pattern
-**File**: `lib/websocket/client.ts`
-
-```typescript
-export function useRealtimeBookings() {
-  const [bookings, setBookings] = useState([]);
-  
-  useEffect(() => {
-    const ws = new WebSocket(WEBSOCKET_URL);
-    
-    ws.onmessage = (event) => {
-      const update = JSON.parse(event.data);
-      setBookings(prev => updateBookings(prev, update));
-    };
-    
-    return () => ws.close();
-  }, []);
-  
-  return bookings;
-}
-```
-
-**Pattern**: React hook wrapping WebSocket with automatic cleanup.
-
----
-
-## Performance
-
-### Image Optimization
-**File**: `components/ui/OptimizedImage.tsx`
-
-```typescript
-import Image from 'next/image';
-
-export function OptimizedImage({ src, alt }: Props) {
-  return (
-    <Image
-      src={src}
-      alt={alt}
-      width={800}
-      height={600}
-      sizes="(max-width: 768px) 100vw, 50vw"
-      placeholder="blur"
-      blurDataURL={BLUR_PLACEHOLDER}
-    />
-  );
-}
-```
-
-**Pattern**: Always use Next.js Image component with sizes.
-
----
-
-## Pattern Usage Protocol
-
-### Before Implementation
-1. **Search this file** for similar feature
-2. **Check investigations** for known issues with pattern
-3. **Apply existing pattern** rather than creating new approach
-
-### During Implementation
-- Follow pattern structure exactly
-- Note any deviations in commit message
-- If pattern doesn't fit: Escalate to Navigator
-
-### After Implementation
-- If new reusable pattern emerges: Document here
-- Update this file with lessons learned
-- Cross-reference with investigations if debugging occurred
-
----
-
-## Related Documentation
-
-- **Context**: `.roo/context.md` - Project overview
-- **Investigations**: `.docs/investigations/index.md` - Known issues
-- **ADRs**: `.docs/decisions/index.md` - Architecture decisions
-- **Debt**: `.docs/debt.md` - Active technical debt
-```
-
-### Files to Delete
+### Step 2.2: Delete Old Custom Mode Configurations
 
 ```bash
-# Delete these (replaced by consolidated index)
-.docs/patterns/accessibility-testing-pattern.md
-.docs/patterns/admin-authentication-pattern.md
-.docs/patterns/admin-component-testing-pattern.md
-.docs/patterns/analytics-integration-pattern.md
-# ... (all 30 other pattern files)
-
-# Keep only:
-.docs/patterns/index.md  # Consolidated patterns
-```
-
-### Files to Keep Unchanged
-
-```bash
-# Keep as-is (reference only, not in AI context)
-.docs/decisions/           # ADRs (36 files)
-.docs/investigations/      # 10 files (minimal, good)
-.docs/debt.md              # Active debt register
-.docs/architecture.md      # System architecture
-.docs/spec.md              # Project specification
-```
-
----
-
-## 8. Implementation Roadmap
-
-### Phase 1: Pre-commit Enforcement (30 minutes)
-
-**Dependencies**:
-```bash
-pnpm add -D jscpd @typescript-eslint/typescript-estree
-```
-
-**Scripts**:
-1. Create `scripts/complexity-check.js` (AST-based)
-2. Create `scripts/check-npm-packages.js`  
-3. Create `.jscpd.json`
-
-**Hook**:
-4. Update `.husky/pre-commit` with all checks
-
-**Validation**:
-```bash
-# Test each check independently
-npm run complexity-check
-npm run hallucination-check
-npx jscpd --threshold 3
-
-# Test full pre-commit
-git add -A
-git commit -m "test: validate pre-commit hooks"
-```
-
-### Phase 2: Mode Structure (45 minutes)
-
-**Baseline Check**:
-```bash
-# Check current duplication level
-npx jscpd --threshold 100 --reporters console
-# Note: Set threshold to current - 1% in .jscpd.json
-```
-
-**Mode Configuration**:
-1. Convert `.roomodes` from JSON to YAML
-2. Replace 5 specialist modes with 5 lean modes
-3. Ensure each mode has:
-   - Clear whenToUse
-   - Constraint-based customInstructions
-   - Pattern/context references
-
-**Validation**:
-```bash
-# Test mode switching
-# Switch to each mode and verify instructions load
-```
-
-### Phase 3: Rules Consolidation (30 minutes)
-
-**Consolidation**:
-1. Merge `00-user-instructions.txt` into `00-general.md`
-2. Create `02-anti-patterns.md` (enforced + conceptual)
-3. Delete `03-automatic-handback.md` (in mode YAML)
-4. Delete `04-terminal-cleanup.md` (not needed)
-5. Delete `05-specialist-common.md` (merged)
-
-**Specialist Cleanup**:
-```bash
+# Delete specialist rule directories
 rm -rf .roo/rules-implementation-specialist/
 rm -rf .roo/rules-investigation-specialist/
 rm -rf .roo/rules-quality-specialist/
 rm -rf .roo/rules-deployment-specialist/
 rm -rf .roo/rules-navigator/
-```
 
-**Validation**:
-- Verify 3 rule files remain
-- Check each contains consolidated content
+# Delete protocol files
+rm -rf .docs/protocols/
 
-### Phase 4: Documentation Consolidation (60 minutes)
-
-**Context File**:
-1. Create `.roo/context.md` from enhanced template
-2. Populate with current MoodOverMuscle specifics
-3. Include recent changes, known gotchas, tech decisions
-
-**Pattern Consolidation**:
-1. Review all 32 pattern files
-2. Extract key code examples into single `index.md`
-3. Organize by category (Auth, Forms, DB, Testing, Components, API)
-4. Cross-reference with investigations
-
-```bash
-# Backup before deletion
-mkdir -p .docs/backups/patterns-archive-$(date +%Y%m%d)
-cp -r .docs/patterns/*.md .docs/backups/patterns-archive-$(date +%Y%m%d)/
-
-# Delete individual pattern files
-rm .docs/patterns/accessibility-testing-pattern.md
-rm .docs/patterns/admin-authentication-pattern.md
-# ... (all 30 others)
-
-# Keep only consolidated index
-# .docs/patterns/index.md
-```
-
-**Handoff Cleanup**:
-```bash
-# These are replaced by mode transitions
+# Delete handoff templates
 rm -rf .docs/handoffs/
 ```
 
-**Memory Consolidation**:
-```bash
-# Keep only essential memory files
-.docs/memory/complexity-estimation-framework-and-historical-calibration.md
-.docs/memory/technical-debt-resolution-achievements.md
+---
 
-# Consider consolidating others into patterns/index.md
+## Phase 3: Consolidate Rules (20 minutes)
+
+### Step 3.1: Update General Rules
+
+**File**: `.roo/rules/00-general.md`
+
+```markdown
+# MoodOverMuscle General Rules
+
+**MANDATORY UNIVERSAL RULES**: Apply to all modes without exception.
+
+## Project Context
+
+Next.js 14 booking platform for personal training/wellness services. TypeScript, Prisma ORM, PostgreSQL.
+
+**Technology Stack:**
+- Frontend: Next.js 14, React, TypeScript, Tailwind CSS
+- Backend: Next.js API routes, Prisma ORM
+- Database: PostgreSQL
+- Testing: Jest, Playwright
+- Quality: ESLint, Prettier, Husky pre-commit hooks
+
+## Pre-Commit Enforcement
+
+**CRITICAL**: All quality standards are enforced at commit time. Code that violates limits is automatically blocked.
+
+**Enforced Limits:**
+- Function ≤ 50 lines (AST-based detection)
+- File ≤ 300 lines
+- Function params ≤ 3
+- Code duplication ≤ 3%
+- All quality gates must pass
+
+**Pre-Commit Hook Runs:**
+1. ESLint + Prettier (auto-fix)
+2. TypeScript compilation
+3. Critical tests
+4. Complexity check
+5. NPM package validation
+6. Duplication check
+7. Security scan
+8. Build verification
+
+## Institutional Memory Integration
+
+**MANDATORY BEFORE IMPLEMENTATION:**
+- Check `.docs/patterns/index.md` for similar implementations
+- Review `.docs/investigations/index.md` for component-related issues
+- Apply existing patterns rather than creating new approaches
+- Reference proven solutions from past work
+
+**Pattern-First Development:**
+1. Search patterns index for similar functionality
+2. Apply existing pattern if found
+3. Implement with minimal modifications
+4. Document new patterns only if genuinely reusable
+
+## Mode Usage Guidelines
+
+### 🧭 Navigator (Entry Point)
+**Use for:** All new tasks, task routing, simple queries
+
+**Delegates to:**
+- Test mode: New features (write tests first)
+- Implementation mode: Existing tests (implement code)
+- Investigation mode: Bugs and errors
+- Review mode: Code review and verification
+- Refactor mode: Duplication consolidation
+- Quality mode: Pre-deployment validation
+
+### 🧪 Test Mode
+**Use for:** TDD approach, writing tests before implementation
+
+**Behavior:** Always writes tests first, follows AAA pattern
+
+### 💻 Implementation Mode
+**Use for:** Writing code after tests exist
+
+**Behavior:** Checks patterns first, applies YAGNI, respects limits
+
+### 🐛 Investigation Mode
+**Use for:** Debugging, troubleshooting, root cause analysis
+
+**Behavior:** Checks investigations index, systematic debugging
+
+### 👁️ Review Mode
+**Use for:** Finding errors, API verification, security review
+
+**Behavior:** Browser verification, no code changes
+
+### ♻️ Refactor Mode
+**Use for:** Consolidating duplication, code cleanup
+
+**Behavior:** Tests after every change, reverts if tests fail
+
+### 🔍 Quality Mode
+**Use for:** Comprehensive pre-deployment validation
+
+**Behavior:** Runs all quality gates, reports pass/fail
+
+## YAGNI Enforcement
+
+**Don't create until actually needed:**
+- ❌ Interfaces with single implementation
+- ❌ Factories for single type
+- ❌ Abstractions used once
+- ❌ Generic utilities for specific use
+
+**Wait for second use:**
+- ✅ Extract to shared utility on 2nd occurrence
+- ✅ Create interface when 2+ implementations exist
+- ✅ Build abstraction when pattern repeats
+
+## Git Standards
+
+**Conventional Commits:**
+```bash
+feat(auth): add JWT refresh token rotation
+fix(booking): resolve calendar conflict detection
+docs(api): update booking endpoint documentation
+test(calendar): add availability integration tests
+refactor(user): extract validation to shared utility
 ```
 
-### Phase 5: Validation (30 minutes)
+**Commit Message Structure:**
+- Type: feat, fix, docs, test, refactor, style, chore
+- Scope: Component or feature area
+- Subject: Present tense, imperative mood
+- Body (optional): Detailed explanation
+- Footer (optional): Breaking changes, issue references
 
-**Pre-commit Test**:
-```bash
-# Introduce violations to test each check
+## Security Requirements
 
-# 1. Test complexity check
-# Create function >50 lines
-git add -A
-git commit -m "test: complexity violation"
-# Should fail
+**MANDATORY:**
+- Validate ALL user inputs at API boundaries (use Zod)
+- Use established JWT patterns for authentication
+- NEVER commit secrets or API keys
+- Hash passwords with bcrypt
+- Implement rate limiting on public endpoints
+- Follow principle of least privilege
 
-# 2. Test duplication check  
-# Copy-paste code block
-git add -A
-git commit -m "test: duplication violation"
-# Should fail
+## Anti-Patterns to Avoid
 
-# 3. Test hallucination check
-# Import fake package
-git add -A
-git commit -m "test: hallucination violation"
-# Should fail
+❌ **Scope creep** - Pre-commit enforces limits
+❌ **Pattern amnesia** - Always check patterns/index.md first
+❌ **Over-engineering** - YAGNI until 2nd use
+❌ **Quality bypass** - Pre-commit blocks bad code
+❌ **Duplication** - Pre-commit blocks >3%
+❌ **Complexity** - Pre-commit blocks violations
+❌ **Manual verification** - Pre-commit automates it
 
-# 4. Test type check
-# Add any type
-git add -A
-git commit -m "test: type violation"
-# Should fail
+## Boomerang Task Completion
+
+**When specialist mode finishes:**
+1. Run quality gates (pre-commit will verify)
+2. Commit changes with conventional message
+3. Use `attempt_completion` tool with clear result summary
+
+**Parent mode automatically resumes** - no manual handback needed.
+
+## Success Metrics
+
+- 100% pre-commit compliance (automatic)
+- 90%+ pattern reuse from institutional memory
+- Zero manual quality verification (automated)
+- <3% code duplication (enforced)
+- All functions <50 lines (enforced)
+- All files <300 lines (enforced)
+
+## Implementation Protocol
+
+1. **Check Patterns** - Review .docs/patterns/index.md
+2. **Use TDD** - Tests before implementation when possible
+3. **Apply Patterns** - Use existing approaches
+4. **Respect Limits** - Pre-commit enforces automatically
+5. **Document New Patterns** - Only if genuinely reusable
+6. **Complete Work** - Use attempt_completion with summary
+
+**Pre-commit is your safety net. Write code, commit, and limits are enforced automatically.**
 ```
 
-**Mode Workflow Test**:
+### Step 3.2: Keep Coding Style Rules
+
+**File**: `.roo/rules/01-coding-style.md` - Keep as-is from current version
+
+### Step 3.3: Create Anti-Patterns Reference
+
+**File**: `.roo/rules/02-anti-patterns.md`
+
+```markdown
+# Anti-Patterns (Pre-Commit Enforced)
+
+## Automatically Blocked
+
+These violations are caught by pre-commit hooks and prevent commits:
+
+### Complexity Violations
+- **Function >50 lines** → BLOCKED by complexity-check.js
+- **File >300 lines** → BLOCKED by complexity-check.js
+- **Function >3 params** → BLOCKED by complexity-check.js
+
+### Code Quality
+- **Duplication >3%** → BLOCKED by jscpd
+- **Lint errors** → BLOCKED by ESLint
+- **Type errors** → BLOCKED by TypeScript
+- **Test failures** → BLOCKED by test suite
+
+### Import Issues
+- **Non-existent packages** → BLOCKED by package-check.js
+- **Build failures** → BLOCKED by build verification
+
+## Conceptual Anti-Patterns
+
+Not automatically enforced but critical to avoid:
+
+### Pattern Amnesia
+❌ Not checking `.docs/patterns/index.md` before implementation
+✅ Always search patterns first, apply existing approaches
+
+### YAGNI Violations
+❌ Creating interfaces before 2nd implementation
+❌ Building abstractions before 2nd use
+❌ Premature optimization
+✅ Wait for actual need, then extract
+
+### Over-Engineering
+❌ Complex factory for single type
+❌ Generic utility for specific use case
+❌ Abstraction layers without clear benefit
+✅ Simplest solution first, evolve when needed
+
+### Context Blindness
+❌ Implementing without reading `.roo/context.md`
+❌ Ignoring institutional memory
+❌ Recreating existing patterns
+✅ Context-aware implementation using proven patterns
+
+### Testing Anti-Patterns
+❌ Tests after implementation (when TDD possible)
+❌ Testing implementation details vs behavior
+❌ Brittle tests coupled to internals
+✅ TDD approach, behavior testing, maintainable tests
+
+## How to Avoid
+
+1. **Before coding**: Check `.docs/patterns/index.md`
+2. **During coding**: Follow YAGNI, respect limits
+3. **Before commit**: Pre-commit catches violations automatically
+4. **After blocking**: Fix issue, don't bypass checks
+
+## If Pre-Commit Blocks
+
+### Complexity Violation
 ```bash
-# Test TDG workflow
-# 1. Switch to test mode
-# 2. Write failing test
-# 3. Switch to implement mode
-# 4. Implement passing code
-# 5. Run pre-commit (should pass)
+# Break function into smaller functions
+# Or split file into multiple modules
+# Then retry commit
 ```
 
-**Pattern Discovery Test**:
+### Duplication Violation
 ```bash
-# Verify pattern index is usable
-# Search for "authentication" pattern
-# Apply pattern in new code
-# Verify it works
+# Use refactor mode to consolidate
+# Extract duplicated code to shared utility
+# Then retry commit
 ```
 
-### Timeline Summary
+### Package Import Error
+```bash
+# Install missing package: pnpm add <package>
+# Or fix typo in import path
+# Then retry commit
+```
 
-| Phase | Duration | Deliverables |
-|-------|----------|--------------|
-| Phase 1 | 30 min | Pre-commit enforcement working |
-| Phase 2 | 45 min | 5 lean modes configured |
-| Phase 3 | 30 min | 3 rule files consolidated |
-| Phase 4 | 60 min | Documentation consolidated |
-| Phase 5 | 30 min | Full validation complete |
-| **Total** | **3h 15min** | Complete overhaul validated |
+**Never bypass pre-commit hooks. Fix the underlying issue.**
+```
+
+### Step 3.4: Delete Redundant Rule Files
+
+```bash
+rm .roo/rules/00-user-instructions.txt
+rm .roo/rules/03-automatic-handback.md
+rm .roo/rules/04-terminal-cleanup.md
+rm .roo/rules/05-specialist-common.md
+```
 
 ---
 
-## 9. Validation & Success Metrics
+## Phase 4: Create Context File (5 minutes)
 
-### Immediate Validation (Day 1)
+**File**: `.roo/context.md`
 
-**Pre-commit Gates**:
-- [ ] Complexity check blocks >50 line functions
-- [ ] Duplication check blocks >3% duplication
-- [ ] Hallucination check blocks uninstalled packages
-- [ ] Type check blocks `any` types and errors
-- [ ] All existing quality gates still working
+```markdown
+# MoodOverMuscle Project Context
 
-**Mode Configuration**:
-- [ ] Can switch between all 5 modes successfully
-- [ ] Each mode loads appropriate customInstructions
-- [ ] Pattern references in instructions are correct
-- [ ] Handback protocol works (automatic Navigator switch)
+## What We're Building
 
-**Documentation**:
-- [ ] `.roo/context.md` provides project overview
-- [ ] `.docs/patterns/index.md` covers key patterns
-- [ ] Can find patterns quickly (< 1 minute search)
-- [ ] Rules consolidated to 3 files
+Next.js 14 booking platform for personal training/wellness services.
 
-### 30-Day Success Metrics
+**Core Features:**
+- Real-time session booking with conflict prevention
+- Admin dashboard for booking management
+- Calendar integration with availability management
+- Client-facing booking forms
 
-**Quality Metrics**:
-- Duplication rate: <3% (enforced)
-- Function complexity: 0 violations >50 lines
-- File complexity: 0 violations >300 lines
-- Package hallucinations: 0 uninstalled packages
-- Quality gate bypass: 0 incidents
+## Technology Stack
 
-**Workflow Metrics**:
-- TDG adoption: >80% features start with tests
-- Pattern reuse: >70% implementations use existing patterns
-- Refactor frequency: Weekly consolidation sprints
-- Context usage: Pattern index checked before implementation
+### Frontend
+- **Next.js 14 (App Router)** - Server components, improved data fetching
+- **React 18** - Component library
+- **TypeScript** - Type safety across codebase
+- **Tailwind CSS** - Utility-first styling
 
-**Productivity Metrics**:
-- Pre-commit time: <30 seconds average
-- Mode transition time: <5 seconds
-- Pattern discovery time: <2 minutes
-- Appetite compliance: >90% within scope
+### Backend
+- **Next.js API Routes** - Serverless API endpoints
+- **Prisma ORM** - Type-safe database queries, migrations
+- **PostgreSQL** - ACID compliance for booking conflicts
+- **JWT** - Authentication with refresh token rotation
 
-### Research Finding Validation
+### Testing
+- **Jest** - Unit and integration tests
+- **Playwright** - End-to-end testing
+- **Accessibility Testing** - WCAG 2.1 AA compliance
 
-| Finding | Metric | Target | Validation |
-|---------|--------|--------|------------|
-| 8x duplication | Duplication % | <3% | jscpd reports |
-| 65% missing context | Context checks | >80% | Git commit messages |
-| 21.7% hallucinations | Package errors | 0 | Pre-commit logs |
-| Over-engineering | Complexity violations | 0 | Pre-commit logs |
-| 7.2% stability decrease | Quality gate failures | <5% | Git logs |
-| Refactor decline | Refactor commits | >Weekly | Git history |
-| YAGNI violations | Interface/factory count | Minimal | Code review |
-| Pattern amnesia | Pattern references | >70% | Commit messages |
+### Quality
+- **ESLint + Prettier** - Code formatting
+- **TypeScript Strict** - No `any` types allowed
+- **Husky** - Pre-commit hooks
+- **jscpd** - Duplication detection
 
-### Continuous Monitoring
+## Architecture
 
-**Weekly Review**:
-```bash
-# Check duplication trend
-npx jscpd --threshold 100 --reporters console
-
-# Check complexity violations (should be 0)
-npm run complexity-check
-
-# Review commit messages for pattern references
-git log --since="1 week ago" --oneline | grep "Pattern:"
+```
+app/
+  api/
+    bookings/        # Booking CRUD endpoints
+    auth/            # JWT authentication
+    availability/    # Calendar availability
+  admin/             # Admin dashboard pages
+  (public)/          # Public booking pages
+  
+lib/
+  db/                # Prisma queries
+  auth/              # JWT service
+  validation/        # Zod schemas
+  
+components/
+  booking/           # Booking UI components
+  forms/             # Form components
+  
+tests/
+  integration/       # API integration tests
+  e2e/              # End-to-end flows
 ```
 
-**Monthly Review**:
-- Review `.docs/debt.md` for debt reduction
-- Update `.roo/context.md` with recent changes
-- Add new patterns to `.docs/patterns/index.md`
-- Calibrate appetite estimates based on outcomes
+## Key Architectural Decisions
 
-**Quarterly Review**:
-- Assess all research findings vs actual metrics
-- Adjust thresholds if consistently passing
-- Update mode instructions based on learnings
-- Review ADR decisions for changes needed
+See `.docs/decisions/index.md` for full ADRs.
+
+**Critical Decisions:**
+1. **App Router** - Better data fetching, server components
+2. **Prisma ORM** - Type-safe queries, migration management
+3. **PostgreSQL** - ACID for booking conflict prevention
+4. **JWT Strategy** - Refresh token rotation for security
+5. **Zod Validation** - Runtime type safety at API boundaries
+
+## Recent Changes
+
+- 2025-01-10: Added pre-commit enforcement (complexity, duplication)
+- 2025-01-10: Migrated to lean custom modes
+- 2025-01-05: Implemented JWT refresh token rotation
+- 2024-12-20: Fixed calendar DST boundary bug
+
+## Known Issues & Gotchas
+
+See `.docs/investigations/index.md` for details.
+
+**Common Issues:**
+- Bookings <15min apart cause conflicts (by design)
+- UTC conversion breaks on DST boundaries (documented fix)
+- Prisma relations must use explicit `include` (not implicit)
+- Jest mocks must use `jest.unstable_mockModule()` for ESM
+
+## Patterns
+
+See `.docs/patterns/index.md` for reusable code patterns.
+
+**Core Patterns:**
+- **Auth**: JWT service at `lib/auth/jwt-service.ts`
+- **Validation**: Zod schemas at `lib/validation/schemas.ts`
+- **Database**: Booking queries at `lib/db/booking-queries.ts`
+- **Testing**: Integration test setup at `tests/integration/booking.test.ts`
+
+## Performance Requirements
+
+- API response time <500ms (p95)
+- Lighthouse CI score >90 (all categories)
+- Core Web Vitals: LCP <2.5s, FID <100ms, CLS <0.1
+
+## Constraints
+
+**Hard Limits (pre-commit enforced):**
+- Function ≤ 50 lines
+- File ≤ 300 lines
+- Function params ≤ 3
+- Code duplication ≤ 3%
+- No `any` types in TypeScript
+
+**Development Principles:**
+- TDD when implementing new features
+- Pattern-first (check `.docs/patterns/index.md`)
+- YAGNI (no abstraction until 2nd use)
+- Security-first (validate all inputs)
+```
 
 ---
 
-## Appendix: Quick Reference
+## Phase 5: Consolidate Documentation (30 minutes)
 
-### Daily Workflow
+### Step 5.1: Consolidate Patterns
 
-```bash
-# Start of day
-1. Read .roo/context.md for project state
-2. Check .docs/debt.md for priority items
-3. Check .docs/patterns/index.md for relevant patterns
+**File**: `.docs/patterns/index.md`
 
-# Before implementing
-1. Switch to test mode
-2. Write tests defining requirements
-3. Switch to implement mode with tests
+```markdown
+# Pattern Index
 
-# Before committing
-1. Let pre-commit run (automatic)
-2. Fix any violations
-3. Commit with conventional format
+Reference for proven, reusable code patterns. Always check this before implementing similar functionality.
 
-# End of day
-1. Update .roo/context.md if architectural changes
-2. Update .docs/patterns/index.md if new patterns
-3. Update .docs/debt.md if new debt identified
+## Auth Patterns
+
+### JWT Authentication
+**Location**: `lib/auth/jwt-service.ts`
+**Use for**: Login, token refresh, token validation
+**Key functions**: `generateToken()`, `refreshToken()`, `validateToken()`
+
+### Auth Middleware
+**Location**: `middleware/auth-middleware.ts`
+**Use for**: Protecting API routes
+**Pattern**: Verify JWT in Authorization header, attach user to request
+
+## Form Patterns
+
+### Zod Validation Schemas
+**Location**: `lib/validation/schemas.ts`
+**Use for**: Runtime input validation
+**Pattern**: Define schema, use `.parse()` for validation, catch ZodError
+
+### Multi-Step Forms
+**Location**: `components/forms/MultiStepForm.tsx`
+**Use for**: Complex forms with multiple pages
+**Pattern**: State machine for step management, validate per-step
+
+### Form Error Handling
+**Location**: `components/forms/FormError.tsx`
+**Use for**: Displaying validation errors
+**Pattern**: Map Zod errors to field-specific messages
+
+## Database Patterns
+
+### Prisma Queries
+**Location**: `lib/db/booking-queries.ts`
+**Use for**: Booking CRUD operations
+**Pattern**: Use `include` for relations, proper error handling
+
+### Transaction Wrapper
+**Location**: `lib/db/transaction-wrapper.ts`
+**Use for**: Multiple operations in single transaction
+**Pattern**: Wrap in `prisma.$transaction()`, rollback on error
+
+### Availability Checks
+**Location**: `lib/db/availability-check.ts`
+**Use for**: Preventing booking conflicts
+**Pattern**: Query overlapping time ranges, lock for update
+
+## Testing Patterns
+
+### Integration Tests
+**Location**: `tests/integration/booking.test.ts`
+**Use for**: API endpoint testing
+**Pattern**: Setup/teardown database, test full request/response cycle
+
+### Prisma Mocking
+**Location**: `tests/mocks/prisma-mock.ts`
+**Use for**: Mocking database in tests
+**Pattern**: Use `jest.unstable_mockModule()` for ESM compatibility
+
+### E2E Tests
+**Location**: `tests/e2e/booking-flow.spec.ts`
+**Use for**: User workflow testing
+**Pattern**: Playwright test, full browser automation
+
+## Component Patterns
+
+### Component Decomposition
+**Principle**: Keep components <300 lines
+**Pattern**: Extract sub-components when component grows too large
+**Example**: BookingForm → BookingFormFields + BookingFormActions
+
+### State Management
+**Location**: Components use React Query for server state
+**Pattern**: `useQuery` for reads, `useMutation` for writes
+**Avoid**: Duplicating server state in local state
+
+## API Patterns
+
+### API Route Structure
+**Location**: `app/api/bookings/route.ts`
+**Pattern**:
+```typescript
+export async function POST(request: Request) {
+  // 1. Parse and validate input (Zod)
+  // 2. Authenticate/authorize
+  // 3. Business logic
+  // 4. Return Response.json()
+}
 ```
 
-### Emergency Bypass
-
-**ONLY IF ABSOLUTELY NECESSARY**:
-```bash
-# If pre-commit blocking emergency fix
-git commit --no-verify -m "fix(critical): [description]"
-
-# Immediately after emergency
-# 1. Create debt item in .docs/debt.md
-# 2. Schedule fix within 24 hours
-# 3. Run quality gates manually and fix violations
+### Error Response Format
+**Pattern**:
+```typescript
+{
+  success: false,
+  error: {
+    message: "Human-readable error",
+    code: "ERROR_CODE",
+    details: {} // Optional additional context
+  }
+}
 ```
 
-### Complexity Limits Cheat Sheet
+## Common Implementation Approaches
 
-| Metric | Limit | Enforced By |
-|--------|-------|-------------|
-| Function lines | 50 | complexity-check.js |
-| File lines | 300 | complexity-check.js |
-| Parameters | 3 | complexity-check.js |
-| Duplication | 3% | jscpd |
-| any types | 0 | TypeScript |
-| Test coverage | >80% | Jest (critical paths) |
+### When to Extract a Pattern
 
-### Pattern Discovery Shortcut
+**Extract when:**
+- Code duplicated 2+ times (5+ lines)
+- Clear reusable abstraction
+- Multiple similar implementations
 
-```bash
-# Search patterns file
-grep -i "authentication" .docs/patterns/index.md
-grep -i "form" .docs/patterns/index.md
-grep -i "database" .docs/patterns/index.md
+**Don't extract when:**
+- Used only once
+- Highly specific to single use case
+- Abstraction adds more complexity than it removes
+
+### How to Apply Patterns
+
+1. Search this index for similar functionality
+2. Review referenced file for implementation details
+3. Copy pattern structure (don't duplicate code)
+4. Adapt pattern to specific use case
+5. If creating new pattern, document here only if genuinely reusable
 ```
 
-### Mode Selection Guide
+### Step 5.2: Consolidate Investigations
 
-| Task | Mode | Why |
-|------|------|-----|
-| New feature | test → implement | TDG workflow |
-| Bug fix | investigate | Check known issues first |
-| Code quality | refactor | Consolidate duplication |
-| Pre-deploy | verify | All quality gates |
-| Coordination | navigator | Route work, enforce appetite |
+**File**: `.docs/investigations/index.md`
+
+```markdown
+# Known Issues & Resolutions
+
+Reference for debugging similar issues. Check here before investigating problems.
+
+## Time & Date Issues
+
+### Time Format Validation
+**Problem**: Booking times failed validation in tests
+**Root Cause**: Inconsistent time format (12hr vs 24hr, with/without timezone)
+**Solution**: Standardized on ISO 8601 format throughout codebase
+**Code**: `lib/validation/time-utils.ts`
+**Prevention**: Always use `new Date().toISOString()` for API data
+
+### DST Boundary Bugs
+**Problem**: Calendar availability incorrect at DST transitions
+**Root Cause**: Timezone conversion logic didn't account for DST changes
+**Solution**: Use `date-fns-tz` library for timezone-aware operations
+**Code**: `lib/utils/timezone.ts`
+**Prevention**: Always use timezone-aware date libraries
+
+## Testing Issues
+
+### Jest Mock Hoisting
+**Problem**: Mocks not hoisted in ES modules
+**Root Cause**: Jest hoisting doesn't work with `import` statements
+**Solution**: Use `jest.unstable_mockModule()` instead of `jest.mock()`
+**Code**: `tests/mocks/prisma-mock.ts`
+**Pattern**: Always use unstable_mockModule for ESM mocks
+
+### Transaction Test Failures
+**Problem**: Tests fail due to transaction rollback timing
+**Root Cause**: Race condition in async transaction cleanup
+**Solution**: Use `await prisma.$transaction()` with proper cleanup
+**Code**: `tests/integration/booking.test.ts`
+**Prevention**: Always await transaction completion in tests
+
+## Build Issues
+
+### Next.js Cache Corruption
+**Problem**: Stale cache caused build failures after dependency updates
+**Root Cause**: `.next/` directory cached outdated module resolution
+**Solution**: Clear `.next/` directory on dependency changes
+**Script**: `npm run clean && npm run build`
+**Prevention**: Add postinstall script to clean cache
+
+## Git/Commit Issues
+
+### Pre-Commit Hook Bypass
+**Problem**: Changes not staged caused pre-commit hooks to pass incorrectly
+**Root Cause**: Hooks run on staged files, unstaged changes bypassed checks
+**Solution**: Always `git add -A` before commit
+**Prevention**: Pre-commit hook now checks for unstaged changes
+
+## Database Issues
+
+### Booking Conflicts Not Detected
+**Problem**: Overlapping bookings allowed despite conflict detection
+**Root Cause**: Race condition in availability check
+**Solution**: Use `FOR UPDATE` lock in availability query
+**Code**: `lib/db/availability-check.ts`
+**Pattern**: Always use pessimistic locking for conflict-prone operations
+
+### Prisma Relation Loading
+**Problem**: Relations undefined at runtime despite type showing them
+**Root Cause**: Forgot to use `include` in query
+**Solution**: Always explicitly `include` relations in Prisma queries
+**Pattern**: Never rely on implicit relation loading
+
+## Performance Issues
+
+### Slow API Response Times
+**Problem**: Booking endpoint >1s response time
+**Root Cause**: N+1 query problem loading nested relations
+**Solution**: Use `include` with proper select to load relations in single query
+**Code**: `lib/db/booking-queries.ts`
+**Pattern**: Always profile queries, use Prisma's query logging
+
+## Security Issues
+
+### JWT Token Rotation
+**Problem**: Long-lived access tokens presented security risk
+**Root Cause**: No refresh token mechanism
+**Solution**: Implement refresh token rotation with short-lived access tokens
+**Code**: `lib/auth/jwt-service.ts`
+**Pattern**: 15min access tokens, 7day refresh tokens with rotation
+
+## Common Debugging Steps
+
+### API Endpoint Issues
+1. Check request validation (Zod schema)
+2. Verify authentication middleware applied
+3. Check database query (enable Prisma logging)
+4. Verify response format matches expected structure
+
+### UI/Component Issues
+1. Check React DevTools for component state
+2. Verify props passed correctly
+3. Check browser console for errors
+4. Verify API calls returning expected data
+
+### Database Issues
+1. Enable Prisma query logging: `DEBUG=prisma:query`
+2. Check for N+1 queries
+3. Verify relations included explicitly
+4. Check for transaction deadlocks
+
+## When to Document New Issues
+
+**Document when:**
+- Issue took >1 hour to debug
+- Root cause non-obvious
+- Solution reusable for similar issues
+- Prevention pattern can be established
+
+**Don't document:**
+- Typos or simple mistakes
+- One-off issues specific to local environment
+- Issues with obvious solutions
+```
+
+### Step 5.3: Trim ADRs
+
+Keep only these 10 non-obvious ADRs in `.docs/decisions/`:
+- adr-002-database-schema-design.md
+- adr-009-jwt-token-strategy.md
+- adr-011-bundle-optimization.md
+- adr-012-caching-strategy.md
+- adr-013-session-management.md
+- adr-014-rate-limiting.md
+- adr-017-code-quality-gates.md
+- adr-021-accessibility-standards.md
+- adr-024-deployment-strategy.md
+- adr-032-password-security-policy.md
+
+```bash
+# Move obvious ADRs to archive
+mkdir -p .docs/backups/adrs-archive
+mv .docs/decisions/adr-001-nextjs-app-router.md .docs/backups/adrs-archive/
+mv .docs/decisions/adr-003-testing-architecture.md .docs/backups/adrs-archive/
+mv .docs/decisions/adr-004-mobile-first-accessibility.md .docs/backups/adrs-archive/
+mv .docs/decisions/adr-006-image-optimization-strategy.md .docs/backups/adrs-archive/
+mv .docs/decisions/adr-010-database-technology.md .docs/backups/adrs-archive/
+mv .docs/decisions/adr-015-component-library.md .docs/backups/adrs-archive/
+mv .docs/decisions/adr-030-frontend-framework.md .docs/backups/adrs-archive/
+# ... move other obvious ones
+```
+
+### Step 5.4: Delete Memory Subdirectories
+
+```bash
+rm -rf .docs/memory/architect/
+rm -rf .docs/memory/code/
+rm -rf .docs/memory/debug/
+```
+
+### Step 5.5: Delete Obsolete Files
+
+```bash
+rm .docs/circuit-breakers.md
+rm .docs/memory/complexity-estimation-framework-and-historical-calibration.md
+rm .docs/designs/custom-role-implementation-plan.md
+rm .docs/designs/custom-role-migration-guide.md
+rm .docs/reference/custom-roles-guide.md
+```
+
+### Step 5.6: Delete Individual Pattern Files
+
+Keep ONLY `patterns/index.md`:
+
+```bash
+cd .docs/patterns
+ls *.md | grep -v "index.md" | xargs rm
+cd ../..
+```
+
+### Step 5.7: Delete Individual Investigation Files
+
+Keep ONLY `investigations/index.md` and `investigation-template.md`:
+
+```bash
+cd .docs/investigations
+ls 2025-*.md | xargs rm
+cd ../..
+```
 
 ---
 
-**END OF OVERHAUL PLAN**
+## Phase 6: Validation (10 minutes)
+
+### Step 6.1: Test Pre-Commit Hook
+
+```bash
+# Create test file with violations
+cat > test-violations.ts << 'EOF'
+// This should fail pre-commit
+
+// 1. Function too long (>50 lines)
+function tooLong() {
+  const line1 = 1;
+  const line2 = 2;
+  // ... add 50+ lines
+  const line60 = 60;
+}
+
+// 2. Too many params (>3)
+function tooManyParams(a, b, c, d, e) {
+  return a + b + c + d + e;
+}
+
+// 3. Non-existent package
+import { fake } from 'non-existent-package';
+EOF
+
+# Try to commit
+git add test-violations.ts
+git commit -m "test: verify pre-commit blocks violations"
+# Should fail with specific error messages
+
+# Clean up
+git reset HEAD test-violations.ts
+rm test-violations.ts
+```
+
+### Step 6.2: Test Custom Modes
+
+```bash
+# Start Roo Code
+# Verify all 7 modes appear in dropdown:
+# - 🧭 Navigator
+# - 🧪 Test
+# - 💻 Implement
+# - 🐛 Investigation
+# - 👁️ Review
+# - ♻️ Refactor
+# - 🔍 Quality
+
+# Test mode switching
+# /navigator → switches to Navigator
+# /test → switches to Test
+# etc.
+```
+
+### Step 6.3: Test Boomerang Task
+
+In Navigator mode:
+
+```
+User: "Add a new API endpoint for listing bookings"
+
+Navigator should:
+1. Recognize complexity
+2. Create boomerang task to Test mode
+3. Test mode writes tests
+4. Returns to Navigator with completion
+```
+
+### Step 6.4: Verify File Consolidation
+
+```bash
+# Count documentation files
+find .docs -type f -name "*.md" | wc -l
+# Should be ~20 files (down from 146)
+
+# Verify deleted files
+ls .roo/rules-*-specialist/ 2>/dev/null
+# Should show "No such file or directory"
+
+ls .docs/handoffs/ 2>/dev/null
+# Should show "No such file or directory"
+
+ls .docs/protocols/ 2>/dev/null
+# Should show "No such file or directory"
+```
+
+---
+
+## Summary of Changes
+
+### Pre-Commit Enforcement
+✅ Complexity limits enforced (AST-based)
+✅ Duplication threshold enforced (jscpd)
+✅ Package hallucination detection
+✅ Quality gates automatic
+
+### Mode System
+✅ 7 lean custom modes with persistent behaviors
+✅ Navigator as entry point
+✅ Boomerang task delegation
+✅ No manual handback protocols
+
+### Documentation
+✅ 146 files → ~20 files (86% reduction)
+✅ Single patterns/index.md (code locations)
+✅ Single investigations/index.md (known issues)
+✅ 10 ADRs (non-obvious decisions only)
+✅ Context file for session-level awareness
+
+### Eliminated
+❌ Appetite tracking (pre-commit enforces)
+❌ Manual handback protocols
+❌ Quality verification checklists
+❌ 70/30 decision routing
+❌ Specialist rule directories
+❌ Handoff templates
+❌ Circuit breaker tracking
+❌ Complexity estimation
+
+### Result
+- Pre-commit blocks bad code automatically
+- Modes provide persistent behaviors
+- Patterns prevent duplication before it's written
+- Investigations prevent repeating past debugging
+- No manual protocols, no ceremony, just enforcement

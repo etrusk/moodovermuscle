@@ -1,3 +1,8 @@
+/**
+ * @testing-approach modern-2025
+ * @why-this-approach Tests loading state via data-testid for implementation-specific CSS classes
+ * @last-refactored 2025-10-10
+ */
 import React from 'react'
 import { render, screen } from '@/__tests__/setup/test-utils'
 import { BookingFormProvider } from '@/components/booking-form/BookingFormProvider'

@@ -1,3 +1,8 @@
+/**
+ * @testing-approach modern-2025
+ * @why-this-approach Semantic queries via getByRole/getByText for accessibility-first admin layout testing
+ * @last-refactored 2025-10-10
+ */
 import React from 'react'
 import { render, screen, waitFor, cleanup } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -103,7 +108,7 @@ describe('AdminLayout Component', () => {
         </AdminLayout>
       )
 
-      expect(screen.getByText('Loading admin dashboard...')).toBeInTheDocument()
+      expect(screen.getByText(/loading admin dashboard/i)).toBeInTheDocument()
       expect(container.querySelector('.animate-spin')).toBeInTheDocument()
 
       const results = await axe(container)
@@ -240,9 +245,9 @@ describe('AdminLayout Component', () => {
       )
 
       await waitFor(() => {
-        expect(screen.getByText('MoodOverMuscle Admin')).toBeInTheDocument()
-        expect(screen.getByText(/Welcome,/)).toBeInTheDocument()
-        expect(screen.getByText('Emily')).toBeInTheDocument()
+        expect(screen.getByText(/moodovermuscle admin/i)).toBeInTheDocument()
+        expect(screen.getByText(/welcome/i)).toBeInTheDocument()
+        expect(screen.getByText(/emily/i)).toBeInTheDocument()
       })
     })
 

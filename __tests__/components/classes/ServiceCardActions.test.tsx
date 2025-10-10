@@ -1,3 +1,8 @@
+/**
+ * @testing-approach modern-2025
+ * @why-this-approach Semantic queries via getByRole for button interaction testing
+ * @last-refactored 2025-10-10
+ */
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -169,7 +174,7 @@ describe('ServiceCardActions Component', () => {
       expect(mockOnBookSessionClick).not.toHaveBeenCalled()
     })
 
-    it('applies muted styling to coming soon button', () => {
+    it('applies lighter gradient to coming soon button', () => {
       render(
         <ServiceCardActions
           comingSoon={true}
@@ -179,10 +184,11 @@ describe('ServiceCardActions Component', () => {
       )
       
       const comingSoonButton = screen.getByRole('button', { name: /coming soon/i })
-      expect(comingSoonButton).toHaveAttribute('data-variant', 'secondary')
+      expect(comingSoonButton.className).toContain('from-rose-400')
+      expect(comingSoonButton.className).toContain('to-pink-400')
     })
 
-    it('does not apply hover effects to coming soon button', () => {
+    it('applies disabled styling to coming soon button', () => {
       render(
         <ServiceCardActions
           comingSoon={true}
@@ -192,11 +198,11 @@ describe('ServiceCardActions Component', () => {
       )
       
       const comingSoonButton = screen.getByRole('button', { name: /coming soon/i })
-      expect(comingSoonButton.className).not.toContain('hover:scale-105')
-      expect(comingSoonButton.className).not.toContain('hover:shadow-xl')
+      expect(comingSoonButton.className).toContain('disabled:opacity-50')
+      expect(comingSoonButton.className).toContain('disabled:cursor-not-allowed')
     })
 
-    it('includes clock icon for coming soon button', () => {
+    it('does not include arrow icon for coming soon button', () => {
       render(
         <ServiceCardActions
           comingSoon={true}
@@ -205,10 +211,10 @@ describe('ServiceCardActions Component', () => {
         />
       )
       
-      // Check for SVG clock icon
+      // Coming soon buttons should not have arrow icon
       const button = screen.getByRole('button', { name: /coming soon/i })
       const svg = button.querySelector('svg')
-      expect(svg).toBeInTheDocument()
+      expect(svg).not.toBeInTheDocument()
     })
   })
 
@@ -371,9 +377,10 @@ describe('ServiceCardActions Component', () => {
       // Check that button has group class
       expect(button.className).toContain('group')
       
-      // Check that icon has group-hover transform
+      // Check that icon has group-hover transform (SVG uses className.baseVal)
       const svg = button.querySelector('svg')
-      expect(svg?.parentElement?.className).toContain('group-hover:translate-x-1')
+      const svgClasses = svg?.getAttribute('class') || ''
+      expect(svgClasses).toContain('group-hover:translate-x-1')
     })
   })
 

@@ -1,3 +1,8 @@
+/**
+ * @testing-approach modern-2025
+ * @why-this-approach Semantic queries via getByRole/getByText for accessibility-first dashboard testing
+ * @last-refactored 2025-10-10
+ */
 import React from 'react'
 import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -92,7 +97,7 @@ describe('AdminDashboardPage Component', () => {
 
       const { container } = render(<AdminDashboardPage />)
       
-      expect(screen.getByText('Loading...')).toBeInTheDocument()
+      expect(screen.getByText(/loading/i)).toBeInTheDocument()
       expect(container.querySelector('.animate-spin')).toBeInTheDocument()
       
       const results = await axe(container)
@@ -202,8 +207,8 @@ describe('AdminDashboardPage Component', () => {
       const { container } = render(<AdminDashboardPage />)
 
       await waitFor(() => {
-        expect(screen.getByText('Error loading dashboard data')).toBeInTheDocument()
-        expect(screen.getByText('Network error')).toBeInTheDocument()
+        expect(screen.getByText(/error loading dashboard data/i)).toBeInTheDocument()
+        expect(screen.getByText(/network error/i)).toBeInTheDocument()
       })
 
       const results = await axe(container)

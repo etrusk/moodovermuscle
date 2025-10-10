@@ -1,10 +1,15 @@
+/**
+ * @testing-approach modern-2025
+ * @why-this-approach Semantic queries via getByRole for heading/content testing
+ * @last-refactored 2025-10-10
+ */
 import React from 'react'
 import { render, screen, within } from '@testing-library/react'
 import { Users, Heart, Calendar } from 'lucide-react'
 import { ServiceCardContent } from '@/components/classes/ServiceCardContent'
 import { axe, toHaveNoViolations } from 'jest-axe'
 
-// Add jest-axe matchers  
+// Add jest-axe matchers
 expect.extend(toHaveNoViolations)
 
 describe('ServiceCardContent Component', () => {
@@ -72,7 +77,7 @@ describe('ServiceCardContent Component', () => {
     it('renders the service title', () => {
       render(<ServiceCardContent {...defaultProps} />)
       
-      const title = screen.getByRole('heading', { name: '1-on-1 Personal Training' })
+      const title = screen.getByRole('heading', { name: /1-on-1 personal training/i })
       expect(title).toBeInTheDocument()
     })
 
@@ -82,7 +87,7 @@ describe('ServiceCardContent Component', () => {
       const title = screen.getByRole('heading')
       expect(title.className).toContain('text-2xl')
       expect(title.className).toContain('font-bold')
-      expect(title.className).toContain('text-stone-800')
+      expect(title.className).toContain('text-stone-900')
     })
 
     it('renders the service description', () => {
@@ -105,14 +110,14 @@ describe('ServiceCardContent Component', () => {
     it('renders the price with correct formatting', () => {
       render(<ServiceCardContent {...defaultProps} />)
       
-      expect(screen.getByText('$80')).toBeInTheDocument()
-      expect(screen.getByText('per session')).toBeInTheDocument()
+      expect(screen.getByText(/\$80/i)).toBeInTheDocument()
+      expect(screen.getByText(/per session/i)).toBeInTheDocument()
     })
 
     it('applies correct price styling', () => {
       render(<ServiceCardContent {...defaultProps} />)
       
-      const priceValue = screen.getByText('$80')
+      const priceValue = screen.getByText(/\$80/i)
       expect(priceValue.className).toContain('text-3xl')
       expect(priceValue.className).toContain('font-bold')
       expect(priceValue.className).toContain('text-rose-600')

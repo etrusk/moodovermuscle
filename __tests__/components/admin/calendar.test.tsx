@@ -1,3 +1,8 @@
+/**
+ * @testing-approach modern-2025
+ * @why-this-approach Semantic queries via getByRole/getByText for accessibility-first calendar testing
+ * @last-refactored 2025-10-10
+ */
 import React from 'react'
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -188,8 +193,8 @@ describe('AdminCalendarPage Component', () => {
       const { container } = render(<AdminCalendarPage />)
 
       await waitFor(() => {
-        expect(screen.getByText('Calendar')).toBeInTheDocument()
-        expect(screen.getByText('Manage your schedule and bookings')).toBeInTheDocument()
+        expect(screen.getByText(/calendar/i)).toBeInTheDocument()
+        expect(screen.getByText(/manage your schedule and bookings/i)).toBeInTheDocument()
       })
 
       const results = await axe(container)
@@ -456,7 +461,7 @@ describe('AdminCalendarPage Component', () => {
 
       // Wait for component to load and show empty state
       await waitFor(() => {
-        expect(screen.getByText('No bookings scheduled')).toBeInTheDocument()
+        expect(screen.getByText(/no bookings scheduled/i)).toBeInTheDocument()
       }, { timeout: 10000 })
     })
 

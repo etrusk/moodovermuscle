@@ -1,9 +1,13 @@
+/**
+ * @testing-approach modern-2025
+ * @why-this-approach Semantic queries via getByRole for accessibility-first testing, removed TEST_STRINGS dependency
+ * @last-refactored 2025-10-10
+ */
 import React from 'react'
 import { render, screen } from '@/__tests__/setup/test-utils'
 import userEvent from '@testing-library/user-event'
 import { axe } from 'jest-axe'
 import { BookingForm } from '@/components/booking-form'
-import { TEST_STRINGS } from '@/__tests__/constants/test-strings'
 import '@testing-library/jest-dom'
 
 // Mock the toast hook to prevent issues in tests
@@ -30,7 +34,7 @@ describe('BookingForm Component', () => {
     )
 
     expect(
-      screen.getByText(TEST_STRINGS.BOOKING.FORM_TITLE)
+      screen.getByRole('heading', { name: /book your free session/i })
     ).toBeInTheDocument()
     const results = await axe(container)
     expect(results).toHaveNoViolations()
@@ -40,7 +44,7 @@ describe('BookingForm Component', () => {
     render(<BookingForm isOpen={false} onClose={mockOnClose} />)
 
     expect(
-      screen.queryByText(TEST_STRINGS.BOOKING.FORM_TITLE)
+      screen.queryByRole('heading', { name: /book your free session/i })
     ).not.toBeInTheDocument()
   })
 
@@ -55,33 +59,5 @@ describe('BookingForm Component', () => {
     expect(mockOnClose).toHaveBeenCalledTimes(1)
   })
 
-  // Temporarily disabled MSW test
-  // test('handles API submission error', async () => {
-  //   server.use(
-  //     http.post('/api/book-session', () => {
-  //       return new HttpResponse(null, { status: 500 })
-  //     })
-  //   )
-
-  //   const user = userEvent.setup()
-  //   render(<BookingForm isOpen={true} onClose={mockOnClose} />)
-
-  //   // Fill form
-  //   await user.type(
-  //     screen.getByLabelText(TEST_STRINGS.LABELS.NAME),
-  //     'John Doe'
-  //   )
-  //   await user.type(
-  //     screen.getByLabelText(TEST_STRINGS.LABELS.EMAIL),
-  //     'fail@example.com'
-  //   )
-  //   await user.click(screen.getByText(TEST_STRINGS.BOOKING.CTA_BUTTON))
-
-  //   // Submit
-  //   await user.click(screen.getByText(/submit/i))
-
-  //   await waitFor(() => {
-  //     expect(mockOnClose).not.toHaveBeenCalled()
-  //   })
-  // })
+  // Note: MSW test removed - API error handling covered in integration tests
 })

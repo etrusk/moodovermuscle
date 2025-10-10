@@ -1,3 +1,8 @@
+/**
+ * @testing-approach modern-2025
+ * @why-this-approach Semantic queries via getByRole for select/option testing
+ * @last-refactored 2025-10-10
+ */
 import React from 'react';
 import { render, screen } from '@/__tests__/setup/test-utils'
 import { BookingFormProvider } from '@/components/booking-form/BookingFormProvider'
@@ -49,7 +54,7 @@ describe('SchedulingStep', () => {
     )
 
     expect(screen.getByTestId('time-select')).toBeDisabled()
-    expect(screen.getByRole('option', { name: 'Loading slots...' })).toBeInTheDocument()
+    expect(screen.getByRole('option', { name: /loading slots/i })).toBeInTheDocument()
   })
 
   it('displays available and booked time slots correctly', async () => {
@@ -105,6 +110,6 @@ describe('SchedulingStep', () => {
     )
 
     expect(screen.getByTestId('time-select')).toBeDisabled()
-    expect(screen.getByRole('option', { name: 'Select a date first' })).toBeInTheDocument()
+    expect(screen.getByRole('option', { name: /select a date first/i })).toBeInTheDocument()
   })
 })

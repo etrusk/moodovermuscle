@@ -1,3 +1,8 @@
+/**
+ * @testing-approach modern-2025
+ * @why-this-approach Semantic queries via getByRole/getByLabelText for accessibility-first testing
+ * @last-refactored 2025-10-10
+ */
 import React from 'react'
 import { render, screen } from '@/__tests__/setup/test-utils'
 import userEvent from '@testing-library/user-event'
@@ -13,13 +18,15 @@ describe('BookingForm navigation and validation logic', () => {
   it('shows validation errors on empty step 1 when clicking Continue', async () => {
     const user = userEvent.setup()
     render(<BookingForm isOpen={true} onClose={mockOnClose} />)
-    await user.click(screen.getByTestId('booking-form-continue-button'))
+    
+    const continueButton = screen.getByRole('button', { name: /continue/i })
+    await user.click(continueButton)
 
     expect(
-      await screen.findByText('Name must be at least 2 characters.')
+      await screen.findByText(/name must be at least 2 characters/i)
     ).toBeInTheDocument()
-    expect(screen.getByText('Email is required.')).toBeInTheDocument()
-    expect(screen.getByText('Goal is required.')).toBeInTheDocument()
+    expect(screen.getByText(/email is required/i)).toBeInTheDocument()
+    expect(screen.getByText(/goal is required/i)).toBeInTheDocument()
   })
 
   it('advances to step 2 after filling valid step 1 fields', async () => {
@@ -91,17 +98,24 @@ describe('BookingForm navigation and validation logic', () => {
     await user.click(
       await screen.findByRole('option', { name: 'Build strength & energy' })
     )
-    await user.click(screen.getByTestId('booking-form-continue-button'))
+    
+    const continueButton1 = screen.getByRole('button', { name: /continue/i })
+    await user.click(continueButton1)
+    
     // step2
     await user.click(
       screen.getByTestId('service-option-1-on-1-Personal-Training')
     )
-    await user.click(screen.getByTestId('booking-form-continue-button'))
+    
+    const continueButton2 = screen.getByRole('button', { name: /continue/i })
+    await user.click(continueButton2)
+    
     // step3 submit without date/time
-    await user.click(screen.getByTestId('booking-form-submit-button'))
+    const submitButton = screen.getByRole('button', { name: /book/i })
+    await user.click(submitButton)
 
-    expect(await screen.findByText('Please select a date.')).toBeInTheDocument()
-    expect(screen.getByText('Please select a time.')).toBeInTheDocument()
+    expect(await screen.findByText(/please select a date/i)).toBeInTheDocument()
+    expect(screen.getByText(/please select a time/i)).toBeInTheDocument()
   })
 
   it('goes back to step 1 when clicking Back on step 2', async () => {
@@ -116,10 +130,13 @@ describe('BookingForm navigation and validation logic', () => {
     await user.click(
       await screen.findByRole('option', { name: 'Build strength & energy' })
     )
-    await user.click(screen.getByTestId('booking-form-continue-button'))
+    
+    const continueButton = screen.getByRole('button', { name: /continue/i })
+    await user.click(continueButton)
 
     // Now on step2
-    await user.click(screen.getByTestId('booking-form-back-button'))
+    const backButton = screen.getByRole('button', { name: /back/i })
+    await user.click(backButton)
 
     expect(await screen.findByTestId('booking-form-step-1')).toBeInTheDocument()
   })

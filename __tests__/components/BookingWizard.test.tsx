@@ -1,3 +1,8 @@
+/**
+ * @testing-approach modern-2025
+ * @why-this-approach Semantic queries via getByRole for button state testing
+ * @last-refactored 2025-10-10
+ */
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { BookingWizard } from '@/components/booking-form/BookingWizard'

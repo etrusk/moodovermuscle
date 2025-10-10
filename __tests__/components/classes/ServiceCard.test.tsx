@@ -1,3 +1,8 @@
+/**
+ * @testing-approach modern-2025
+ * @why-this-approach Semantic queries via getByRole and getByTestId for component-specific testing
+ * @last-refactored 2025-10-10
+ */
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -136,14 +141,14 @@ describe('ServiceCard Component', () => {
       const popularService = { ...defaultService, popular: true }
       
       render(
-        <ServiceCard 
-          service={popularService} 
+        <ServiceCard
+          service={popularService}
           onBookSessionClick={mockOnBookSessionClick}
         />
       )
       
       expect(screen.getByTestId('popular-badge')).toBeInTheDocument()
-      expect(screen.getByText('Most Popular')).toBeInTheDocument()
+      expect(screen.getByText(/most popular/i)).toBeInTheDocument()
     })
 
     it('does not render popular badge when service is not popular', () => {
@@ -169,7 +174,7 @@ describe('ServiceCard Component', () => {
       
       expect(screen.getByTestId('coming-soon-badge')).toBeInTheDocument()
       // There may be multiple "Coming Soon" elements (badge and button)
-      const comingSoonElements = screen.getAllByText('Coming Soon')
+      const comingSoonElements = screen.getAllByText(/coming soon/i)
       expect(comingSoonElements.length).toBeGreaterThan(0)
     })
 

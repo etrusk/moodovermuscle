@@ -1,3 +1,8 @@
+/**
+ * @testing-approach modern-2025
+ * @why-this-approach Semantic queries via getByRole/getByLabelText for accessibility-first testing
+ * @last-refactored 2025-10-10
+ */
 import React from 'react'
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -205,10 +210,10 @@ describe('BookingsPage Component', () => {
       expect(screen.getByText('Mums & Bubs Class')).toBeInTheDocument()
 
       // Check status badges
-      expect(screen.getByText('Pending')).toBeInTheDocument()
-      expect(screen.getByText('Confirmed')).toBeInTheDocument()
-      expect(screen.getByText('Completed')).toBeInTheDocument()
-      expect(screen.getByText('Cancelled')).toBeInTheDocument()
+      expect(screen.getByText(/pending/i)).toBeInTheDocument()
+      expect(screen.getByText(/confirmed/i)).toBeInTheDocument()
+      expect(screen.getByText(/completed/i)).toBeInTheDocument()
+      expect(screen.getByText(/cancelled/i)).toBeInTheDocument()
     })
 
     it('displays booking count information', async () => {
@@ -230,8 +235,8 @@ describe('BookingsPage Component', () => {
       render(<BookingsPage />)
 
       await waitFor(() => {
-        expect(screen.getByText('No bookings found')).toBeInTheDocument()
-        expect(screen.getByText('No bookings have been created yet.')).toBeInTheDocument()
+        expect(screen.getByText(/no bookings found/i)).toBeInTheDocument()
+        expect(screen.getByText(/no bookings have been created yet/i)).toBeInTheDocument()
       })
     })
 

@@ -155,11 +155,15 @@ customModes:
       - command
       - browser
     customInstructions: |
+      Debugging constraints in .roo/rules-investigation/ apply during fixes.
+      If bug is in function >50 lines: refactor FIRST, then fix.
+      Never patch complex functions - break them down.
+      
       ## Tool Usage Priority
       1. Use `read` tools for file inspection (never sed/cat/od)
       2. Use `command` for running tests/scripts only
       3. Use `browser` for external documentation
-
+ 
       ## Before Debugging
       1. Check .docs/investigations/index.md for similar issues
       2. Apply proven debugging patterns from past resolutions

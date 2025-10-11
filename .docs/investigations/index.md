@@ -72,98 +72,108 @@ Reference for debugging similar issues. Check here before investigating problems
 
 ## Build Issues
 
-### Next.js Dev Server Infinite Reload Loop (2025-10-11)
-**Problem**: Dev server stuck in infinite reload loop, GET / 200 requests every ~80ms, Fast Refresh compiling 875 modules repeatedly
+### Next.js Dev Server Infinite Reload Loop (2025-10-11) - ✅ RESOLVED
 
-**Root Causes**:
-1. **Vercel Analytics/Speed Insights Hot Reload Trigger**: The `@vercel/analytics` and `@vercel/speed-insights` packages can trigger hot reload loops in development
-2. **useEffect dependency issue in BookingWizard**: Lines 103-108 have `submissionSuccess` and `onClose` as dependencies, creating potential re-render cycle
-3. **Client component re-rendering**: `app/page.tsx` is a client component with state management that may be re-rendering unnecessarily
+**Severity**: Critical (100% CPU usage, development blocked)
 
-**Investigation Steps Taken**:
-1. Examined `app/page.tsx` - client component with `useState` for booking modal
-2. Examined `app/layout.tsx` - includes `<Analytics />` and `<SpeedInsights />` from Vercel
-3. Examined `components/booking-form/BookingWizard.tsx` - `useEffect` at lines 103-108 with `setTimeout(() => onClose(), 0)`
-4. Checked middleware.ts - admin route protection only, not causing issue
-5. Confirmed no `next.config.js` exists (using Next.js defaults)
+**Problem**: Dev server stuck in infinite reload loop, compiling every ~500ms repeatedly, 100% CPU usage
 
-**Root Cause Analysis**:
-The primary culprit is **Vercel Analytics/Speed Insights** combined with Fast Refresh in development mode. These packages have known issues triggering hot reload loops, especially when:
-- Development server watches for file changes
-- Packages inject scripts that modify the DOM
-- Fast Refresh detects changes and recompiles
+**Initial Investigation (Multiple False Leads)**:
+1. Initially suspected Vercel Analytics/Speed Insights packages - removed but issue persisted
+2. Suspected React component re-render loops - added `useCallback` but issue persisted
+3. Investigated file watcher issues - ruled out (no continuous file modifications)
+4. Suspected webpack chunk loading failures from browser console errors
 
-**Secondary Issue**: The `useEffect` in `BookingWizard.tsx` (lines 103-108) uses `setTimeout(() => onClose(), 0)` which can cause timing issues with React's render cycle.
+**Actual Root Cause (Final)**:
+**Webpack file watcher permission errors on `.docker/postgres-data` directory**
 
-**Solutions Applied**:
-```typescript
-// BookingWizard.tsx - useEffect with proper cleanup
-useEffect(() => {
-  if (submissionSuccess) {
-    const timer = setTimeout(() => onClose(), 0)
-    return () => clearTimeout(timer)  // ✅ Already has cleanup
-  }
-}, [submissionSuccess, onClose])
+Build output revealed:
+```
+glob error [Error: EACCES: permission denied, scandir '/home/bob/Projects/moodovermuscle/.docker/postgres-data']
+Failed to compile.
+Error: EACCES: permission denied, scandir '/home/bob/Projects/moodovermuscle/.docker/postgres-data'
 ```
 
-**Recommended Fixes**:
+Webpack was attempting to scan the Docker data directory during hot reload, hitting permission denied errors, and continuously retrying → infinite compilation loop.
 
-1. **Quick Fix - Disable Vercel packages in development**:
-```tsx
-// app/layout.tsx
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en" suppressHydrationWarning>
-      <body>
-        <ThemeProvider>
-          {children}
-          {process.env.NODE_ENV === 'production' && (
-            <>
-              <Analytics />
-              <SpeedInsights />
-            </>
-          )}
-          <Toaster />
-        </ThemeProvider>
-      </body>
-    </html>
-  )
+**Why This Caused Infinite Loop**:
+1. Dev server starts successfully
+2. Webpack file watcher scans project directories for changes
+3. **Attempts to scan `.docker/postgres-data` → permission denied (EACCES)**
+4. Webpack detects "error" and triggers recompilation
+5. Process repeats infinitely → 100% CPU usage
+
+**Final Solution**:
+Enhanced webpack `watchOptions.ignored` configuration to explicitly exclude all restricted directories:
+
+```javascript
+// next.config.mjs - WORKING FIX
+webpack: (config, { dev, isServer }) => {
+  if (dev && !isServer) {
+    config.optimization = {
+      ...config.optimization,
+      runtimeChunk: false,
+      splitChunks: false,
+    }
+  }
+  
+  config.watchOptions = {
+    ...config.watchOptions,
+    ignored: [
+      '**/node_modules/**',
+      '**/.next/**',
+      '**/.git/**',
+      '**/.docker/**',           // Critical fix
+      '**/postgres-data/**',     // Critical fix
+      '**/coverage/**',
+      '**/test-results/**',
+      '**/playwright-report/**',
+    ],
+    poll: 1000,
+    aggregateTimeout: 300,
+  }
+  return config
 }
 ```
 
-2. **Alternative - Use environment variable**:
-```bash
-# .env.local
-NEXT_PUBLIC_VERCEL_ENV=development
-```
+**Why This Fixed It**:
+- Explicitly excluding `.docker/**` and `postgres-data/**` prevents webpack from attempting to scan restricted directories
+- Permission errors no longer trigger recompilation attempts
+- File watcher only monitors accessible directories
 
-3. **Nuclear Option - Remove Vercel packages temporarily**:
-```bash
-pnpm remove @vercel/analytics @vercel/speed-insights
-```
+**Prevention Pattern**:
+- **Always exclude Docker data directories** from webpack watching
+- Add all restricted/permission-protected directories to `watchOptions.ignored`
+- Ensure both `.gitignore` and webpack ignore patterns are synchronized
+- Monitor for EACCES errors in build output during development
 
-**Prevention**:
-- Always wrap third-party analytics in production-only conditionals
-- Test dev server after adding monitoring packages
-- Consider using `next.config.js` with `reactStrictMode: false` for debugging
-- Monitor console for repeated Fast Refresh compilation cycles
+**Verification Results**:
+✅ Only 2 compilations (initial + hot reload), then stopped
+✅ No repeated GET / requests
+✅ No permission denied errors
+✅ CPU usage normal
+✅ Dev server functional
 
-**Verification**:
-After applying fix, dev server should:
-- Start normally with single compilation
-- No repeated GET / requests
-- Fast Refresh only triggers on actual file changes
-- ~80ms reload loop should stop
-
-**Files Affected**:
-- `app/layout.tsx` - Contains Vercel Analytics/Speed Insights
-- `components/booking-form/BookingWizard.tsx` - useEffect timing issue (minor)
-- `app/page.tsx` - Client component with state (not primary cause)
+**Files Modified**:
+- `next.config.mjs` - Enhanced `watchOptions.ignored` array to exclude Docker directories
+- `app/page.tsx` - Added `useCallback` for stable function references (good practice, not root cause)
 
 **Related Issues**:
-- Vercel Analytics GitHub issues: Hot reload loops in development
-- Next.js Fast Refresh: Can be triggered by DOM modifications
-- React 19 strict mode: Double-invokes effects in development
+- Docker data directories with restricted permissions
+- Webpack file watcher permission errors
+- Container development environments
+
+**Key Lessons**:
+1. **Permission denied errors can cause infinite compilation loops** - webpack treats them as file changes
+2. **Always check build output for EACCES errors** - they indicate file watcher issues
+3. **Exclude all restricted directories** from webpack watching explicitly
+4. **Browser console errors can be misleading** - the syntax errors were symptoms, not the cause
+5. **Docker data directories should always be excluded** from development tooling watchers
+
+**Environment-Specific Notes**:
+- Docker data directories should always be excluded from webpack watching
+- Permission errors in file watchers can cause infinite compilation loops
+- Both `.gitignore` and webpack `watchOptions.ignored` need proper configuration
 
 ### Next.js Cache Corruption
 **Problem**: Stale cache caused build failures after dependency updates

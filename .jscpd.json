@@ -9,7 +9,9 @@
     "node_modules/**",
     ".next/**",
     "build/**",
-    "dist/**"
+    "dist/**",
+    ".docker/**",
+    "archive-backups/**"
   ],
   "format": ["typescript", "javascript"],
   "minLines": 5,

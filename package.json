@@ -54,7 +54,7 @@
     "lighthouse:validate": "./scripts/lighthouse-quality-gates.sh",
     "lighthouse:check": "./scripts/lighthouse-quality-gates.sh",
     "security:scan": "pnpm audit --audit-level moderate --production",
-    "security:semgrep": "command -v semgrep >/dev/null 2>&1 && semgrep --config=auto --quiet --error --timeout=60 . || echo '⚠️  Semgrep not installed - skipping security scan. Install with: yay -S semgrep'",
+    "security:semgrep": "command -v semgrep >/dev/null 2>&1 && semgrep --config=auto --quiet --error --timeout=60 . || (echo '⚠️  Semgrep not installed - skipping security scan. Install with: yay -S semgrep' && exit 0)",
     "build:verify": "pnpm run type-check && ADMIN_JWT_SECRET=build-time-secret-for-verification next build >/dev/null 2>&1",
     "complexity-check": "node scripts/complexity-check.js",
     "package-check": "node scripts/check-npm-packages.js",

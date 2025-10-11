@@ -1,5 +1,6 @@
 customModes:
-  - slug: navigator
+  # Override default 'orchestrator' mode with Navigator
+  - slug: orchestrator
     name: "🧭 Navigator"
     description: "Entry point for all tasks. Routes simple work or delegates complex tasks."
     roleDefinition: >-
@@ -25,20 +26,22 @@ customModes:
       
       **Delegate via new_task tool:**
       - New feature → test mode (write tests first)
-      - Implement feature → implementation mode (with existing tests)
-      - Bug/issue → investigation mode
+      - Implement feature → code mode (with existing tests)
+      - Bug/issue → debug mode
+      
+      ## CRITICAL: Mode Names for Delegation
+      When using new_task, use these EXACT mode slugs:
+      - "test" - for writing tests (TDD)
+      - "code" - for implementation after tests exist
+      - "debug" - for debugging and troubleshooting
       
       ## Delegation Format
       Use new_task with:
       - Clear objective and success criteria
-      - Target mode
+      - Target mode (test, code, or debug)
       - Relevant context (.docs/patterns/, .docs/investigations/)
-      
-      ## What You Don't Track
-      - No handback checklists (automatic via attempt_completion)
-      - No quality verification (pre-commit enforces)
-      - No appetite tracking (pre-commit enforces limits)
 
+  # Custom mode: Test (no default equivalent to override)
   - slug: test
     name: "🧪 Test"
     description: "Test-driven development. Write tests before implementation."
@@ -67,7 +70,8 @@ customModes:
       
       Then use attempt_completion with summary of tests written.
 
-  - slug: implementation
+  # Override default 'code' mode with Implementation
+  - slug: code
     name: "💻 Implement"
     description: "Pattern-first implementation. Simplest code passing tests."
     roleDefinition: >-
@@ -106,7 +110,8 @@ customModes:
       
       Then use attempt_completion with summary of implementation.
 
-  - slug: investigation
+  # Override default 'debug' mode with Investigation
+  - slug: debug
     name: "🐛 Investigation"
     description: "Systematic debugging using institutional memory."
     roleDefinition: >-
@@ -143,4 +148,3 @@ customModes:
       ```
       
       Then use attempt_completion with: root cause, fix applied, prevention strategy.
-

@@ -11,6 +11,13 @@ if (!fs.existsSync(packageJsonPath)) {
 
 const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
 
+// Node.js built-in modules that don't need to be in package.json
+const builtInModules = [
+  'child_process', 'fs', 'path', 'http', 'https', 'crypto', 'util',
+  'stream', 'events', 'url', 'querystring', 'os', 'process', 'buffer',
+  'assert', 'zlib', 'net', 'tls', 'readline', 'dns', 'timers'
+];
+
 const installed = {
   ...packageJson.dependencies || {},
   ...packageJson.devDependencies || {}
@@ -39,35 +46,45 @@ function verifyPackageExists(pkgName) {
   });
 }
 
+function extractPackages(content) {
+  const importRegex = /from ['"]([@\w][@\w\-\/]*)['"]/g;
+  const requireRegex = /require\(['"]([@\w][@\w\-\/]*)['"]\)/g;
+  
+  const matches = new Set();
+  let match;
+  
+  while ((match = importRegex.exec(content)) !== null) {
+    const fullPath = match[1];
+    const basePkg = fullPath.startsWith('@')
+      ? fullPath.split('/').slice(0, 2).join('/')
+      : fullPath.split('/')[0];
+    matches.add(basePkg);
+  }
+  
+  while ((match = requireRegex.exec(content)) !== null) {
+    const fullPath = match[1];
+    const basePkg = fullPath.startsWith('@')
+      ? fullPath.split('/').slice(0, 2).join('/')
+      : fullPath.split('/')[0];
+    matches.add(basePkg);
+  }
+  
+  return matches;
+}
+
 async function checkFile(filePath) {
   try {
     const content = fs.readFileSync(filePath, 'utf-8');
-    
-    const importRegex = /from ['"]([@\w][@\w\-\/]*)['"]/g;
-    const requireRegex = /require\(['"]([@\w][@\w\-\/]*)['"]\)/g;
-    
-    const matches = new Set();
-    let match;
-    
-    while ((match = importRegex.exec(content)) !== null) {
-      const fullPath = match[1];
-      const basePkg = fullPath.startsWith('@') 
-        ? fullPath.split('/').slice(0, 2).join('/')
-        : fullPath.split('/')[0];
-      matches.add(basePkg);
-    }
-    
-    while ((match = requireRegex.exec(content)) !== null) {
-      const fullPath = match[1];
-      const basePkg = fullPath.startsWith('@') 
-        ? fullPath.split('/').slice(0, 2).join('/')
-        : fullPath.split('/')[0];
-      matches.add(basePkg);
-    }
+    const matches = extractPackages(content);
     
     let allValid = true;
     
     for (const pkg of matches) {
+      // Skip built-in Node.js modules
+      if (builtInModules.includes(pkg)) {
+        continue;
+      }
+      
       if (!installed[pkg]) {
         const exists = await verifyPackageExists(pkg);
         

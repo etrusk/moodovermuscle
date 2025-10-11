@@ -53,16 +53,18 @@ Next.js 14 booking platform for personal training/wellness services. TypeScript,
 **CRITICAL**: Only 4 modes exist. Quality, review, and refactor are now automated via pre-commit hooks.
 
 ### 🧭 Navigator (Entry Point)
+**Mode slug:** `orchestrator` (overrides default orchestrator mode)
 **Use for:** All new tasks, task routing, simple queries
 
 **Delegates to:**
-- Test mode: New features (write tests first)
-- Implementation mode: Existing tests (implement code)
-- Investigation mode: Bugs and errors
+- Test mode (`test`): New features (write tests first)
+- Implementation mode (`code`): Existing tests (implement code)
+- Investigation mode (`debug`): Bugs and errors
 
 **Auto-commits:** No (read-only mode)
 
 ### 🧪 Test Mode
+**Mode slug:** `test` (custom mode, no default equivalent)
 **Use for:** TDD approach, writing tests before implementation
 
 **Behavior:**
@@ -70,6 +72,7 @@ Next.js 14 booking platform for personal training/wellness services. TypeScript,
 - Auto-commits after tests pass: `git commit -m "test: [description]"`
 
 ### 💻 Implementation Mode
+**Mode slug:** `code` (overrides default code mode)
 **Use for:** Writing code after tests exist
 
 **Behavior:**
@@ -77,6 +80,7 @@ Next.js 14 booking platform for personal training/wellness services. TypeScript,
 - Auto-commits and pushes after tests pass: `git commit -m "feat: [description]" && git push`
 
 ### 🐛 Investigation Mode
+**Mode slug:** `debug` (overrides default debug mode)
 **Use for:** Debugging, troubleshooting, root cause analysis
 
 **Behavior:**

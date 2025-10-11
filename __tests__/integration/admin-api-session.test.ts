@@ -9,7 +9,7 @@ describe('Admin Session Validation Integration', () => {
   describe('Session Token Structure', () => {
     it('validates JWT token format', () => {
       const validToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
-      const invalidToken = 'not.a.jwt'
+      const invalidToken = 'invalid-token-without-dots'
       
       // JWT has 3 parts separated by dots
       expect(validToken.split('.')).toHaveLength(3)
@@ -78,11 +78,11 @@ describe('Admin Session Validation Integration', () => {
 
     it('detects malformed JWT tokens', () => {
       const malformedTokens = [
-        'not.a.token',
-        'only.two',
-        'too.many.parts.here.invalid',
-        '',
-        'Bearer ',
+        'invalid',                           // No dots
+        'only.one',                          // Only 2 parts
+        'too.many.parts.here.invalid',       // More than 3 parts
+        '',                                  // Empty string
+        'Bearer ',                           // Just prefix
       ]
       
       malformedTokens.forEach(token => {

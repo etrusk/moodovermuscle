@@ -94,11 +94,11 @@ describe('Booking Transaction Integrity Integration', () => {
       const bookingData = createTestBookingData({
         name: 'John Doe',
         email: 'john@example.com',
-        service: 'Personal Training',
+        service: '1-on-1 Personal Training',
       })
 
       ;(mockPrisma.booking.findFirst as jest.Mock).mockResolvedValue(null)
-      ;(mockPrisma.booking.create as jest.Mock).mockResolvedValue({
+      const createdBooking = {
         ...bookingData,
         id: 'persist-test-1',
         status: 'PENDING',
@@ -107,14 +107,18 @@ describe('Booking Transaction Integrity Integration', () => {
         updatedAt: new Date(),
         phone: bookingData.phone ?? null,
         message: bookingData.message ?? null,
-      })
+      }
+      ;(mockPrisma.booking.create as jest.Mock).mockResolvedValue(createdBooking)
 
       const response = await POST(makeJsonRequest(bookingData))
       const responseData = await response.json()
 
-      expect(responseData.data.name).toBe('John Doe')
-      expect(responseData.data.email).toBe('john@example.com')
-      expect(responseData.data.service).toBe('Personal Training')
+      expect(responseData).toHaveProperty('data')
+      expect(responseData.data).toMatchObject({
+        name: 'John Doe',
+        email: 'john@example.com',
+        service: '1-on-1 Personal Training',
+      })
     })
   })
 

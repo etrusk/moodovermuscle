@@ -20,6 +20,42 @@ Reference for debugging similar issues. Check here before investigating problems
 
 ## Testing Issues
 
+### Critical Test Suite Failures (2025-10-11)
+**Problem**: 17 tests failing across admin and booking integration tests
+**Root Causes**:
+1. Invalid JWT token test strings - `'not.a.jwt'` splits into 3 parts, passing validation
+2. Response data structure mismatches - accessing undefined nested properties
+3. Prisma mock returning undefined - jest-mock-extended not properly initialized
+4. NextResponse.json() called twice in same test - returns Promise, not callable function
+5. Service enum values - tests using 'Personal Training' instead of '1-on-1 Personal Training'
+
+**Solutions Applied**:
+1. **JWT token tests**: Use `'invalid-token-without-dots'` and `'invalid'` for proper validation
+2. **Response validation**: Add `.toHaveProperty('data')` checks before accessing nested properties
+3. **Prisma mock**: Implement in-memory store pattern for stateful mock operations
+4. **Response handling**: Use `await response.json()` once, store result in variable
+5. **Service enums**: Update test data to use correct enum values from schema
+
+**Files Modified**:
+- `__tests__/integration/admin-api-session.test.ts` - JWT validation logic
+- `__tests__/integration/booking-transactions.test.ts` - Response structure + service enum
+- `__tests__/integration/admin-api-bookings.test.ts` - Uses improved prisma-mock
+- `__tests__/setup/prisma-mock.ts` - Added in-memory store for stateful mocks
+- `__tests__/integration/booking-api.integration.test.ts` - Response.json() handling (partial)
+
+**Results**: Improved from 36/53 passing (67.9%) to 48/53 passing (90.5%)
+
+**Prevention**:
+- Always verify JWT test strings don't accidentally match expected patterns
+- Check response structure before accessing nested properties
+- Use in-memory stores for stateful mock operations
+- Never call response.json() twice - it returns a Promise
+- Validate test data against schema enum values
+
+**Remaining Issues** (5 tests):
+- booking-api.integration.test.ts: NextResponse.json() method access pattern needs investigation
+- These tests pass individually but fail in pre-commit suite
+
 ### Jest Mock Hoisting
 **Problem**: Mocks not hoisted in ES modules
 **Root Cause**: Jest hoisting doesn't work with `import` statements

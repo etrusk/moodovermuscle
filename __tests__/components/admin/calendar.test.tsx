@@ -131,7 +131,7 @@ describe('AdminCalendarPage Component', () => {
   let user: ReturnType<typeof userEvent.setup>
 
   beforeEach(() => {
-    user = userEvent.setup()
+    user = userEvent.setup({ delay: null })
     jest.clearAllMocks()
     
     // Default authenticated user - use direct return value pattern from Admin Component Testing Pattern
@@ -149,13 +149,8 @@ describe('AdminCalendarPage Component', () => {
     mockSuccessResponse.json.mockClear()
     mockSuccessResponse.json.mockResolvedValue({ bookings: mockBookings })
     
-    // Default successful fetch response with controlled timing
-    mockFetch.mockImplementation(() =>
-      new Promise(resolve => {
-        // Small delay to simulate network but ensure consistent timing
-        setTimeout(() => resolve(mockSuccessResponse), 50)
-      })
-    )
+    // Default successful fetch response - immediate resolution for fake timers
+    mockFetch.mockResolvedValue(mockSuccessResponse)
 
     // Mock current date to be predictable without breaking Date methods
     jest.useFakeTimers()

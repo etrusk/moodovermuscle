@@ -106,7 +106,7 @@ describe('Admin Workflow Integration Tests', () => {
   let user: ReturnType<typeof userEvent.setup>
 
   beforeEach(() => {
-    user = userEvent.setup()
+    user = userEvent.setup({ delay: null })
     jest.clearAllMocks()
 
     // Default authenticated state
@@ -114,10 +114,19 @@ describe('Admin Workflow Integration Tests', () => {
       user: mockUser,
       isLoading: false,
       isAuthenticated: true,
+      login: jest.fn(),
       logout: mockLogout,
+      refreshSession: jest.fn(),
     })
 
     mockPathname.mockReturnValue('/admin/dashboard')
+
+    // Default successful mock responses
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: jest.fn(() => Promise.resolve({ bookings: mockBookingsData })),
+      clone: jest.fn().mockReturnThis()
+    })
 
     jest.useFakeTimers()
     jest.setSystemTime(new Date('2025-08-10T12:00:00Z'))

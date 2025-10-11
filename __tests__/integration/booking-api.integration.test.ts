@@ -127,6 +127,8 @@ describe('Booking API Workflow Integration', () => {
       mockTransaction(mockBooking)
 
       const response = await POST(makeJsonRequest(customerData))
+      
+      expect(response.status).toBe(201)
       const responseData = await response.json()
 
       (mockPrisma.booking.findUnique as jest.Mock).mockResolvedValue(

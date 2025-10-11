@@ -43,7 +43,9 @@ class CircuitBreakerVerifier {
   async runCommand(command, description) {
     try {
       this.log(`\n🔍 Checking: ${description}`, 'blue');
-      const output = execSync(command, { 
+      // nosemgrep: javascript.lang.security.detect-child-process.detect-child-process
+      // Command is from hardcoded internal quality gate definitions, not user input
+      const output = execSync(command, {
         encoding: 'utf8', 
         stdio: ['inherit', 'pipe', 'pipe'],
         timeout: 120000 // 2 minute timeout

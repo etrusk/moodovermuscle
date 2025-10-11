@@ -63,6 +63,8 @@ function checkFile(filePath) {
     
     DEPRECATED_PATTERNS.forEach(({ pattern, message, severity }) => {
       let match;
+      // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
+      // RegExp constructed from hardcoded internal patterns array, not user input
       const regex = new RegExp(pattern.source, 'g');
       
       while ((match = regex.exec(content)) !== null) {

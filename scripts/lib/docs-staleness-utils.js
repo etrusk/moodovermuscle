@@ -18,6 +18,8 @@ function traverseDirectory(currentDir, options, files) {
     const items = fs.readdirSync(currentDir)
 
     for (const item of items) {
+      // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+      // Path constructed from fs.readdirSync results within project directory, not user input
       const fullPath = path.join(currentDir, item)
 
       // Skip excluded patterns

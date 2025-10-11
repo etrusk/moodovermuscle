@@ -104,6 +104,8 @@ describe('Email Service Integration: Booking Notification Journey', () => {
 
     it('sanitizes special characters in email content', async () => {
       // Given: Booking contains potentially problematic characters
+      // nosemgrep: javascript.lang.security.audit.unknown-value-with-script-tag.unknown-value-with-script-tag
+      // Test data with <script> tag is intentional to verify email sanitization
       const problematicData = transformBookingForEmail({
         ...testBookingData,
         name: 'Test User with Special Characters: <script>alert("test")</script>',

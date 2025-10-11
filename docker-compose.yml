@@ -5,6 +5,10 @@ services:
     image: postgres:15-alpine
     container_name: moodovermuscle_postgres
     restart: unless-stopped
+    # Security hardening for Docker container
+    read_only: false  # Postgres requires write access to /var/lib/postgresql/data
+    security_opt:
+      - no-new-privileges:true
     environment:
       POSTGRES_USER: moodovermuscle
       POSTGRES_PASSWORD: secure_password

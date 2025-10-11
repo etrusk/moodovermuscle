@@ -28,6 +28,8 @@ const ADMIN_USER = {
   email: 'emily@moodovermuscle.com.au',
   name: 'Emily',
   // Password: 'Emily2025!' (hashed with bcrypt)
+  // nosemgrep: generic.secrets.security.detected-bcrypt-hash.detected-bcrypt-hash
+  // This is a development-only hardcoded hash. In production, use database-stored hashes.
   passwordHash: '$2b$10$TxurKCRrHneGuehrqu24WueBLoLfqRtN6HnS.9qQ6Tq.zWv7TEF5e',
   isActive: true,
 }

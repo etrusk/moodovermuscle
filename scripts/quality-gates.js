@@ -45,7 +45,9 @@ class QualityGateRunner {
     this.log(`Starting ${name}: ${description}`);
     
     try {
-      const output = execSync(command, { 
+      // nosemgrep: javascript.lang.security.detect-child-process.detect-child-process
+      // Command is from hardcoded internal gate definitions, not user input
+      const output = execSync(command, {
         encoding: 'utf8',
         stdio: 'pipe',
         timeout: critical ? 30000 : 60000 // Critical gates have shorter timeout

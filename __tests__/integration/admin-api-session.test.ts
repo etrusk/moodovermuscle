@@ -8,7 +8,9 @@
 describe('Admin Session Validation Integration', () => {
   describe('Session Token Structure', () => {
     it('validates JWT token format', () => {
-      const validToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
+      // This is the official JWT example token from jwt.io, not a real secret
+      // nosemgrep: generic.secrets.security.detected-jwt-token.detected-jwt-token
+      const validToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c' // nosemgrep
       const invalidToken = 'invalid-token-without-dots'
       
       // JWT has 3 parts separated by dots

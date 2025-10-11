@@ -52,14 +52,18 @@ Next.js 14 booking platform for personal training/wellness services. TypeScript,
 
 **CRITICAL**: Only 4 modes exist. Quality, review, and refactor are now automated via pre-commit hooks.
 
+**IMPORTANT**: This project uses **custom mode slugs**, NOT Roo's default mode names. See `.roo/rules/01-mode-enforcement.md` for complete delegation rules.
+
 ### 🧭 Navigator (Entry Point)
-**Mode slug:** `orchestrator` (overrides default orchestrator mode)
+**Mode slug:** `navigator` (custom mode - NOT `orchestrator`)
 **Use for:** All new tasks, task routing, simple queries
 
 **Delegates to:**
 - Test mode (`test`): New features (write tests first)
-- Implementation mode (`code`): Existing tests (implement code)
-- Investigation mode (`debug`): Bugs and errors
+- Implementation mode (`implementation`): Existing tests (implement code)
+- Investigation mode (`investigation`): Bugs and errors
+
+**Never use:** `code`, `debug`, `architect`, `orchestrator`, `ask` (these don't exist in this project)
 
 **Auto-commits:** No (read-only mode)
 
@@ -72,7 +76,7 @@ Next.js 14 booking platform for personal training/wellness services. TypeScript,
 - Auto-commits after tests pass: `git commit -m "test: [description]"`
 
 ### 💻 Implementation Mode
-**Mode slug:** `code` (overrides default code mode)
+**Mode slug:** `implementation` (custom mode - NOT `code`)
 **Use for:** Writing code after tests exist
 
 **Behavior:**
@@ -80,12 +84,34 @@ Next.js 14 booking platform for personal training/wellness services. TypeScript,
 - Auto-commits and pushes after tests pass: `git commit -m "feat: [description]" && git push`
 
 ### 🐛 Investigation Mode
-**Mode slug:** `debug` (overrides default debug mode)
+**Mode slug:** `investigation` (custom mode - NOT `debug`)
 **Use for:** Debugging, troubleshooting, root cause analysis
 
 **Behavior:**
 - Checks investigations index, systematic debugging
 - Auto-commits and pushes after fix verified: `git commit -m "fix: [description]" && git push`
+
+## Why Custom Mode Slugs?
+
+**Display Compatibility**: Custom slugs (`navigator`, `test`, `implementation`, `investigation`) ensure proper display in Roo UI and map to specific tool groups defined in `.roomodes`.
+
+**Mode Mapping for Reference:**
+- Roo's `code` → This project's `implementation`
+- Roo's `debug` → This project's `investigation`
+- Roo's `orchestrator`/`architect`/`ask` → This project's `navigator`
+
+**Delegation Quick Reference:**
+```typescript
+// ✅ CORRECT
+new_task({ mode: "test" })
+new_task({ mode: "implementation" })
+new_task({ mode: "investigation" })
+
+// ❌ WRONG (modes don't exist)
+new_task({ mode: "code" })
+new_task({ mode: "debug" })
+new_task({ mode: "architect" })
+```
 
 ## Removed Modes (Now Automated)
 

@@ -1,6 +1,5 @@
 customModes:
-  # Override default 'orchestrator' mode with Navigator
-  - slug: orchestrator
+  - slug: navigator
     name: "🧭 Navigator"
     description: "Entry point for all tasks. Routes simple work or delegates complex tasks."
     roleDefinition: >-
@@ -17,6 +16,20 @@ customModes:
       2. Assess complexity
       3. Handle simple queries OR delegate via boomerang tasks
       
+      ## CRITICAL: Available Mode Names
+      
+      **ONLY use these mode slugs when delegating:**
+      - `test` - For writing tests before implementation (TDD approach)
+      - `implementation` - For implementing features with existing tests
+      - `investigation` - For debugging, troubleshooting, root cause analysis
+      
+      **NEVER use these mode names (they don't exist in this project):**
+      - ❌ `code` - Use `implementation` instead
+      - ❌ `debug` - Use `investigation` instead
+      - ❌ `architect` - Use `navigator` (this mode) instead
+      - ❌ `orchestrator` - Use `navigator` (this mode) instead
+      - ❌ `ask` - Use `navigator` (this mode) instead
+      
       ## Routing Decision Tree
       
       **Handle directly:**
@@ -25,23 +38,42 @@ customModes:
       - Clarification requests
       
       **Delegate via new_task tool:**
-      - New feature → test mode (write tests first)
-      - Implement feature → code mode (with existing tests)
-      - Bug/issue → debug mode
+      - New feature → `test` mode (write tests first)
+      - Implement feature → `implementation` mode (with existing tests)
+      - Bug/issue → `investigation` mode
       
-      ## CRITICAL: Mode Names for Delegation
-      When using new_task, use these EXACT mode slugs:
-      - "test" - for writing tests (TDD)
-      - "code" - for implementation after tests exist
-      - "debug" - for debugging and troubleshooting
+      ## Delegation Format Examples
       
-      ## Delegation Format
-      Use new_task with:
-      - Clear objective and success criteria
-      - Target mode (test, code, or debug)
-      - Relevant context (.docs/patterns/, .docs/investigations/)
+      **✅ CORRECT delegation:**
+      ```
+      new_task({
+        task: "Create tests for user authentication",
+        mode: "test"
+      })
+      
+      new_task({
+        task: "Implement authentication passing all tests",
+        mode: "implementation"
+      })
+      
+      new_task({
+        task: "Debug calendar conflict detection",
+        mode: "investigation"
+      })
+      ```
+      
+      **❌ WRONG delegation:**
+      ```
+      new_task({ mode: "code" })        // ❌ Use "implementation"
+      new_task({ mode: "debug" })       // ❌ Use "investigation"
+      new_task({ mode: "architect" })   // ❌ Use "navigator"
+      ```
+      
+      ## What You Don't Track
+      - No handback checklists (automatic via attempt_completion)
+      - No quality verification (pre-commit enforces)
+      - No appetite tracking (pre-commit enforces limits)
 
-  # Custom mode: Test (no default equivalent to override)
   - slug: test
     name: "🧪 Test"
     description: "Test-driven development. Write tests before implementation."
@@ -70,8 +102,7 @@ customModes:
       
       Then use attempt_completion with summary of tests written.
 
-  # Override default 'code' mode with Implementation
-  - slug: code
+  - slug: implementation
     name: "💻 Implement"
     description: "Pattern-first implementation. Simplest code passing tests."
     roleDefinition: >-
@@ -110,8 +141,7 @@ customModes:
       
       Then use attempt_completion with summary of implementation.
 
-  # Override default 'debug' mode with Investigation
-  - slug: debug
+  - slug: investigation
     name: "🐛 Investigation"
     description: "Systematic debugging using institutional memory."
     roleDefinition: >-

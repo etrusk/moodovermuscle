@@ -34,17 +34,25 @@ echo $CHANGED_FILES | xargs node scripts/complexity-check.js || exit 1
 echo "📦 Checking package imports..."
 echo $CHANGED_FILES | xargs node scripts/check-npm-packages.js || exit 1
 
-# 6. Duplication check (scoped to changed files)
+# 6. Verify imports exist in npm registry
+echo "🔍 Verifying imports exist..."
+echo $CHANGED_FILES | xargs node scripts/verify-imports.js || exit 1
+
+# 7. Check for deprecated APIs
+echo "⚠️  Checking for deprecated APIs..."
+echo $CHANGED_FILES | xargs node scripts/check-deprecated.js || exit 1
+
+# 8. Duplication check (scoped to changed files)
 echo "🔁 Checking duplication..."
 echo $CHANGED_FILES | xargs jscpd --threshold 3 --min-lines 5 --min-tokens 50 || exit 1
 
-# 7. Security scan (if configured)
+# 9. Security scan (if configured)
 if command -v npm run security:scan &> /dev/null; then
   echo "🔒 Running security scan..."
   npm run security:scan || exit 1
 fi
 
-# 8. Build verification
+# 10. Build verification
 echo "🏗️ Verifying build..."
 npm run build:verify || exit 1
 

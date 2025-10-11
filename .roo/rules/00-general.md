@@ -48,7 +48,9 @@ Next.js 14 booking platform for personal training/wellness services. TypeScript,
 3. Implement with minimal modifications
 4. Document new patterns only if genuinely reusable
 
-## Mode Usage Guidelines
+## Mode System (4 Modes Only)
+
+**CRITICAL**: Only 4 modes exist. Quality, review, and refactor are now automated via pre-commit hooks.
 
 ### 🧭 Navigator (Entry Point)
 **Use for:** All new tasks, task routing, simple queries
@@ -57,39 +59,38 @@ Next.js 14 booking platform for personal training/wellness services. TypeScript,
 - Test mode: New features (write tests first)
 - Implementation mode: Existing tests (implement code)
 - Investigation mode: Bugs and errors
-- Review mode: Code review and verification
-- Refactor mode: Duplication consolidation
-- Quality mode: Pre-deployment validation
+
+**Auto-commits:** No (read-only mode)
 
 ### 🧪 Test Mode
 **Use for:** TDD approach, writing tests before implementation
 
-**Behavior:** Always writes tests first, follows AAA pattern
+**Behavior:**
+- Always writes tests first, follows AAA pattern
+- Auto-commits after tests pass: `git commit -m "test: [description]"`
 
 ### 💻 Implementation Mode
 **Use for:** Writing code after tests exist
 
-**Behavior:** Checks patterns first, applies YAGNI, respects limits
+**Behavior:**
+- Checks patterns first, applies YAGNI, respects limits
+- Auto-commits and pushes after tests pass: `git commit -m "feat: [description]" && git push`
 
 ### 🐛 Investigation Mode
 **Use for:** Debugging, troubleshooting, root cause analysis
 
-**Behavior:** Checks investigations index, systematic debugging
+**Behavior:**
+- Checks investigations index, systematic debugging
+- Auto-commits and pushes after fix verified: `git commit -m "fix: [description]" && git push`
 
-### 👁️ Review Mode
-**Use for:** Finding errors, API verification, security review
+## Removed Modes (Now Automated)
 
-**Behavior:** Browser verification, no code changes
+**DO NOT reference these modes - they no longer exist:**
+- ❌ Review mode → Pre-commit hooks verify quality automatically
+- ❌ Refactor mode → Pre-commit blocks duplication >3% automatically
+- ❌ Quality mode → Pre-commit runs all gates automatically
 
-### ♻️ Refactor Mode
-**Use for:** Consolidating duplication, code cleanup
-
-**Behavior:** Tests after every change, reverts if tests fail
-
-### 🔍 Quality Mode
-**Use for:** Comprehensive pre-deployment validation
-
-**Behavior:** Runs all quality gates, reports pass/fail
+**Why removed:** Pre-commit enforcement makes manual quality/review/refactor modes redundant.
 
 ## 70/30 Decision Routing
 
@@ -101,7 +102,7 @@ Next.js 14 booking platform for personal training/wellness services. TypeScript,
 - CRUD operations (using database patterns)
 - Error handling patterns (applying established error handling)
 - Performance optimizations (within defined constraints)
-- Refactoring (with tests after every change)
+- Auto-commit workflows (test, implementation, investigation modes)
 
 **Escalate to Human (30%)**:
 - Business rule implementation and validation logic
@@ -186,12 +187,41 @@ refactor(user): extract validation to shared utility
 ❌ **Complexity** - Pre-commit blocks violations
 ❌ **Manual verification** - Pre-commit automates it
 
+## Auto-Commit Workflow
+
+**Test Mode:**
+```bash
+# After tests pass
+git add -A
+git commit -m "test: [description of tests added]"
+# Then attempt_completion
+```
+
+**Implementation Mode:**
+```bash
+# After tests pass
+git add -A
+git commit -m "feat: [description of implementation]"
+git push
+# Then attempt_completion
+```
+
+**Investigation Mode:**
+```bash
+# After fix verified
+git add -A
+git commit -m "fix: [description of bug fix]"
+git push
+# Then attempt_completion
+```
+
+**Pre-commit enforces quality automatically** - no manual verification needed.
+
 ## Boomerang Task Completion
 
 **When specialist mode finishes:**
-1. Run quality gates (pre-commit will verify)
-2. Commit changes with conventional message
-3. Use `attempt_completion` tool with clear result summary
+1. Auto-commit changes (if applicable mode)
+2. Use `attempt_completion` tool with clear result summary
 
 **Parent mode automatically resumes** - no manual handback needed.
 

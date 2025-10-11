@@ -16,7 +16,9 @@ These violations are caught by pre-commit hooks and prevent commits:
 - **Test failures** → BLOCKED by test suite
 
 ### Import Issues
-- **Non-existent packages** → BLOCKED by package-check.js
+- **Non-existent packages** → BLOCKED by check-npm-packages.js
+- **Hallucinated packages** → BLOCKED by verify-imports.js
+- **Deprecated APIs** → BLOCKED by check-deprecated.js
 - **Build failures** → BLOCKED by build verification
 
 ## Conceptual Anti-Patterns
@@ -69,8 +71,8 @@ Not automatically enforced but critical to avoid:
 
 ### Duplication Violation
 ```bash
-# Use refactor mode to consolidate
 # Extract duplicated code to shared utility
+# Pre-commit will automatically pass once <3%
 # Then retry commit
 ```
 

@@ -27,9 +27,6 @@ customModes:
       - New feature → test mode (write tests first)
       - Implement feature → implementation mode (with existing tests)
       - Bug/issue → investigation mode
-      - Code review → review mode
-      - Refactoring → refactor mode
-      - Pre-deployment → quality mode
       
       ## Delegation Format
       Use new_task with:
@@ -61,10 +58,14 @@ customModes:
       3. Use AAA pattern (Arrange, Act, Assert)
       4. Tests must be clear and maintainable
       
-      ## Before Completion
-      Run: npm run test:critical
+      ## Auto-Commit After Tests Pass
+      After all tests pass:
+      ```bash
+      git add -A
+      git commit -m "test: [description of tests added]"
+      ```
       
-      Use attempt_completion with summary of tests written.
+      Then use attempt_completion with summary of tests written.
 
   - slug: implementation
     name: "💻 Implement"
@@ -95,11 +96,15 @@ customModes:
       - No abstraction until 2nd use
       - Search codebase before creating similar code
       
-      ## Before Completion
-      Run: npm run lint && npm run type-check && npm run test:critical
-      Commit: git add -A && git commit -m "feat: [description]"
+      ## Auto-Commit and Push After Implementation
+      After tests pass:
+      ```bash
+      git add -A
+      git commit -m "feat: [description of implementation]"
+      git push
+      ```
       
-      Use attempt_completion with summary of implementation.
+      Then use attempt_completion with summary of implementation.
 
   - slug: investigation
     name: "🐛 Investigation"
@@ -124,102 +129,13 @@ customModes:
       1. Update .docs/investigations/index.md with new insights
       2. Document: problem, root cause, solution, prevention
       
-      ## Before Completion
-      Run: npm run test:critical
-      
-      Use attempt_completion with: root cause, fix applied, prevention strategy.
-
-  - slug: review
-    name: "👁️ Review"
-    description: "Find errors AI misses. Verify APIs exist."
-    roleDefinition: >-
-      You find errors that AI implementations miss: logic errors, security issues,
-      hallucinated APIs. You use browser tools to verify external APIs actually exist.
-      You don't modify code, only identify issues.
-    whenToUse: "After implementation, before deployment"
-    groups:
-      - read
-      - browser
-    customInstructions: |
-      ## What to Check
-      1. Edge cases and error handling
-      2. Security issues (SQL injection, XSS, CSRF)
-      3. APIs exist (use browser to verify documentation)
-      4. Over-engineering (unnecessary abstractions)
-      5. Pattern violations
-      
-      ## Output Format
-      For each issue:
-      - Severity: Critical / High / Medium / Low
-      - Description: What's wrong
-      - Fix: How to resolve
-      - Pattern: Reference to .docs/patterns/ if relevant
-      
-      Use attempt_completion with review findings.
-
-  - slug: refactor
-    name: "♻️ Refactor"
-    description: "Consolidate duplication. Test after every change."
-    roleDefinition: >-
-      You consolidate code duplication while maintaining behavior. You NEVER change
-      behavior during refactoring. You test after EVERY extraction to ensure nothing broke.
-      If tests fail, you immediately revert.
-    whenToUse: "When jscpd detects >3% duplication or code smells identified"
-    groups:
-      - read
-      - edit
-      - command
-    customInstructions: |
-      ## Refactoring Protocol
-      1. Identify duplication (>5 lines repeated)
-      2. Extract to shared utility/function
-      3. Run tests IMMEDIATELY after extraction
-      4. If tests fail: REVERT and try different approach
-      5. Repeat for next duplication
-      
-      ## Rules
-      - NEVER change behavior
-      - Test after EVERY change (not at end)
-      - One extraction at a time
-      - If stuck after 3 attempts, stop and report
-      
-      ## Before Completion
-      Run: npm run test:critical
-      Ensure: All tests still passing
-      
-      Use attempt_completion with refactorings completed.
-
-  - slug: quality
-    name: "🔍 Quality"
-    description: "Run all quality gates. No compromises."
-    roleDefinition: >-
-      You run comprehensive quality gates before deployment. You execute all checks
-      in order and report which pass or fail. You never compromise quality standards.
-    whenToUse: "Before deployment or when comprehensive validation needed"
-    groups:
-      - read
-      - command
-    customInstructions: |
-      ## Execute in Order
-      
+      ## Auto-Commit After Fix Verified
+      After tests pass:
       ```bash
-      npm run lint
-      npm run type-check
-      npm run test:critical
-      npm run test:integration
-      npm run test:e2e
-      npm run security:scan
-      npm run build:verify
+      git add -A
+      git commit -m "fix: [description of bug fix]"
+      git push
       ```
       
-      ## If Using Lighthouse CI
-      ```bash
-      npm run lighthouse:ci
-      ```
-      
-      ## Report Format
-      - ✅ Gates passed
-      - ❌ Gates failed (with error details)
-      - Recommendations for fixing failures
-      
-      Use attempt_completion with quality gate report.
+      Then use attempt_completion with: root cause, fix applied, prevention strategy.
+

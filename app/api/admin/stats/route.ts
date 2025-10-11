@@ -1,19 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@/lib/generated/prisma';
+import { verifyAdminAuth } from '@/lib/utils/admin-auth-check';
 
 const prisma = new PrismaClient();
 
 export async function GET(request: NextRequest) {
   try {
     // Admin authentication is already verified by middleware
-    const adminId = request.headers.get('x-admin-id');
-    const adminEmail = request.headers.get('x-admin-email');
-
-    if (!adminId || !adminEmail) {
-      return NextResponse.json(
-        { error: 'Admin authentication required' },
-        { status: 401 }
-      );
+    const authCheck = verifyAdminAuth(request);
+    if (authCheck.error) {
+      return authCheck.error;
     }
 
     // Get current date for calculations

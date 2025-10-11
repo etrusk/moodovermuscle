@@ -11,7 +11,11 @@
     "build/**",
     "dist/**",
     ".docker/**",
-    "archive-backups/**"
+    "archive-backups/**",
+    "lib/generated/**",
+    "jest.setup.js",
+    "jest.setup.node.js",
+    "scripts/**"
   ],
   "format": ["typescript", "javascript"],
   "minLines": 5,

@@ -72,6 +72,99 @@ Reference for debugging similar issues. Check here before investigating problems
 
 ## Build Issues
 
+### Next.js Dev Server Infinite Reload Loop (2025-10-11)
+**Problem**: Dev server stuck in infinite reload loop, GET / 200 requests every ~80ms, Fast Refresh compiling 875 modules repeatedly
+
+**Root Causes**:
+1. **Vercel Analytics/Speed Insights Hot Reload Trigger**: The `@vercel/analytics` and `@vercel/speed-insights` packages can trigger hot reload loops in development
+2. **useEffect dependency issue in BookingWizard**: Lines 103-108 have `submissionSuccess` and `onClose` as dependencies, creating potential re-render cycle
+3. **Client component re-rendering**: `app/page.tsx` is a client component with state management that may be re-rendering unnecessarily
+
+**Investigation Steps Taken**:
+1. Examined `app/page.tsx` - client component with `useState` for booking modal
+2. Examined `app/layout.tsx` - includes `<Analytics />` and `<SpeedInsights />` from Vercel
+3. Examined `components/booking-form/BookingWizard.tsx` - `useEffect` at lines 103-108 with `setTimeout(() => onClose(), 0)`
+4. Checked middleware.ts - admin route protection only, not causing issue
+5. Confirmed no `next.config.js` exists (using Next.js defaults)
+
+**Root Cause Analysis**:
+The primary culprit is **Vercel Analytics/Speed Insights** combined with Fast Refresh in development mode. These packages have known issues triggering hot reload loops, especially when:
+- Development server watches for file changes
+- Packages inject scripts that modify the DOM
+- Fast Refresh detects changes and recompiles
+
+**Secondary Issue**: The `useEffect` in `BookingWizard.tsx` (lines 103-108) uses `setTimeout(() => onClose(), 0)` which can cause timing issues with React's render cycle.
+
+**Solutions Applied**:
+```typescript
+// BookingWizard.tsx - useEffect with proper cleanup
+useEffect(() => {
+  if (submissionSuccess) {
+    const timer = setTimeout(() => onClose(), 0)
+    return () => clearTimeout(timer)  // ✅ Already has cleanup
+  }
+}, [submissionSuccess, onClose])
+```
+
+**Recommended Fixes**:
+
+1. **Quick Fix - Disable Vercel packages in development**:
+```tsx
+// app/layout.tsx
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <body>
+        <ThemeProvider>
+          {children}
+          {process.env.NODE_ENV === 'production' && (
+            <>
+              <Analytics />
+              <SpeedInsights />
+            </>
+          )}
+          <Toaster />
+        </ThemeProvider>
+      </body>
+    </html>
+  )
+}
+```
+
+2. **Alternative - Use environment variable**:
+```bash
+# .env.local
+NEXT_PUBLIC_VERCEL_ENV=development
+```
+
+3. **Nuclear Option - Remove Vercel packages temporarily**:
+```bash
+pnpm remove @vercel/analytics @vercel/speed-insights
+```
+
+**Prevention**:
+- Always wrap third-party analytics in production-only conditionals
+- Test dev server after adding monitoring packages
+- Consider using `next.config.js` with `reactStrictMode: false` for debugging
+- Monitor console for repeated Fast Refresh compilation cycles
+
+**Verification**:
+After applying fix, dev server should:
+- Start normally with single compilation
+- No repeated GET / requests
+- Fast Refresh only triggers on actual file changes
+- ~80ms reload loop should stop
+
+**Files Affected**:
+- `app/layout.tsx` - Contains Vercel Analytics/Speed Insights
+- `components/booking-form/BookingWizard.tsx` - useEffect timing issue (minor)
+- `app/page.tsx` - Client component with state (not primary cause)
+
+**Related Issues**:
+- Vercel Analytics GitHub issues: Hot reload loops in development
+- Next.js Fast Refresh: Can be triggered by DOM modifications
+- React 19 strict mode: Double-invokes effects in development
+
 ### Next.js Cache Corruption
 **Problem**: Stale cache caused build failures after dependency updates
 **Root Cause**: `.next/` directory cached outdated module resolution

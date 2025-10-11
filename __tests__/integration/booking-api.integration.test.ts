@@ -92,6 +92,8 @@ function makeJsonRequest(data: Record<string, unknown>): Request {
 
 describe('Booking API Workflow Integration', () => {
   beforeEach(async () => {
+    jest.resetModules()
+    jest.clearAllMocks()
     await setupIntegrationTest()
   })
 
@@ -131,9 +133,8 @@ describe('Booking API Workflow Integration', () => {
       expect(response.status).toBe(201)
       const responseData = await response.json()
 
-      (mockPrisma.booking.findUnique as jest.Mock).mockResolvedValue(
-        setupMockBooking(customerData, responseData.data.id)
-      )
+      const verificationBooking = setupMockBooking(customerData, responseData.data.id)
+      ;(mockPrisma.booking.findUnique as jest.Mock).mockResolvedValue(verificationBooking)
       
       const createdBooking = await mockPrisma.booking.findUnique({
         where: { id: responseData.data.id },
@@ -152,10 +153,12 @@ describe('Booking API Workflow Integration', () => {
       const booking1 = createTestBookingData({ name: 'User 1' })
       const booking2 = createTestBookingData({ name: 'User 2' })
 
+      // Create mock bookings before setting up transaction mocks
       const mockBooking1 = setupMockBooking(booking1, 'booking-1')
       const mockBooking2 = setupMockBooking(booking2, 'booking-2')
 
-      (mockPrisma.$transaction as jest.Mock)
+      // Set up transaction mocks with fresh function calls
+      ;(mockPrisma.$transaction as jest.Mock)
         .mockImplementationOnce(async (callback: TransactionCallback) => {
           const mockTx = {
             booking: {
@@ -244,9 +247,8 @@ describe('Booking API Workflow Integration', () => {
       const response = await POST(makeJsonRequest(bookingData))
       const responseData = await response.json()
 
-      (mockPrisma.booking.findUnique as jest.Mock).mockResolvedValue(
-        setupMockBooking(bookingData, responseData.data.id)
-      )
+      const verificationBooking = setupMockBooking(bookingData, responseData.data.id)
+      ;(mockPrisma.booking.findUnique as jest.Mock).mockResolvedValue(verificationBooking)
       
       const createdBooking = await mockPrisma.booking.findUnique({
         where: { id: responseData.data.id },
@@ -272,9 +274,8 @@ describe('Booking API Workflow Integration', () => {
       expect(response.status).toBe(201)
       const responseData = await response.json()
 
-      (mockPrisma.booking.findUnique as jest.Mock).mockResolvedValue(
-        setupMockBooking(minimalData, responseData.data.id)
-      )
+      const verificationBooking = setupMockBooking(minimalData, responseData.data.id)
+      ;(mockPrisma.booking.findUnique as jest.Mock).mockResolvedValue(verificationBooking)
       
       const createdBooking = await mockPrisma.booking.findUnique({
         where: { id: responseData.data.id },
@@ -296,9 +297,8 @@ describe('Booking API Workflow Integration', () => {
       const response = await POST(makeJsonRequest(completeData))
       const responseData = await response.json()
 
-      (mockPrisma.booking.findUnique as jest.Mock).mockResolvedValue(
-        setupMockBooking(completeData, responseData.data.id)
-      )
+      const verificationBooking = setupMockBooking(completeData, responseData.data.id)
+      ;(mockPrisma.booking.findUnique as jest.Mock).mockResolvedValue(verificationBooking)
       
       const createdBooking = await mockPrisma.booking.findUnique({
         where: { id: responseData.data.id },

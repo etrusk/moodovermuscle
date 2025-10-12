@@ -122,13 +122,12 @@ export default function BookingsPage(): React.JSX.Element {
 
   const updateBookingStatus = async (bookingId: string, newStatus: string): Promise<void> => {
     try {
-      const response = await fetch('/api/admin/bookings', {
+      const response = await fetch(`/api/admin/bookings?id=${bookingId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          bookingId,
           status: newStatus,
         }),
       });

@@ -53,31 +53,51 @@ function saveMetrics(metrics) {
 function measureAppetiteAccuracy(metrics, taskData) {
   log('📏 Measuring appetite accuracy...', 'metrics');
   
-  const { estimatedHours, actualHours, taskComplexity, circuitBreakerHit = false, scopeChanges = false } = taskData;
+  const {
+    estimatedTokens,
+    actualTokens,
+    humanReviewMinutes = 0,
+    toolCalls = 0,
+    taskComplexity,
+    circuitBreakerHit = false,
+    scopeChanges = false,
+    qualityGatesPassed = true
+  } = taskData;
 
-  if (!estimatedHours || !actualHours) {
+  if (!estimatedTokens || !actualTokens) {
     log('Missing appetite data - skipping measurement', 'warning');
     return;
   }
 
-  const accuracy = Math.min(1.0, estimatedHours / actualHours);
+  const accuracy = Math.min(1.0, estimatedTokens / actualTokens);
   metrics.appetiteTracking.tasks.push({
     timestamp: new Date().toISOString(),
-    estimated: estimatedHours,
-    actual: actualHours,
+    estimatedTokens,
+    actualTokens,
+    humanReviewMinutes,
+    toolCalls,
     accuracy,
     complexity: taskComplexity,
     circuitBreakerHit,
-    scopeChanges
+    scopeChanges,
+    qualityGatesPassed
   });
 
   const recentTasks = metrics.appetiteTracking.tasks.slice(-10);
   const avgAccuracy = recentTasks.reduce((sum, t) => sum + t.accuracy, 0) / recentTasks.length;
   
   metrics.appetiteTracking.currentAccuracy = avgAccuracy;
-  metrics.appetiteTracking.trend.push({ timestamp: new Date().toISOString(), accuracy: avgAccuracy });
+  metrics.appetiteTracking.trend.push({
+    timestamp: new Date().toISOString(),
+    accuracy: avgAccuracy
+  });
 
-  log(`Appetite accuracy: ${(accuracy * 100).toFixed(1)}% (Rolling avg: ${(avgAccuracy * 100).toFixed(1)}%)`, 'metrics');
+  log(
+    `Appetite accuracy: ${(accuracy * 100).toFixed(1)}% ` +
+    `(Tokens: ${actualTokens}/${estimatedTokens}, Review: ${humanReviewMinutes}min, ` +
+    `Tool calls: ${toolCalls}, Rolling avg: ${(avgAccuracy * 100).toFixed(1)}%)`,
+    'metrics'
+  );
   
   if (avgAccuracy >= TARGETS.appetiteAccuracy) {
     log('🎯 Appetite accuracy target achieved!', 'success');

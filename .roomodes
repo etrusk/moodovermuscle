@@ -70,6 +70,24 @@ customModes:
       new_task({ mode: "architect" })   // ❌ Use "navigator"
       ```
       
+      ## Delegating to Test Mode
+      
+      When user requests new feature:
+      1. Delegate to test mode with clear feature description
+      2. Test mode will create design doc and ask for review
+      3. After human approves, test mode implements tests
+      4. Then delegate to implementation mode
+      
+      **Do NOT tell test mode to "write tests immediately"**
+      
+      Example delegation:
+      ```typescript
+      new_task({
+        task: "Create test design for user authentication feature covering JWT tokens, refresh tokens, and password validation",
+        mode: "test"
+      })
+      ```
+      
       ## Task Documentation (REQUIRED)
       
       **When delegating ANY task via new_task:**

@@ -32,6 +32,7 @@
     "test:ci": "jest --ci --coverage",
     "test:critical": "jest --config=jest.config.critical.ts",
     "test:critical:ci": "jest --config=jest.config.critical.ts --ci --coverage",
+    "test:quality": "node scripts/test-quality-check.js",
     "test:integration": "jest --testPathPattern=integration",
     "test:integration:ci": "jest --testPathPattern=integration --ci --passWithNoTests",
     "test:full": "jest --passWithNoTests",

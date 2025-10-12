@@ -185,11 +185,13 @@ function findTestFiles(dir) {
     
     entries.forEach(entry => {
       // Skip entries with path traversal attempts
-      if (entry.name.includes('..') || entry.name.includes('/')) {
+      if (entry.name.includes('..') || entry.name.includes('/') || entry.name.includes('\\')) {
         return;
       }
       
-      const fullPath = path.resolve(resolvedDir, entry.name);
+      // Normalize entry name to prevent path traversal
+      const safeName = path.basename(entry.name);
+      const fullPath = path.join(resolvedDir, safeName);
       
       // Double-check the resolved path is within base directory
       if (!fullPath.startsWith(baseDir)) {

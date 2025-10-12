@@ -7,7 +7,7 @@
  * and provide maintenance recommendations.
  */
 
-const { execSync } = require('child_process');
+const { spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
@@ -25,7 +25,17 @@ function traverseDirectory(currentDir, files) {
     const items = fs.readdirSync(currentDir);
 
     for (const item of items) {
-      const fullPath = path.join(currentDir, item);
+      // Security: Prevent path traversal by checking for directory traversal patterns
+      if (item.includes('..') || item.includes('/') || item.includes('\\')) {
+        continue;
+      }
+
+      const fullPath = path.resolve(currentDir, item);
+
+      // Security: Verify path is within root directory
+      if (!fullPath.startsWith(path.resolve(CONFIG.rootDir))) {
+        continue;
+      }
 
       if (CONFIG.excludePatterns.some(pattern => item.includes(pattern))) {
         continue;
@@ -50,15 +60,25 @@ function traverseDirectory(currentDir, files) {
 // Git timestamp utility
 function getGitTimestamp(filePath) {
   try {
-    const relativePath = path.relative(CONFIG.rootDir, filePath);
-    const command = `git log --format="%at" -n 1 -- "${relativePath}"`;
-    const output = execSync(command, {
+    // Security: Validate file path is within root directory
+    const resolvedPath = path.resolve(filePath);
+    if (!resolvedPath.startsWith(path.resolve(CONFIG.rootDir))) {
+      return null;
+    }
+
+    const relativePath = path.relative(CONFIG.rootDir, resolvedPath);
+    
+    // Security: Use spawnSync with array arguments to prevent command injection
+    const result = spawnSync('git', ['log', '--format=%at', '-n', '1', '--', relativePath], {
       cwd: CONFIG.rootDir,
-      encoding: 'utf8',
-      stdio: ['pipe', 'pipe', 'pipe']
+      encoding: 'utf8'
     });
 
-    const timestamp = output.trim();
+    if (result.status !== 0 || result.error) {
+      return null;
+    }
+
+    const timestamp = result.stdout.trim();
     return timestamp ? parseInt(timestamp, 10) : null;
   } catch (error) {
     return null;

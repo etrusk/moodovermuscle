@@ -23,17 +23,20 @@ const CONFIG = {
 function traverseDirectory(currentDir, files) {
   try {
     const items = fs.readdirSync(currentDir);
+    const rootResolved = path.resolve(CONFIG.rootDir);
 
     for (const item of items) {
-      // Security: Prevent path traversal by checking for directory traversal patterns
+      // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+      // Security: Input is sanitized - only using fs.readdirSync output, validated against root directory
       if (item.includes('..') || item.includes('/') || item.includes('\\')) {
         continue;
       }
 
+      // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+      // Security: Path validated to be within root directory after construction
       const fullPath = path.resolve(currentDir, item);
 
-      // Security: Verify path is within root directory
-      if (!fullPath.startsWith(path.resolve(CONFIG.rootDir))) {
+      if (!fullPath.startsWith(rootResolved + path.sep) && fullPath !== rootResolved) {
         continue;
       }
 
@@ -60,17 +63,20 @@ function traverseDirectory(currentDir, files) {
 // Git timestamp utility
 function getGitTimestamp(filePath) {
   try {
-    // Security: Validate file path is within root directory
+    const rootResolved = path.resolve(CONFIG.rootDir);
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+    // Security: Input comes from traverseDirectory which validates paths, validated again here
     const resolvedPath = path.resolve(filePath);
-    if (!resolvedPath.startsWith(path.resolve(CONFIG.rootDir))) {
+    
+    if (!resolvedPath.startsWith(rootResolved + path.sep) && resolvedPath !== rootResolved) {
       return null;
     }
 
-    const relativePath = path.relative(CONFIG.rootDir, resolvedPath);
+    const relativePath = path.relative(rootResolved, resolvedPath);
     
     // Security: Use spawnSync with array arguments to prevent command injection
     const result = spawnSync('git', ['log', '--format=%at', '-n', '1', '--', relativePath], {
-      cwd: CONFIG.rootDir,
+      cwd: rootResolved,
       encoding: 'utf8'
     });
 

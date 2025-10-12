@@ -72,6 +72,82 @@ Reference for debugging similar issues. Check here before investigating problems
 
 ## Build Issues
 
+### pnpm Workspace Configuration Missing (2025-10-12) - ✅ RESOLVED
+
+**Severity**: Critical (All GitHub Actions failing)
+
+**Problem**: All 7 GitHub Actions workflows failing with error: "packages field missing or empty" in pnpm-workspace.yaml
+
+**GitHub Actions Affected**:
+- test-integration
+- test-critical
+- lint-and-typecheck
+- size-check
+- lighthouse
+- build
+- test-accessibility
+
+**Root Cause**: The `pnpm-workspace.yaml` file was missing the required `packages` field. pnpm requires this field to identify workspace packages, even for single-package monorepos.
+
+**File Content Before Fix**:
+```yaml
+ignoredBuiltDependencies:
+  - sharp
+  - unrs-resolver
+
+onlyBuiltDependencies:
+  - '@prisma/client'
+  - '@prisma/engines'
+  - '@vercel/speed-insights'
+  - msw
+  - prisma
+```
+
+**Solution Applied**:
+Added required `packages` field to specify monorepo root as workspace package:
+
+```yaml
+packages:
+  - '.'
+
+ignoredBuiltDependencies:
+  - sharp
+  - unrs-resolver
+
+onlyBuiltDependencies:
+  - '@prisma/client'
+  - '@prisma/engines'
+  - '@vercel/speed-insights'
+  - msw
+  - prisma
+```
+
+**Why This Fixed It**:
+- pnpm requires explicit `packages` field to define workspace structure
+- Using `['.']` specifies current directory as workspace root
+- This satisfies pnpm's workspace configuration validation
+- All GitHub Actions can now properly install dependencies
+
+**Files Modified**:
+- `pnpm-workspace.yaml` - Added `packages: ['.']` field
+
+**Prevention**:
+- Always include `packages` field in pnpm-workspace.yaml
+- For monorepo root, use `packages: ['.']`
+- Test CI/CD configuration changes before deployment
+- Validate pnpm workspace configuration locally with `pnpm install`
+
+**Key Lessons**:
+1. **pnpm workspace requires explicit packages field** - Even for single-package repos
+2. **CI/CD failures can indicate configuration issues** - All actions failing simultaneously suggests infrastructure issue
+3. **Minimal workspace configuration** - Monorepo root only needs `packages: ['.']`
+
+**Related Files**:
+- `pnpm-workspace.yaml` - Workspace configuration
+- `.github/workflows/*` - GitHub Actions that depend on proper pnpm configuration
+
+## Build Issues
+
 ### Next.js Dev Server Infinite Reload Loop (2025-10-11) - ✅ RESOLVED
 
 **Severity**: Critical (100% CPU usage, development blocked)

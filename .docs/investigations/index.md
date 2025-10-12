@@ -266,6 +266,69 @@ webpack: (config, { dev, isServer }) => {
 **Solution**: Always `git add -A` before commit
 **Prevention**: Pre-commit hook now checks for unstaged changes
 
+### Missing BookingStatusChange Table (2025-10-12) - ✅ RESOLVED
+
+**Severity**: Critical (Booking cancellation/status updates blocked)
+
+**Problem**: API route trying to create records in `BookingStatusChange` table that didn't exist in database, causing "The table `public.BookingStatusChange` does not exist in the current database" error.
+
+**Root Cause**: 
+- `BookingStatusChange` model defined in Prisma schema (lines 45-54)
+- Table never created in any previous migration
+- API route attempted to create audit trail records during status transitions (line 113 in `app/api/admin/bookings/route.ts`)
+
+**Solution Applied**:
+1. Generated migration: `20251012042010_add_booking_status_change_table`
+2. Removed auto-generated `DROP INDEX` statement that would have deleted critical `booking_conflict_detection_idx`
+3. Applied migration to create table with:
+   - Primary key (`id`)
+   - Foreign key to Booking (`bookingId`)
+   - Status transition tracking (`fromStatus`, `toStatus`)
+   - Timestamp (`createdAt`)
+   - Index on `bookingId` for efficient queries
+4. Regenerated Prisma client to include new model
+5. Verified with integration tests - all 8 booking status transition tests passing
+
+**Migration Content**:
+```sql
+-- CreateTable
+CREATE TABLE "BookingStatusChange" (
+    "id" TEXT NOT NULL,
+    "bookingId" TEXT NOT NULL,
+    "fromStatus" "BookingStatus" NOT NULL,
+    "toStatus" "BookingStatus" NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "BookingStatusChange_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE INDEX "BookingStatusChange_bookingId_idx" ON "BookingStatusChange"("bookingId");
+
+-- AddForeignKey
+ALTER TABLE "BookingStatusChange" ADD CONSTRAINT "BookingStatusChange_bookingId_fkey" 
+FOREIGN KEY ("bookingId") REFERENCES "Booking"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+```
+
+**Files Modified**:
+- `prisma/migrations/20251012042010_add_booking_status_change_table/migration.sql` - Created table migration (removed DROP INDEX statement)
+
+**Prevention**:
+- Always run `npx prisma migrate dev` after adding new models to schema
+- Verify migration content before applying - Prisma may include unintended changes
+- Test API routes that use new models immediately after migration
+- Check migration for unintended DROP statements
+
+**Key Lessons**:
+1. **Schema changes require migrations** - Adding model to schema.prisma doesn't create table
+2. **Review generated migrations** - Prisma Migrate may include unintended changes (like dropping existing indexes)
+3. **Integration tests verify migrations** - Status transition tests confirmed the fix
+4. **Audit trail pattern** - BookingStatusChange provides complete history of booking lifecycle
+
+**Related Files**:
+- `prisma/schema.prisma` - BookingStatusChange model definition (lines 45-54)
+- `app/api/admin/bookings/route.ts` - PATCH endpoint using audit trail (lines 113-119)
+- `__tests__/integration/booking-status-transitions.test.ts` - Verification tests
+
 ## Database Issues
 
 ### Booking Conflicts Not Detected

@@ -93,31 +93,33 @@ jest.mock('@/components/classes/ServiceCardActions', () => ({
 describe('Classes Page', () => {
   describe('Page Rendering', () => {
     it('renders all main sections', () => {
+      // Arrange & Act
       render(<ClassesPage />)
       
-      // Check hero section
+      // Assert - Check hero section
       expect(screen.getByText('Choose Your Perfect')).toBeInTheDocument()
       expect(screen.getByText('Training Option')).toBeInTheDocument()
       expect(screen.getByText('Your First Session is 100% FREE!')).toBeInTheDocument()
       
-      // Check service areas
+      // Assert - Check service areas
       expect(screen.getByText('Service Areas')).toBeInTheDocument()
       expect(screen.getByText(/Maroochydore.*Mudjimba.*Buderim.*Coolum/)).toBeInTheDocument()
       
-      // Check CTA section
+      // Assert - Check CTA section
       expect(screen.getByText('Ready to Start Your Journey?')).toBeInTheDocument()
       expect(screen.getByText('Book Your FREE Session Now')).toBeInTheDocument()
     })
 
     it('renders all three service cards', () => {
+      // Arrange & Act
       render(<ClassesPage />)
       
-      // Check service titles
+      // Assert - Check service titles
       expect(screen.getByText('1-on-1 Personal Training')).toBeInTheDocument()
       expect(screen.getByText('Double Trouble & Tiny Toots')).toBeInTheDocument()
       expect(screen.getByText('Small Mums & Bubs Classes')).toBeInTheDocument()
       
-      // Check prices
+      // Assert - Check prices
       const prices = screen.getAllByTestId('price')
       expect(prices[0]).toHaveTextContent('$80')
       expect(prices[1]).toHaveTextContent('$40')
@@ -125,16 +127,20 @@ describe('Classes Page', () => {
     })
 
     it('displays popular badge on correct service', () => {
+      // Arrange & Act
       render(<ClassesPage />)
       
+      // Assert
       const popularBadges = screen.getAllByTestId('popular-badge')
       expect(popularBadges).toHaveLength(1)
       expect(popularBadges[0]).toHaveTextContent('Popular')
     })
 
     it('displays coming soon badge on group classes', () => {
+      // Arrange & Act
       render(<ClassesPage />)
       
+      // Assert
       const comingSoonBadges = screen.getAllByTestId('coming-soon-badge')
       expect(comingSoonBadges).toHaveLength(1)
       expect(comingSoonBadges[0]).toHaveTextContent('Coming Soon')
@@ -143,70 +149,69 @@ describe('Classes Page', () => {
 
   describe('Booking Modal Functionality', () => {
     it('opens booking modal when header book button is clicked', async () => {
+      // Arrange
       const user = userEvent.setup()
       render(<ClassesPage />)
-      
-      // Initially, booking form should not be visible
       expect(screen.queryByTestId('booking-form')).not.toBeInTheDocument()
       
-      // Click the header book button
+      // Act
       const headerBookButton = within(screen.getByTestId('header')).getByText('Book Now')
       await user.click(headerBookButton)
       
-      // Booking form should now be visible
+      // Assert
       expect(screen.getByTestId('booking-form')).toBeInTheDocument()
       expect(screen.getByText('Book Your Session')).toBeInTheDocument()
     })
 
     it('opens booking modal when service card book button is clicked', async () => {
+      // Arrange
       const user = userEvent.setup()
       render(<ClassesPage />)
       
-      // Click the first active service book button
+      // Act
       const serviceBookButtons = screen.getAllByTestId('book-service-button')
       await user.click(serviceBookButtons[0])
       
-      // Booking form should be visible
+      // Assert
       expect(screen.getByTestId('booking-form')).toBeInTheDocument()
     })
 
     it('opens booking modal when CTA section button is clicked', async () => {
+      // Arrange
       const user = userEvent.setup()
       render(<ClassesPage />)
       
-      // Click the CTA button
+      // Act
       const ctaButton = screen.getByText('Book Your FREE Session Now')
       await user.click(ctaButton)
       
-      // Booking form should be visible
+      // Assert
       expect(screen.getByTestId('booking-form')).toBeInTheDocument()
     })
 
     it('closes booking modal when close button is clicked', async () => {
+      // Arrange
       const user = userEvent.setup()
       render(<ClassesPage />)
-      
-      // Open the modal
       const ctaButton = screen.getByText('Book Your FREE Session Now')
       await user.click(ctaButton)
-      
-      // Verify it's open
       expect(screen.getByTestId('booking-form')).toBeInTheDocument()
       
-      // Close it
+      // Act
       const closeButton = within(screen.getByTestId('booking-form')).getByText('Close')
       await user.click(closeButton)
       
-      // Should be closed
+      // Assert
       await waitFor(() => {
         expect(screen.queryByTestId('booking-form')).not.toBeInTheDocument()
       })
     })
 
     it('does not allow booking for coming soon services', () => {
+      // Arrange & Act
       render(<ClassesPage />)
       
-      // Coming soon services should have disabled button
+      // Assert
       const comingSoonButtons = screen.getAllByTestId('coming-soon-button')
       expect(comingSoonButtons).toHaveLength(1)
       expect(comingSoonButtons[0]).toBeDisabled()
@@ -215,12 +220,14 @@ describe('Classes Page', () => {
 
   describe('Service Features Display', () => {
     it('displays all features for each service', () => {
+      // Arrange & Act
       render(<ClassesPage />)
       
+      // Assert
       const featureLists = screen.getAllByTestId('features-list')
       expect(featureLists).toHaveLength(3)
       
-      // Check first service (1-on-1) has 4 features
+      // Assert - Check first service (1-on-1) has 4 features
       const personalTrainingFeatures = within(featureLists[0]).getAllByRole('listitem')
       expect(personalTrainingFeatures).toHaveLength(4)
       expect(personalTrainingFeatures[0]).toHaveTextContent('Fully customized workout plans')
@@ -228,11 +235,11 @@ describe('Classes Page', () => {
       expect(personalTrainingFeatures[2]).toHaveTextContent('Postnatal recovery focus')
       expect(personalTrainingFeatures[3]).toHaveTextContent('One-on-one guidance & support')
       
-      // Check second service has 4 features
+      // Assert - Check second service has 4 features
       const doubleTrainingFeatures = within(featureLists[1]).getAllByRole('listitem')
       expect(doubleTrainingFeatures).toHaveLength(4)
       
-      // Check third service has 4 features
+      // Assert - Check third service has 4 features
       const groupClassFeatures = within(featureLists[2]).getAllByRole('listitem')
       expect(groupClassFeatures).toHaveLength(4)
     })
@@ -240,8 +247,10 @@ describe('Classes Page', () => {
 
   describe('Navigation', () => {
     it('includes back to home link', () => {
+      // Arrange & Act
       render(<ClassesPage />)
       
+      // Assert
       const homeLink = screen.getByRole('link', { name: /back to home/i })
       expect(homeLink).toBeInTheDocument()
       expect(homeLink).toHaveAttribute('href', '/')
@@ -250,43 +259,44 @@ describe('Classes Page', () => {
 
   describe('Accessibility', () => {
     it('has no accessibility violations on initial render', async () => {
+      // Arrange & Act
       const { container } = render(<ClassesPage />)
       const results = await axe(container, {
         rules: {
-          // Ignore heading-order violations from mocked components
           'heading-order': { enabled: false }
         }
       })
+      
+      // Assert
       expect(results).toHaveNoViolations()
     })
 
     it('has no accessibility violations with modal open', async () => {
+      // Arrange
       const user = userEvent.setup()
       const { container } = render(<ClassesPage />)
       
-      // Open the modal
+      // Act
       const ctaButton = screen.getByText('Book Your FREE Session Now')
       await user.click(ctaButton)
-      
       const results = await axe(container, {
         rules: {
-          // Ignore heading-order violations from mocked components
           'heading-order': { enabled: false }
         }
       })
+      
+      // Assert
       expect(results).toHaveNoViolations()
     })
 
     it('supports keyboard navigation', async () => {
+      // Arrange
       const user = userEvent.setup()
       render(<ClassesPage />)
-      
-      // Tab through interactive elements
-      await user.tab()
-      // Should be able to tab to book buttons
       const bookButtons = screen.getAllByTestId('book-service-button')
       
-      // Focus should eventually reach a book button
+      // Act - Tab through interactive elements
+      await user.tab()
       for (let i = 0; i < 10; i++) {
         await user.tab()
         const activeElement = document.activeElement
@@ -295,8 +305,8 @@ describe('Classes Page', () => {
         }
       }
       
-      // Verify at least one button can receive focus
-      const focusableButton = bookButtons.find(button => 
+      // Assert
+      const focusableButton = bookButtons.find(button =>
         button === document.activeElement
       )
       expect(focusableButton).toBeDefined()
@@ -317,9 +327,10 @@ describe('Classes Page', () => {
     })
 
     it('renders correctly on mobile viewport', () => {
+      // Arrange & Act
       render(<ClassesPage />)
       
-      // All key content should still be present
+      // Assert
       expect(screen.getByText('Choose Your Perfect')).toBeInTheDocument()
       expect(screen.getByText('1-on-1 Personal Training')).toBeInTheDocument()
       expect(screen.getByText('Double Trouble & Tiny Toots')).toBeInTheDocument()
@@ -327,52 +338,54 @@ describe('Classes Page', () => {
     })
 
     it('maintains functionality on mobile', async () => {
+      // Arrange
       const user = userEvent.setup()
       render(<ClassesPage />)
       
-      // Booking functionality should work
+      // Act
       const ctaButton = screen.getByText('Book Your FREE Session Now')
       await user.click(ctaButton)
       
+      // Assert
       expect(screen.getByTestId('booking-form')).toBeInTheDocument()
     })
   })
 
   describe('Service Card Interaction', () => {
     it('applies hover styles on service cards', async () => {
+      // Arrange
       const user = userEvent.setup()
       const { container } = render(<ClassesPage />)
-      
-      // Find service cards
       const serviceCards = container.querySelectorAll('.group')
       expect(serviceCards.length).toBeGreaterThan(0)
       
-      // Hover over first card
+      // Act
       const firstCard = serviceCards[0] as HTMLElement
       await user.hover(firstCard)
       
-      // Card should have hover classes (transition-all, hover:scale-105, hover:shadow-3xl)
+      // Assert
       expect(firstCard.className).toContain('transition-all')
       expect(firstCard.className).toContain('hover:scale-105')
       expect(firstCard.className).toContain('hover:shadow-3xl')
     })
 
     it('applies reduced opacity to coming soon cards', () => {
+      // Arrange & Act
       const { container } = render(<ClassesPage />)
       
-      // Find the coming soon card
+      // Assert
       const comingSoonBadge = screen.getByTestId('coming-soon-badge')
       const comingSoonCard = comingSoonBadge.closest('.group') as HTMLElement
-      
-      // Should have opacity-75 class
       expect(comingSoonCard.className).toContain('opacity-75')
     })
   })
 
   describe('Content Accuracy', () => {
     it('displays correct pricing information', () => {
+      // Arrange & Act
       render(<ClassesPage />)
       
+      // Assert
       const prices = screen.getAllByTestId('price')
       expect(prices[0]).toHaveTextContent('$80') // 1-on-1
       expect(prices[1]).toHaveTextContent('$40') // Double Trouble
@@ -380,16 +393,20 @@ describe('Classes Page', () => {
     })
 
     it('displays correct service descriptions', () => {
+      // Arrange & Act
       render(<ClassesPage />)
       
+      // Assert
       expect(screen.getByText(/Completely personalized program/)).toBeInTheDocument()
       expect(screen.getByText(/chaos is more fun when shared/)).toBeInTheDocument()
       expect(screen.getByText(/Coming soon in parks/)).toBeInTheDocument()
     })
 
     it('displays promotional messages correctly', () => {
+      // Arrange & Act
       render(<ClassesPage />)
       
+      // Assert
       expect(screen.getByText('Your First Session is 100% FREE!')).toBeInTheDocument()
       expect(screen.getByText(/Quick booking.*Instant confirmation.*No pressure/)).toBeInTheDocument()
       expect(screen.getByText(/supportive M\.O\.M\.unity/)).toBeInTheDocument()

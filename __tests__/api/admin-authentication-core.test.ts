@@ -59,10 +59,14 @@ describe('Admin Authentication API Core Tests', () => {
 
   describe('POST /api/admin/login', () => {
     it('authenticates admin with valid credentials', async () => {
+      // Arrange
       const request = createLoginRequest(validCredentials)
+
+      // Act
       const response = await loginHandler(request)
       const data = await response.json()
 
+      // Assert
       expect(response.status).toBe(200)
       expect(data).toMatchObject({
         success: true,
@@ -75,10 +79,14 @@ describe('Admin Authentication API Core Tests', () => {
     })
 
     it('prevents authentication with invalid credentials', async () => {
+      // Arrange
       const request = createLoginRequest(invalidCredentials)
+
+      // Act
       const response = await loginHandler(request)
       const data = await response.json()
 
+      // Assert
       expect(response.status).toBe(401)
       expect(data).toMatchObject({
         success: false,
@@ -88,10 +96,14 @@ describe('Admin Authentication API Core Tests', () => {
     })
 
     it('validates required authentication fields', async () => {
+      // Arrange
       const request = createLoginRequest({ email: 'test@example.com' }) // Missing password
+
+      // Act
       const response = await loginHandler(request)
       const data = await response.json()
 
+      // Assert
       expect(response.status).toBe(400)
       expect(data).toMatchObject({
         success: false,
@@ -100,10 +112,14 @@ describe('Admin Authentication API Core Tests', () => {
     })
 
     it('requires both email and password', async () => {
+      // Arrange
       const request = createLoginRequest({})
+
+      // Act
       const response = await loginHandler(request)
       const data = await response.json()
 
+      // Assert
       expect(response.status).toBe(400)
       expect(data).toMatchObject({
         success: false,
@@ -112,15 +128,18 @@ describe('Admin Authentication API Core Tests', () => {
     })
 
     it('handles malformed request data', async () => {
+      // Arrange
       const request = new NextRequest('http://localhost:3000/api/admin/login', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: 'invalid-json{'
       })
 
+      // Act
       const response = await loginHandler(request)
       const data = await response.json()
 
+      // Assert
       expect(response.status).toBe(400)
       expect(data).toMatchObject({
         success: false,
@@ -129,25 +148,30 @@ describe('Admin Authentication API Core Tests', () => {
     })
 
     it('handles concurrent authentication attempts', async () => {
-      // Verify endpoint handles multiple rapid requests gracefully
+      // Arrange
       const requests = Array.from({ length: 5 }, () => createLoginRequest(invalidCredentials))
+
+      // Act
       const responses = await Promise.all(requests.map(req => loginHandler(req)))
       
-      // All should fail consistently
+      // Assert
       responses.forEach(response => {
         expect(response.status).toBe(401)
       })
-
       // Note: Rate limiting implemented at middleware level
     })
   })
 
   describe('GET /api/admin/session', () => {
     it('validates session with valid token', async () => {
+      // Arrange
       const request = createSessionRequest('mock-jwt-token')
+
+      // Act
       const response = await sessionHandler(request)
       const data = await response.json()
 
+      // Assert
       expect(response.status).toBe(200)
       expect(data).toMatchObject({
         success: true,
@@ -158,10 +182,14 @@ describe('Admin Authentication API Core Tests', () => {
     })
 
     it('prevents access without authentication', async () => {
+      // Arrange
       const request = createSessionRequest()
+
+      // Act
       const response = await sessionHandler(request)
       const data = await response.json()
 
+      // Assert
       expect(response.status).toBe(401)
       expect(data).toMatchObject({
         success: false,
@@ -170,15 +198,18 @@ describe('Admin Authentication API Core Tests', () => {
     })
 
     it('prevents access with invalid token', async () => {
+      // Arrange
       const jwt = require('jsonwebtoken')
       jest.mocked(jwt.verify).mockImplementationOnce(() => {
         throw new Error('Invalid token')
       })
-
       const request = createSessionRequest('invalid-token')
+
+      // Act
       const response = await sessionHandler(request)
       const data = await response.json()
 
+      // Assert
       expect(response.status).toBe(401)
       expect(data).toMatchObject({
         success: false,
@@ -187,16 +218,19 @@ describe('Admin Authentication API Core Tests', () => {
     })
 
     it('prevents access with expired token', async () => {
+      // Arrange
       const jwt = require('jsonwebtoken')
       jest.mocked(jwt.verify).mockImplementationOnce(() => ({
         email: 'emily@moodovermuscle.com.au',
         exp: Date.now() / 1000 - 3600 // Expired 1 hour ago
       }))
-
       const request = createSessionRequest('expired-token')
+
+      // Act
       const response = await sessionHandler(request)
       const data = await response.json()
 
+      // Assert
       expect(response.status).toBe(401)
       expect(data).toMatchObject({
         success: false,
@@ -205,14 +239,17 @@ describe('Admin Authentication API Core Tests', () => {
     })
 
     it('handles malformed authorization header', async () => {
+      // Arrange
       const request = new NextRequest('http://localhost:3000/api/admin/session', {
         method: 'GET',
         headers: { 'authorization': 'InvalidFormat token' }
       })
 
+      // Act
       const response = await sessionHandler(request)
       const data = await response.json()
 
+      // Assert
       expect(response.status).toBe(401)
       expect(data).toMatchObject({
         success: false,
@@ -223,37 +260,45 @@ describe('Admin Authentication API Core Tests', () => {
 
   describe('Authentication Flow Integration', () => {
     it('allows session access after successful login', async () => {
-      // Step 1: Authenticate
+      // Arrange
       const loginRequest = createLoginRequest(validCredentials)
+
+      // Act - Step 1: Authenticate
       const loginResponse = await loginHandler(loginRequest)
       const loginData = await loginResponse.json()
 
+      // Assert - Step 1
       expect(loginResponse.status).toBe(200)
       expect(loginData.token).toBeDefined()
 
-      // Step 2: Validate session with token
+      // Act - Step 2: Validate session with token
       const sessionRequest = createSessionRequest(loginData.token, true)
       const sessionResponse = await sessionHandler(sessionRequest)
       const sessionData = await sessionResponse.json()
 
+      // Assert - Step 2
       expect(sessionResponse.status).toBe(200)
       expect(sessionData.user.email).toBe(validCredentials.email)
     })
 
     it('prevents session access after failed login', async () => {
-      // Step 1: Failed authentication
+      // Arrange
       const loginRequest = createLoginRequest(invalidCredentials)
+
+      // Act - Step 1: Failed authentication
       const loginResponse = await loginHandler(loginRequest)
       const loginData = await loginResponse.json()
 
+      // Assert - Step 1
       expect(loginResponse.status).toBe(401)
       expect(loginData.token).toBeUndefined()
 
-      // Step 2: Session validation without token
+      // Act - Step 2: Session validation without token
       const sessionRequest = createSessionRequest()
       const sessionResponse = await sessionHandler(sessionRequest)
       const sessionData = await sessionResponse.json()
 
+      // Assert - Step 2
       expect(sessionResponse.status).toBe(401)
       expect(sessionData.user).toBeUndefined()
     })
@@ -261,37 +306,46 @@ describe('Admin Authentication API Core Tests', () => {
 
   describe('Security Edge Cases', () => {
     it('prevents SQL injection attempts', async () => {
+      // Arrange
       const request = createLoginRequest({
         email: "'; DROP TABLE users; --",
         password: 'password'
       })
 
+      // Act
       const response = await loginHandler(request)
       
+      // Assert
       expect(response.status).toBe(401) // Treated as invalid credentials
     })
 
     it('handles excessive input length gracefully', async () => {
+      // Arrange
       const longString = 'a'.repeat(10000)
       const request = createLoginRequest({
         email: longString,
         password: longString
       })
 
+      // Act
       const response = await loginHandler(request)
       
+      // Assert
       expect(response.status).toBeLessThan(500) // No server crash
     })
 
     it('validates email format', async () => {
+      // Arrange
       const request = createLoginRequest({
         email: 'not-an-email',
         password: 'password'
       })
 
+      // Act
       const response = await loginHandler(request)
       const data = await response.json()
       
+      // Assert
       expect(response.status).toBe(401)
       expect(data.success).toBe(false)
     })

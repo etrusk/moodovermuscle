@@ -3,11 +3,14 @@ import { validateAvailabilityRequest } from '@/app/api/availability/functions/av
 describe('availability-validation', () => {
   describe('validateAvailabilityRequest', () => {
     it('validates correct date parameter', async () => {
+      // Arrange
       const searchParams = new URLSearchParams()
       searchParams.set('date', '2024-12-25')
 
+      // Act
       const result = await validateAvailabilityRequest(searchParams)
 
+      // Assert
       expect(result.success).toBe(true)
       expect(result.data).toStrictEqual({
         date: '2024-12-25',
@@ -17,12 +20,15 @@ describe('availability-validation', () => {
     })
 
     it('validates correct date and time parameters', async () => {
+      // Arrange
       const searchParams = new URLSearchParams()
       searchParams.set('date', '2024-12-25')
       searchParams.set('time', '10:00')
 
+      // Act
       const result = await validateAvailabilityRequest(searchParams)
 
+      // Assert
       expect(result.success).toBe(true)
       expect(result.data).toStrictEqual({
         date: '2024-12-25',
@@ -32,10 +38,13 @@ describe('availability-validation', () => {
     })
 
     it('rejects missing date parameter', async () => {
+      // Arrange
       const searchParams = new URLSearchParams()
 
+      // Act
       const result = await validateAvailabilityRequest(searchParams)
 
+      // Assert
       expect(result.success).toBe(false)
       expect(result.data).toBeNull()
       expect(result.error).not.toBeNull()
@@ -43,11 +52,14 @@ describe('availability-validation', () => {
     })
 
     it('rejects invalid date format', async () => {
+      // Arrange
       const searchParams = new URLSearchParams()
       searchParams.set('date', '25-12-2024')
 
+      // Act
       const result = await validateAvailabilityRequest(searchParams)
 
+      // Assert
       expect(result.success).toBe(false)
       expect(result.data).toBeNull()
       expect(result.error).not.toBeNull()
@@ -55,11 +67,14 @@ describe('availability-validation', () => {
     })
 
     it('rejects malformed date', async () => {
+      // Arrange
       const searchParams = new URLSearchParams()
       searchParams.set('date', '2024-13-32')
 
+      // Act
       const result = await validateAvailabilityRequest(searchParams)
 
+      // Assert
       expect(result.success).toBe(false)
       expect(result.data).toBeNull()
       expect(result.error).not.toBeNull()
@@ -67,21 +82,27 @@ describe('availability-validation', () => {
     })
 
     it('handles time parameter as optional', async () => {
+      // Arrange
       const searchParams = new URLSearchParams()
       searchParams.set('date', '2024-12-25')
 
+      // Act
       const result = await validateAvailabilityRequest(searchParams)
 
+      // Assert
       expect(result.success).toBe(true)
       expect(result.data?.time).toBeNull()
     })
 
     it('returns proper error response structure', async () => {
+      // Arrange
       const searchParams = new URLSearchParams()
       searchParams.set('date', 'invalid-date')
 
+      // Act
       const result = await validateAvailabilityRequest(searchParams)
 
+      // Assert
       expect(result.success).toBe(false)
       expect(result.error).not.toBeNull()
       expect(result.error?.status).toBe(400)

@@ -50,10 +50,13 @@ describe('createBooking', () => {
   })
 
   it('creates a booking successfully', async () => {
+    // Arrange
     mockTx.booking.findFirst.mockResolvedValue(null)
 
+    // Act
     const newBooking = await createBooking(mockBookingData)
 
+    // Assert
     expect(newBooking).toStrictEqual(mockFullBooking)
     expect(prisma.$transaction).toHaveBeenCalled()
     expect(mockTx.booking.create).toHaveBeenCalledWith({
@@ -72,17 +75,21 @@ describe('createBooking', () => {
   })
 
   it('throws BookingConflictError on conflict', async () => {
+    // Arrange
     mockTx.booking.findFirst.mockResolvedValue(mockFullBooking)
 
+    // Act & Assert
     await expect(createBooking(mockBookingData)).rejects.toThrow(
       BookingConflictError
     )
   })
 
   it('throws a generic error on other database errors', async () => {
+    // Arrange
     mockTx.booking.findFirst.mockResolvedValue(null)
     mockTx.booking.create.mockRejectedValue(new Error('DB error'))
 
+    // Act & Assert
     await expect(createBooking(mockBookingData)).rejects.toThrow(
       'Failed to create booking in database: DB error'
     )

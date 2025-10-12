@@ -66,6 +66,7 @@ describe('API POST /api/book-session', () => {
   })
 
   test('returns 400 on invalid data', async () => {
+    // Arrange
     mockValidation.validateBookingRequest.mockResolvedValue({
       success: false,
       error: NextResponse.json(
@@ -74,11 +75,12 @@ describe('API POST /api/book-session', () => {
       ),
       data: null,
     })
-
     const req = makeJsonRequest({ name: 'a' })
 
+    // Act
     const res = await POST(req)
 
+    // Assert
     expect(res.status).toBe(400)
     const json = await res.json()
     expect(json).toHaveProperty('message', 'Invalid form data.')
@@ -86,17 +88,19 @@ describe('API POST /api/book-session', () => {
   })
 
   test('returns 201 on valid data', async () => {
+    // Arrange
     mockValidation.validateBookingRequest.mockResolvedValue({
       success: true,
       data: validData,
       error: null,
     })
     mockCreation.createBooking.mockResolvedValue(mockBooking)
-
     const req = makeJsonRequest(validData)
 
+    // Act
     const res = await POST(req)
 
+    // Assert
     expect(res.status).toBe(201)
     const json = await res.json()
     expect(json).toHaveProperty('message', 'Booking submitted successfully!')
@@ -107,6 +111,7 @@ describe('API POST /api/book-session', () => {
   })
 
   test('returns 409 on booking conflict', async () => {
+    // Arrange
     mockValidation.validateBookingRequest.mockResolvedValue({
       success: true,
       data: validData,
@@ -121,28 +126,31 @@ describe('API POST /api/book-session', () => {
     )
 
     mockCreation.createBooking.mockRejectedValue(conflictError)
-
     const req = makeJsonRequest(validData)
 
+    // Act
     const res = await POST(req)
 
+    // Assert
     expect(res.status).toBe(409)
     const json = await res.json()
     expect(json).toHaveProperty('message', 'Booking conflict')
   })
 
   test('returns 500 on server exception', async () => {
+    // Arrange
     mockValidation.validateBookingRequest.mockResolvedValue({
       success: true,
       data: validData,
       error: null,
     })
     mockCreation.createBooking.mockRejectedValue(new Error('Database error'))
-
     const req = makeJsonRequest(validData)
 
+    // Act
     const res = await POST(req)
 
+    // Assert
     expect(res.status).toBe(500)
     const json = await res.json()
     expect(json).toHaveProperty('message', 'Failed to submit booking.')
@@ -150,6 +158,7 @@ describe('API POST /api/book-session', () => {
   })
 
   test('returns 429 when rate limit exceeded', async () => {
+    // Arrange
     const ip = '1.2.3.4'
     mockValidation.validateBookingRequest.mockResolvedValue({
       success: true,
@@ -158,16 +167,18 @@ describe('API POST /api/book-session', () => {
     })
     mockCreation.createBooking.mockResolvedValue(mockBooking)
 
+    // Act - Make requests up to rate limit
     for (let i = 0; i < RATE_LIMIT_MAX; i++) {
       const req = makeJsonRequest(validData, { 'x-forwarded-for': ip })
       const res = await POST(req)
       expect(res.status).toBe(201)
     }
 
+    // Act - Exceed rate limit
     const reqLimited = makeJsonRequest(validData, { 'x-forwarded-for': ip })
-
     const resLimited = await POST(reqLimited)
 
+    // Assert
     expect(resLimited.status).toBe(429)
     const jsonLimited = await resLimited.json()
     expect(jsonLimited).toHaveProperty(

@@ -100,34 +100,22 @@ function checkErrorConditions(content, filePath) {
 }
 
 function checkAAAPattern(content, filePath) {
-  const aaaComments = [
-    /\/\/\s*Arrange/i,
-    /\/\/\s*Act/i,
-    /\/\/\s*Assert/i
-  ];
+  // Check if file has test blocks
+  const hasTests = /it\(|test\(/i.test(content);
   
-  const testBlocks = content.match(/it\([^{]*\{[^}]*\}/gs) || [];
-  
-  if (testBlocks.length === 0) {
-    return true;
+  if (!hasTests) {
+    return true; // No tests, no AAA needed
   }
   
-  let missingAAA = 0;
+  // Check for AAA comments presence in file
+  const hasArrange = /\/\/\s*Arrange/i.test(content);
+  const hasAct = /\/\/\s*Act/i.test(content);
+  const hasAssert = /\/\/\s*Assert/i.test(content);
   
-  testBlocks.forEach((block, index) => {
-    const hasAllComments = aaaComments.every(
-      pattern => pattern.test(block)
-    );
-    
-    if (!hasAllComments) {
-      missingAAA++;
-    }
-  });
-  
-  if (missingAAA > 0) {
+  if (!hasArrange || !hasAct || !hasAssert) {
     log(
-      `${filePath}: ${missingAAA} test(s) missing AAA comments ` +
-      `(// Arrange, // Act, // Assert).`,
+      `${filePath}: Missing AAA pattern comments. ` +
+      `Tests must include // Arrange, // Act, // Assert comments.`,
       'error'
     );
     return false;

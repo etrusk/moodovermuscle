@@ -32,6 +32,7 @@ scripts/lib/docs-staleness-analyzer.js
 scripts/lib/docs-staleness-utils.js
 scripts/check-deprecated.js
 scripts/preview-workflow.js
+scripts/check-docs-staleness.js
 
 # Frontend hooks with internal variables (retry counter, not user input)
 components/booking-form/useAvailability.ts

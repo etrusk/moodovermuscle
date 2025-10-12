@@ -32,6 +32,7 @@ describe('sendBookingNotifications', () => {
   })
 
   it('calls both email functions with correct data', () => {
+    // Arrange
     mockedEmail.sendCustomerConfirmation.mockResolvedValue({
       success: true,
       messageId: '1',
@@ -41,8 +42,10 @@ describe('sendBookingNotifications', () => {
       messageId: '2',
     })
 
+    // Act
     sendBookingNotifications(mockBooking)
 
+    // Assert
     expect(mockedEmail.sendCustomerConfirmation).toHaveBeenCalledWith({
       customerName: 'Test User',
       customerEmail: 'test@example.com',
@@ -65,6 +68,7 @@ describe('sendBookingNotifications', () => {
   })
 
   it('handles email sending failures gracefully', async () => {
+    // Arrange
     mockedEmail.sendCustomerConfirmation.mockResolvedValue({
       success: false,
       error: 'Failed to send',
@@ -77,10 +81,12 @@ describe('sendBookingNotifications', () => {
       .spyOn(console, 'error')
       .mockImplementation(() => {})
 
+    // Act
     sendBookingNotifications(mockBooking)
 
     await new Promise((resolve) => setTimeout(resolve, 0))
 
+    // Assert
     expect(consoleErrorSpy).toHaveBeenCalledWith(
       'Failed to send customer confirmation email:',
       'Failed to send'

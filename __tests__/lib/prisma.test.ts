@@ -12,6 +12,13 @@ import { PrismaClient } from '@/lib/generated/prisma'
 
 describe('prisma client instance', () => {
   it('creates a new PrismaClient with expected config', () => {
+    // Arrange
+    // (PrismaClient mock is configured in beforeAll)
+
+    // Act
+    // (prisma instance is imported at module level)
+
+    // Assert
     expect(PrismaClient).toHaveBeenCalledWith({ log: ['query'] })
     expect(prisma).toMatchObject({
       $connect: expect.any(Function),
@@ -20,10 +27,15 @@ describe('prisma client instance', () => {
   })
 
   it('reuses global prisma instance in non-production', () => {
+    // Arrange
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;(process.env as any).NODE_ENV = 'development'
+
+    // Act
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { prisma: prisma2 } = require('@/lib/prisma')
+
+    // Assert
     expect(prisma2).toBe(prisma)
   })
 })

@@ -17,6 +17,7 @@ function makeJsonRequest(
 
 describe('validateBookingRequest', () => {
   it('returns success true for valid data', async () => {
+    // Arrange
     const validData = {
       name: 'Jane Doe',
       email: 'jane@example.com',
@@ -27,19 +28,29 @@ describe('validateBookingRequest', () => {
     }
     const req = makeJsonRequest(validData)
 
+    // Act
     const result = await validateBookingRequest(req)
 
+    // Assert
     expect(result.success).toBe(true)
-    expect(result.data).toBeDefined()
+    expect(result.data).toMatchObject({
+      name: 'Jane Doe',
+      email: 'jane@example.com',
+      service: '1-on-1 Personal Training',
+      goals: 'community',
+    })
     expect(result.error).toBeNull()
   })
 
   it('returns success false for invalid data', async () => {
+    // Arrange
     const invalidData = { name: 'a' }
     const req = makeJsonRequest(invalidData)
 
+    // Act
     const result = await validateBookingRequest(req)
 
+    // Assert
     expect(result.success).toBe(false)
     expect(result.data).toBeNull()
     expect(result.error).toBeDefined()
@@ -48,10 +59,13 @@ describe('validateBookingRequest', () => {
   })
 
   it('returns success false for malformed JSON', async () => {
+    // Arrange
     const req = makeJsonRequest('not-a-json')
 
+    // Act
     const result = await validateBookingRequest(req)
 
+    // Assert
     expect(result.success).toBe(false)
     expect(result.data).toBeNull()
     expect(result.error).toBeDefined()

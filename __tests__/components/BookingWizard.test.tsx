@@ -50,32 +50,42 @@ describe('BookingWizard', () => {
   }
 
   it('should show step transition loading state and disable button', () => {
+    // Arrange
+    const mockLoadingStates = {
+      stepTransition: true,
+      formSubmission: false,
+      fieldValidation: {},
+      calendarLoading: false,
+    }
+
+    // Act
     renderInDialog({
-      loadingStates: {
-        stepTransition: true,
-        formSubmission: false,
-        fieldValidation: {},
-        calendarLoading: false,
-      },
+      loadingStates: mockLoadingStates,
     })
 
+    // Assert
     const continueButton = screen.getByRole('button', { name: /validating/i })
     expect(continueButton).toBeDisabled()
     expect(screen.getByText(/validating/i)).toBeInTheDocument()
   })
 
   it('should show submission loading state and disable button', () => {
+    // Arrange
+    const mockLoadingStates = {
+      stepTransition: false,
+      formSubmission: true,
+      fieldValidation: {},
+      calendarLoading: false,
+    }
+    // We need to be on the last step for the submit button to be visible
+    // but for this unit test, we can just check the continue button
+
+    // Act
     renderInDialog({
-      loadingStates: {
-        stepTransition: false,
-        formSubmission: true,
-        fieldValidation: {},
-        calendarLoading: false,
-      },
-      // We need to be on the last step for the submit button to be visible
-      // but for this unit test, we can just check the continue button
+      loadingStates: mockLoadingStates,
     })
 
+    // Assert
     const continueButton = screen.getByRole('button', { name: /continue/i })
     expect(continueButton).toBeDisabled()
   })

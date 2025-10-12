@@ -19,6 +19,7 @@ describe('SchedulingStep', () => {
   })
 
   it('disables controls when isLoading prop is true', () => {
+    // Arrange
     mockedUseAvailability.mockReturnValue({
       availableTimes: [],
       bookedTimes: [],
@@ -27,18 +28,21 @@ describe('SchedulingStep', () => {
       availabilityCache: {},
     })
 
+    // Act
     render(
       <BookingFormProvider onClose={() => {}}>
         <SchedulingStep isLoading={true} />
       </BookingFormProvider>
     )
 
+    // Assert
     expect(screen.getByTestId('date-picker-trigger')).toBeDisabled()
     expect(screen.getByTestId('time-select')).toBeDisabled()
     expect(screen.getByTestId('message-textarea')).toBeDisabled()
   })
 
   it('shows loading state for time slots when availability is being fetched', () => {
+    // Arrange
     mockedUseAvailability.mockReturnValue({
       availableTimes: [],
       bookedTimes: [],
@@ -47,17 +51,20 @@ describe('SchedulingStep', () => {
       availabilityCache: {},
     })
 
+    // Act
     render(
       <BookingFormProvider onClose={() => {}} initialValues={{ date: new Date() }}>
         <SchedulingStep />
       </BookingFormProvider>
     )
 
+    // Assert
     expect(screen.getByTestId('time-select')).toBeDisabled()
     expect(screen.getByRole('option', { name: /loading slots/i })).toBeInTheDocument()
   })
 
   it('displays available and booked time slots correctly', async () => {
+    // Arrange
     mockedUseAvailability.mockReturnValue({
       availableTimes: ['09:00', '11:00'],
       bookedTimes: ['10:00'],
@@ -66,6 +73,7 @@ describe('SchedulingStep', () => {
       availabilityCache: {},
     })
 
+    // Act
     render(
       <BookingFormProvider onClose={() => {}} initialValues={{ date: new Date() }}>
         <SchedulingStep />
@@ -75,6 +83,7 @@ describe('SchedulingStep', () => {
     const timeSelect = screen.getByTestId('time-select')
     expect(timeSelect).toBeEnabled()
 
+    // Assert
     // Use findByRole to wait for options to appear
     const availableOption = await screen.findByRole('option', { name: '9:00 AM' })
     const bookedOption = await screen.findByRole('option', {
@@ -95,6 +104,7 @@ describe('SchedulingStep', () => {
   })
 
   it('shows "Select a date first" when no date is selected', () => {
+    // Arrange
     mockedUseAvailability.mockReturnValue({
       availableTimes: [],
       bookedTimes: [],
@@ -103,12 +113,14 @@ describe('SchedulingStep', () => {
       availabilityCache: {},
     })
 
+    // Act
     render(
       <BookingFormProvider onClose={() => {}}>
         <SchedulingStep />
       </BookingFormProvider>
     )
 
+    // Assert
     expect(screen.getByTestId('time-select')).toBeDisabled()
     expect(screen.getByRole('option', { name: /select a date first/i })).toBeInTheDocument()
   })

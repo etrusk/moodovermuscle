@@ -10,11 +10,17 @@ import { PersonalDetailsStep } from '@/components/booking-form/steps/PersonalDet
 
 describe('PersonalDetailsStep Loading State', () => {
   it('renders enabled inputs by default', () => {
+    // Arrange
+    const mockOnClose = jest.fn()
+
+    // Act
     render(
-      <BookingFormProvider onClose={() => {}}>
+      <BookingFormProvider onClose={mockOnClose}>
         <PersonalDetailsStep />
       </BookingFormProvider>
     )
+
+    // Assert
     expect(screen.getByTestId('name-input')).toBeEnabled()
     expect(screen.getByTestId('email-input')).toBeEnabled()
     expect(screen.getByTestId('phone-input')).toBeEnabled()
@@ -22,11 +28,17 @@ describe('PersonalDetailsStep Loading State', () => {
   })
 
   it('disables inputs when isLoading prop is true', () => {
+    // Arrange
+    const mockOnClose = jest.fn()
+
+    // Act
     render(
-      <BookingFormProvider onClose={() => {}}>
+      <BookingFormProvider onClose={mockOnClose}>
         <PersonalDetailsStep isLoading={true} />
       </BookingFormProvider>
     )
+
+    // Assert
     expect(screen.getByTestId('name-input')).toBeDisabled()
     expect(screen.getByTestId('email-input')).toBeDisabled()
     expect(screen.getByTestId('phone-input')).toBeDisabled()

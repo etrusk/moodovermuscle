@@ -188,7 +188,9 @@ function findTestFiles(dir) {
     const entries = fs.readdirSync(currentDir, { withFileTypes: true });
     
     entries.forEach(entry => {
-      const fullPath = path.join(currentDir, entry.name);
+      // Sanitize entry.name to prevent path traversal
+      const sanitizedName = path.basename(entry.name);
+      const fullPath = path.join(currentDir, sanitizedName);
       
       if (entry.isDirectory()) {
         if (!entry.name.startsWith('.') && 

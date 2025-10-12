@@ -183,22 +183,38 @@ function validateTestFile(filePath) {
 
 function findTestFiles(dir) {
   const testFiles = [];
+  const baseDir = path.resolve(process.cwd(), dir);
   
   function traverse(currentDir) {
-    const entries = fs.readdirSync(currentDir, { withFileTypes: true });
+    const resolvedDir = path.resolve(currentDir);
+    
+    // Ensure we're still within the base directory
+    if (!resolvedDir.startsWith(baseDir)) {
+      return;
+    }
+    
+    const entries = fs.readdirSync(resolvedDir, { withFileTypes: true });
     
     entries.forEach(entry => {
-      // Sanitize entry.name to prevent path traversal
-      const sanitizedName = path.basename(entry.name);
-      const fullPath = path.join(currentDir, sanitizedName);
+      // Skip entries with path traversal attempts
+      if (entry.name.includes('..') || entry.name.includes('/')) {
+        return;
+      }
+      
+      const fullPath = path.resolve(resolvedDir, entry.name);
+      
+      // Double-check the resolved path is within base directory
+      if (!fullPath.startsWith(baseDir)) {
+        return;
+      }
       
       if (entry.isDirectory()) {
-        if (!entry.name.startsWith('.') && 
+        if (!entry.name.startsWith('.') &&
             entry.name !== 'node_modules') {
           traverse(fullPath);
         }
       } else if (
-        entry.name.endsWith('.test.ts') || 
+        entry.name.endsWith('.test.ts') ||
         entry.name.endsWith('.test.tsx') ||
         entry.name.endsWith('.spec.ts')
       ) {
@@ -207,7 +223,7 @@ function findTestFiles(dir) {
     });
   }
   
-  traverse(dir);
+  traverse(baseDir);
   return testFiles;
 }
 

@@ -329,6 +329,79 @@ FOREIGN KEY ("bookingId") REFERENCES "Booking"("id") ON DELETE RESTRICT ON UPDAT
 - `app/api/admin/bookings/route.ts` - PATCH endpoint using audit trail (lines 113-119)
 - `__tests__/integration/booking-status-transitions.test.ts` - Verification tests
 
+### Booking Update Constraint Violation (2025-10-12) - ✅ RESOLVED
+
+**Severity**: Critical (Booking status updates blocked)
+
+**Problem**: Updating booking status failed with constraint violation: `new row for relation "Booking" violates check constraint "booking_future_date_check"`. Admins couldn't cancel or update status for past bookings.
+
+**Error Details**:
+- Booking ID: `cmgbnhf9f0003a54d3v4ctrk9`
+- Booking date: `2025-10-08` (4 days in past)
+- Attempted operation: Update status to `CANCELLED`
+- Failing row: `date=2025-10-08, updatedAt being updated to current time`
+
+**Root Cause**: 
+PostgreSQL check constraints apply to **both INSERT and UPDATE operations** by default. The `booking_future_date_check` constraint (added in migration `20250808083400_enhance_booking_conflict_constraints`) was designed to prevent creating bookings in the past, but it also blocked legitimate status updates on historical bookings.
+
+**Constraint Logic** (lines 36-45 in `20250808083400_enhance_booking_conflict_constraints/migration.sql`):
+```sql
+ALTER TABLE "Booking" 
+ADD CONSTRAINT "booking_future_date_check" 
+CHECK (
+  -- Allow current day bookings but prevent past dates
+  "date" >= CURRENT_DATE - INTERVAL '1 day'
+  AND
+  -- Prevent bookings more than 90 days in the future
+  "date" <= CURRENT_DATE + INTERVAL '90 days'
+);
+```
+
+**Why This Blocked Updates**:
+- PostgreSQL evaluates check constraints on every UPDATE operation
+- When updating `status` and `updatedAt` fields (line 122-128 in `app/api/admin/bookings/route.ts`)
+- Constraint checks ALL fields including `date`
+- Bookings older than 1 day fail the check, even when only changing status
+- No native SQL syntax exists to restrict constraints to INSERT only
+
+**Solution Applied**:
+Dropped the database constraint and moved validation to application layer where we can distinguish between INSERT and UPDATE operations.
+
+1. **Created migration**: `20251012042622_drop_booking_future_date_constraint`
+2. **Dropped constraint**:
+   ```sql
+   ALTER TABLE "Booking" 
+   DROP CONSTRAINT IF EXISTS "booking_future_date_check";
+   ```
+3. **Applied migration** - constraint removed from database
+4. **Verified with tests** - all 8 booking status transition tests passing
+
+**Application-Level Validation Needed** (Future Work):
+- Add date validation in `POST /api/book` endpoint (prevent creating past bookings)
+- Allow status updates in `PATCH /api/admin/bookings` regardless of booking date
+- Maintain data integrity through application logic instead of database constraint
+
+**Files Modified**:
+- `prisma/migrations/20251012042622_drop_booking_future_date_constraint/migration.sql` - Dropped problematic constraint
+
+**Prevention**:
+- Consider INSERT vs UPDATE behavior when adding check constraints
+- Use application-level validation for complex business rules that differ between operations
+- Test constraint behavior with historical data, not just new records
+- Remember: PostgreSQL check constraints cannot be conditionally applied to INSERT only
+
+**Key Lessons**:
+1. **Check constraints apply to all DML operations** - INSERT, UPDATE, and DELETE
+2. **No native SQL way to restrict constraints to INSERT only** - requires trigger-based validation
+3. **Application-level validation provides more flexibility** - can distinguish between create and update
+4. **Always test constraints with historical data** - ensures legitimate updates aren't blocked
+5. **Status updates should never be blocked by date constraints** - audit operations need to work on any date
+
+**Related Files**:
+- `prisma/migrations/20250808083400_enhance_booking_conflict_constraints/migration.sql` - Original constraint (lines 36-45)
+- `app/api/admin/bookings/route.ts` - Status update code (lines 122-128)
+- `__tests__/integration/booking-status-transitions.test.ts` - Verification tests (8 passing)
+
 ## Database Issues
 
 ### Booking Conflicts Not Detected

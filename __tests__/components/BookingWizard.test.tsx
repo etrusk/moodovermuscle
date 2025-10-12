@@ -65,8 +65,14 @@ describe('BookingWizard', () => {
 
     // Assert
     const continueButton = screen.getByRole('button', { name: /validating/i })
-    expect(continueButton).toBeDisabled()
-    expect(screen.getByText(/validating/i)).toBeInTheDocument()
+    expect(continueButton).toMatchObject({
+      disabled: true,
+      textContent: expect.stringMatching(/validating/i)
+    })
+    const validatingText = screen.getByText(/validating/i)
+    expect(validatingText).toMatchObject({
+      textContent: expect.stringMatching(/validating/i)
+    })
   })
 
   it('should show submission loading state and disable button', () => {
@@ -87,6 +93,71 @@ describe('BookingWizard', () => {
 
     // Assert
     const continueButton = screen.getByRole('button', { name: /continue/i })
-    expect(continueButton).toBeDisabled()
+    expect(continueButton).toMatchObject({
+      disabled: true
+    })
+  })
+
+  it('throws error when onClose is not provided', () => {
+    // Arrange
+    useBookingFormMock.mockReturnValue({
+      form: {
+        handleSubmit:
+          (fn: () => Promise<void>) => (e?: React.BaseSyntheticEvent) => {
+            if (e) e.preventDefault()
+            fn()
+          },
+      },
+    })
+
+    // Act & Assert
+    expect(() => {
+      render(
+        <BookingFormProvider onClose={jest.fn()}>
+          <Dialog open={true}>
+            <DialogContent>
+              <BookingWizard onClose={undefined as any} />
+            </DialogContent>
+          </Dialog>
+        </BookingFormProvider>
+      )
+    }).toThrow()
+  })
+
+  it('verifies onClose is not called on initial render', () => {
+    // Arrange
+    const mockOnClose = jest.fn()
+    const mockLoadingStates = {
+      stepTransition: false,
+      formSubmission: false,
+      fieldValidation: {},
+      calendarLoading: false,
+    }
+
+    useBookingFormMock.mockReturnValue({
+      form: {
+        handleSubmit:
+          (fn: () => Promise<void>) => (e?: React.BaseSyntheticEvent) => {
+            if (e) e.preventDefault()
+            fn()
+          },
+      },
+      loadingStates: mockLoadingStates,
+    })
+
+    // Act
+    render(
+      <BookingFormProvider onClose={mockOnClose}>
+        <Dialog open={true}>
+          <DialogContent>
+            <BookingWizard onClose={mockOnClose} />
+          </DialogContent>
+        </Dialog>
+      </BookingFormProvider>
+    )
+
+    // Assert
+    expect(mockOnClose).toHaveBeenCalledTimes(0)
+    expect(mockOnClose).not.toHaveBeenCalled()
   })
 })

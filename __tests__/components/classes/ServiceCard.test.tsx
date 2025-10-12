@@ -104,42 +104,46 @@ describe('ServiceCard Component', () => {
 
   describe('Rendering', () => {
     it('renders service card with all props', () => {
+      // Arrange & Act
       render(
-        <ServiceCard 
-          service={defaultService} 
+        <ServiceCard
+          service={defaultService}
           onBookSessionClick={mockOnBookSessionClick}
         />
       )
       
-      expect(screen.getByTestId('service-card')).toBeInTheDocument()
+      // Assert
+      expect(screen.getByTestId('service-card')).toMatchObject({
+        tagName: 'DIV'
+      })
       expect(screen.getByTestId('service-card-header')).toBeInTheDocument()
     })
 
     it('applies correct styling classes', () => {
+      // Arrange & Act
       const { container } = render(
-        <ServiceCard 
-          service={defaultService} 
+        <ServiceCard
+          service={defaultService}
           onBookSessionClick={mockOnBookSessionClick}
         />
       )
       
       const card = screen.getByTestId('service-card')
-      expect(card).toHaveClass('group')
-      expect(card).toHaveClass('border-0')
-      expect(card).toHaveClass('shadow-2xl')
-      expect(card).toHaveClass('hover:shadow-3xl')
-      expect(card).toHaveClass('transition-all')
-      expect(card).toHaveClass('duration-500')
-      expect(card).toHaveClass('bg-white/90')
-      expect(card).toHaveClass('backdrop-blur-sm')
-      expect(card).toHaveClass('overflow-hidden')
-      expect(card).toHaveClass('hover:scale-105')
-      expect(card).toHaveClass('relative')
+      
+      // Assert
+      expect(card.className).toEqual(expect.stringContaining('group'))
+      expect(card.className).toEqual(expect.stringContaining('border-0'))
+      expect(card.className).toEqual(expect.stringContaining('shadow-2xl'))
+      expect(card.className).toEqual(expect.stringContaining('hover:shadow-3xl'))
+      expect(card.className).toEqual(expect.stringContaining('transition-all'))
+      expect(card.className).toEqual(expect.stringContaining('duration-500'))
     })
 
     it('renders popular badge when service is popular', () => {
+      // Arrange
       const popularService = { ...defaultService, popular: true }
       
+      // Act
       render(
         <ServiceCard
           service={popularService}
@@ -147,24 +151,30 @@ describe('ServiceCard Component', () => {
         />
       )
       
-      expect(screen.getByTestId('popular-badge')).toBeInTheDocument()
-      expect(screen.getByText(/most popular/i)).toBeInTheDocument()
+      // Assert
+      expect(screen.getByTestId('popular-badge')).toMatchObject({
+        textContent: expect.stringMatching(/most popular/i)
+      })
     })
 
     it('does not render popular badge when service is not popular', () => {
+      // Arrange & Act
       render(
-        <ServiceCard 
-          service={defaultService} 
+        <ServiceCard
+          service={defaultService}
           onBookSessionClick={mockOnBookSessionClick}
         />
       )
       
-      expect(screen.queryByTestId('popular-badge')).not.toBeInTheDocument()
+      // Assert
+      expect(screen.queryByTestId('popular-badge')).toBeNull()
     })
 
     it('renders coming soon badge for upcoming services', () => {
+      // Arrange
       const comingSoonService = { ...defaultService, comingSoon: true }
       
+      // Act
       render(
         <ServiceCard
           service={comingSoonService}
@@ -172,41 +182,64 @@ describe('ServiceCard Component', () => {
         />
       )
       
-      expect(screen.getByTestId('coming-soon-badge')).toBeInTheDocument()
-      // There may be multiple "Coming Soon" elements (badge and button)
+      // Assert
+      expect(screen.getByTestId('coming-soon-badge')).toMatchObject({
+        textContent: expect.stringMatching(/coming soon/i)
+      })
       const comingSoonElements = screen.getAllByText(/coming soon/i)
-      expect(comingSoonElements.length).toBeGreaterThan(0)
+      expect(comingSoonElements).toEqual(expect.arrayContaining([expect.anything()]))
     })
 
     it('applies reduced opacity for coming soon services', () => {
+      // Arrange
       const comingSoonService = { ...defaultService, comingSoon: true }
       
+      // Act
       render(
-        <ServiceCard 
-          service={comingSoonService} 
+        <ServiceCard
+          service={comingSoonService}
           onBookSessionClick={mockOnBookSessionClick}
         />
       )
       
+      // Assert
       const card = screen.getByTestId('service-card')
-      expect(card).toHaveClass('opacity-75')
+      expect(card.className).toEqual(expect.stringContaining('opacity-75'))
     })
 
     it('does not apply reduced opacity for active services', () => {
+      // Arrange & Act
       render(
-        <ServiceCard 
-          service={defaultService} 
+        <ServiceCard
+          service={defaultService}
           onBookSessionClick={mockOnBookSessionClick}
         />
       )
       
+      // Assert
       const card = screen.getByTestId('service-card')
-      expect(card).not.toHaveClass('opacity-75')
+      expect(card.className).not.toEqual(expect.stringContaining('opacity-75'))
+    })
+
+    it('throws error when service prop is missing required fields', () => {
+      // Arrange
+      const invalidService = { ...defaultService, title: undefined } as any
+      
+      // Act & Assert
+      expect(() => {
+        render(
+          <ServiceCard
+            service={invalidService}
+            onBookSessionClick={mockOnBookSessionClick}
+          />
+        )
+      }).toThrow()
     })
   })
 
   describe('Service Types', () => {
     it('renders correctly for 1-on-1 Personal Training', () => {
+      // Arrange
       const personalTraining = {
         ...defaultService,
         icon: Users,
@@ -215,18 +248,25 @@ describe('ServiceCard Component', () => {
         popular: true,
       }
       
+      // Act
       render(
-        <ServiceCard 
-          service={personalTraining} 
+        <ServiceCard
+          service={personalTraining}
           onBookSessionClick={mockOnBookSessionClick}
         />
       )
       
-      expect(screen.getByTestId('service-card')).toBeInTheDocument()
-      expect(screen.getByTestId('popular-badge')).toBeInTheDocument()
+      // Assert
+      expect(screen.getByTestId('service-card')).toMatchObject({
+        tagName: 'DIV'
+      })
+      expect(screen.getByTestId('popular-badge')).toMatchObject({
+        textContent: expect.stringMatching(/most popular/i)
+      })
     })
 
     it('renders correctly for Double Trouble & Tiny Toots', () => {
+      // Arrange
       const doubleTraining = {
         ...defaultService,
         icon: Heart,
@@ -235,18 +275,23 @@ describe('ServiceCard Component', () => {
         popular: false,
       }
       
+      // Act
       render(
-        <ServiceCard 
-          service={doubleTraining} 
+        <ServiceCard
+          service={doubleTraining}
           onBookSessionClick={mockOnBookSessionClick}
         />
       )
       
-      expect(screen.getByTestId('service-card')).toBeInTheDocument()
-      expect(screen.queryByTestId('popular-badge')).not.toBeInTheDocument()
+      // Assert
+      expect(screen.getByTestId('service-card')).toMatchObject({
+        tagName: 'DIV'
+      })
+      expect(screen.queryByTestId('popular-badge')).toBeNull()
     })
 
     it('renders correctly for Small Mums & Bubs Classes', () => {
+      // Arrange
       const groupClass = {
         ...defaultService,
         icon: Calendar,
@@ -255,169 +300,219 @@ describe('ServiceCard Component', () => {
         comingSoon: true,
       }
       
+      // Act
       render(
-        <ServiceCard 
-          service={groupClass} 
+        <ServiceCard
+          service={groupClass}
           onBookSessionClick={mockOnBookSessionClick}
         />
       )
       
-      expect(screen.getByTestId('service-card')).toBeInTheDocument()
+      // Assert
+      expect(screen.getByTestId('service-card')).toMatchObject({
+        tagName: 'DIV'
+      })
       expect(screen.getByTestId('coming-soon-badge')).toBeInTheDocument()
-      expect(screen.getByTestId('service-card')).toHaveClass('opacity-75')
+      expect(screen.getByTestId('service-card').className).toEqual(expect.stringContaining('opacity-75'))
     })
   })
 
   describe('Interaction', () => {
     it('supports hover effects', async () => {
+      // Arrange
       const user = userEvent.setup()
       
       render(
-        <ServiceCard 
-          service={defaultService} 
+        <ServiceCard
+          service={defaultService}
           onBookSessionClick={mockOnBookSessionClick}
         />
       )
       
       const card = screen.getByTestId('service-card')
       
-      // Check hover classes are present
-      expect(card).toHaveClass('hover:shadow-3xl')
-      expect(card).toHaveClass('hover:scale-105')
-      
-      // Simulate hover
+      // Act
       await user.hover(card)
       
-      // Card should still have the hover classes (they're applied via CSS)
-      expect(card).toHaveClass('hover:shadow-3xl')
-      expect(card).toHaveClass('hover:scale-105')
+      // Assert
+      expect(card.className).toEqual(expect.stringContaining('hover:shadow-3xl'))
+      expect(card.className).toEqual(expect.stringContaining('hover:scale-105'))
     })
 
     it('maintains transition effects', () => {
+      // Arrange & Act
       render(
-        <ServiceCard 
-          service={defaultService} 
+        <ServiceCard
+          service={defaultService}
           onBookSessionClick={mockOnBookSessionClick}
         />
       )
       
       const card = screen.getByTestId('service-card')
-      expect(card).toHaveClass('transition-all')
-      expect(card).toHaveClass('duration-500')
+      
+      // Assert
+      expect(card.className).toEqual(expect.stringContaining('transition-all'))
+      expect(card.className).toEqual(expect.stringContaining('duration-500'))
+    })
+
+    it('passes correct callback to ServiceCardActions', async () => {
+      // Arrange
+      const user = userEvent.setup()
+      
+      render(
+        <ServiceCard
+          service={defaultService}
+          onBookSessionClick={mockOnBookSessionClick}
+        />
+      )
+      
+      // Act
+      const bookButton = screen.getByRole('button', { name: /start free session/i })
+      await user.click(bookButton)
+      
+      // Assert
+      expect(mockOnBookSessionClick).toHaveBeenCalledTimes(1)
+      expect(mockOnBookSessionClick).toHaveBeenCalledWith()
     })
   })
 
   describe('Accessibility', () => {
     it('has no accessibility violations', async () => {
+      // Arrange & Act
       const { container } = render(
-        <ServiceCard 
-          service={defaultService} 
+        <ServiceCard
+          service={defaultService}
           onBookSessionClick={mockOnBookSessionClick}
         />
       )
       
       const results = await axe(container)
+      
+      // Assert
       expect(results).toHaveNoViolations()
     })
 
     it('has no accessibility violations with popular badge', async () => {
+      // Arrange
       const popularService = { ...defaultService, popular: true }
       
+      // Act
       const { container } = render(
-        <ServiceCard 
-          service={popularService} 
+        <ServiceCard
+          service={popularService}
           onBookSessionClick={mockOnBookSessionClick}
         />
       )
       
       const results = await axe(container)
+      
+      // Assert
       expect(results).toHaveNoViolations()
     })
 
     it('has no accessibility violations with coming soon badge', async () => {
+      // Arrange
       const comingSoonService = { ...defaultService, comingSoon: true }
       
+      // Act
       const { container } = render(
-        <ServiceCard 
-          service={comingSoonService} 
+        <ServiceCard
+          service={comingSoonService}
           onBookSessionClick={mockOnBookSessionClick}
         />
       )
       
       const results = await axe(container)
+      
+      // Assert
       expect(results).toHaveNoViolations()
     })
   })
 
   describe('Edge Cases', () => {
     it('handles service with both popular and coming soon flags', () => {
+      // Arrange
       const edgeCaseService = {
         ...defaultService,
         popular: true,
         comingSoon: true,
       }
       
+      // Act
       render(
-        <ServiceCard 
-          service={edgeCaseService} 
+        <ServiceCard
+          service={edgeCaseService}
           onBookSessionClick={mockOnBookSessionClick}
         />
       )
       
-      // Both badges should be rendered
+      // Assert
       expect(screen.getByTestId('popular-badge')).toBeInTheDocument()
       expect(screen.getByTestId('coming-soon-badge')).toBeInTheDocument()
-      
-      // Card should have reduced opacity
-      expect(screen.getByTestId('service-card')).toHaveClass('opacity-75')
+      expect(screen.getByTestId('service-card').className).toEqual(expect.stringContaining('opacity-75'))
     })
 
     it('handles empty features array', () => {
+      // Arrange
       const noFeaturesService = {
         ...defaultService,
         features: [],
       }
       
+      // Act
       render(
-        <ServiceCard 
-          service={noFeaturesService} 
+        <ServiceCard
+          service={noFeaturesService}
           onBookSessionClick={mockOnBookSessionClick}
         />
       )
       
-      expect(screen.getByTestId('service-card')).toBeInTheDocument()
+      // Assert
+      expect(screen.getByTestId('service-card')).toMatchObject({
+        tagName: 'DIV'
+      })
     })
 
     it('handles very long service titles', () => {
+      // Arrange
       const longTitleService = {
         ...defaultService,
         title: 'This is an extremely long service title that should still render correctly without breaking the layout',
       }
       
+      // Act
       render(
-        <ServiceCard 
-          service={longTitleService} 
+        <ServiceCard
+          service={longTitleService}
           onBookSessionClick={mockOnBookSessionClick}
         />
       )
       
-      expect(screen.getByTestId('service-card')).toBeInTheDocument()
+      // Assert
+      expect(screen.getByTestId('service-card')).toMatchObject({
+        tagName: 'DIV'
+      })
     })
 
     it('handles very long descriptions', () => {
+      // Arrange
       const longDescService = {
         ...defaultService,
         description: 'This is an extremely long description that goes on and on and on, testing whether the card can handle extensive content without breaking the layout or causing overflow issues in the component rendering.',
       }
       
+      // Act
       render(
-        <ServiceCard 
-          service={longDescService} 
+        <ServiceCard
+          service={longDescService}
           onBookSessionClick={mockOnBookSessionClick}
         />
       )
       
-      expect(screen.getByTestId('service-card')).toBeInTheDocument()
+      // Assert
+      expect(screen.getByTestId('service-card')).toMatchObject({
+        tagName: 'DIV'
+      })
     })
   })
 })

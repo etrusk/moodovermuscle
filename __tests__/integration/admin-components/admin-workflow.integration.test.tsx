@@ -139,7 +139,7 @@ describe('Admin Workflow Integration Tests', () => {
 
   describe('Complete Admin Workflow: Dashboard → Bookings → Status Update → Calendar', () => {
     it('enables seamless navigation and data synchronization across all admin views', async () => {
-      // Given: Admin is authenticated with active bookings requiring management
+      // Arrange
       const mockStatsResponse = {
         ok: true,
         json: jest.fn(() => Promise.resolve(mockStatsData)),
@@ -165,14 +165,14 @@ describe('Admin Workflow Integration Tests', () => {
         .mockResolvedValueOnce(mockUpdateResponse) // Status update
         .mockResolvedValueOnce(mockBookingsResponse) // Refresh after update
 
-      // When: Admin navigates through dashboard → bookings → status update → calendar
+      // Act
       const { container } = render(
         <AdminLayout>
           <AdminDashboardPage />
         </AdminLayout>
       )
 
-      // Then: Dashboard loads with current statistics
+      // Assert
       await waitFor(() => {
         expect(screen.getByText(/Welcome back, Emily!/)).toBeInTheDocument()
         expect(screen.getByText('25')).toBeInTheDocument() // Total bookings
@@ -312,17 +312,17 @@ describe('Admin Workflow Integration Tests', () => {
 
   describe('Error Recovery: System Resilience Under Failure Conditions', () => {
     it('recovers gracefully from API failures without disrupting admin workflow', async () => {
-      // Given: Backend API is experiencing temporary failures
+      // Arrange
       mockFetch.mockRejectedValue(new Error('API Error'))
 
-      // When: Admin attempts to load dashboard
+      // Act
       render(
         <AdminLayout>
           <AdminDashboardPage />
         </AdminLayout>
       )
 
-      // Then: Error message is displayed with context
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('Error loading dashboard data')).toBeInTheDocument()
         expect(screen.getByText('API Error')).toBeInTheDocument()
@@ -804,6 +804,22 @@ describe('Admin Workflow Integration Tests', () => {
       await waitFor(() => {
         expect(screen.getByText(/Welcome back, Emily!/)).toBeInTheDocument()
       })
+    })
+
+    it('throws error when authentication fails', async () => {
+      // Arrange
+      mockUseAdminAuth.mockImplementation(() => {
+        throw new Error('Authentication failed')
+      })
+
+      // Act & Assert
+      expect(() => {
+        render(
+          <AdminLayout>
+            <AdminDashboardPage />
+          </AdminLayout>
+        )
+      }).toThrow('Authentication failed')
     })
   })
 })

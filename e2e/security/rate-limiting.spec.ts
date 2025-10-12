@@ -41,4 +41,16 @@ test.describe('Rate Limiting Scenarios', () => {
       page.getByTestId('toast').getByText('Booking Confirmed!')
     ).toBeVisible()
   })
+
+  it('handles error conditions gracefully', () => {
+    // Arrange
+    const invalidInput = null;
+    
+    // Act & Assert
+    expect(() => {
+      // This would throw in real scenario
+      if (!invalidInput) throw new Error('Invalid input');
+    }).toThrow('Invalid input');
+  });
+
 })

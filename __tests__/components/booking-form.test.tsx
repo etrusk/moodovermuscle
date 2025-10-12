@@ -29,34 +29,74 @@ describe('BookingForm Component', () => {
   })
 
   test('renders when isOpen is true and has no accessibility violations', async () => {
+    // Arrange
     const { container } = render(
       <BookingForm isOpen={true} onClose={mockOnClose} />
     )
 
-    expect(
-      screen.getByRole('heading', { name: /book your free session/i })
-    ).toBeInTheDocument()
+    // Act
+    const heading = screen.getByRole('heading', { name: /book your free session/i })
     const results = await axe(container)
-    expect(results).toHaveNoViolations()
+
+    // Assert
+    expect(heading).toMatchObject({
+      textContent: expect.stringMatching(/book your free session/i)
+    })
+    expect(results).toMatchObject({
+      violations: []
+    })
   })
 
   test('does not render when isOpen is false', () => {
+    // Arrange & Act
     render(<BookingForm isOpen={false} onClose={mockOnClose} />)
 
-    expect(
-      screen.queryByRole('heading', { name: /book your free session/i })
-    ).not.toBeInTheDocument()
+    // Assert
+    const heading = screen.queryByRole('heading', { name: /book your free session/i })
+    expect(heading).toBeNull()
   })
 
   test('calls onClose when form is closed', async () => {
+    // Arrange
     const user = userEvent.setup()
     render(<BookingForm isOpen={true} onClose={mockOnClose} />)
 
-    // Click the close button
+    // Act
     const closeButton = screen.getByRole('button', { name: /close/i })
     await user.click(closeButton)
 
+    // Assert
+    expect(mockOnClose).toHaveBeenCalledWith()
     expect(mockOnClose).toHaveBeenCalledTimes(1)
+  })
+
+  test('throws error when required fields are submitted empty', async () => {
+    // Arrange
+    const user = userEvent.setup()
+    render(<BookingForm isOpen={true} onClose={mockOnClose} />)
+
+    // Act
+    const continueButton = screen.getByRole('button', { name: /continue/i })
+    await user.click(continueButton)
+
+    // Assert
+    const nameError = await screen.findByText(/name must be at least 2 characters/i)
+    expect(nameError).toMatchObject({
+      textContent: expect.stringMatching(/name must be at least 2 characters/i)
+    })
+  })
+
+  test('handles invalid prop values gracefully', () => {
+    // Arrange & Act
+    const consoleError = jest.spyOn(console, 'error').mockImplementation()
+    
+    expect(() => {
+      render(<BookingForm isOpen={true} onClose={null as any} />)
+    }).toThrow()
+
+    // Assert
+    expect(consoleError).toHaveBeenCalled()
+    consoleError.mockRestore()
   })
 
   // Note: MSW test removed - API error handling covered in integration tests

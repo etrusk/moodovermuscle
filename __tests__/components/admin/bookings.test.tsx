@@ -113,13 +113,16 @@ describe('BookingsPage Component', () => {
 
   describe('Loading and Error States', () => {
     it('shows loading state initially', async () => {
+      // Arrange
       // Mock delayed response
-      mockFetch.mockImplementation(() => 
+      mockFetch.mockImplementation(() =>
         new Promise(resolve => setTimeout(() => resolve(mockSuccessResponse), 100))
       )
 
+      // Act
       const { container } = render(<BookingsPage />)
 
+      // Assert
       expect(screen.getByText('Booking Management')).toBeInTheDocument()
       expect(container.querySelectorAll('.animate-pulse')).toHaveLength(3)
 
@@ -132,10 +135,13 @@ describe('BookingsPage Component', () => {
     })
 
     it('displays error state when fetch fails', async () => {
+      // Arrange
       mockFetch.mockRejectedValue(new Error('Network error'))
 
+      // Act
       const { container } = render(<BookingsPage />)
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('Error Loading Bookings')).toBeInTheDocument()
         expect(screen.getByText('Network error')).toBeInTheDocument()
@@ -147,6 +153,7 @@ describe('BookingsPage Component', () => {
     })
 
     it('retries fetch when Try Again button is clicked', async () => {
+      // Arrange
       const retrySuccessResponse = {
         ok: true,
         json: jest.fn(() => Promise.resolve({ bookings: mockBookings })),
@@ -164,11 +171,11 @@ describe('BookingsPage Component', () => {
         expect(screen.getByText('Network error')).toBeInTheDocument()
       })
 
-      // Click Try Again
+      // Act
       const tryAgainButton = screen.getByRole('button', { name: /try again/i })
       await user.click(tryAgainButton)
 
-      // Should fetch again and succeed
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('Sarah Miller')).toBeInTheDocument()
       })
@@ -177,6 +184,7 @@ describe('BookingsPage Component', () => {
     })
 
     it('handles API error responses correctly', async () => {
+      // Arrange
       const apiErrorResponse = {
         ok: false,
         statusText: 'Internal Server Error',
@@ -185,8 +193,10 @@ describe('BookingsPage Component', () => {
       }
       mockFetch.mockResolvedValue(apiErrorResponse)
 
+      // Act
       render(<BookingsPage />)
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('Failed to fetch bookings: Internal Server Error')).toBeInTheDocument()
       })
@@ -195,8 +205,10 @@ describe('BookingsPage Component', () => {
 
   describe('Bookings Display', () => {
     it('renders bookings list with correct information', async () => {
+      // Arrange & Act
       render(<BookingsPage />)
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('Sarah Miller')).toBeInTheDocument()
         expect(screen.getByText('Mike Johnson')).toBeInTheDocument()
@@ -217,14 +229,17 @@ describe('BookingsPage Component', () => {
     })
 
     it('displays booking count information', async () => {
+      // Arrange & Act
       render(<BookingsPage />)
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('4 of 4 bookings')).toBeInTheDocument()
       })
     })
 
     it('shows empty state when no bookings exist', async () => {
+      // Arrange
       const emptyResponse = {
         ok: true,
         json: jest.fn(() => Promise.resolve({ bookings: [] })),
@@ -232,8 +247,10 @@ describe('BookingsPage Component', () => {
       }
       mockFetch.mockResolvedValue(emptyResponse)
 
+      // Act
       render(<BookingsPage />)
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByText(/no bookings found/i)).toBeInTheDocument()
         expect(screen.getByText(/no bookings have been created yet/i)).toBeInTheDocument()
@@ -241,8 +258,10 @@ describe('BookingsPage Component', () => {
     })
 
     it('formats dates and times correctly', async () => {
+      // Arrange & Act
       render(<BookingsPage />)
 
+      // Assert
       await waitFor(() => {
         // Check for Australian date format
         expect(screen.getByText('Sun, 10 Aug 2025')).toBeInTheDocument()
@@ -259,8 +278,10 @@ describe('BookingsPage Component', () => {
 
   describe('Filter Operations', () => {
     it('renders all filter controls', async () => {
+      // Arrange & Act
       render(<BookingsPage />)
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByLabelText('Status')).toBeInTheDocument()
         expect(screen.getByPlaceholderText('Search by name, email, or service')).toBeInTheDocument()
@@ -270,6 +291,7 @@ describe('BookingsPage Component', () => {
     })
 
     it('filters bookings by status', async () => {
+      // Arrange
       render(<BookingsPage />)
 
       await waitFor(() => {
@@ -277,14 +299,13 @@ describe('BookingsPage Component', () => {
         expect(screen.getByText('Mike Johnson')).toBeInTheDocument()
       })
 
-      // Filter by PENDING status
+      // Act
       const statusSelect = screen.getByRole('combobox')
       await user.click(statusSelect)
-      // Use data-testid for more reliable selection
       const pendingOption = screen.getByTestId('status-filter-pending')
       await user.click(pendingOption)
 
-      // Should show filtered count
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('1 of 4 bookings')).toBeInTheDocument()
         expect(screen.getByText('Sarah Miller')).toBeInTheDocument()
@@ -293,16 +314,18 @@ describe('BookingsPage Component', () => {
     })
 
     it('filters bookings by search query', async () => {
+      // Arrange
       render(<BookingsPage />)
 
       await waitFor(() => {
         expect(screen.getAllByText(/Personal Training/)).toHaveLength(2) // Sarah and Tom
       })
 
-      // Search by name
+      // Act
       const searchInput = screen.getByPlaceholderText('Search by name, email, or service')
       await user.type(searchInput, 'sarah')
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('1 of 4 bookings')).toBeInTheDocument()
         expect(screen.getByText('Sarah Miller')).toBeInTheDocument()
@@ -311,16 +334,18 @@ describe('BookingsPage Component', () => {
     })
 
     it('filters bookings by date range', async () => {
+      // Arrange
       render(<BookingsPage />)
 
       await waitFor(() => {
         expect(screen.getByText('4 of 4 bookings')).toBeInTheDocument()
       })
 
-      // Set date from filter
+      // Act
       const dateFromInput = screen.getByLabelText('From Date')
       await user.type(dateFromInput, '2025-08-10')
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('3 of 4 bookings')).toBeInTheDocument()
         expect(screen.getByText('Sarah Miller')).toBeInTheDocument()
@@ -330,33 +355,30 @@ describe('BookingsPage Component', () => {
     })
 
     it('clears all filters when Clear All Filters is clicked', async () => {
+      // Arrange
       render(<BookingsPage />)
 
       await waitFor(() => {
         expect(screen.getByText('4 of 4 bookings')).toBeInTheDocument()
       })
 
-      // Apply a status filter
       const statusSelect = screen.getByRole('combobox')
       await user.click(statusSelect)
-      // Use data-testid for more reliable selection
       const pendingOption = screen.getByTestId('status-filter-pending')
       await user.click(pendingOption)
 
-      // Apply search filter
       const searchInput = screen.getByPlaceholderText('Search by name, email, or service')
       await user.type(searchInput, 'sarah')
 
-      // Should show clear filters button
       await waitFor(() => {
         expect(screen.getByText('Clear All Filters')).toBeInTheDocument()
       })
 
-      // Click clear filters
+      // Act
       const clearButton = screen.getByText('Clear All Filters')
       await user.click(clearButton)
 
-      // Should reset to show all bookings
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('4 of 4 bookings')).toBeInTheDocument()
         expect(searchInput).toHaveValue('')
@@ -364,12 +386,14 @@ describe('BookingsPage Component', () => {
     })
 
     it('shows no results when filters match nothing', async () => {
+      // Arrange
       render(<BookingsPage />)
 
-      // Search for non-existent booking
+      // Act
       const searchInput = screen.getByPlaceholderText('Search by name, email, or service')
       await user.type(searchInput, 'nonexistent')
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('No bookings found')).toBeInTheDocument()
         expect(screen.getByText('No bookings match your current filters.')).toBeInTheDocument()
@@ -380,8 +404,10 @@ describe('BookingsPage Component', () => {
 
   describe('Status Update Functionality', () => {
     it('renders status update buttons for appropriate statuses', async () => {
+      // Arrange & Act
       render(<BookingsPage />)
 
+      // Assert
       await waitFor(() => {
         // PENDING booking (Sarah) should have "Mark as Confirmed" and "Cancel" buttons
         const sarahRow = screen.getByText('Sarah Miller').closest('.hover\\:shadow-md')
@@ -405,6 +431,7 @@ describe('BookingsPage Component', () => {
     })
 
     it('updates booking status when Mark as Confirmed is clicked', async () => {
+      // Arrange
       const mockUpdateResponse = {
         ok: true,
         json: jest.fn(() => Promise.resolve({ success: true })),
@@ -422,11 +449,11 @@ describe('BookingsPage Component', () => {
         expect(screen.getByText('Sarah Miller')).toBeInTheDocument()
       })
 
-      // Click "Mark as Confirmed"
+      // Act
       const confirmButton = screen.getByText('Mark as Confirmed')
       await user.click(confirmButton)
 
-      // Should call PATCH API
+      // Assert
       await waitFor(() => {
         expect(mockFetch).toHaveBeenCalledWith('/api/admin/bookings', {
           method: 'PATCH',
@@ -444,6 +471,7 @@ describe('BookingsPage Component', () => {
     })
 
     it('updates booking status when Cancel is clicked', async () => {
+      // Arrange
       const mockUpdateResponse = {
         ok: true,
         json: jest.fn(() => Promise.resolve({ success: true })),
@@ -461,11 +489,11 @@ describe('BookingsPage Component', () => {
         expect(screen.getByText('Sarah Miller')).toBeInTheDocument()
       })
 
-      // Click "Cancel"
+      // Act
       const cancelButton = screen.getByText('Cancel')
       await user.click(cancelButton)
 
-      // Should call PATCH API with CANCELLED status
+      // Assert
       await waitFor(() => {
         expect(mockFetch).toHaveBeenCalledWith('/api/admin/bookings', {
           method: 'PATCH',
@@ -481,6 +509,7 @@ describe('BookingsPage Component', () => {
     })
 
     it('handles status update errors gracefully', async () => {
+      // Arrange
       mockFetch
         .mockResolvedValueOnce(mockSuccessResponse) // Initial fetch
         .mockRejectedValueOnce(new Error('Update failed')) // Status update failure
@@ -491,11 +520,11 @@ describe('BookingsPage Component', () => {
         expect(screen.getByText('Sarah Miller')).toBeInTheDocument()
       })
 
-      // Click "Mark as Confirmed"
+      // Act
       const confirmButton = screen.getByText('Mark as Confirmed')
       await user.click(confirmButton)
 
-      // Should show error message
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('Error Loading Bookings')).toBeInTheDocument()
         expect(screen.getByText('Update failed')).toBeInTheDocument()
@@ -503,12 +532,14 @@ describe('BookingsPage Component', () => {
     })
 
     it('provides proper status progression workflow', async () => {
+      // Arrange & Act
       render(<BookingsPage />)
 
       await waitFor(() => {
         expect(screen.getByText('Sarah Miller')).toBeInTheDocument()
       })
 
+      // Assert
       // Test the progression: PENDING -> CONFIRMED -> COMPLETED
       // PENDING booking shows "Mark as Confirmed"
       const sarahRow = screen.getByText('Sarah Miller').closest('.hover\\:shadow-md')
@@ -524,17 +555,18 @@ describe('BookingsPage Component', () => {
 
   describe('Modal Interactions', () => {
     it('opens booking detail modal when View Details is clicked', async () => {
+      // Arrange
       render(<BookingsPage />)
 
       await waitFor(() => {
         expect(screen.getByText('Sarah Miller')).toBeInTheDocument()
       })
 
-      // Click "View Details" for Sarah's booking
+      // Act
       const viewDetailsButton = screen.getAllByText('View Details')[0]
       await user.click(viewDetailsButton)
 
-      // Modal should open with booking details
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('Booking Details')).toBeInTheDocument()
         expect(screen.getByText('sarah@example.com')).toBeInTheDocument()
@@ -545,16 +577,18 @@ describe('BookingsPage Component', () => {
     })
 
     it('displays complete booking information in modal', async () => {
+      // Arrange
       render(<BookingsPage />)
 
       await waitFor(() => {
         expect(screen.getByText('Sarah Miller')).toBeInTheDocument()
       })
 
-      // Open modal for detailed booking (Sarah)
+      // Act
       const viewDetailsButton = screen.getAllByText('View Details')[0]
       await user.click(viewDetailsButton)
 
+      // Assert
       await waitFor(() => {
         // Contact information
         expect(screen.getByText('Contact Information')).toBeInTheDocument()
@@ -580,6 +614,7 @@ describe('BookingsPage Component', () => {
     })
 
     it('allows status updates from within the modal', async () => {
+      // Arrange
       const mockUpdateResponse = {
         ok: true,
         json: jest.fn(() => Promise.resolve({ success: true })),
@@ -597,7 +632,6 @@ describe('BookingsPage Component', () => {
         expect(screen.getByText('Sarah Miller')).toBeInTheDocument()
       })
 
-      // Open modal
       const viewDetailsButton = screen.getAllByText('View Details')[0]
       await user.click(viewDetailsButton)
 
@@ -605,14 +639,14 @@ describe('BookingsPage Component', () => {
         expect(screen.getByText('Status Actions')).toBeInTheDocument()
       })
 
-      // Click status update button in modal
-      const modalConfirmButton = screen.getAllByText('Mark as Confirmed').find(btn => 
+      // Act
+      const modalConfirmButton = screen.getAllByText('Mark as Confirmed').find(btn =>
         btn.closest('[role="dialog"]')
       )
       expect(modalConfirmButton).toBeInTheDocument()
       await user.click(modalConfirmButton as HTMLElement)
 
-      // Should update status and close modal
+      // Assert
       await waitFor(() => {
         expect(mockFetch).toHaveBeenCalledWith('/api/admin/bookings', {
           method: 'PATCH',
@@ -628,16 +662,18 @@ describe('BookingsPage Component', () => {
     })
 
     it('handles modal accessibility correctly', async () => {
+      // Arrange
       render(<BookingsPage />)
 
       await waitFor(() => {
         expect(screen.getByText('Sarah Miller')).toBeInTheDocument()
       })
 
-      // Open modal
+      // Act
       const viewDetailsButton = screen.getAllByText('View Details')[0]
       await user.click(viewDetailsButton)
 
+      // Assert
       await waitFor(() => {
         const dialog = screen.getByRole('dialog')
         expect(dialog).toBeInTheDocument()
@@ -657,19 +693,23 @@ describe('BookingsPage Component', () => {
 
   describe('Accessibility and UX', () => {
     it('has no accessibility violations', async () => {
+      // Arrange & Act
       const { container } = render(<BookingsPage />)
 
       await waitFor(() => {
         expect(screen.getByText('Sarah Miller')).toBeInTheDocument()
       })
 
+      // Assert
       const results = await axe(container)
       expect(results).toHaveNoViolations()
     })
 
     it('provides proper heading structure', async () => {
+      // Arrange & Act
       render(<BookingsPage />)
 
+      // Assert
       await waitFor(() => {
         const mainHeading = screen.getByRole('heading', { level: 1 })
         expect(mainHeading).toHaveTextContent('Booking Management')
@@ -680,8 +720,10 @@ describe('BookingsPage Component', () => {
     })
 
     it('provides proper form labels and accessibility', async () => {
+      // Arrange & Act
       render(<BookingsPage />)
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByLabelText('Status')).toBeInTheDocument()
         expect(screen.getByLabelText('From Date')).toBeInTheDocument()
@@ -693,15 +735,18 @@ describe('BookingsPage Component', () => {
     })
 
     it('maintains proper focus management', async () => {
+      // Arrange
       render(<BookingsPage />)
 
       await waitFor(() => {
         expect(screen.getByText('Sarah Miller')).toBeInTheDocument()
       })
 
-      // Test keyboard navigation through interactive elements
+      // Act
       const searchInput = screen.getByPlaceholderText('Search by name, email, or service')
       searchInput.focus()
+
+      // Assert
       expect(searchInput).toHaveFocus()
 
       await user.tab()
@@ -712,8 +757,10 @@ describe('BookingsPage Component', () => {
     })
 
     it('provides proper button labeling for screen readers', async () => {
+      // Arrange & Act
       render(<BookingsPage />)
 
+      // Assert
       await waitFor(() => {
         const buttons = screen.getAllByRole('button')
         buttons.forEach(button => {
@@ -725,6 +772,7 @@ describe('BookingsPage Component', () => {
 
   describe('Performance and Edge Cases', () => {
     it('handles large number of bookings efficiently', async () => {
+      // Arrange
       const largeBookingsList = Array.from({ length: 50 }, (_, i) => ({
         ...mockBookings[0],
         id: `booking-${i}`,
@@ -739,6 +787,7 @@ describe('BookingsPage Component', () => {
       }
       mockFetch.mockResolvedValue(largeResponse)
 
+      // Act
       const startTime = Date.now()
       render(<BookingsPage />)
 
@@ -746,16 +795,21 @@ describe('BookingsPage Component', () => {
         expect(screen.getByText('User 0')).toBeInTheDocument()
       })
       
+      // Assert
       const endTime = Date.now()
       expect(endTime - startTime).toBeLessThan(3000) // Should render within reasonable time
     })
 
     it('handles component unmount gracefully', () => {
+      // Arrange & Act
       const { unmount } = render(<BookingsPage />)
+      
+      // Assert
       expect(() => unmount()).not.toThrow()
     })
 
     it('handles malformed booking data gracefully', async () => {
+      // Arrange
       const malformedBookings = [
         { ...mockBookings[0], date: 'invalid-date' },
         { ...mockBookings[1], time: null },
@@ -769,15 +823,17 @@ describe('BookingsPage Component', () => {
       }
       mockFetch.mockResolvedValue(malformedResponse)
 
+      // Act
       render(<BookingsPage />)
 
-      // Should still render without crashing
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('Booking Management')).toBeInTheDocument()
       })
     })
 
     it('prevents multiple concurrent status updates', async () => {
+      // Arrange
       const mockUpdateResponse = {
         ok: true,
         json: jest.fn(() => Promise.resolve({ success: true })),
@@ -786,7 +842,7 @@ describe('BookingsPage Component', () => {
 
       mockFetch
         .mockResolvedValueOnce(mockSuccessResponse) // Initial fetch
-        .mockImplementation(() => 
+        .mockImplementation(() =>
           new Promise(resolve => setTimeout(() => resolve(mockUpdateResponse), 100))
         )
 
@@ -796,13 +852,13 @@ describe('BookingsPage Component', () => {
         expect(screen.getByText('Sarah Miller')).toBeInTheDocument()
       })
 
-      // Rapidly click the same button multiple times
+      // Act
       const confirmButton = screen.getByText('Mark as Confirmed')
       await user.click(confirmButton)
       await user.click(confirmButton)
       await user.click(confirmButton)
 
-      // Should only make one update call despite multiple clicks
+      // Assert
       await waitFor(() => {
         expect(mockFetch).toHaveBeenCalledTimes(2) // Initial + one update
       })

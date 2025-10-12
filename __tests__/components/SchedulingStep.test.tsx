@@ -14,6 +14,8 @@ jest.mock('@/components/booking-form/useAvailability')
 const mockedUseAvailability = useAvailability.useAvailability as jest.Mock
 
 describe('SchedulingStep', () => {
+  const mockFetchAvailability = jest.fn()
+
   afterEach(() => {
     jest.clearAllMocks()
   })
@@ -24,7 +26,7 @@ describe('SchedulingStep', () => {
       availableTimes: [],
       bookedTimes: [],
       loadingAvailability: false,
-      fetchAvailability: jest.fn(),
+      fetchAvailability: mockFetchAvailability,
       availabilityCache: {},
     })
 
@@ -36,9 +38,23 @@ describe('SchedulingStep', () => {
     )
 
     // Assert
-    expect(screen.getByTestId('date-picker-trigger')).toBeDisabled()
-    expect(screen.getByTestId('time-select')).toBeDisabled()
-    expect(screen.getByTestId('message-textarea')).toBeDisabled()
+    const datePicker = screen.getByTestId('date-picker-trigger')
+    const timeSelect = screen.getByTestId('time-select')
+    const messageTextarea = screen.getByTestId('message-textarea')
+
+    expect(datePicker).toMatchObject({
+      disabled: true
+    })
+    expect(timeSelect).toMatchObject({
+      disabled: true,
+      tagName: 'SELECT'
+    })
+    expect(messageTextarea).toMatchObject({
+      disabled: true,
+      tagName: 'TEXTAREA'
+    })
+    
+    expect(mockFetchAvailability).toHaveBeenCalledTimes(0)
   })
 
   it('shows loading state for time slots when availability is being fetched', () => {
@@ -47,7 +63,7 @@ describe('SchedulingStep', () => {
       availableTimes: [],
       bookedTimes: [],
       loadingAvailability: true,
-      fetchAvailability: jest.fn(),
+      fetchAvailability: mockFetchAvailability,
       availabilityCache: {},
     })
 
@@ -59,8 +75,16 @@ describe('SchedulingStep', () => {
     )
 
     // Assert
-    expect(screen.getByTestId('time-select')).toBeDisabled()
-    expect(screen.getByRole('option', { name: /loading slots/i })).toBeInTheDocument()
+    const timeSelect = screen.getByTestId('time-select')
+    const loadingOption = screen.getByRole('option', { name: /loading slots/i })
+    
+    expect(timeSelect).toMatchObject({
+      disabled: true,
+      tagName: 'SELECT'
+    })
+    expect(loadingOption).toMatchObject({
+      textContent: expect.stringMatching(/loading slots/i)
+    })
   })
 
   it('displays available and booked time slots correctly', async () => {
@@ -69,7 +93,7 @@ describe('SchedulingStep', () => {
       availableTimes: ['09:00', '11:00'],
       bookedTimes: ['10:00'],
       loadingAvailability: false,
-      fetchAvailability: jest.fn(),
+      fetchAvailability: mockFetchAvailability,
       availabilityCache: {},
     })
 
@@ -80,10 +104,13 @@ describe('SchedulingStep', () => {
       </BookingFormProvider>
     )
 
-    const timeSelect = screen.getByTestId('time-select')
-    expect(timeSelect).toBeEnabled()
-
     // Assert
+    const timeSelect = screen.getByTestId('time-select')
+    expect(timeSelect).toMatchObject({
+      disabled: false,
+      tagName: 'SELECT'
+    })
+
     // Use findByRole to wait for options to appear
     const availableOption = await screen.findByRole('option', { name: '9:00 AM' })
     const bookedOption = await screen.findByRole('option', {
@@ -93,14 +120,18 @@ describe('SchedulingStep', () => {
       name: '11:00 AM',
     })
 
-    expect(availableOption).toBeInTheDocument()
-    expect(availableOption).not.toBeDisabled()
-
-    expect(bookedOption).toBeInTheDocument()
-    expect(bookedOption).toBeDisabled()
-
-    expect(anotherAvailableOption).toBeInTheDocument()
-    expect(anotherAvailableOption).not.toBeDisabled()
+    expect(availableOption).toMatchObject({
+      textContent: '9:00 AM',
+      disabled: false
+    })
+    expect(bookedOption).toMatchObject({
+      textContent: expect.stringMatching(/10:00 AM.*Booked/),
+      disabled: true
+    })
+    expect(anotherAvailableOption).toMatchObject({
+      textContent: '11:00 AM',
+      disabled: false
+    })
   })
 
   it('shows "Select a date first" when no date is selected', () => {
@@ -109,7 +140,7 @@ describe('SchedulingStep', () => {
       availableTimes: [],
       bookedTimes: [],
       loadingAvailability: false,
-      fetchAvailability: jest.fn(),
+      fetchAvailability: mockFetchAvailability,
       availabilityCache: {},
     })
 
@@ -121,7 +152,80 @@ describe('SchedulingStep', () => {
     )
 
     // Assert
-    expect(screen.getByTestId('time-select')).toBeDisabled()
-    expect(screen.getByRole('option', { name: /select a date first/i })).toBeInTheDocument()
+    const timeSelect = screen.getByTestId('time-select')
+    const dateOption = screen.getByRole('option', { name: /select a date first/i })
+    
+    expect(timeSelect).toMatchObject({
+      disabled: true,
+      tagName: 'SELECT'
+    })
+    expect(dateOption).toMatchObject({
+      textContent: expect.stringMatching(/select a date first/i)
+    })
   })
+
+  it('handles empty arrays from useAvailability hook gracefully', () => {
+    // Arrange
+    mockedUseAvailability.mockReturnValue({
+      availableTimes: [],
+      bookedTimes: [],
+      loadingAvailability: false,
+      fetchAvailability: mockFetchAvailability,
+      availabilityCache: {},
+    })
+
+    // Act
+    render(
+      <BookingFormProvider onClose={() => {}}>
+        <SchedulingStep />
+      </BookingFormProvider>
+    )
+
+    // Assert
+    const timeSelect = screen.getByTestId('time-select')
+    expect(timeSelect).toMatchObject({
+      disabled: true,
+      tagName: 'SELECT'
+    })
+    expect(mockFetchAvailability).toHaveBeenCalledTimes(0)
+  })
+
+  it('throws error when rendering without provider context', () => {
+    // Arrange
+    mockedUseAvailability.mockReturnValue({
+      availableTimes: [],
+      bookedTimes: [],
+      loadingAvailability: false,
+      fetchAvailability: mockFetchAvailability,
+      availabilityCache: {},
+    })
+
+    // Act & Assert
+    expect(() => {
+      render(<SchedulingStep />)
+    }).toThrow()
+  })
+
+  it('verifies fetchAvailability is not called on initial render without date', () => {
+    // Arrange
+    mockedUseAvailability.mockReturnValue({
+      availableTimes: [],
+      bookedTimes: [],
+      loadingAvailability: false,
+      fetchAvailability: mockFetchAvailability,
+      availabilityCache: {},
+    })
+
+    // Act
+    render(
+      <BookingFormProvider onClose={() => {}}>
+        <SchedulingStep />
+      </BookingFormProvider>
+    )
+
+    // Assert
+    expect(mockFetchAvailability).toHaveBeenCalledTimes(0)
+    expect(mockFetchAvailability).not.toHaveBeenCalled()
+  })
+
 })

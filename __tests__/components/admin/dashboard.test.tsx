@@ -86,6 +86,7 @@ describe('AdminDashboardPage Component', () => {
 
   describe('Authentication Integration', () => {
     it('shows loading state when authentication is loading', async () => {
+      // Arrange
       mockUseAdminAuth.mockReturnValue({
         user: null,
         isLoading: true,
@@ -95,8 +96,10 @@ describe('AdminDashboardPage Component', () => {
         refreshSession: jest.fn(),
       })
 
+      // Act
       const { container } = render(<AdminDashboardPage />)
       
+      // Assert
       expect(screen.getByText(/loading/i)).toBeInTheDocument()
       expect(container.querySelector('.animate-spin')).toBeInTheDocument()
       
@@ -105,6 +108,7 @@ describe('AdminDashboardPage Component', () => {
     })
 
     it('returns null when not authenticated', () => {
+      // Arrange
       mockUseAdminAuth.mockReturnValue({
         user: null,
         isLoading: false,
@@ -114,15 +118,20 @@ describe('AdminDashboardPage Component', () => {
         refreshSession: jest.fn(),
       })
 
+      // Act
       const { container } = render(<AdminDashboardPage />)
+      
+      // Assert
       expect(container.firstChild).toBeNull()
     })
   })
 
   describe('Stats Loading and Display', () => {
     it('renders dashboard with user welcome message', async () => {
+      // Arrange & Act
       const { container } = render(<AdminDashboardPage />)
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByText(/Welcome back, Emily!/)).toBeInTheDocument()
         expect(screen.getByText(/Here's what's happening with your fitness coaching business today/)).toBeInTheDocument()
@@ -133,25 +142,27 @@ describe('AdminDashboardPage Component', () => {
     })
 
     it('displays loading state for stats initially', async () => {
-      // Delay the fetch to capture loading state
-      mockFetch.mockImplementation(() => 
+      // Arrange
+      mockFetch.mockImplementation(() =>
         new Promise(resolve => setTimeout(() => resolve(mockStatsResponse), 100))
       )
 
+      // Act
       render(<AdminDashboardPage />)
 
-      // Should show loading dots initially
+      // Assert
       expect(screen.getAllByText('...')).toHaveLength(4)
       
-      // Wait for stats to load
       await waitFor(() => {
         expect(screen.getByText('25')).toBeInTheDocument()
       })
     })
 
     it('fetches and displays dashboard statistics correctly', async () => {
+      // Arrange & Act
       render(<AdminDashboardPage />)
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('25')).toBeInTheDocument()  // Total bookings
         expect(screen.getByText('3')).toBeInTheDocument()   // Pending bookings
@@ -162,21 +173,17 @@ describe('AdminDashboardPage Component', () => {
       expect(mockFetch).toHaveBeenCalled()
       expect(mockFetch).toHaveBeenCalledTimes(1)
       
-      // Verify the fetch was called with correct URL and options
       const fetchCall = mockFetch.mock.calls[0]
       const requestArg = fetchCall[0]
       
-      // Check if it's a Request object or URL string
       if (typeof requestArg === 'string') {
         expect(requestArg).toBe('/api/admin/stats')
       } else {
-        // It's a Request object, check its properties
         expect(requestArg.url).toBe('http://localhost/api/admin/stats')
         expect(requestArg.method).toBe('GET')
         expect(requestArg.credentials).toBe('include')
       }
 
-      // Verify stat labels
       expect(screen.getByText('Total Bookings')).toBeInTheDocument()
       expect(screen.getByText('Pending')).toBeInTheDocument()
       expect(screen.getByText('Today')).toBeInTheDocument()
@@ -184,6 +191,7 @@ describe('AdminDashboardPage Component', () => {
     })
 
     it('only fetches stats when user is available', async () => {
+      // Arrange
       mockUseAdminAuth.mockReturnValue({
         user: null,
         isLoading: false,
@@ -193,19 +201,23 @@ describe('AdminDashboardPage Component', () => {
         refreshSession: jest.fn(),
       })
 
+      // Act
       render(<AdminDashboardPage />)
 
-      // Should not call fetch when user is null
+      // Assert
       expect(mockFetch).not.toHaveBeenCalled()
     })
   })
 
   describe('Error Handling with Retry', () => {
     it('displays error message when stats fetch fails', async () => {
+      // Arrange
       mockFetch.mockRejectedValue(new Error('Network error'))
 
+      // Act
       const { container } = render(<AdminDashboardPage />)
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByText(/error loading dashboard data/i)).toBeInTheDocument()
         expect(screen.getByText(/network error/i)).toBeInTheDocument()
@@ -216,10 +228,13 @@ describe('AdminDashboardPage Component', () => {
     })
 
     it('displays error with proper styling and retry button', async () => {
+      // Arrange
       mockFetch.mockRejectedValue(new Error('Server error'))
 
+      // Act
       render(<AdminDashboardPage />)
 
+      // Assert
       await waitFor(() => {
         const errorCard = screen.getByText('Error loading dashboard data').closest('.border-red-200')
         expect(errorCard).toBeInTheDocument()
@@ -230,22 +245,22 @@ describe('AdminDashboardPage Component', () => {
     })
 
     it('retries stats fetch when retry button is clicked', async () => {
+      // Arrange
       mockFetch
         .mockRejectedValueOnce(new Error('Network error'))
         .mockResolvedValueOnce(mockStatsResponse)
 
       render(<AdminDashboardPage />)
 
-      // Wait for error to appear
       await waitFor(() => {
         expect(screen.getByText('Network error')).toBeInTheDocument()
       })
 
-      // Click retry button
+      // Act
       const retryButton = screen.getByRole('button', { name: /retry/i })
       await user.click(retryButton)
 
-      // Should fetch again and succeed
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('25')).toBeInTheDocument()
       }, { timeout: 5000 })
@@ -254,10 +269,13 @@ describe('AdminDashboardPage Component', () => {
     })
 
     it('handles API error responses correctly', async () => {
+      // Arrange
       mockFetch.mockResolvedValue(mockErrorResponse)
 
+      // Act
       render(<AdminDashboardPage />)
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('Failed to fetch dashboard statistics')).toBeInTheDocument()
       })
@@ -266,8 +284,10 @@ describe('AdminDashboardPage Component', () => {
 
   describe('Quick Action Navigation', () => {
     it('renders all quick action buttons', async () => {
+      // Arrange & Act
       render(<AdminDashboardPage />)
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('View All Bookings')).toBeInTheDocument()
         expect(screen.getByText('Review Pending Bookings')).toBeInTheDocument()
@@ -276,6 +296,7 @@ describe('AdminDashboardPage Component', () => {
     })
 
     it('navigates to bookings page when View All Bookings is clicked', async () => {
+      // Arrange
       render(<AdminDashboardPage />)
 
       await waitFor(() => {
@@ -283,13 +304,16 @@ describe('AdminDashboardPage Component', () => {
         expect(viewAllButton).toBeInTheDocument()
       })
 
+      // Act
       const viewAllButton = screen.getByText('View All Bookings')
       await user.click(viewAllButton)
 
+      // Assert
       expect(mockPush).toHaveBeenCalledWith('/admin/bookings')
     })
 
     it('navigates to pending bookings with filter when Review Pending is clicked', async () => {
+      // Arrange
       render(<AdminDashboardPage />)
 
       await waitFor(() => {
@@ -297,13 +321,16 @@ describe('AdminDashboardPage Component', () => {
         expect(pendingButton).toBeInTheDocument()
       })
 
+      // Act
       const pendingButton = screen.getByText('Review Pending Bookings')
       await user.click(pendingButton)
 
+      // Assert
       expect(mockPush).toHaveBeenCalledWith('/admin/bookings?filter=pending')
     })
 
     it('navigates to calendar page when Check Today\'s Schedule is clicked', async () => {
+      // Arrange
       render(<AdminDashboardPage />)
 
       await waitFor(() => {
@@ -311,22 +338,25 @@ describe('AdminDashboardPage Component', () => {
         expect(calendarButton).toBeInTheDocument()
       })
 
+      // Act
       const calendarButton = screen.getByText("Check Today's Schedule")
       await user.click(calendarButton)
 
+      // Assert
       expect(mockPush).toHaveBeenCalledWith('/admin/calendar')
     })
   })
 
   describe('Recent Activity Display', () => {
     it('renders recent activity section with mock data', async () => {
+      // Arrange & Act
       render(<AdminDashboardPage />)
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('Recent Activity')).toBeInTheDocument()
         expect(screen.getByText('Latest booking updates and activities')).toBeInTheDocument()
         
-        // Check for activity items
         expect(screen.getByText('New booking confirmed')).toBeInTheDocument()
         expect(screen.getByText('Sarah M. - Personal Training')).toBeInTheDocument()
         expect(screen.getByText('Session completed')).toBeInTheDocument()
@@ -337,8 +367,10 @@ describe('AdminDashboardPage Component', () => {
     })
 
     it('displays activity timestamps', async () => {
+      // Arrange & Act
       render(<AdminDashboardPage />)
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('2h ago')).toBeInTheDocument()
         expect(screen.getByText('4h ago')).toBeInTheDocument()
@@ -349,13 +381,14 @@ describe('AdminDashboardPage Component', () => {
 
   describe('Component Lifecycle and Effects', () => {
     it('refetches stats when user changes', async () => {
+      // Arrange
       const { rerender } = render(<AdminDashboardPage />)
 
       await waitFor(() => {
         expect(mockFetch).toHaveBeenCalledTimes(1)
       })
 
-      // Change user
+      // Act
       const newUser = { ...mockUser, id: '2', name: 'Updated Emily' }
       mockUseAdminAuth.mockReturnValue({
         user: newUser,
@@ -368,48 +401,54 @@ describe('AdminDashboardPage Component', () => {
 
       rerender(<AdminDashboardPage />)
 
+      // Assert
       await waitFor(() => {
         expect(mockFetch).toHaveBeenCalledTimes(2)
       })
     })
 
     it('handles component unmount gracefully', () => {
+      // Arrange & Act
       const { unmount } = render(<AdminDashboardPage />)
       
-      // Should not throw any errors
+      // Assert
       expect(() => unmount()).not.toThrow()
     })
   })
 
   describe('Accessibility', () => {
     it('has no accessibility violations', async () => {
+      // Arrange & Act
       const { container } = render(<AdminDashboardPage />)
 
       await waitFor(() => {
         expect(screen.getByText('Welcome back, Emily!')).toBeInTheDocument()
       })
 
+      // Assert
       const results = await axe(container)
       expect(results).toHaveNoViolations()
     })
 
     it('has proper heading structure', async () => {
+      // Arrange & Act
       render(<AdminDashboardPage />)
 
+      // Assert
       await waitFor(() => {
-        // Main welcome heading
         const mainHeading = screen.getByRole('heading', { level: 2, name: /welcome back, emily/i })
         expect(mainHeading).toBeInTheDocument()
         
-        // Card titles should be properly structured
         expect(screen.getByText('Quick Actions')).toBeInTheDocument()
         expect(screen.getByText('Recent Activity')).toBeInTheDocument()
       })
     })
 
     it('provides proper button labels for screen readers', async () => {
+      // Arrange & Act
       render(<AdminDashboardPage />)
 
+      // Assert
       await waitFor(() => {
         const buttons = screen.getAllByRole('button')
         buttons.forEach(button => {
@@ -421,14 +460,15 @@ describe('AdminDashboardPage Component', () => {
 
   describe('Loading States and Performance', () => {
     it('shows individual stat loading placeholders', async () => {
-      // Mock delayed response
-      mockFetch.mockImplementation(() => 
+      // Arrange
+      mockFetch.mockImplementation(() =>
         new Promise(resolve => setTimeout(() => resolve(mockStatsResponse), 50))
       )
 
+      // Act
       render(<AdminDashboardPage />)
 
-      // Should show '...' for each stat while loading
+      // Assert
       const loadingIndicators = screen.getAllByText('...')
       expect(loadingIndicators).toHaveLength(4)
 
@@ -438,13 +478,15 @@ describe('AdminDashboardPage Component', () => {
     })
 
     it('cleans up loading states properly after error', async () => {
+      // Arrange
       mockFetch.mockRejectedValue(new Error('Network error'))
 
+      // Act
       render(<AdminDashboardPage />)
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('Network error')).toBeInTheDocument()
-        // Should not show loading indicators after error
         expect(screen.queryByText('...')).not.toBeInTheDocument()
       })
     })

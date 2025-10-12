@@ -65,7 +65,7 @@ describe('Admin Bookings API Integration', () => {
 
   describe('Booking Management Workflow', () => {
     it('retrieves all bookings with pagination', async () => {
-      // Create test bookings
+      // Arrange
       await testDb.booking.createMany({
         data: [
           {
@@ -89,11 +89,13 @@ describe('Admin Bookings API Integration', () => {
         ],
       })
 
+      // Act
       const bookings = await testDb.booking.findMany({
         orderBy: { createdAt: 'desc' },
         take: 10,
       })
 
+      // Assert
       expect(bookings).toHaveLength(2)
       expect(bookings[0]).toMatchObject({
         name: expect.any(String),
@@ -102,6 +104,7 @@ describe('Admin Bookings API Integration', () => {
     })
 
     it('filters bookings by status', async () => {
+      // Arrange
       await testDb.booking.createMany({
         data: [
           {
@@ -125,6 +128,7 @@ describe('Admin Bookings API Integration', () => {
         ],
       })
 
+      // Act
       const pendingBookings = await testDb.booking.findMany({
         where: { status: 'PENDING' },
       })
@@ -133,6 +137,7 @@ describe('Admin Bookings API Integration', () => {
         where: { status: 'CONFIRMED' },
       })
 
+      // Assert
       expect(pendingBookings).toHaveLength(1)
       expect(pendingBookings[0].status).toBe('PENDING')
       expect(confirmedBookings).toHaveLength(1)
@@ -140,6 +145,7 @@ describe('Admin Bookings API Integration', () => {
     })
 
     it('retrieves specific booking by id', async () => {
+      // Arrange
       const created = await testDb.booking.create({
         data: {
           name: 'John Doe',
@@ -153,10 +159,12 @@ describe('Admin Bookings API Integration', () => {
         },
       })
 
+      // Act
       const booking = await testDb.booking.findUnique({
         where: { id: created.id },
       })
 
+      // Assert
       expect(booking).not.toBeNull()
       expect(booking).toMatchObject({
         id: created.id,
@@ -168,16 +176,22 @@ describe('Admin Bookings API Integration', () => {
     })
 
     it('handles non-existent booking gracefully', async () => {
+      // Arrange
+      const nonExistentId = 'non-existent-id'
+
+      // Act
       const booking = await testDb.booking.findUnique({
-        where: { id: 'non-existent-id' },
+        where: { id: nonExistentId },
       })
 
+      // Assert
       expect(booking).toBeNull()
     })
   })
 
   describe('Booking Status Transitions', () => {
     it('updates booking status from pending to confirmed', async () => {
+      // Arrange
       const booking = await testDb.booking.create({
         data: {
           name: 'Jane Smith',
@@ -190,16 +204,19 @@ describe('Admin Bookings API Integration', () => {
         },
       })
 
+      // Act
       const updated = await testDb.booking.update({
         where: { id: booking.id },
         data: { status: 'CONFIRMED' },
       })
 
+      // Assert
       expect(updated.status).toBe('CONFIRMED')
       expect(updated.id).toBe(booking.id)
     })
 
     it('allows cancellation of confirmed booking', async () => {
+      // Arrange
       const booking = await testDb.booking.create({
         data: {
           name: 'Cancel Test',
@@ -212,17 +229,20 @@ describe('Admin Bookings API Integration', () => {
         },
       })
 
+      // Act
       const cancelled = await testDb.booking.update({
         where: { id: booking.id },
         data: { status: 'CANCELLED' },
       })
 
+      // Assert
       expect(cancelled.status).toBe('CANCELLED')
     })
   })
 
   describe('Booking Deletion', () => {
     it('removes booking from system', async () => {
+      // Arrange
       const booking = await testDb.booking.create({
         data: {
           name: 'Delete Test',
@@ -235,6 +255,7 @@ describe('Admin Bookings API Integration', () => {
         },
       })
 
+      // Act
       await testDb.booking.delete({
         where: { id: booking.id },
       })
@@ -243,13 +264,18 @@ describe('Admin Bookings API Integration', () => {
         where: { id: booking.id },
       })
 
+      // Assert
       expect(deleted).toBeNull()
     })
 
     it('handles deletion of non-existent booking', async () => {
+      // Arrange
+      const nonExistentId = 'non-existent-id'
+
+      // Act & Assert
       await expect(
         testDb.booking.delete({
-          where: { id: 'non-existent-id' },
+          where: { id: nonExistentId },
         })
       ).rejects.toThrow()
     })
@@ -257,6 +283,7 @@ describe('Admin Bookings API Integration', () => {
 
   describe('Data Integrity', () => {
     it('persists all booking fields correctly', async () => {
+      // Arrange
       const bookingData = {
         name: 'Full Data Test',
         email: 'fulldata@example.com',
@@ -270,10 +297,12 @@ describe('Admin Bookings API Integration', () => {
         experience: 'Beginner',
       }
 
+      // Act
       const created = await testDb.booking.create({
         data: bookingData,
       })
 
+      // Assert
       expect(created).toMatchObject({
         name: bookingData.name,
         email: bookingData.email,
@@ -328,14 +357,24 @@ describe('Admin Bookings API Integration', () => {
         console.error('Response error:', responseData)
       }
       expect(response.status).toBeLessThanOrEqual(400)
-      expect(responseData).toBeDefined()
+      expect(responseData).toMatchObject({
+        booking: expect.objectContaining({
+          id: booking.id,
+          status: 'CONFIRMED'
+        })
+      })
       
-      // Verify booking status was updated in database
+      // Assert - Verify booking status was updated in database
       const updatedBooking = await testDb.booking.findUnique({
         where: { id: booking.id },
       })
-      expect(updatedBooking).toBeDefined()
-      // Note: Transaction mock is implicitly verified through successful booking update
+      expect(updatedBooking).toMatchObject({
+        id: booking.id,
+        status: expect.stringMatching(/^(PENDING|CONFIRMED|CANCELLED|COMPLETED)$/)
+      })
+      
+      // Assert - Verify transaction was called
+      expect(testDb.booking.update).toHaveBeenCalledTimes(1)
     })
 
     it('returns 400 when id query parameter is missing', async () => {
@@ -363,6 +402,9 @@ describe('Admin Bookings API Integration', () => {
       expect(responseData).toMatchObject({
         error: 'Booking ID is required',
       })
+      
+      // Assert - Verify no database calls were made
+      expect(testDb.booking.findUnique).not.toHaveBeenCalled()
     })
 
     it('returns 400 when status is invalid', async () => {

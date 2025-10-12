@@ -10,6 +10,7 @@ import { ServiceSelectionStep } from '@/components/booking-form/steps/ServiceSel
 
 describe('ServiceSelectionStep Loading State', () => {
   it('renders options enabled by default', () => {
+    // Arrange & Act
     render(
       <BookingFormProvider onClose={() => {}}>
         <ServiceSelectionStep />
@@ -18,11 +19,17 @@ describe('ServiceSelectionStep Loading State', () => {
     const firstOption = screen.getByTestId(
       'service-option-1-on-1-Personal-Training'
     )
+    
+    // Assert
     expect(firstOption).not.toHaveClass('opacity-50')
     expect(firstOption).not.toHaveClass('pointer-events-none')
+    expect(firstOption).toMatchObject({
+      className: expect.any(String)
+    })
   })
 
   it('applies loading styles when isLoading prop is true', () => {
+    // Arrange & Act
     render(
       <BookingFormProvider onClose={() => {}}>
         <ServiceSelectionStep isLoading={true} />
@@ -31,7 +38,14 @@ describe('ServiceSelectionStep Loading State', () => {
     const firstOption = screen.getByTestId(
       'service-option-1-on-1-Personal-Training'
     )
+    
+    // Assert
     expect(firstOption).toHaveClass('opacity-50')
     expect(firstOption).toHaveClass('pointer-events-none')
+  })
+
+  it('throws error when rendered outside BookingFormProvider', () => {
+    // Arrange & Act & Assert
+    expect(() => render(<ServiceSelectionStep />)).toThrow()
   })
 })

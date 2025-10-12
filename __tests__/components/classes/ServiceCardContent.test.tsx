@@ -28,113 +28,169 @@ describe('ServiceCardContent Component', () => {
 
   describe('Icon Rendering', () => {
     it('renders the provided icon', () => {
+      // Arrange & Act
       const { container } = render(<ServiceCardContent {...defaultProps} />)
       
-      // Check for icon container by its classes
       const iconContainer = container.querySelector('.bg-gradient-to-r.from-rose-500.to-pink-500')
-      expect(iconContainer).toBeInTheDocument()
-      
-      // Check for SVG element
       const svg = iconContainer?.querySelector('svg')
-      expect(svg).toBeInTheDocument()
+      
+      // Assert
+      expect(iconContainer).toMatchObject({
+        tagName: expect.stringMatching(/^DIV$/i)
+      })
+      expect(svg).toMatchObject({
+        tagName: 'svg'
+      })
     })
 
     it('applies correct icon styling', () => {
+      // Arrange & Act
       const { container } = render(<ServiceCardContent {...defaultProps} />)
       
       const iconContainer = container.querySelector('.bg-gradient-to-r.from-rose-500.to-pink-500')
-      expect(iconContainer?.className).toContain('p-6')
-      expect(iconContainer?.className).toContain('rounded-3xl')
-      expect(iconContainer?.className).toContain('shadow-xl')
+      
+      // Assert
+      expect(iconContainer?.className).toEqual(expect.stringContaining('p-6'))
+      expect(iconContainer?.className).toEqual(expect.stringContaining('rounded-3xl'))
+      expect(iconContainer?.className).toEqual(expect.stringContaining('shadow-xl'))
+    })
+
+    it('throws error when icon prop is invalid', () => {
+      // Arrange & Act & Assert
+      expect(() => {
+        render(<ServiceCardContent {...defaultProps} icon={null as any} />)
+      }).toThrow()
     })
 
     it('renders Users icon correctly', () => {
+      // Arrange & Act
       const { container } = render(<ServiceCardContent {...defaultProps} icon={Users} />)
       
       const iconContainer = container.querySelector('.bg-gradient-to-r.from-rose-500.to-pink-500')
       const svg = iconContainer?.querySelector('svg')
-      expect(svg).toBeInTheDocument()
+      
+      // Assert
+      expect(svg).toMatchObject({ tagName: 'svg' })
     })
 
     it('renders Heart icon correctly', () => {
+      // Arrange & Act
       const { container } = render(<ServiceCardContent {...defaultProps} icon={Heart} />)
       
       const iconContainer = container.querySelector('.bg-gradient-to-r.from-rose-500.to-pink-500')
       const svg = iconContainer?.querySelector('svg')
-      expect(svg).toBeInTheDocument()
+      
+      // Assert
+      expect(svg).toMatchObject({ tagName: 'svg' })
     })
 
     it('renders Calendar icon correctly', () => {
+      // Arrange & Act
       const { container } = render(<ServiceCardContent {...defaultProps} icon={Calendar} />)
       
       const iconContainer = container.querySelector('.bg-gradient-to-r.from-rose-500.to-pink-500')
       const svg = iconContainer?.querySelector('svg')
-      expect(svg).toBeInTheDocument()
+      
+      // Assert
+      expect(svg).toMatchObject({ tagName: 'svg' })
     })
   })
 
   describe('Title and Description', () => {
     it('renders the service title', () => {
+      // Arrange & Act
       render(<ServiceCardContent {...defaultProps} />)
       
       const title = screen.getByRole('heading', { name: /1-on-1 personal training/i })
-      expect(title).toBeInTheDocument()
+      
+      // Assert
+      expect(title).toMatchObject({
+        tagName: expect.stringMatching(/^H\d$/),
+        textContent: expect.stringMatching(/1-on-1 personal training/i)
+      })
     })
 
     it('applies correct title styling', () => {
+      // Arrange & Act
       render(<ServiceCardContent {...defaultProps} />)
       
       const title = screen.getByRole('heading')
-      expect(title.className).toContain('text-2xl')
-      expect(title.className).toContain('font-bold')
-      expect(title.className).toContain('text-stone-900')
+      
+      // Assert
+      expect(title.className).toEqual(expect.stringContaining('text-2xl'))
+      expect(title.className).toEqual(expect.stringContaining('font-bold'))
+      expect(title.className).toEqual(expect.stringContaining('text-stone-900'))
     })
 
     it('renders the service description', () => {
+      // Arrange & Act
       render(<ServiceCardContent {...defaultProps} />)
       
       const description = screen.getByText(defaultProps.description)
-      expect(description).toBeInTheDocument()
+      
+      // Assert
+      expect(description).toMatchObject({
+        textContent: expect.stringContaining(defaultProps.description)
+      })
     })
 
     it('applies correct description styling', () => {
+      // Arrange & Act
       render(<ServiceCardContent {...defaultProps} />)
       
       const description = screen.getByText(defaultProps.description)
-      expect(description.className).toContain('text-stone-600')
-      expect(description.className).toContain('leading-relaxed')
+      
+      // Assert
+      expect(description.className).toEqual(expect.stringContaining('text-stone-600'))
+      expect(description.className).toEqual(expect.stringContaining('leading-relaxed'))
     })
   })
 
   describe('Price Display', () => {
     it('renders the price with correct formatting', () => {
+      // Arrange & Act
       render(<ServiceCardContent {...defaultProps} />)
       
-      expect(screen.getByText(/\$80/i)).toBeInTheDocument()
+      // Assert
+      expect(screen.getByText(/\$80/i)).toMatchObject({
+        textContent: expect.stringMatching(/\$80/)
+      })
       expect(screen.getByText(/per session/i)).toBeInTheDocument()
     })
 
     it('applies correct price styling', () => {
+      // Arrange & Act
       render(<ServiceCardContent {...defaultProps} />)
       
       const priceValue = screen.getByText(/\$80/i)
-      expect(priceValue.className).toContain('text-3xl')
-      expect(priceValue.className).toContain('font-bold')
-      expect(priceValue.className).toContain('text-rose-600')
+      
+      // Assert
+      expect(priceValue.className).toEqual(expect.stringContaining('text-3xl'))
+      expect(priceValue.className).toEqual(expect.stringContaining('font-bold'))
+      expect(priceValue.className).toEqual(expect.stringContaining('text-rose-600'))
     })
 
     it('renders different price values correctly', () => {
+      // Arrange & Act
       render(<ServiceCardContent {...defaultProps} price="$40" />)
       
-      expect(screen.getByText('$40')).toBeInTheDocument()
+      // Assert
+      expect(screen.getByText('$40')).toMatchObject({
+        textContent: '$40'
+      })
     })
 
     it('includes per session label', () => {
+      // Arrange & Act
       render(<ServiceCardContent {...defaultProps} />)
       
       const sessionLabel = screen.getByText('per session')
-      expect(sessionLabel).toBeInTheDocument()
-      expect(sessionLabel.className).toContain('text-stone-500')
+      
+      // Assert
+      expect(sessionLabel).toMatchObject({
+        textContent: 'per session'
+      })
+      expect(sessionLabel.className).toEqual(expect.stringContaining('text-stone-500'))
     })
   })
 
@@ -333,6 +389,7 @@ describe('ServiceCardContent Component', () => {
 
   describe('Edge Cases', () => {
     it('handles special characters in content', () => {
+      // Arrange
       const specialChars = {
         ...defaultProps,
         title: 'Training & Fitness',
@@ -345,25 +402,38 @@ describe('ServiceCardContent Component', () => {
         ],
       }
       
+      // Act
       render(<ServiceCardContent {...specialChars} />)
       
-      expect(screen.getByRole('heading', { name: 'Training & Fitness' })).toBeInTheDocument()
+      // Assert
+      expect(screen.getByRole('heading', { name: 'Training & Fitness' })).toMatchObject({
+        textContent: expect.stringContaining('Training & Fitness')
+      })
       expect(screen.getByText('Feature with & ampersand')).toBeInTheDocument()
     })
 
     it('handles price without dollar sign', () => {
+      // Arrange & Act
       render(<ServiceCardContent {...defaultProps} price="80" />)
       
-      expect(screen.getByText('80')).toBeInTheDocument()
+      // Assert
+      expect(screen.getByText('80')).toMatchObject({
+        textContent: '80'
+      })
     })
 
     it('handles very long price string', () => {
+      // Arrange & Act
       render(<ServiceCardContent {...defaultProps} price="$80-120 depending on location" />)
       
-      expect(screen.getByText('$80-120 depending on location')).toBeInTheDocument()
+      // Assert
+      expect(screen.getByText('$80-120 depending on location')).toMatchObject({
+        textContent: '$80-120 depending on location'
+      })
     })
 
     it('handles undefined optional props gracefully', () => {
+      // Arrange
       const minimalProps = {
         icon: Users,
         title: 'Service Title',
@@ -372,9 +442,20 @@ describe('ServiceCardContent Component', () => {
         features: [],
       }
       
+      // Act
       render(<ServiceCardContent {...minimalProps} />)
       
-      expect(screen.getByRole('heading', { name: 'Service Title' })).toBeInTheDocument()
+      // Assert
+      expect(screen.getByRole('heading', { name: 'Service Title' })).toMatchObject({
+        textContent: 'Service Title'
+      })
+    })
+
+    it('throws error when required props are missing', () => {
+      // Arrange & Act & Assert
+      expect(() => {
+        render(<ServiceCardContent {...defaultProps} title={undefined as any} />)
+      }).toThrow()
     })
   })
 

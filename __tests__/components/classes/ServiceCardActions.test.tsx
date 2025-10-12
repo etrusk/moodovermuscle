@@ -50,6 +50,7 @@ describe('ServiceCardActions Component', () => {
 
   describe('Active Service (Not Coming Soon)', () => {
     it('renders book session button for active services', () => {
+      // Arrange & Act
       render(
         <ServiceCardActions
           comingSoon={false}
@@ -58,12 +59,16 @@ describe('ServiceCardActions Component', () => {
         />
       )
       
+      // Assert
       const bookButton = screen.getByRole('button', { name: /start free session/i })
-      expect(bookButton).toBeInTheDocument()
-      expect(bookButton).not.toBeDisabled()
+      expect(bookButton).toMatchObject({
+        disabled: false,
+        tagName: 'BUTTON'
+      })
     })
 
     it('calls onBookSessionClick when book button is clicked', async () => {
+      // Arrange
       const user = userEvent.setup()
       
       render(
@@ -74,13 +79,17 @@ describe('ServiceCardActions Component', () => {
         />
       )
       
+      // Act
       const bookButton = screen.getByRole('button', { name: /start free session/i })
       await user.click(bookButton)
       
+      // Assert
       expect(mockOnBookSessionClick).toHaveBeenCalledTimes(1)
+      expect(mockOnBookSessionClick).toHaveBeenCalledWith()
     })
 
     it('applies gradient background to active button', () => {
+      // Arrange & Act
       const { container } = render(
         <ServiceCardActions
           comingSoon={false}
@@ -90,11 +99,14 @@ describe('ServiceCardActions Component', () => {
       )
       
       const bookButton = screen.getByRole('button', { name: /start free session/i })
-      expect(bookButton.className).toContain('from-rose-500')
-      expect(bookButton.className).toContain('to-pink-500')
+      
+      // Assert
+      expect(bookButton.className).toEqual(expect.stringContaining('from-rose-500'))
+      expect(bookButton.className).toEqual(expect.stringContaining('to-pink-500'))
     })
 
     it('includes arrow icon in button', () => {
+      // Arrange & Act
       render(
         <ServiceCardActions
           comingSoon={false}
@@ -103,13 +115,17 @@ describe('ServiceCardActions Component', () => {
         />
       )
       
-      // Check for SVG arrow icon
       const button = screen.getByRole('button', { name: /start free session/i })
       const svg = button.querySelector('svg')
-      expect(svg).toBeInTheDocument()
+      
+      // Assert
+      expect(svg).toMatchObject({
+        tagName: 'svg'
+      })
     })
 
     it('applies hover effects to active button', () => {
+      // Arrange & Act
       render(
         <ServiceCardActions
           comingSoon={false}
@@ -119,12 +135,14 @@ describe('ServiceCardActions Component', () => {
       )
       
       const bookButton = screen.getByRole('button', { name: /start free session/i })
-      // The actual implementation uses hover:shadow-xl but not hover:scale-105
-      expect(bookButton.className).toContain('hover:shadow-xl')
-      expect(bookButton.className).toContain('transition-all')
+      
+      // Assert
+      expect(bookButton.className).toEqual(expect.stringContaining('hover:shadow-xl'))
+      expect(bookButton.className).toEqual(expect.stringContaining('transition-all'))
     })
 
     it('sets correct button styling', () => {
+      // Arrange & Act
       render(
         <ServiceCardActions
           comingSoon={false}
@@ -134,14 +152,29 @@ describe('ServiceCardActions Component', () => {
       )
       
       const bookButton = screen.getByRole('button', { name: /start free session/i })
-      // The actual implementation doesn't use data-size attribute
-      expect(bookButton.className).toContain('py-6')
-      expect(bookButton.className).toContain('text-lg')
+      
+      // Assert
+      expect(bookButton.className).toEqual(expect.stringContaining('py-6'))
+      expect(bookButton.className).toEqual(expect.stringContaining('text-lg'))
+    })
+
+    it('throws error when onBookSessionClick is undefined', () => {
+      // Arrange & Act & Assert
+      expect(() => {
+        render(
+          <ServiceCardActions
+            comingSoon={false}
+            gradient="from-rose-500 to-pink-500"
+            onBookSessionClick={undefined as any}
+          />
+        )
+      }).toThrow()
     })
   })
 
   describe('Coming Soon Service', () => {
     it('renders coming soon button for upcoming services', () => {
+      // Arrange & Act
       render(
         <ServiceCardActions
           comingSoon={true}
@@ -150,12 +183,16 @@ describe('ServiceCardActions Component', () => {
         />
       )
       
+      // Assert
       const comingSoonButton = screen.getByRole('button', { name: /coming soon/i })
-      expect(comingSoonButton).toBeInTheDocument()
-      expect(comingSoonButton).toBeDisabled()
+      expect(comingSoonButton).toMatchObject({
+        disabled: true,
+        tagName: 'BUTTON'
+      })
     })
 
     it('does not call onBookSessionClick when coming soon button is clicked', async () => {
+      // Arrange
       const user = userEvent.setup()
       
       render(
@@ -168,13 +205,16 @@ describe('ServiceCardActions Component', () => {
       
       const comingSoonButton = screen.getByRole('button', { name: /coming soon/i })
       
-      // Try to click disabled button
+      // Act
       await user.click(comingSoonButton)
       
+      // Assert
       expect(mockOnBookSessionClick).not.toHaveBeenCalled()
+      expect(mockOnBookSessionClick).toHaveBeenCalledTimes(0)
     })
 
     it('applies lighter gradient to coming soon button', () => {
+      // Arrange & Act
       render(
         <ServiceCardActions
           comingSoon={true}
@@ -184,11 +224,14 @@ describe('ServiceCardActions Component', () => {
       )
       
       const comingSoonButton = screen.getByRole('button', { name: /coming soon/i })
-      expect(comingSoonButton.className).toContain('from-rose-400')
-      expect(comingSoonButton.className).toContain('to-pink-400')
+      
+      // Assert
+      expect(comingSoonButton.className).toEqual(expect.stringContaining('from-rose-400'))
+      expect(comingSoonButton.className).toEqual(expect.stringContaining('to-pink-400'))
     })
 
     it('applies disabled styling to coming soon button', () => {
+      // Arrange & Act
       render(
         <ServiceCardActions
           comingSoon={true}
@@ -198,11 +241,14 @@ describe('ServiceCardActions Component', () => {
       )
       
       const comingSoonButton = screen.getByRole('button', { name: /coming soon/i })
-      expect(comingSoonButton.className).toContain('disabled:opacity-50')
-      expect(comingSoonButton.className).toContain('disabled:cursor-not-allowed')
+      
+      // Assert
+      expect(comingSoonButton.className).toEqual(expect.stringContaining('disabled:opacity-50'))
+      expect(comingSoonButton.className).toEqual(expect.stringContaining('disabled:cursor-not-allowed'))
     })
 
     it('does not include arrow icon for coming soon button', () => {
+      // Arrange & Act
       render(
         <ServiceCardActions
           comingSoon={true}
@@ -211,15 +257,17 @@ describe('ServiceCardActions Component', () => {
         />
       )
       
-      // Coming soon buttons should not have arrow icon
       const button = screen.getByRole('button', { name: /coming soon/i })
       const svg = button.querySelector('svg')
-      expect(svg).not.toBeInTheDocument()
+      
+      // Assert
+      expect(svg).toBeNull()
     })
   })
 
   describe('Different Gradient Styles', () => {
     it('applies rose gradient correctly', () => {
+      // Arrange & Act
       render(
         <ServiceCardActions
           comingSoon={false}
@@ -229,11 +277,14 @@ describe('ServiceCardActions Component', () => {
       )
       
       const bookButton = screen.getByRole('button', { name: /start free session/i })
-      expect(bookButton.className).toContain('from-rose-500')
-      expect(bookButton.className).toContain('to-pink-500')
+      
+      // Assert
+      expect(bookButton.className).toEqual(expect.stringContaining('from-rose-500'))
+      expect(bookButton.className).toEqual(expect.stringContaining('to-pink-500'))
     })
 
     it('applies pink gradient correctly', () => {
+      // Arrange & Act
       render(
         <ServiceCardActions
           comingSoon={false}
@@ -243,11 +294,14 @@ describe('ServiceCardActions Component', () => {
       )
       
       const bookButton = screen.getByRole('button', { name: /start free session/i })
-      expect(bookButton.className).toContain('from-pink-500')
-      expect(bookButton.className).toContain('to-rose-500')
+      
+      // Assert
+      expect(bookButton.className).toEqual(expect.stringContaining('from-pink-500'))
+      expect(bookButton.className).toEqual(expect.stringContaining('to-rose-500'))
     })
 
     it('applies lighter gradient for coming soon services', () => {
+      // Arrange & Act
       render(
         <ServiceCardActions
           comingSoon={false}
@@ -257,13 +311,16 @@ describe('ServiceCardActions Component', () => {
       )
       
       const bookButton = screen.getByRole('button', { name: /start free session/i })
-      expect(bookButton.className).toContain('from-rose-400')
-      expect(bookButton.className).toContain('to-pink-400')
+      
+      // Assert
+      expect(bookButton.className).toEqual(expect.stringContaining('from-rose-400'))
+      expect(bookButton.className).toEqual(expect.stringContaining('to-pink-400'))
     })
   })
 
   describe('Accessibility', () => {
     it('has no accessibility violations for active service', async () => {
+      // Arrange & Act
       const { container } = render(
         <ServiceCardActions
           comingSoon={false}
@@ -273,10 +330,13 @@ describe('ServiceCardActions Component', () => {
       )
       
       const results = await axe(container)
+      
+      // Assert
       expect(results).toHaveNoViolations()
     })
 
     it('has no accessibility violations for coming soon service', async () => {
+      // Arrange & Act
       const { container } = render(
         <ServiceCardActions
           comingSoon={true}
@@ -286,10 +346,13 @@ describe('ServiceCardActions Component', () => {
       )
       
       const results = await axe(container)
+      
+      // Assert
       expect(results).toHaveNoViolations()
     })
 
     it('properly indicates disabled state for coming soon', () => {
+      // Arrange & Act
       render(
         <ServiceCardActions
           comingSoon={true}
@@ -299,10 +362,13 @@ describe('ServiceCardActions Component', () => {
       )
       
       const comingSoonButton = screen.getByRole('button', { name: /coming soon/i })
+      
+      // Assert
       expect(comingSoonButton).toHaveAttribute('disabled')
     })
 
     it('supports keyboard interaction for active button', async () => {
+      // Arrange
       const user = userEvent.setup()
       
       render(
@@ -315,16 +381,17 @@ describe('ServiceCardActions Component', () => {
       
       const bookButton = screen.getByRole('button', { name: /start free session/i })
       
-      // Tab to button
+      // Act
       await user.tab()
-      expect(bookButton).toHaveFocus()
-      
-      // Press Enter to activate
       await user.keyboard('{Enter}')
+      
+      // Assert
+      expect(bookButton).toHaveFocus()
       expect(mockOnBookSessionClick).toHaveBeenCalledTimes(1)
     })
 
     it('prevents keyboard interaction for coming soon button', async () => {
+      // Arrange
       const user = userEvent.setup()
       
       render(
@@ -337,19 +404,19 @@ describe('ServiceCardActions Component', () => {
       
       const comingSoonButton = screen.getByRole('button', { name: /coming soon/i })
       
-      // Tab attempts to focus
+      // Act
       await user.tab()
-      // Disabled buttons typically don't receive focus
-      expect(comingSoonButton).not.toHaveFocus()
-      
-      // Try to press Enter (should not work on disabled button)
       await user.keyboard('{Enter}')
+      
+      // Assert
+      expect(comingSoonButton).not.toHaveFocus()
       expect(mockOnBookSessionClick).not.toHaveBeenCalled()
     })
   })
 
   describe('Animation and Transitions', () => {
     it('includes transition classes for smooth animations', () => {
+      // Arrange & Act
       render(
         <ServiceCardActions
           comingSoon={false}
@@ -359,11 +426,14 @@ describe('ServiceCardActions Component', () => {
       )
       
       const bookButton = screen.getByRole('button', { name: /start free session/i })
-      expect(bookButton.className).toContain('transition-all')
-      expect(bookButton.className).toContain('duration-300')
+      
+      // Assert
+      expect(bookButton.className).toEqual(expect.stringContaining('transition-all'))
+      expect(bookButton.className).toEqual(expect.stringContaining('duration-300'))
     })
 
     it('includes group hover effects for icon animation', () => {
+      // Arrange & Act
       render(
         <ServiceCardActions
           comingSoon={false}
@@ -373,19 +443,18 @@ describe('ServiceCardActions Component', () => {
       )
       
       const button = screen.getByRole('button', { name: /start free session/i })
-      
-      // Check that button has group class
-      expect(button.className).toContain('group')
-      
-      // Check that icon has group-hover transform (SVG uses className.baseVal)
       const svg = button.querySelector('svg')
       const svgClasses = svg?.getAttribute('class') || ''
-      expect(svgClasses).toContain('group-hover:translate-x-1')
+      
+      // Assert
+      expect(button.className).toEqual(expect.stringContaining('group'))
+      expect(svgClasses).toEqual(expect.stringContaining('group-hover:translate-x-1'))
     })
   })
 
   describe('Edge Cases', () => {
     it('handles undefined comingSoon prop as false', () => {
+      // Arrange & Act
       render(
         <ServiceCardActions
           gradient="from-rose-500 to-pink-500"
@@ -394,11 +463,16 @@ describe('ServiceCardActions Component', () => {
       )
       
       const bookButton = screen.getByRole('button', { name: /start free session/i })
-      expect(bookButton).toBeInTheDocument()
-      expect(bookButton).not.toBeDisabled()
+      
+      // Assert
+      expect(bookButton).toMatchObject({
+        disabled: false,
+        tagName: 'BUTTON'
+      })
     })
 
     it('handles rapid repeated clicks', async () => {
+      // Arrange
       const user = userEvent.setup()
       
       render(
@@ -411,16 +485,17 @@ describe('ServiceCardActions Component', () => {
       
       const bookButton = screen.getByRole('button', { name: /start free session/i })
       
-      // Rapidly click multiple times
+      // Act
       await user.click(bookButton)
       await user.click(bookButton)
       await user.click(bookButton)
       
-      // Should handle all clicks
+      // Assert
       expect(mockOnBookSessionClick).toHaveBeenCalledTimes(3)
     })
 
     it('maintains functionality with empty gradient string', () => {
+      // Arrange & Act
       render(
         <ServiceCardActions
           comingSoon={false}
@@ -430,7 +505,11 @@ describe('ServiceCardActions Component', () => {
       )
       
       const bookButton = screen.getByRole('button', { name: /start free session/i })
-      expect(bookButton).toBeInTheDocument()
+      
+      // Assert
+      expect(bookButton).toMatchObject({
+        tagName: 'BUTTON'
+      })
     })
   })
 })

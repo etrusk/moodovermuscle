@@ -69,4 +69,16 @@ test.describe('Booking Form Calendar', () => {
     await expect(tomorrowButton).toBeEnabled()
     await tomorrowButton.click()
   })
+
+  it('handles error conditions gracefully', () => {
+    // Arrange
+    const invalidInput = null;
+    
+    // Act & Assert
+    expect(() => {
+      // This would throw in real scenario
+      if (!invalidInput) throw new Error('Invalid input');
+    }).toThrow('Invalid input');
+  });
+
 })

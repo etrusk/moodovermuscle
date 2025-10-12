@@ -186,4 +186,16 @@ describe('API POST /api/book-session', () => {
       'Too many requests. Please try again later.'
     )
   })
+
+  test('throws error when POST receives invalid request body', async () => {
+    // Arrange
+    const invalidReq = new Request('http://localhost/api/book-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: 'invalid-json',
+    })
+
+    // Act & Assert
+    await expect(POST(invalidReq)).rejects.toThrow()
+  })
 })

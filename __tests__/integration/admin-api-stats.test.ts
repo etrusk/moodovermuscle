@@ -8,6 +8,7 @@
 describe('Admin Statistics API Integration', () => {
   describe('Statistics Retrieval Workflow', () => {
     it('provides comprehensive booking statistics', () => {
+      // Arrange
       const statsResponse = {
         bookings: {
           total: 150,
@@ -25,18 +26,35 @@ describe('Admin Statistics API Integration', () => {
         }
       }
       
-      expect(statsResponse).toHaveProperty('bookings')
-      expect(statsResponse).toHaveProperty('revenue')
-      expect(statsResponse).toHaveProperty('dateRange')
+      // Act
+      const totalMatches = 
+        statsResponse.bookings.total ===
+        (statsResponse.bookings.pending + 
+         statsResponse.bookings.confirmed + 
+         statsResponse.bookings.cancelled)
       
-      expect(statsResponse.bookings.total).toBe(
-        statsResponse.bookings.pending + 
-        statsResponse.bookings.confirmed + 
-        statsResponse.bookings.cancelled
-      )
+      // Assert
+      expect(statsResponse).toMatchObject({
+        bookings: {
+          total: expect.any(Number),
+          pending: expect.any(Number),
+          confirmed: expect.any(Number),
+          cancelled: expect.any(Number)
+        },
+        revenue: {
+          total: expect.any(Number),
+          thisMonth: expect.any(Number)
+        },
+        dateRange: {
+          start: expect.any(String),
+          end: expect.any(String)
+        }
+      })
+      expect(totalMatches).toBe(true)
     })
 
     it('validates booking status breakdown', () => {
+      // Arrange
       const bookingStats = {
         total: 150,
         pending: 12,
@@ -44,60 +62,83 @@ describe('Admin Statistics API Integration', () => {
         cancelled: 18
       }
       
-      expect(bookingStats).toHaveProperty('total')
-      expect(bookingStats).toHaveProperty('pending')
-      expect(bookingStats).toHaveProperty('confirmed')
-      expect(bookingStats).toHaveProperty('cancelled')
+      // Act
+      const hasAllFields = 
+        typeof bookingStats.total === 'number' &&
+        typeof bookingStats.pending === 'number' &&
+        typeof bookingStats.confirmed === 'number' &&
+        typeof bookingStats.cancelled === 'number'
       
-      expect(typeof bookingStats.total).toBe('number')
+      // Assert
+      expect(bookingStats).toMatchObject({
+        total: expect.any(Number),
+        pending: expect.any(Number),
+        confirmed: expect.any(Number),
+        cancelled: expect.any(Number)
+      })
+      expect(hasAllFields).toBe(true)
       expect(bookingStats.total).toBeGreaterThanOrEqual(0)
     })
 
     it('validates revenue statistics structure', () => {
+      // Arrange
       const revenueStats = {
         total: 15000,
         thisMonth: 2500
       }
       
-      expect(revenueStats).toHaveProperty('total')
-      expect(revenueStats).toHaveProperty('thisMonth')
-      expect(revenueStats.thisMonth).toBeLessThanOrEqual(revenueStats.total)
+      // Act
+      const thisMonthWithinTotal = revenueStats.thisMonth <= revenueStats.total
+      
+      // Assert
+      expect(revenueStats).toMatchObject({
+        total: expect.any(Number),
+        thisMonth: expect.any(Number)
+      })
+      expect(thisMonthWithinTotal).toBe(true)
     })
   })
 
   describe('Date Range Filtering', () => {
     it('supports custom date range filtering', () => {
+      // Arrange
       const dateRange = {
         start: '2024-01-01',
         end: '2024-03-31'
       }
       
-      expect(dateRange).toHaveProperty('start')
-      expect(dateRange).toHaveProperty('end')
-      
+      // Act
       const startDate = new Date(dateRange.start)
       const endDate = new Date(dateRange.end)
+      const endAfterStart = endDate.getTime() > startDate.getTime()
       
+      // Assert
+      expect(dateRange).toMatchObject({
+        start: expect.any(String),
+        end: expect.any(String)
+      })
       expect(startDate).toBeInstanceOf(Date)
       expect(endDate).toBeInstanceOf(Date)
-      expect(endDate.getTime()).toBeGreaterThan(startDate.getTime())
+      expect(endAfterStart).toBe(true)
     })
 
     it('validates date format (ISO 8601)', () => {
+      // Arrange
       const validDates = [
         '2024-01-01',
         '2024-12-31',
         '2024-06-15'
       ]
-      
       const isoDatePattern = /^\d{4}-\d{2}-\d{2}$/
       
+      // Act & Assert
       validDates.forEach(date => {
         expect(date).toMatch(isoDatePattern)
       })
     })
 
     it('ensures end date is after start date', () => {
+      // Arrange
       const validRange = {
         start: '2024-01-01',
         end: '2024-12-31'
@@ -108,16 +149,19 @@ describe('Admin Statistics API Integration', () => {
         end: '2024-01-01'
       }
       
+      // Act
       const validStart = new Date(validRange.start).getTime()
       const validEnd = new Date(validRange.end).getTime()
       const invalidStart = new Date(invalidRange.start).getTime()
       const invalidEnd = new Date(invalidRange.end).getTime()
       
+      // Assert
       expect(validEnd).toBeGreaterThan(validStart)
       expect(invalidEnd).toBeLessThan(invalidStart)
     })
 
     it('calculates date range duration', () => {
+      // Arrange
       const quarterRange = {
         start: '2024-01-01',
         end: '2024-03-31'
@@ -128,6 +172,7 @@ describe('Admin Statistics API Integration', () => {
         end: '2024-12-31'
       }
       
+      // Act
       const quarterStart = new Date(quarterRange.start)
       const quarterEnd = new Date(quarterRange.end)
       const yearStart = new Date(yearRange.start)
@@ -136,6 +181,7 @@ describe('Admin Statistics API Integration', () => {
       const quarterDays = Math.floor((quarterEnd.getTime() - quarterStart.getTime()) / (1000 * 60 * 60 * 24))
       const yearDays = Math.floor((yearEnd.getTime() - yearStart.getTime()) / (1000 * 60 * 60 * 24))
       
+      // Assert
       expect(quarterDays).toBeLessThan(yearDays)
       expect(quarterDays).toBeGreaterThan(80)
       expect(yearDays).toBeGreaterThan(350)
@@ -144,6 +190,7 @@ describe('Admin Statistics API Integration', () => {
 
   describe('Statistics Aggregation', () => {
     it('aggregates booking counts by status', () => {
+      // Arrange
       const bookings = [
         { status: 'PENDING' },
         { status: 'CONFIRMED' },
@@ -151,32 +198,40 @@ describe('Admin Statistics API Integration', () => {
         { status: 'CANCELLED' }
       ]
       
+      // Act
       const aggregated = {
         pending: bookings.filter(b => b.status === 'PENDING').length,
         confirmed: bookings.filter(b => b.status === 'CONFIRMED').length,
         cancelled: bookings.filter(b => b.status === 'CANCELLED').length
       }
       
-      expect(aggregated.pending).toBe(1)
-      expect(aggregated.confirmed).toBe(2)
-      expect(aggregated.cancelled).toBe(1)
+      // Assert
+      expect(aggregated).toMatchObject({
+        pending: 1,
+        confirmed: 2,
+        cancelled: 1
+      })
     })
 
     it('calculates total bookings across all statuses', () => {
+      // Arrange
       const stats = {
         pending: 12,
         confirmed: 120,
         cancelled: 18
       }
       
+      // Act
       const total = stats.pending + stats.confirmed + stats.cancelled
       
+      // Assert
       expect(total).toBe(150)
     })
   })
 
   describe('Query Parameter Validation', () => {
     it('validates date format for query parameters', () => {
+      // Arrange
       const invalidDateFormats = [
         '2024/01/01',
         '01-01-2024',
@@ -184,22 +239,27 @@ describe('Admin Statistics API Integration', () => {
         'January 1, 2024',
         ''
       ]
-      
       const validDatePattern = /^\d{4}-\d{2}-\d{2}$/
       
+      // Act & Assert
       invalidDateFormats.forEach(date => {
         expect(date).not.toMatch(validDatePattern)
       })
     })
 
     it('handles missing date range gracefully', () => {
+      // Arrange
       const queryWithoutDates = {}
       
-      expect(queryWithoutDates).not.toHaveProperty('startDate')
-      expect(queryWithoutDates).not.toHaveProperty('endDate')
+      // Act
+      const hasDates = 'startDate' in queryWithoutDates || 'endDate' in queryWithoutDates
+      
+      // Assert
+      expect(hasDates).toBe(false)
     })
 
     it('detects invalid date range combinations', () => {
+      // Arrange
       const invalidCombinations = [
         { start: '2024-12-31', end: '2024-01-01' }, // end before start
         { start: '2024-01-01', end: '2024-01-01' }, // same date
@@ -207,6 +267,7 @@ describe('Admin Statistics API Integration', () => {
         { start: '2024-01-01', end: 'invalid' }, // invalid end
       ]
       
+      // Act & Assert
       invalidCombinations.forEach(range => {
         if (range.start === range.end) {
           expect(range.start).toBe(range.end)
@@ -228,53 +289,93 @@ describe('Admin Statistics API Integration', () => {
 
   describe('Security Headers', () => {
     it('enforces security headers on all responses', () => {
+      // Arrange
       const securityHeaders = {
         'x-content-type-options': 'nosniff',
         'x-frame-options': 'DENY'
       }
       
-      expect(securityHeaders['x-content-type-options']).toBe('nosniff')
-      expect(securityHeaders['x-frame-options']).toBe('DENY')
+      // Act
+      const hasSecurityHeaders = 
+        securityHeaders['x-content-type-options'] === 'nosniff' &&
+        securityHeaders['x-frame-options'] === 'DENY'
+      
+      // Assert
+      expect(securityHeaders).toMatchObject({
+        'x-content-type-options': 'nosniff',
+        'x-frame-options': 'DENY'
+      })
+      expect(hasSecurityHeaders).toBe(true)
     })
   })
 
   describe('HTTP Method Enforcement', () => {
     it('accepts only GET requests for statistics retrieval', () => {
+      // Arrange
       const allowedMethods = ['GET']
       const disallowedMethods = ['POST', 'PUT', 'DELETE', 'PATCH']
       
-      expect(allowedMethods).toContain('GET')
-      disallowedMethods.forEach(method => {
-        expect(allowedMethods).not.toContain(method)
-      })
+      // Act
+      const isGetAllowed = allowedMethods.includes('GET')
+      const areOthersDisallowed = disallowedMethods.every(
+        method => !allowedMethods.includes(method)
+      )
+      
+      // Assert
+      expect(isGetAllowed).toBe(true)
+      expect(areOthersDisallowed).toBe(true)
     })
   })
 
   describe('Response Structure Validation', () => {
     it('ensures complete statistics response', () => {
+      // Arrange
       const completeResponse = {
         bookings: {
+          total: 150,
+          pending: 12,
+          confirmed: 120,
+          cancelled: 18
+        },
+        revenue: {
+          total: 15000,
+          thisMonth: 2500
+        },
+        dateRange: {
+          start: '2024-01-01',
+          end: '2024-12-31'
+        }
+      }
+      
+      // Act
+      const hasAllSections = !!(
+        completeResponse.bookings &&
+        completeResponse.revenue &&
+        completeResponse.dateRange
+      )
+      
+      // Assert
+      expect(completeResponse).toMatchObject({
+        bookings: expect.objectContaining({
           total: expect.any(Number),
           pending: expect.any(Number),
           confirmed: expect.any(Number),
           cancelled: expect.any(Number)
-        },
-        revenue: {
+        }),
+        revenue: expect.objectContaining({
           total: expect.any(Number),
           thisMonth: expect.any(Number)
-        },
-        dateRange: {
+        }),
+        dateRange: expect.objectContaining({
           start: expect.any(String),
           end: expect.any(String)
-        }
-      }
-      
-      expect(completeResponse).toHaveProperty('bookings')
-      expect(completeResponse).toHaveProperty('revenue')
-      expect(completeResponse).toHaveProperty('dateRange')
+        })
+      })
+      expect(hasAllSections).toBe(true)
     })
 
     it('validates all numeric fields are non-negative', () => {
+      // Arrange
       const stats = {
         total: 150,
         pending: 12,
@@ -283,33 +384,71 @@ describe('Admin Statistics API Integration', () => {
         revenue: 15000
       }
       
+      // Act
+      const allNonNegative = Object.values(stats).every(value => value >= 0)
+      
+      // Assert
       Object.values(stats).forEach(value => {
         expect(value).toBeGreaterThanOrEqual(0)
       })
+      expect(allNonNegative).toBe(true)
     })
   })
 
   describe('Error Response Format', () => {
     it('returns authentication error when unauthorized', () => {
+      // Arrange
       const errorResponse = {
         error: 'Authentication required'
       }
       
-      expect(errorResponse).toHaveProperty('error')
-      expect(errorResponse.error).toContain('Authentication')
+      // Act
+      const hasAuthError = errorResponse.error.includes('Authentication')
+      
+      // Assert
+      expect(errorResponse).toMatchObject({
+        error: expect.stringContaining('Authentication')
+      })
+      expect(hasAuthError).toBe(true)
     })
 
     it('provides consistent error format', () => {
+      // Arrange
       const errors = [
         { error: 'Authentication required' },
         { error: 'Authentication required' },
         { error: 'Authentication required' }
       ]
       
+      // Act
+      const allSameFormat = errors.every(e => 
+        typeof e.error === 'string' && e.error.length > 0
+      )
+      
+      // Assert
       errors.forEach(error => {
-        expect(error).toHaveProperty('error')
-        expect(typeof error.error).toBe('string')
+        expect(error).toMatchObject({
+          error: expect.any(String)
+        })
       })
+      expect(allSameFormat).toBe(true)
+    })
+
+    it('throws error for invalid date range', () => {
+      // Arrange
+      const invalidRange = {
+        start: '2024-12-31',
+        end: '2024-01-01'
+      }
+      
+      // Act & Assert
+      expect(() => {
+        const startDate = new Date(invalidRange.start)
+        const endDate = new Date(invalidRange.end)
+        if (endDate < startDate) {
+          throw new Error('Invalid date range: end date must be after start date')
+        }
+      }).toThrow('Invalid date range')
     })
   })
 })

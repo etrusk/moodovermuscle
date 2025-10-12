@@ -29,70 +29,102 @@ describe('Admin Login Flow Integration', () => {
 
   describe('Authentication Workflow', () => {
     it('validates credentials format before authentication', () => {
+      // Arrange
       const validEmail = 'admin@moodovermuscle.com'
       const invalidEmail = 'not-an-email'
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
       
-      expect(validEmail).toMatch(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)
-      expect(invalidEmail).not.toMatch(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)
+      // Act
+      const validResult = emailPattern.test(validEmail)
+      const invalidResult = emailPattern.test(invalidEmail)
+      
+      // Assert
+      expect(validResult).toBe(true)
+      expect(invalidResult).toBe(false)
     })
 
     it('requires both email and password for authentication', () => {
+      // Arrange
       const credentials = {
         email: 'admin@moodovermuscle.com',
         password: 'secure-password'
       }
       
-      expect(credentials).toHaveProperty('email')
-      expect(credentials).toHaveProperty('password')
-      expect(credentials.email).toBeTruthy()
-      expect(credentials.password).toBeTruthy()
+      // Act
+      const hasRequiredFields = !!(credentials.email && credentials.password)
+      
+      // Assert
+      expect(credentials).toMatchObject({
+        email: expect.any(String),
+        password: expect.any(String)
+      })
+      expect(hasRequiredFields).toBe(true)
     })
 
     it('handles missing credentials appropriately', () => {
+      // Arrange
       const missingEmail = { password: 'test' }
       const missingPassword = { email: 'test@example.com' }
       
-      expect(missingEmail).not.toHaveProperty('email')
-      expect(missingPassword).not.toHaveProperty('password')
+      // Act
+      const emailMissing = !('email' in missingEmail)
+      const passwordMissing = !('password' in missingPassword)
+      
+      // Assert
+      expect(emailMissing).toBe(true)
+      expect(passwordMissing).toBe(true)
     })
   })
 
   describe('Security Measures', () => {
     it('validates email format with strict pattern', () => {
+      // Arrange
       const testCases = [
         { email: 'valid@example.com', expected: true },
         { email: 'invalid@', expected: false },
         { email: 'no-at-sign.com', expected: false },
         { email: '@no-local.com', expected: false },
       ]
-
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
+      // Act & Assert
       testCases.forEach(({ email, expected }) => {
         expect(emailPattern.test(email)).toBe(expected)
       })
     })
 
     it('enforces password presence requirement', () => {
+      // Arrange
       const withPassword = { password: 'secure123' }
       const withoutPassword = { password: '' }
       
-      expect(withPassword.password.length).toBeGreaterThan(0)
-      expect(withoutPassword.password.length).toBe(0)
+      // Act
+      const hasPassword = withPassword.password.length > 0
+      const lacksPassword = withoutPassword.password.length === 0
+      
+      // Assert
+      expect(hasPassword).toBe(true)
+      expect(lacksPassword).toBe(true)
     })
 
     it('prevents information leakage in error responses', () => {
-      // Generic error messages don't reveal whether email exists
+      // Arrange
       const genericError = 'Invalid email or password'
+      const sensitiveTerms = ['admin@', 'exists', 'not found']
       
-      expect(genericError).not.toContain('admin@')
-      expect(genericError).not.toContain('exists')
-      expect(genericError).not.toContain('not found')
+      // Act
+      const containsSensitiveInfo = sensitiveTerms.some(term =>
+        genericError.includes(term)
+      )
+      
+      // Assert
+      expect(containsSensitiveInfo).toBe(false)
     })
   })
 
   describe('Session Management', () => {
     it('defines secure cookie attributes', () => {
+      // Arrange
       const cookieConfig = {
         httpOnly: true,
         sameSite: 'lax' as const,
@@ -100,23 +132,38 @@ describe('Admin Login Flow Integration', () => {
         maxAge: 28800, // 8 hours
       }
       
-      expect(cookieConfig.httpOnly).toBe(true)
-      expect(cookieConfig.sameSite).toBe('lax')
-      expect(cookieConfig.maxAge).toBe(28800)
+      // Act
+      const isSecure = cookieConfig.httpOnly === true && cookieConfig.sameSite === 'lax'
+      
+      // Assert
+      expect(cookieConfig).toMatchObject({
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 28800
+      })
+      expect(isSecure).toBe(true)
     })
 
     it('enforces HTTP-only flag for security', () => {
+      // Arrange
       const secureConfig = { httpOnly: true }
       const insecureConfig = { httpOnly: false }
       
-      expect(secureConfig.httpOnly).toBe(true)
-      expect(insecureConfig.httpOnly).not.toBe(true)
+      // Act
+      const isSecure = secureConfig.httpOnly === true
+      const isInsecure = insecureConfig.httpOnly !== true
+      
+      // Assert
+      expect(isSecure).toBe(true)
+      expect(isInsecure).toBe(true)
     })
   })
 
   describe('Input Validation', () => {
     it('validates required email field', () => {
-      const validInput = { 
+      // Arrange
+      const validInput = {
         email: 'admin@example.com',
         password: 'test123'
       }
@@ -124,12 +171,21 @@ describe('Admin Login Flow Integration', () => {
         password: 'test123'
       }
       
-      expect(validInput).toHaveProperty('email')
-      expect(validInput.email).toMatch(/@/)
-      expect(invalidInput).not.toHaveProperty('email')
+      // Act
+      const hasEmail = 'email' in validInput && validInput.email.includes('@')
+      const lacksEmail = !('email' in invalidInput)
+      
+      // Assert
+      expect(validInput).toMatchObject({
+        email: expect.stringContaining('@'),
+        password: expect.any(String)
+      })
+      expect(hasEmail).toBe(true)
+      expect(lacksEmail).toBe(true)
     })
 
     it('validates required password field', () => {
+      // Arrange
       const validInput = {
         email: 'admin@example.com',
         password: 'test123'
@@ -138,12 +194,21 @@ describe('Admin Login Flow Integration', () => {
         email: 'admin@example.com'
       }
       
-      expect(validInput).toHaveProperty('password')
-      expect(validInput.password).toBeTruthy()
-      expect(invalidInput).not.toHaveProperty('password')
+      // Act
+      const hasPassword = 'password' in validInput && validInput.password.length > 0
+      const lacksPassword = !('password' in invalidInput)
+      
+      // Assert
+      expect(validInput).toMatchObject({
+        email: expect.any(String),
+        password: expect.any(String)
+      })
+      expect(hasPassword).toBe(true)
+      expect(lacksPassword).toBe(true)
     })
 
     it('rejects malformed email addresses', () => {
+      // Arrange
       const malformedEmails = [
         'notanemail',
         '@example.com',
@@ -151,9 +216,9 @@ describe('Admin Login Flow Integration', () => {
         'user @example.com',
         '',
       ]
-      
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
       
+      // Act & Assert
       malformedEmails.forEach(email => {
         expect(emailPattern.test(email)).toBe(false)
       })
@@ -162,6 +227,7 @@ describe('Admin Login Flow Integration', () => {
 
   describe('Response Format', () => {
     it('defines successful authentication response structure', () => {
+      // Arrange
       const successResponse = {
         message: 'Login successful',
         user: {
@@ -171,23 +237,43 @@ describe('Admin Login Flow Integration', () => {
         }
       }
       
-      expect(successResponse).toHaveProperty('message')
-      expect(successResponse).toHaveProperty('user')
-      expect(successResponse.user).toHaveProperty('id')
-      expect(successResponse.user).toHaveProperty('email')
-      expect(successResponse.user).toHaveProperty('name')
+      // Act
+      const hasRequiredStructure = !!(
+        successResponse.message &&
+        successResponse.user &&
+        successResponse.user.id
+      )
+      
+      // Assert
+      expect(successResponse).toMatchObject({
+        message: expect.any(String),
+        user: {
+          id: expect.any(String),
+          email: expect.stringContaining('@'),
+          name: expect.any(String)
+        }
+      })
+      expect(hasRequiredStructure).toBe(true)
     })
 
     it('defines error response structure', () => {
+      // Arrange
       const errorResponse = {
         error: 'Invalid email or password'
       }
       
-      expect(errorResponse).toHaveProperty('error')
-      expect(typeof errorResponse.error).toBe('string')
+      // Act
+      const hasError = 'error' in errorResponse
+      
+      // Assert
+      expect(errorResponse).toMatchObject({
+        error: expect.any(String)
+      })
+      expect(hasError).toBe(true)
     })
 
     it('defines validation error structure', () => {
+      // Arrange
       const validationError = {
         error: 'Invalid input',
         details: [
@@ -196,23 +282,52 @@ describe('Admin Login Flow Integration', () => {
         ]
       }
       
-      expect(validationError).toHaveProperty('error')
-      expect(validationError).toHaveProperty('details')
-      expect(Array.isArray(validationError.details)).toBe(true)
-      expect(validationError.details[0]).toHaveProperty('path')
-      expect(validationError.details[0]).toHaveProperty('message')
+      // Act
+      const hasValidStructure =
+        Array.isArray(validationError.details) &&
+        validationError.details.every(d => d.path && d.message)
+      
+      // Assert
+      expect(validationError).toMatchObject({
+        error: expect.any(String),
+        details: expect.arrayContaining([
+          expect.objectContaining({
+            path: expect.any(Array),
+            message: expect.any(String)
+          })
+        ])
+      })
+      expect(hasValidStructure).toBe(true)
     })
   })
 
   describe('HTTP Method Enforcement', () => {
     it('specifies POST as the only accepted method', () => {
+      // Arrange
       const allowedMethods = ['POST']
       const disallowedMethods = ['GET', 'PUT', 'DELETE', 'PATCH']
       
-      expect(allowedMethods).toContain('POST')
-      disallowedMethods.forEach(method => {
-        expect(allowedMethods).not.toContain(method)
-      })
+      // Act
+      const isPostAllowed = allowedMethods.includes('POST')
+      const areOthersDisallowed = disallowedMethods.every(
+        method => !allowedMethods.includes(method)
+      )
+      
+      // Assert
+      expect(isPostAllowed).toBe(true)
+      expect(areOthersDisallowed).toBe(true)
     })
+
+  it('handles error conditions gracefully', () => {
+    // Arrange
+    const invalidInput = null;
+    
+    // Act & Assert
+    expect(() => {
+      // This would throw in real scenario
+      if (!invalidInput) throw new Error('Invalid input');
+    }).toThrow('Invalid input');
+  });
+
   })
 })

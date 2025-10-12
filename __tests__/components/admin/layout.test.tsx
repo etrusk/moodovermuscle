@@ -93,6 +93,7 @@ describe('AdminLayout Component', () => {
 
   describe('Authentication Flow', () => {
     it('shows loading state during authentication check', async () => {
+      // Arrange
       mockUseAdminAuth.mockReturnValue({
         user: null,
         isLoading: true,
@@ -102,12 +103,14 @@ describe('AdminLayout Component', () => {
         refreshSession: jest.fn(),
       })
 
+      // Act
       const { container } = render(
         <AdminLayout>
           <div>Dashboard Content</div>
         </AdminLayout>
       )
 
+      // Assert
       expect(screen.getByText(/loading admin dashboard/i)).toBeInTheDocument()
       expect(container.querySelector('.animate-spin')).toBeInTheDocument()
 
@@ -116,6 +119,7 @@ describe('AdminLayout Component', () => {
     })
 
     it('redirects to login when not authenticated and not on login page', async () => {
+      // Arrange
       mockUseAdminAuth.mockReturnValue({
         user: null,
         isLoading: false,
@@ -126,18 +130,21 @@ describe('AdminLayout Component', () => {
       })
       mockPathname.mockReturnValue('/admin/dashboard')
 
+      // Act
       render(
         <AdminLayout>
           <div>Dashboard Content</div>
         </AdminLayout>
       )
 
+      // Assert
       await waitFor(() => {
         expect(mockReplace).toHaveBeenCalledWith('/admin/login')
       })
     })
 
     it('allows login page to render without authentication', () => {
+      // Arrange
       mockUseAdminAuth.mockReturnValue({
         user: null,
         isLoading: false,
@@ -148,17 +155,20 @@ describe('AdminLayout Component', () => {
       })
       mockPathname.mockReturnValue('/admin/login')
 
+      // Act
       const { container } = render(
         <AdminLayout>
           <div>Login Form</div>
         </AdminLayout>
       )
 
+      // Assert
       expect(screen.getByText('Login Form')).toBeInTheDocument()
       expect(container.querySelector('.min-h-screen.bg-gray-50')).toBeInTheDocument()
     })
 
     it('does not render content when not authenticated and not loading', async () => {
+      // Arrange
       mockUseAdminAuth.mockReturnValue({
         user: null,
         isLoading: false,
@@ -169,29 +179,28 @@ describe('AdminLayout Component', () => {
       })
       mockPathname.mockReturnValue('/admin/dashboard')
 
+      // Act
       const { container } = render(
         <AdminLayout>
           <div>Dashboard Content</div>
         </AdminLayout>
       )
 
-      // Wait for redirect effect to take place
+      // Assert
       await waitFor(() => {
         expect(mockReplace).toHaveBeenCalledWith('/admin/login')
       })
 
       expect(screen.queryByText('Dashboard Content')).not.toBeInTheDocument()
-      // Component returns null for content, but AdminAuthProvider wrapper still exists
-      // The wrapper div from AdminAuthProvider mock will be present, but should be empty or minimal
       expect(container.firstChild).toBeTruthy() // Wrapper exists
       expect(container.firstChild?.textContent?.trim()).toBeFalsy() // But has no meaningful content
     })
 
     it('handles authentication state transitions without violations', async () => {
+      // Arrange
       const { consoleErrors, originalConsoleError } = setupViolationDetection()
 
       try {
-        // Start with loading state
         mockUseAdminAuth.mockReturnValue({
           user: null,
           isLoading: true,
@@ -209,7 +218,7 @@ describe('AdminLayout Component', () => {
 
         expect(screen.getByText('Loading admin dashboard...')).toBeInTheDocument()
 
-        // Transition to authenticated state
+        // Act
         mockUseAdminAuth.mockReturnValue({
           user: mockUser,
           isLoading: false,
@@ -225,6 +234,7 @@ describe('AdminLayout Component', () => {
           </AdminLayout>
         )
 
+        // Assert
         await waitFor(() => {
           expect(screen.getByText('MoodOverMuscle Admin')).toBeInTheDocument()
         })
@@ -238,12 +248,14 @@ describe('AdminLayout Component', () => {
 
   describe('Navigation Structure', () => {
     it('renders admin header with correct title and user info', async () => {
+      // Arrange & Act
       render(
         <AdminLayout>
           <div>Dashboard Content</div>
         </AdminLayout>
       )
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByText(/moodovermuscle admin/i)).toBeInTheDocument()
         expect(screen.getByText(/welcome/i)).toBeInTheDocument()
@@ -252,12 +264,14 @@ describe('AdminLayout Component', () => {
     })
 
     it('displays navigation links for all admin sections', async () => {
+      // Arrange & Act
       render(
         <AdminLayout>
           <div>Dashboard Content</div>
         </AdminLayout>
       )
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('Dashboard')).toBeInTheDocument()
         expect(screen.getByText('Bookings')).toBeInTheDocument()
@@ -266,14 +280,17 @@ describe('AdminLayout Component', () => {
     })
 
     it('applies active state styling to current page', async () => {
+      // Arrange
       mockPathname.mockReturnValue('/admin/dashboard')
 
+      // Act
       render(
         <AdminLayout>
           <div>Dashboard Content</div>
         </AdminLayout>
       )
 
+      // Assert
       await waitFor(() => {
         const dashboardLink = screen.getByText('Dashboard').closest('a')
         expect(dashboardLink).toHaveClass('border-blue-500', 'text-blue-600')
@@ -281,12 +298,14 @@ describe('AdminLayout Component', () => {
     })
 
     it('renders navigation links with proper href attributes', async () => {
+      // Arrange & Act
       render(
         <AdminLayout>
           <div>Dashboard Content</div>
         </AdminLayout>
       )
 
+      // Assert
       await waitFor(() => {
         const dashboardLink = screen.getByText('Dashboard').closest('a')
         const bookingsLink = screen.getByText('Bookings').closest('a')
@@ -299,12 +318,14 @@ describe('AdminLayout Component', () => {
     })
 
     it('renders main content area with proper structure', async () => {
+      // Arrange & Act
       render(
         <AdminLayout>
           <div data-testid="dashboard-content">Dashboard Content</div>
         </AdminLayout>
       )
 
+      // Assert
       await waitFor(() => {
         const mainElement = screen.getByRole('main')
         expect(mainElement).toBeInTheDocument()
@@ -316,12 +337,14 @@ describe('AdminLayout Component', () => {
 
   describe('Session Management', () => {
     it('renders logout button with proper accessibility', async () => {
+      // Arrange & Act
       render(
         <AdminLayout>
           <div>Dashboard Content</div>
         </AdminLayout>
       )
 
+      // Assert
       await waitFor(() => {
         const logoutButton = screen.getByRole('button', { name: /logout/i })
         expect(logoutButton).toBeInTheDocument()
@@ -330,6 +353,7 @@ describe('AdminLayout Component', () => {
     })
 
     it('calls logout function when logout button is clicked', async () => {
+      // Arrange
       render(
         <AdminLayout>
           <div>Dashboard Content</div>
@@ -341,13 +365,16 @@ describe('AdminLayout Component', () => {
         expect(logoutButton).toBeInTheDocument()
       })
 
+      // Act
       const logoutButton = screen.getByRole('button', { name: /logout/i })
       await user.click(logoutButton)
 
+      // Assert
       expect(mockLogout).toHaveBeenCalledTimes(1)
     })
 
     it('handles logout process without state violations', async () => {
+      // Arrange
       const { consoleErrors, originalConsoleError } = setupViolationDetection()
 
       try {
@@ -362,9 +389,11 @@ describe('AdminLayout Component', () => {
           expect(logoutButton).toBeInTheDocument()
         })
 
+        // Act
         const logoutButton = screen.getByRole('button', { name: /logout/i })
         await user.click(logoutButton)
 
+        // Assert
         expect(mockLogout).toHaveBeenCalled()
         expect(consoleErrors).toHaveLength(0)
       } finally {
@@ -373,6 +402,7 @@ describe('AdminLayout Component', () => {
     })
 
     it('displays user information correctly', async () => {
+      // Arrange
       const customUser = {
         id: '2',
         name: 'Test Admin',
@@ -388,12 +418,14 @@ describe('AdminLayout Component', () => {
         refreshSession: jest.fn(),
       })
 
+      // Act
       render(
         <AdminLayout>
           <div>Dashboard Content</div>
         </AdminLayout>
       )
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByText(/Welcome,/)).toBeInTheDocument()
         expect(screen.getByText('Test Admin')).toBeInTheDocument()
@@ -403,12 +435,14 @@ describe('AdminLayout Component', () => {
 
   describe('Layout Responsiveness', () => {
     it('renders responsive layout structure', async () => {
+      // Arrange & Act
       const { container } = render(
         <AdminLayout>
           <div>Dashboard Content</div>
         </AdminLayout>
       )
 
+      // Assert
       await waitFor(() => {
         expect(container.querySelector('.min-h-screen')).toBeInTheDocument()
         expect(container.querySelector('.max-w-7xl')).toBeInTheDocument()
@@ -416,12 +450,14 @@ describe('AdminLayout Component', () => {
     })
 
     it('applies responsive padding and spacing classes', async () => {
+      // Arrange & Act
       const { container } = render(
         <AdminLayout>
           <div>Dashboard Content</div>
         </AdminLayout>
       )
 
+      // Assert
       await waitFor(() => {
         const headerContainer = container.querySelector('.max-w-7xl.mx-auto.px-4.sm\\:px-6.lg\\:px-8')
         expect(headerContainer).toBeInTheDocument()
@@ -429,15 +465,17 @@ describe('AdminLayout Component', () => {
     })
 
     it('maintains proper layout hierarchy', async () => {
+      // Arrange & Act
       const { container } = render(
         <AdminLayout>
           <div>Dashboard Content</div>
         </AdminLayout>
       )
 
+      // Assert
       await waitFor(() => {
         const header = screen.getByRole('banner')
-        const nav = screen.getByRole('navigation')  
+        const nav = screen.getByRole('navigation')
         const main = screen.getByRole('main')
 
         expect(header).toBeInTheDocument()
@@ -454,6 +492,7 @@ describe('AdminLayout Component', () => {
 
   describe('Accessibility', () => {
     it('has no accessibility violations', async () => {
+      // Arrange & Act
       const { container } = render(
         <AdminLayout>
           <div>Dashboard Content</div>
@@ -464,17 +503,20 @@ describe('AdminLayout Component', () => {
         expect(screen.getByText('MoodOverMuscle Admin')).toBeInTheDocument()
       })
 
+      // Assert
       const results = await axe(container)
       expect(results).toHaveNoViolations()
     })
 
     it('provides proper semantic structure with landmarks', async () => {
+      // Arrange & Act
       render(
         <AdminLayout>
           <div>Dashboard Content</div>
         </AdminLayout>
       )
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByRole('banner')).toBeInTheDocument()  // header
         expect(screen.getByRole('navigation')).toBeInTheDocument()  // nav
@@ -483,12 +525,14 @@ describe('AdminLayout Component', () => {
     })
 
     it('maintains proper heading hierarchy', async () => {
+      // Arrange & Act
       render(
         <AdminLayout>
           <div>Dashboard Content</div>
         </AdminLayout>
       )
 
+      // Assert
       await waitFor(() => {
         const headerTitle = screen.getByRole('heading', { level: 1 })
         expect(headerTitle).toHaveTextContent('MoodOverMuscle Admin')
@@ -496,6 +540,7 @@ describe('AdminLayout Component', () => {
     })
 
     it('provides keyboard navigation support', async () => {
+      // Arrange
       render(
         <AdminLayout>
           <div>Dashboard Content</div>
@@ -507,20 +552,20 @@ describe('AdminLayout Component', () => {
         expect(logoutButton).toBeInTheDocument()
       })
 
+      // Act
       const logoutButton = screen.getByRole('button', { name: /logout/i })
-      
-      // Test keyboard navigation
       logoutButton.focus()
-      expect(logoutButton).toHaveFocus()
-
-      // Test keyboard activation
       await user.keyboard('{Enter}')
+
+      // Assert
+      expect(logoutButton).toHaveFocus()
       expect(mockLogout).toHaveBeenCalled()
     })
   })
 
   describe('Error Boundaries and Edge Cases', () => {
     it('handles missing user gracefully when authenticated', async () => {
+      // Arrange
       mockUseAdminAuth.mockReturnValue({
         user: null,
         isLoading: false,
@@ -530,20 +575,20 @@ describe('AdminLayout Component', () => {
         refreshSession: jest.fn(),
       })
 
+      // Act
       const { container } = render(
         <AdminLayout>
           <div>Dashboard Content</div>
         </AdminLayout>
       )
 
-      // Should not render content when authenticated but no user
+      // Assert
       expect(screen.queryByText('Dashboard Content')).not.toBeInTheDocument()
-      // Component still renders the wrapper div but no content
       expect(container.querySelector('main')).toBeNull()
     })
 
     it('handles pathname edge cases correctly', () => {
-      // Test various admin paths
+      // Arrange
       const paths = ['/admin/login', '/admin/dashboard', '/admin/bookings', '/admin/calendar']
       
       paths.forEach(path => {
@@ -569,28 +614,32 @@ describe('AdminLayout Component', () => {
           })
         }
 
+        // Act
         const { unmount } = render(
           <AdminLayout>
             <div>Content for {path}</div>
           </AdminLayout>
         )
 
-        // Should not throw errors for any path
+        // Assert
         expect(() => unmount()).not.toThrow()
       })
     })
 
     it('handles component unmount gracefully', () => {
+      // Arrange & Act
       const { unmount } = render(
         <AdminLayout>
           <div>Dashboard Content</div>
         </AdminLayout>
       )
 
+      // Assert
       expect(() => unmount()).not.toThrow()
     })
 
     it('handles rapid auth state changes without violations', async () => {
+      // Arrange
       const { consoleErrors, originalConsoleError } = setupViolationDetection()
 
       try {
@@ -600,7 +649,6 @@ describe('AdminLayout Component', () => {
           </AdminLayout>
         )
 
-        // Simulate rapid state changes
         const states = [
           { user: null, isLoading: true, isAuthenticated: false },
           { user: mockUser, isLoading: false, isAuthenticated: true },
@@ -608,6 +656,7 @@ describe('AdminLayout Component', () => {
           { user: mockUser, isLoading: false, isAuthenticated: true },
         ]
 
+        // Act
         for (const state of states) {
           mockUseAdminAuth.mockReturnValue({
             ...state,
@@ -622,10 +671,10 @@ describe('AdminLayout Component', () => {
             </AdminLayout>
           )
 
-          // Small delay to allow state updates
           await new Promise(resolve => setTimeout(resolve, 10))
         }
 
+        // Assert
         expect(consoleErrors).toHaveLength(0)
       } finally {
         console.error = originalConsoleError
@@ -635,6 +684,7 @@ describe('AdminLayout Component', () => {
 
   describe('Performance and Optimization', () => {
     it('does not re-render unnecessarily with same props', async () => {
+      // Arrange
       const TestChild = jest.fn(() => <div>Dashboard Content</div>)
 
       const { rerender } = render(
@@ -649,18 +699,19 @@ describe('AdminLayout Component', () => {
 
       const initialRenderCount = TestChild.mock.calls.length
 
-      // Rerender with same props
+      // Act
       rerender(
         <AdminLayout>
           <TestChild />
         </AdminLayout>
       )
 
-      // Should not cause unnecessary re-renders of children
+      // Assert
       expect(TestChild.mock.calls.length).toBeGreaterThanOrEqual(initialRenderCount)
     })
 
     it('memoizes expensive operations correctly', async () => {
+      // Arrange
       render(
         <AdminLayout>
           <div>Dashboard Content</div>
@@ -671,14 +722,14 @@ describe('AdminLayout Component', () => {
         expect(screen.getByText('MoodOverMuscle Admin')).toBeInTheDocument()
       })
 
-      // Multiple rerenders should not cause performance issues
+      // Act
       const startTime = Date.now()
       for (let i = 0; i < 10; i++) {
         screen.getByText('MoodOverMuscle Admin')
       }
       const endTime = Date.now()
 
-      // Should complete quickly (arbitrary threshold)
+      // Assert
       expect(endTime - startTime).toBeLessThan(100)
     })
   })

@@ -170,7 +170,7 @@ describe('AdminCalendarPage Component', () => {
 
   describe('Authentication and User Management', () => {
     it('returns empty fragment when user is not available', () => {
-      // Clear any previous mocks and set explicit null user state
+      // Arrange
       mockUseAdminAuth.mockReturnValue({
         user: null,
         isLoading: false,
@@ -180,13 +180,18 @@ describe('AdminCalendarPage Component', () => {
         refreshSession: jest.fn(),
       })
 
+      // Act
       const { container } = render(<AdminCalendarPage />)
+      
+      // Assert
       expect(container.firstChild).toBeNull()
     })
 
     it('renders calendar when user is authenticated', async () => {
+      // Arrange & Act
       const { container } = render(<AdminCalendarPage />)
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByText(/calendar/i)).toBeInTheDocument()
         expect(screen.getByText(/manage your schedule and bookings/i)).toBeInTheDocument()
@@ -199,14 +204,15 @@ describe('AdminCalendarPage Component', () => {
 
   describe('Calendar Navigation and Display', () => {
     it('displays current month and navigation controls', async () => {
+      // Arrange & Act
       render(<AdminCalendarPage />)
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('August 2025')).toBeInTheDocument()
         expect(screen.getByRole('button', { name: /today/i })).toBeInTheDocument()
       }, { timeout: 10000 })
 
-      // Check navigation buttons exist using more specific selectors
       const allButtons = screen.getAllByRole('button')
       const navigationButtons = allButtons.filter(button =>
         button.querySelector('svg') &&
@@ -217,13 +223,13 @@ describe('AdminCalendarPage Component', () => {
     })
 
     it('navigates to previous month when previous button is clicked', async () => {
+      // Arrange
       render(<AdminCalendarPage />)
 
       await waitFor(() => {
         expect(screen.getByText('August 2025')).toBeInTheDocument()
       }, { timeout: 10000 })
 
-      // Find navigation buttons more reliably
       const allButtons = screen.getAllByRole('button')
       const navigationButtons = allButtons.filter(button =>
         button.querySelector('svg') &&
@@ -231,23 +237,24 @@ describe('AdminCalendarPage Component', () => {
         !button.getAttribute('aria-expanded')
       )
       
-      // First navigation button should be previous month
+      // Act
       const prevButton = navigationButtons[0]
       await user.click(prevButton)
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('July 2025')).toBeInTheDocument()
       }, { timeout: 10000 })
     }, 15000)
 
     it('navigates to next month when next button is clicked', async () => {
+      // Arrange
       render(<AdminCalendarPage />)
 
       await waitFor(() => {
         expect(screen.getByText('August 2025')).toBeInTheDocument()
       }, { timeout: 10000 })
 
-      // Find navigation buttons more reliably
       const allButtons = screen.getAllByRole('button')
       const navigationButtons = allButtons.filter(button =>
         button.querySelector('svg') &&
@@ -255,24 +262,24 @@ describe('AdminCalendarPage Component', () => {
         !button.getAttribute('aria-expanded')
       )
       
-      // Second navigation button should be next month
+      // Act
       const nextButton = navigationButtons[1]
       await user.click(nextButton)
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('September 2025')).toBeInTheDocument()
       }, { timeout: 10000 })
     }, 15000)
 
     it('navigates to today when Today button is clicked', async () => {
+      // Arrange
       render(<AdminCalendarPage />)
 
-      // Navigate away from current month first
       await waitFor(() => {
         expect(screen.getByText('August 2025')).toBeInTheDocument()
       }, { timeout: 10000 })
 
-      // Find navigation buttons more reliably
       const allButtons = screen.getAllByRole('button')
       const navigationButtons = allButtons.filter(button =>
         button.querySelector('svg') &&
@@ -287,28 +294,30 @@ describe('AdminCalendarPage Component', () => {
         expect(screen.getByText('September 2025')).toBeInTheDocument()
       }, { timeout: 10000 })
 
-      // Click Today button to return
+      // Act
       const todayButton = screen.getByRole('button', { name: /today/i })
       await user.click(todayButton)
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('August 2025')).toBeInTheDocument()
       }, { timeout: 10000 })
     }, 15000)
 
     it('displays view mode selector with Month and Week options', async () => {
+      // Arrange
       render(<AdminCalendarPage />)
 
       await waitFor(() => {
-        // View mode selector should be present
         const viewModeSelect = screen.getByRole('combobox')
         expect(viewModeSelect).toBeInTheDocument()
       }, { timeout: 10000 })
 
-      // Click to open dropdown
+      // Act
       const viewModeSelect = screen.getByRole('combobox')
       await user.click(viewModeSelect)
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('Month')).toBeInTheDocument()
         expect(screen.getByText('Week')).toBeInTheDocument()
@@ -318,13 +327,15 @@ describe('AdminCalendarPage Component', () => {
 
   describe('Booking Data Loading', () => {
     it('shows loading state during initial data fetch', async () => {
-      // Mock delayed response with proper promise resolution
+      // Arrange
       mockFetch.mockImplementation(() =>
         new Promise(resolve => setTimeout(() => resolve(mockSuccessResponse), 200))
       )
 
+      // Act
       const { container } = render(<AdminCalendarPage />)
 
+      // Assert
       expect(screen.getByText('Loading calendar...')).toBeInTheDocument()
       expect(container.querySelector('.animate-spin')).toBeInTheDocument()
 
@@ -334,8 +345,10 @@ describe('AdminCalendarPage Component', () => {
     })
 
     it('fetches bookings for current month view with correct date range', async () => {
+      // Arrange & Act
       render(<AdminCalendarPage />)
 
+      // Assert
       await waitFor(() => {
         expect(mockFetch).toHaveBeenCalledWith(
           expect.stringMatching(/\/api\/admin\/bookings\?dateFrom=2025-07-\d{2}&dateTo=2025-08-\d{2}/)
@@ -344,13 +357,13 @@ describe('AdminCalendarPage Component', () => {
     })
 
     it('refetches bookings when month changes', async () => {
+      // Arrange
       render(<AdminCalendarPage />)
 
       await waitFor(() => {
         expect(mockFetch).toHaveBeenCalledTimes(1)
       }, { timeout: 10000 })
 
-      // Find navigation buttons more reliably
       const allButtons = screen.getAllByRole('button')
       const navigationButtons = allButtons.filter(button =>
         button.querySelector('svg') &&
@@ -358,10 +371,11 @@ describe('AdminCalendarPage Component', () => {
         !button.getAttribute('aria-expanded')
       )
       
-      // Navigate to next month
+      // Act
       const nextButton = navigationButtons[1]
       await user.click(nextButton)
 
+      // Assert
       await waitFor(() => {
         expect(mockFetch).toHaveBeenCalledTimes(2)
         expect(mockFetch).toHaveBeenLastCalledWith(
@@ -371,10 +385,13 @@ describe('AdminCalendarPage Component', () => {
     }, 15000)
 
     it('displays error state when booking fetch fails', async () => {
+      // Arrange
       mockFetch.mockRejectedValue(new Error('Network error'))
 
+      // Act
       render(<AdminCalendarPage />)
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('Error loading calendar')).toBeInTheDocument()
         expect(screen.getByText('Network error')).toBeInTheDocument()
@@ -383,22 +400,22 @@ describe('AdminCalendarPage Component', () => {
     })
 
     it('retries fetch when Try Again button is clicked', async () => {
+      // Arrange
       mockFetch
         .mockRejectedValueOnce(new Error('Network error'))
         .mockResolvedValueOnce(mockSuccessResponse)
 
       render(<AdminCalendarPage />)
 
-      // Wait for error state
       await waitFor(() => {
         expect(screen.getByText('Network error')).toBeInTheDocument()
       }, { timeout: 10000 })
 
-      // Click Try Again
+      // Act
       const tryAgainButton = screen.getByRole('button', { name: /try again/i })
       await user.click(tryAgainButton)
 
-      // Should fetch again and succeed
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('Sarah Miller')).toBeInTheDocument()
       }, { timeout: 10000 })
@@ -409,18 +426,16 @@ describe('AdminCalendarPage Component', () => {
 
   describe('Calendar Date Selection and Booking Display', () => {
     it('shows selected date bookings in sidebar', async () => {
+      // Arrange & Act
       render(<AdminCalendarPage />)
 
+      // Assert
       await waitFor(() => {
-        // Check that calendar UI is rendered
         expect(screen.getByText('Calendar')).toBeInTheDocument()
         expect(screen.getByText('August 2025')).toBeInTheDocument()
       }, { timeout: 10000 })
 
-      // Wait for booking data to load - check for sidebar with date format
       await waitFor(() => {
-        // Should show bookings for current date (August 10th - has 2 bookings)
-        // Check for the sidebar date header specifically
         expect(screen.getByText('Sunday 10 Aug')).toBeInTheDocument()
         expect(screen.getByText('Sarah Miller')).toBeInTheDocument()
         expect(screen.getByText('Mike Johnson')).toBeInTheDocument()
@@ -428,8 +443,10 @@ describe('AdminCalendarPage Component', () => {
     })
 
     it('displays bookings sorted by time', async () => {
+      // Arrange & Act
       render(<AdminCalendarPage />)
 
+      // Assert
       await waitFor(() => {
         const bookingElements = screen.getAllByText(/Sarah Miller|Mike Johnson/)
         expect(bookingElements).toHaveLength(2)
@@ -445,31 +462,32 @@ describe('AdminCalendarPage Component', () => {
     })
 
     it('shows no bookings message for dates without bookings', async () => {
-      // Mock empty bookings to test no bookings state
+      // Arrange
       mockFetch.mockResolvedValue({
         ok: true,
         json: jest.fn(() => Promise.resolve({ bookings: [] })),
         clone: jest.fn().mockReturnThis()
       })
 
+      // Act
       render(<AdminCalendarPage />)
 
-      // Wait for component to load and show empty state
+      // Assert
       await waitFor(() => {
         expect(screen.getByText(/no bookings scheduled/i)).toBeInTheDocument()
       }, { timeout: 10000 })
     })
 
     it('displays booking times in correct format', async () => {
+      // Arrange & Act
       render(<AdminCalendarPage />)
 
-      // Wait for calendar to load and data to be fetched
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('Sarah Miller')).toBeInTheDocument()
         expect(screen.getByText('Mike Johnson')).toBeInTheDocument()
       }, { timeout: 10000 })
       
-      // Then check for formatted times
       await waitFor(() => {
         expect(screen.getByText('10:00 AM')).toBeInTheDocument()
         expect(screen.getByText('2:30 PM')).toBeInTheDocument()
@@ -477,8 +495,10 @@ describe('AdminCalendarPage Component', () => {
     }, 15000)
 
     it('displays booking service types', async () => {
+      // Arrange & Act
       render(<AdminCalendarPage />)
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('Personal Training')).toBeInTheDocument()
         expect(screen.getByText('Group Class')).toBeInTheDocument()
@@ -486,8 +506,10 @@ describe('AdminCalendarPage Component', () => {
     }, 15000)
 
     it('shows status badges for each booking', async () => {
+      // Arrange & Act
       render(<AdminCalendarPage />)
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('Pending')).toBeInTheDocument()
         expect(screen.getByText('Confirmed')).toBeInTheDocument()
@@ -497,8 +519,10 @@ describe('AdminCalendarPage Component', () => {
 
   describe('Status Legend', () => {
     it('displays status legend with all status types', async () => {
+      // Arrange & Act
       render(<AdminCalendarPage />)
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('Status Legend')).toBeInTheDocument()
         expect(screen.getByText('Pending')).toBeInTheDocument()
@@ -509,12 +533,13 @@ describe('AdminCalendarPage Component', () => {
     })
 
     it('displays colored indicators for each status', async () => {
+      // Arrange & Act
       const { container } = render(<AdminCalendarPage />)
 
+      // Assert
       await waitFor(() => {
-        // Check for status indicator dots
         expect(container.querySelector('.bg-yellow-500')).toBeInTheDocument() // Pending
-        expect(container.querySelector('.bg-blue-500')).toBeInTheDocument()   // Confirmed  
+        expect(container.querySelector('.bg-blue-500')).toBeInTheDocument()   // Confirmed
         expect(container.querySelector('.bg-red-500')).toBeInTheDocument()    // Cancelled
         expect(container.querySelector('.bg-green-500')).toBeInTheDocument()  // Completed
       })
@@ -523,17 +548,19 @@ describe('AdminCalendarPage Component', () => {
 
   describe('Booking Detail Modal Integration', () => {
     it('opens booking detail modal when booking is clicked', async () => {
+      // Arrange
       render(<AdminCalendarPage />)
 
       await waitFor(() => {
         expect(screen.getByText('Sarah Miller')).toBeInTheDocument()
       }, { timeout: 10000 })
 
-      // Click on Sarah's booking
+      // Act
       const sarahBooking = screen.getByText('Sarah Miller').closest('[role="button"]')
       expect(sarahBooking).toBeInTheDocument()
       await user.click(sarahBooking as HTMLElement)
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('Booking Details')).toBeInTheDocument()
         expect(screen.getByText('sarah@example.com')).toBeInTheDocument()
@@ -541,16 +568,18 @@ describe('AdminCalendarPage Component', () => {
     }, 15000)
 
     it('displays complete booking information in modal', async () => {
+      // Arrange
       render(<AdminCalendarPage />)
 
       await waitFor(() => {
         expect(screen.getByText('Sarah Miller')).toBeInTheDocument()
       }, { timeout: 10000 })
 
-      // Click on Sarah's booking to open modal
+      // Act
       const sarahBooking = screen.getByText('Sarah Miller').closest('[role="button"]')
       await user.click(sarahBooking as HTMLElement)
 
+      // Assert
       await waitFor(() => {
         // Contact information
         expect(screen.getByText('Contact Information')).toBeInTheDocument()
@@ -573,37 +602,40 @@ describe('AdminCalendarPage Component', () => {
     }, 15000)
 
     it('supports keyboard navigation for booking selection', async () => {
+      // Arrange
       render(<AdminCalendarPage />)
 
       await waitFor(() => {
         expect(screen.getByText('Sarah Miller')).toBeInTheDocument()
       }, { timeout: 10000 })
 
-      // Focus the booking element
+      // Act
       const sarahBooking = screen.getByText('Sarah Miller').closest('[role="button"]') as HTMLElement
       sarahBooking?.focus()
       expect(sarahBooking).toHaveFocus()
 
-      // Press Enter to activate
       await user.keyboard('{Enter}')
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('Booking Details')).toBeInTheDocument()
       }, { timeout: 10000 })
     }, 15000)
 
     it('supports space bar activation for booking selection', async () => {
+      // Arrange
       render(<AdminCalendarPage />)
 
       await waitFor(() => {
         expect(screen.getByText('Sarah Miller')).toBeInTheDocument()
       }, { timeout: 10000 })
 
-      // Focus and activate with space bar
+      // Act
       const sarahBooking = screen.getByText('Sarah Miller').closest('[role="button"]') as HTMLElement
       sarahBooking?.focus()
       await user.keyboard(' ')
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('Booking Details')).toBeInTheDocument()
       }, { timeout: 10000 })
@@ -612,6 +644,7 @@ describe('AdminCalendarPage Component', () => {
 
   describe('Status Updates from Calendar View', () => {
     it('allows status updates from modal and refreshes calendar', async () => {
+      // Arrange
       const mockUpdateResponse = {
         ok: true,
         json: jest.fn(() => Promise.resolve({ success: true })),
@@ -629,7 +662,6 @@ describe('AdminCalendarPage Component', () => {
         expect(screen.getByText('Sarah Miller')).toBeInTheDocument()
       }, { timeout: 10000 })
 
-      // Open modal
       const sarahBooking = screen.getByText('Sarah Miller').closest('[role="button"]')
       await user.click(sarahBooking as HTMLElement)
 
@@ -637,11 +669,11 @@ describe('AdminCalendarPage Component', () => {
         expect(screen.getByText('Status Actions')).toBeInTheDocument()
       }, { timeout: 10000 })
 
-      // Click status update button in modal
+      // Act
       const confirmButton = screen.getByText('Mark as Confirmed')
       await user.click(confirmButton)
 
-      // Should update status and close modal
+      // Assert
       await waitFor(() => {
         expect(mockFetch).toHaveBeenCalledWith('/api/admin/bookings', {
           method: 'PATCH',
@@ -655,7 +687,6 @@ describe('AdminCalendarPage Component', () => {
         })
       }, { timeout: 10000 })
 
-      // Modal should close
       await waitFor(() => {
         expect(screen.queryByText('Booking Details')).not.toBeInTheDocument()
       }, { timeout: 10000 })
@@ -664,6 +695,7 @@ describe('AdminCalendarPage Component', () => {
     }, 20000)
 
     it('handles status update errors from calendar view', async () => {
+      // Arrange
       mockFetch
         .mockResolvedValueOnce(mockSuccessResponse) // Initial fetch
         .mockRejectedValueOnce(new Error('Update failed')) // Status update failure
@@ -674,7 +706,6 @@ describe('AdminCalendarPage Component', () => {
         expect(screen.getByText('Sarah Miller')).toBeInTheDocument()
       }, { timeout: 10000 })
 
-      // Open modal and try to update status
       const sarahBooking = screen.getByText('Sarah Miller').closest('[role="button"]')
       await user.click(sarahBooking as HTMLElement)
 
@@ -682,10 +713,11 @@ describe('AdminCalendarPage Component', () => {
         expect(screen.getByText('Mark as Confirmed')).toBeInTheDocument()
       }, { timeout: 10000 })
 
+      // Act
       const confirmButton = screen.getByText('Mark as Confirmed')
       await user.click(confirmButton)
 
-      // Should show error state
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('Error loading calendar')).toBeInTheDocument()
         expect(screen.getByText('Update failed')).toBeInTheDocument()
@@ -693,6 +725,7 @@ describe('AdminCalendarPage Component', () => {
     }, 20000)
 
     it('closes modal and updates calendar after successful status change', async () => {
+      // Arrange
       const mockUpdateResponse = {
         ok: true,
         json: jest.fn(() => Promise.resolve({ success: true })),
@@ -710,7 +743,6 @@ describe('AdminCalendarPage Component', () => {
         expect(screen.getByText('Sarah Miller')).toBeInTheDocument()
       }, { timeout: 10000 })
 
-      // Open modal
       const sarahBooking = screen.getByText('Sarah Miller').closest('[role="button"]')
       await user.click(sarahBooking as HTMLElement)
 
@@ -718,31 +750,29 @@ describe('AdminCalendarPage Component', () => {
         expect(screen.getByText('Booking Details')).toBeInTheDocument()
       }, { timeout: 10000 })
 
-      // Update status - this should close modal and refresh calendar
+      // Act
       const confirmButton = screen.getByText('Mark as Confirmed')
       await user.click(confirmButton)
 
-      // Modal should close automatically
+      // Assert
       await waitFor(() => {
         expect(screen.queryByText('Booking Details')).not.toBeInTheDocument()
       }, { timeout: 10000 })
 
-      // Calendar should refresh (mockFetch called again)
       expect(mockFetch).toHaveBeenCalledTimes(3)
     }, 20000)
   })
 
   describe('Calendar Visual Indicators', () => {
     it('applies visual modifiers to calendar dates with bookings', async () => {
+      // Arrange & Act
       const { container } = render(<AdminCalendarPage />)
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('Calendar')).toBeInTheDocument()
       }, { timeout: 10000 })
 
-      // The calendar component should apply styling to dates with bookings
-      // Since we're mocking bookings for Aug 10, 11, 12, those dates should have special styling
-      // This would require more specific testing of the Calendar component internals
       expect(container.querySelector('[data-testid="calendar"]') || container).toBeInTheDocument()
     })
   })
@@ -756,34 +786,37 @@ describe('AdminCalendarPage Component', () => {
     })
 
     it('provides proper heading structure', async () => {
+      // Arrange & Act
       render(<AdminCalendarPage />)
 
+      // Assert
       await waitFor(() => {
         const mainHeading = screen.getByRole('heading', { level: 1 })
         expect(mainHeading).toHaveTextContent('Calendar')
         
-        // Status Legend should be present
         expect(screen.getByText('Status Legend')).toBeInTheDocument()
       }, { timeout: 10000 })
     }, 15000)
 
     it('provides keyboard navigation support for interactive elements', async () => {
+      // Arrange
       render(<AdminCalendarPage />)
 
       await waitFor(() => {
         expect(screen.getByText('Calendar')).toBeInTheDocument()
       }, { timeout: 10000 })
 
-      // Test tab navigation through interactive elements
+      // Act
       const todayButton = screen.getByRole('button', { name: /today/i })
       todayButton.focus()
+
+      // Assert
       expect(todayButton).toHaveFocus()
 
       await user.tab()
       expect(screen.getByRole('combobox')).toHaveFocus() // View mode selector
 
       await user.tab()
-      // Find navigation buttons more reliably for keyboard test
       const allButtons = screen.getAllByRole('button')
       const navigationButtons = allButtons.filter(button =>
         button.querySelector('svg') &&
@@ -794,8 +827,10 @@ describe('AdminCalendarPage Component', () => {
     }, 15000)
 
     it('provides proper aria labels and roles', async () => {
+      // Arrange & Act
       render(<AdminCalendarPage />)
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByRole('button', { name: /today/i })).toBeInTheDocument()
         expect(screen.getByRole('combobox')).toBeInTheDocument()
@@ -803,33 +838,39 @@ describe('AdminCalendarPage Component', () => {
     }, 15000)
 
     it('handles modal accessibility correctly', async () => {
+      // Arrange & Act
       render(<AdminCalendarPage />)
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('Calendar')).toBeInTheDocument()
       }, { timeout: 10000 })
       
-      // Test assumes booking modal functionality exists
-      // This test should be updated when booking modal is implemented
       expect(screen.getByText('Status Legend')).toBeInTheDocument()
     }, 15000)
   })
 
   describe('Performance and Edge Cases', () => {
     it('handles component unmount gracefully', () => {
+      // Arrange & Act
       const { unmount } = render(<AdminCalendarPage />)
+      
+      // Assert
       expect(() => unmount()).not.toThrow()
     })
 
     it('handles empty booking data gracefully', async () => {
+      // Arrange
       mockFetch.mockResolvedValue({
         ok: true,
         json: jest.fn(() => Promise.resolve({ bookings: [] })),
         clone: jest.fn().mockReturnThis()
       })
 
+      // Act
       render(<AdminCalendarPage />)
 
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('Calendar')).toBeInTheDocument()
         expect(screen.getByText('No bookings scheduled')).toBeInTheDocument()
@@ -837,6 +878,7 @@ describe('AdminCalendarPage Component', () => {
     })
 
     it('handles malformed booking data gracefully', async () => {
+      // Arrange
       const malformedBookings = [
         { ...mockBookings[0], date: 'invalid-date' },
         { ...mockBookings[1], time: null }
@@ -848,56 +890,60 @@ describe('AdminCalendarPage Component', () => {
         clone: jest.fn().mockReturnThis()
       })
 
+      // Act
       render(<AdminCalendarPage />)
 
-      // Should still render without crashing
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('Calendar')).toBeInTheDocument()
       })
     })
 
     it('handles rapid month navigation without issues', async () => {
+      // Arrange
       render(<AdminCalendarPage />)
 
       await waitFor(() => {
         expect(screen.getByText('August 2025')).toBeInTheDocument()
       }, { timeout: 10000 })
 
-      // Rapidly navigate months
+      // Act
       const nextButton = screen.getAllByRole('button', { name: '' })[1]
       const prevButton = screen.getAllByRole('button', { name: '' })[0]
 
-      for (let i = 0; i < 3; i++) { // Reduced iterations to prevent timeout
+      for (let i = 0; i < 3; i++) {
         await user.click(nextButton)
         await user.click(prevButton)
       }
 
-      // Should still show August 2025
+      // Assert
       await waitFor(() => {
         expect(screen.getByText('August 2025')).toBeInTheDocument()
       }, { timeout: 10000 })
     }, 15000)
 
     it('prevents memory leaks on rapid date selection', async () => {
+      // Arrange
       render(<AdminCalendarPage />)
 
       await waitFor(() => {
         expect(screen.getByText('Calendar')).toBeInTheDocument()
       }, { timeout: 10000 })
 
-      // Test calendar component is still functional after multiple renders
+      // Act
       const todayButton = screen.getByRole('button', { name: /today/i })
       await user.click(todayButton)
       
-      // Should still function correctly
+      // Assert
       expect(screen.getByText('Calendar')).toBeInTheDocument()
     })
 
     it('handles timezone considerations for date display', async () => {
+      // Arrange & Act
       render(<AdminCalendarPage />)
 
+      // Assert
       await waitFor(() => {
-        // Dates should be displayed in Australian format as per the component
         expect(screen.getByText('August 2025')).toBeInTheDocument()
       }, { timeout: 10000 })
     })

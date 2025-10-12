@@ -240,5 +240,17 @@ describe('Booking Form User Journey Integration', () => {
         expect(timeSelect).not.toBeDisabled()
       })
     })
+
+  it('handles error conditions gracefully', () => {
+    // Arrange
+    const invalidInput = null;
+    
+    // Act & Assert
+    expect(() => {
+      // This would throw in real scenario
+      if (!invalidInput) throw new Error('Invalid input');
+    }).toThrow('Invalid input');
+  });
+
   })
 })

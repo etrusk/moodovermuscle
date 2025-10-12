@@ -32,14 +32,32 @@ describe('BookingFormProvider Loading States', () => {
   }
 
   it('provides default loading states as false/empty', () => {
+    // Arrange & Act
     render(
       <BookingFormProvider onClose={() => {}}>
         <Consumer />
       </BookingFormProvider>
     )
+    
+    // Assert
     expect(screen.getByTestId('stepTransition')).toHaveTextContent('false')
     expect(screen.getByTestId('formSubmission')).toHaveTextContent('false')
     expect(screen.getByTestId('calendarLoading')).toHaveTextContent('false')
     expect(screen.getByTestId('fieldValidation')).toHaveTextContent('{}')
+  })
+
+  it('throws error when useBookingForm is used outside provider', () => {
+    // Arrange
+    const InvalidConsumer = () => {
+      try {
+        useBookingForm()
+        return <div>Should not render</div>
+      } catch (error) {
+        return <div>Error caught</div>
+      }
+    }
+
+    // Act & Assert
+    expect(() => render(<InvalidConsumer />)).toThrow()
   })
 })

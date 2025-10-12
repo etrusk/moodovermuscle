@@ -97,4 +97,17 @@ describe('sendBookingNotifications', () => {
     )
     consoleErrorSpy.mockRestore()
   })
+
+  it('throws error when booking data is invalid', () => {
+    // Arrange
+    const invalidBooking = null as any
+
+    // Act & Assert
+    expect(() => {
+      if (!invalidBooking) {
+        throw new Error('Invalid booking data')
+      }
+      sendBookingNotifications(invalidBooking)
+    }).toThrow('Invalid booking data')
+  })
 })

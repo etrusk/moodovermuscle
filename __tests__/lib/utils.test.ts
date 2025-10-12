@@ -10,6 +10,7 @@ describe('cn utility', () => {
 
     // Assert
     expect(result).toBe('foo bar baz')
+    expect(result).toEqual(expect.any(String))
   })
 
   it('removes falsy values', () => {
@@ -22,6 +23,7 @@ describe('cn utility', () => {
 
     // Assert
     expect(result).toBe('bar')
+    expect(result).toEqual('bar')
   })
 
   it('merges Tailwind classes and removes duplicates', () => {
@@ -34,5 +36,17 @@ describe('cn utility', () => {
     // Assert
     // Tailwind-merge should keep the last conflicting utility
     expect(result).toBe('p-2 text-left')
+    expect(result).toMatchObject({
+      length: expect.any(Number)
+    })
+  })
+
+  it('handles empty input gracefully', () => {
+    // Arrange
+    const emptyInput = ''
+
+    // Act & Assert
+    expect(() => cn(emptyInput)).not.toThrow()
+    expect(cn()).toEqual('')
   })
 })

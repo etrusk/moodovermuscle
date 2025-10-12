@@ -227,17 +227,11 @@ feature/new-feature → preview → main
 3. **Test**: Review changes on `preview.moodovermuscle.com.au`
 4. **Deploy**: Merge `preview` to `main` for production deployment
 
-### Branch Management Commands
+### Branch Management
+
+See [Development Workflows](.docs/workflow.md) for the correct preview deployment process using Vercel's automatic PR preview integration.
 
 ```bash
-# Switch to preview for staging
-git checkout preview
-
-# Merge feature to preview for testing
-git checkout preview
-git merge feature/branch-name
-git push origin preview
-
 # Deploy to production after approval
 git checkout main
 git merge preview

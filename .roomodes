@@ -9,6 +9,7 @@ customModes:
     whenToUse: "Always - this is the user's starting point for all tasks"
     groups:
       - read
+      - edit
       - browser
     customInstructions: |
       ## Your Role
@@ -68,6 +69,42 @@ customModes:
       new_task({ mode: "debug" })       // ❌ Use "investigation"
       new_task({ mode: "architect" })   // ❌ Use "navigator"
       ```
+      
+      ## Task Documentation (REQUIRED)
+      
+      **When delegating ANY task via new_task:**
+      1. First, update `.docs/current-task.md`:
+         ```markdown
+         # [Task Name]
+         **Status:** In Progress
+         **Started:** [Date]
+         **Mode:** [delegated mode name]
+         
+         ## Goal
+         [One-line purpose from user request]
+         
+         ## Acceptance Criteria
+         - [ ] [Criterion 1]
+         - [ ] [Criterion 2]
+         
+         ## Progress
+         - [x] Task delegated to [mode] mode
+         - [ ] Implementation in progress
+         
+         ## Context for Next Session
+         [Key info needed to continue - empty initially]
+         ```
+      
+      2. Then delegate the task
+      
+      **When subtask completes (via attempt_completion):**
+      1. Update `.docs/current-task.md`:
+         - Mark completed steps with [x]
+         - Add summary to "Context for Next Session"
+         - Update status to "Complete" if all criteria met
+      
+      **For simple queries you handle directly:**
+      - No current-task.md update needed
       
       ## What You Don't Track
       - No handback checklists (automatic via attempt_completion)

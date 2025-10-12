@@ -6,7 +6,7 @@
  * Tests various error conditions to ensure proper error handling
  */
 
-const https = require('https');
+const { makeRequest, isClientError, isServerError } = require('./lib/http-utils');
 
 const DOMAIN = 'moodovermuscle.com.au';
 
@@ -16,21 +16,14 @@ const DOMAIN = 'moodovermuscle.com.au';
 async function test404Handling() {
   console.log('🧪 Testing 404 error handling...');
   
-  const testPaths = [
-    '/nonexistent-page',
-    '/random-path-123',
-    '/admin',
-    '/wp-admin'
-  ];
+  const testPaths = ['/nonexistent-page', '/random-path-123', '/admin', '/wp-admin'];
   
   for (const path of testPaths) {
     try {
-      const response = await makeRequest(path);
+      const response = await makeRequest({ hostname: DOMAIN, path });
       
       if (response.status === 404) {
         console.log(`✅ ${path} correctly returns 404`);
-        
-        // Check if custom 404 page is served
         if (response.body && response.body.includes('404')) {
           console.log('   - Custom 404 page detected');
         }
@@ -49,21 +42,14 @@ async function test404Handling() {
 async function test500Handling() {
   console.log('\n🧪 Testing 500 error handling...');
   
-  // Test paths that might trigger server errors
-  const testPaths = [
-    '/api/nonexistent',
-    '/.env',
-    '/server-error-test'
-  ];
+  const testPaths = ['/api/nonexistent', '/.env', '/server-error-test'];
   
   for (const path of testPaths) {
     try {
-      const response = await makeRequest(path);
+      const response = await makeRequest({ hostname: DOMAIN, path });
       
-      if (response.status >= 500) {
+      if (isServerError(response.status)) {
         console.log(`⚠️  ${path} returns ${response.status} (server error)`);
-        
-        // Check if custom error page is served
         if (response.body && response.body.includes('500')) {
           console.log('   - Custom 500 page detected');
         }
@@ -85,7 +71,7 @@ async function testSecurityHeaders() {
   console.log('\n🧪 Testing security headers...');
   
   try {
-    const response = await makeRequest('/');
+    const response = await makeRequest({ hostname: DOMAIN, path: '/' });
     
     const securityHeaders = {
       'strict-transport-security': 'HSTS',
@@ -113,7 +99,6 @@ async function testSecurityHeaders() {
 async function testFormErrors() {
   console.log('\n🧪 Testing form error handling...');
   
-  // Test malformed form data
   const testData = [
     { name: 'empty-email', data: 'name=Test&email=&phone=123' },
     { name: 'invalid-email', data: 'name=Test&email=invalid-email&phone=123' },
@@ -123,9 +108,15 @@ async function testFormErrors() {
   
   for (const test of testData) {
     try {
-      const response = await makePostRequest('/api/contact', test.data);
+      const response = await makeRequest({
+        hostname: DOMAIN,
+        path: '/api/contact',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: test.data
+      });
       
-      if (response.status >= 400 && response.status < 500) {
+      if (isClientError(response.status)) {
         console.log(`✅ ${test.name}: Correctly rejected with ${response.status}`);
       } else if (response.status === 404) {
         console.log(`ℹ️  ${test.name}: No contact API endpoint (expected for static site)`);
@@ -147,15 +138,13 @@ async function testRateLimiting() {
   const requests = [];
   const startTime = Date.now();
   
-  // Make multiple rapid requests
   for (let i = 0; i < 10; i++) {
-    requests.push(makeRequest('/'));
+    requests.push(makeRequest({ hostname: DOMAIN, path: '/' }));
   }
   
   try {
     const responses = await Promise.all(requests);
-    const endTime = Date.now();
-    const duration = endTime - startTime;
+    const duration = Date.now() - startTime;
     
     const rateLimited = responses.some(r => r.status === 429);
     const allSuccessful = responses.every(r => r.status === 200);
@@ -175,80 +164,11 @@ async function testRateLimiting() {
 }
 
 /**
- * Make HTTP request
- */
-function makeRequest(path, method = 'GET') {
-  return new Promise((resolve, reject) => {
-    const options = {
-      hostname: DOMAIN,
-      path: path,
-      method: method,
-      timeout: 10000,
-      headers: {
-        'User-Agent': 'MoodOverMuscle-Error-Testing'
-      }
-    };
-
-    const req = https.request(options, (res) => {
-      let body = '';
-      res.on('data', (chunk) => body += chunk);
-      res.on('end', () => {
-        resolve({
-          status: res.statusCode,
-          headers: res.headers,
-          body: body
-        });
-      });
-    });
-
-    req.on('error', reject);
-    req.on('timeout', () => reject(new Error('Request timeout')));
-    req.end();
-  });
-}
-
-/**
- * Make POST request
- */
-function makePostRequest(path, data) {
-  return new Promise((resolve, reject) => {
-    const options = {
-      hostname: DOMAIN,
-      path: path,
-      method: 'POST',
-      timeout: 10000,
-      headers: {
-        'User-Agent': 'MoodOverMuscle-Error-Testing',
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Content-Length': Buffer.byteLength(data)
-      }
-    };
-
-    const req = https.request(options, (res) => {
-      let body = '';
-      res.on('data', (chunk) => body += chunk);
-      res.on('end', () => {
-        resolve({
-          status: res.statusCode,
-          headers: res.headers,
-          body: body
-        });
-      });
-    });
-
-    req.on('error', reject);
-    req.on('timeout', () => reject(new Error('Request timeout')));
-    req.write(data);
-    req.end();
-  });
-}
-
-/**
  * Main testing function
  */
 async function main() {
   console.log('🧪 Error Scenarios Testing for', DOMAIN);
-  console.log('=' .repeat(50));
+  console.log('='.repeat(50));
   
   await test404Handling();
   await test500Handling();
@@ -256,14 +176,13 @@ async function main() {
   await testFormErrors();
   await testRateLimiting();
   
-  console.log('\n' + '=' .repeat(50));
+  console.log('\n' + '='.repeat(50));
   console.log('📊 ERROR TESTING COMPLETE');
-  console.log('=' .repeat(50));
+  console.log('='.repeat(50));
   console.log('\n✅ Error scenario testing completed');
   console.log('Review the results above to ensure proper error handling');
 }
 
-// Run error testing
 main().catch((error) => {
   console.error('❌ Error testing failed:', error.message);
   process.exit(1);

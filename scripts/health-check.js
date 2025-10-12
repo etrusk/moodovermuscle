@@ -7,103 +7,21 @@
  * website, and all integrations after the transfer is complete
  */
 
-const https = require('https');
 const dns = require('dns').promises;
+const { makeRequest, makeGitHubRequest, formatResponseTime } = require('./lib/http-utils');
 
 // Configuration
 const TARGET_OWNER = 'etrusk';
 const TARGET_REPO = 'moodovermuscle';
 const DOMAIN = 'moodovermuscle.com.au';
-const EXPECTED_PAGES = [
-  '/',
-  '/classes'
-];
-
-/**
- * Make HTTP request
- */
-function makeHttpRequest(hostname, path = '/', timeout = 10000) {
-  return new Promise((resolve) => {
-    const options = {
-      hostname: hostname,
-      path: path,
-      method: 'GET',
-      timeout: timeout,
-      headers: {
-        'User-Agent': 'MoodOverMuscle-Health-Check'
-      }
-    };
-
-    const req = https.request(options, (res) => {
-      let data = '';
-      res.on('data', (chunk) => data += chunk);
-      res.on('end', () => {
-        resolve({
-          status: res.statusCode,
-          headers: res.headers,
-          body: data,
-          accessible: true
-        });
-      });
-    });
-
-    req.on('error', (error) => {
-      resolve({ 
-        accessible: false, 
-        error: error.message 
-      });
-    });
-
-    req.on('timeout', () => {
-      resolve({ 
-        accessible: false, 
-        timeout: true 
-      });
-    });
-
-    req.end();
-  });
-}
-
-/**
- * Make GitHub API request
- */
-function makeGitHubRequest(path) {
-  return new Promise((resolve, reject) => {
-    const options = {
-      hostname: 'api.github.com',
-      path: path,
-      method: 'GET',
-      headers: {
-        'User-Agent': 'MoodOverMuscle-Health-Check',
-        'Accept': 'application/vnd.github.v3+json'
-      }
-    };
-
-    const req = https.request(options, (res) => {
-      let data = '';
-      res.on('data', (chunk) => data += chunk);
-      res.on('end', () => {
-        try {
-          const parsed = JSON.parse(data);
-          resolve({ status: res.statusCode, data: parsed });
-        } catch (e) {
-          resolve({ status: res.statusCode, data: data });
-        }
-      });
-    });
-
-    req.on('error', reject);
-    req.end();
-  });
-}
+const EXPECTED_PAGES = ['/', '/classes'];
 
 /**
  * Check repository health
  */
 async function checkRepositoryHealth() {
   console.log('📋 Repository Health Check');
-  console.log('-' .repeat(40));
+  console.log('-'.repeat(40));
 
   try {
     const response = await makeGitHubRequest(`/repos/${TARGET_OWNER}/${TARGET_REPO}`);
@@ -140,29 +58,23 @@ async function checkRepositoryHealth() {
  */
 async function checkDomainHealth() {
   console.log('\n📋 Domain Health Check');
-  console.log('-' .repeat(40));
+  console.log('-'.repeat(40));
 
   try {
-    // DNS resolution
     const addresses = await dns.resolve4(DOMAIN);
     console.log(`✅ DNS resolution successful`);
     console.log(`   - Domain: ${DOMAIN}`);
     console.log(`   - IP addresses: ${addresses.join(', ')}`);
     
-    // Check if it's pointing to Vercel
     const isVercel = addresses.some(ip => 
       ip.startsWith('76.76.') || 
       ip.startsWith('216.198.') || 
       ip.startsWith('64.13.')
     );
     
-    if (isVercel) {
-      console.log('   - ✅ Appears to be pointing to Vercel');
-    } else {
-      console.log('   - ⚠️  May not be pointing to Vercel');
-    }
+    console.log(`   - ${isVercel ? '✅' : '⚠️ '} ${isVercel ? 'Appears to be pointing to Vercel' : 'May not be pointing to Vercel'}`);
     
-    return { success: true, addresses: addresses };
+    return { success: true, addresses };
   } catch (error) {
     console.log(`❌ DNS resolution failed: ${error.message}`);
     return { success: false, error: error.message };
@@ -170,63 +82,53 @@ async function checkDomainHealth() {
 }
 
 /**
+ * Analyze page content
+ */
+function analyzePageContent(response) {
+  const hasTitle = response.body.includes('<title>');
+  const hasMoodOverMuscle = response.body.toLowerCase().includes('moodovermuscle');
+  const hasReact = response.body.includes('__NEXT_DATA__');
+  
+  console.log(`   - Has title tag: ${hasTitle ? '✅' : '❌'}`);
+  console.log(`   - Contains brand name: ${hasMoodOverMuscle ? '✅' : '❌'}`);
+  console.log(`   - Next.js app: ${hasReact ? '✅' : '❌'}`);
+  
+  return { hasTitle, hasBrand: hasMoodOverMuscle, isNextJs: hasReact };
+}
+
+/**
+ * Check single page health
+ */
+async function checkPageHealth(page) {
+  console.log(`\n🔍 Checking ${page}...`);
+  const response = await makeRequest({ hostname: DOMAIN, path: page });
+  
+  if (response.accessible) {
+    console.log(`✅ Page accessible (Status: ${response.status})`);
+    if (response.headers['x-vercel-id']) {
+      console.log(`   - Vercel deployment: ${response.headers['x-vercel-id']}`);
+    }
+    
+    const analysis = response.body ? analyzePageContent(response) : {};
+    return { page, accessible: true, status: response.status, ...analysis };
+  }
+  
+  console.log(`❌ Page not accessible`);
+  if (response.timeout) console.log('   - Request timed out');
+  else if (response.error) console.log(`   - Error: ${response.error}`);
+  
+  return { page, accessible: false, error: response.error || 'Unknown error' };
+}
+
+/**
  * Check website health
  */
 async function checkWebsiteHealth() {
   console.log('\n📋 Website Health Check');
-  console.log('-' .repeat(40));
+  console.log('-'.repeat(40));
 
-  const results = [];
-  
-  for (const page of EXPECTED_PAGES) {
-    console.log(`\n🔍 Checking ${page}...`);
-    
-    const response = await makeHttpRequest(DOMAIN, page);
-    
-    if (response.accessible) {
-      console.log(`✅ Page accessible (Status: ${response.status})`);
-      
-      // Check for Vercel headers
-      if (response.headers['x-vercel-id']) {
-        console.log(`   - Vercel deployment: ${response.headers['x-vercel-id']}`);
-      }
-      
-      // Check for key content
-      if (response.body) {
-        const hasTitle = response.body.includes('<title>');
-        const hasMoodOverMuscle = response.body.toLowerCase().includes('moodovermuscle');
-        const hasReact = response.body.includes('__NEXT_DATA__');
-        
-        console.log(`   - Has title tag: ${hasTitle ? '✅' : '❌'}`);
-        console.log(`   - Contains brand name: ${hasMoodOverMuscle ? '✅' : '❌'}`);
-        console.log(`   - Next.js app: ${hasReact ? '✅' : '❌'}`);
-        
-        results.push({
-          page: page,
-          accessible: true,
-          status: response.status,
-          hasTitle: hasTitle,
-          hasBrand: hasMoodOverMuscle,
-          isNextJs: hasReact
-        });
-      }
-    } else {
-      console.log(`❌ Page not accessible`);
-      if (response.timeout) {
-        console.log('   - Request timed out');
-      } else if (response.error) {
-        console.log(`   - Error: ${response.error}`);
-      }
-      
-      results.push({
-        page: page,
-        accessible: false,
-        error: response.error || 'Unknown error'
-      });
-    }
-  }
-  
-  return { success: results.every(r => r.accessible), results: results };
+  const results = await Promise.all(EXPECTED_PAGES.map(checkPageHealth));
+  return { success: results.every(r => r.accessible), results };
 }
 
 /**
@@ -234,7 +136,7 @@ async function checkWebsiteHealth() {
  */
 async function checkGitHubActionsHealth() {
   console.log('\n📋 GitHub Actions Health Check');
-  console.log('-' .repeat(40));
+  console.log('-'.repeat(40));
 
   try {
     const workflowsResponse = await makeGitHubRequest(`/repos/${TARGET_OWNER}/${TARGET_REPO}/actions/workflows`);
@@ -248,7 +150,6 @@ async function checkGitHubActionsHealth() {
         console.log(`      - State: ${workflow.state}`);
         console.log(`      - Path: ${workflow.path}`);
         
-        // Get recent runs for this workflow
         const runsResponse = await makeGitHubRequest(
           `/repos/${TARGET_OWNER}/${TARGET_REPO}/actions/workflows/${workflow.id}/runs?per_page=1`
         );
@@ -262,7 +163,7 @@ async function checkGitHubActionsHealth() {
         }
       }
       
-      return { success: true, workflows: workflows };
+      return { success: true, workflows };
     } else {
       console.log(`❌ Could not retrieve workflows (Status: ${workflowsResponse.status})`);
       return { success: false, status: workflowsResponse.status };
@@ -278,33 +179,22 @@ async function checkGitHubActionsHealth() {
  */
 async function checkPerformance() {
   console.log('\n📋 Performance Check');
-  console.log('-' .repeat(40));
+  console.log('-'.repeat(40));
 
   const startTime = Date.now();
-  const response = await makeHttpRequest(DOMAIN, '/');
-  const endTime = Date.now();
-  
-  const responseTime = endTime - startTime;
+  const response = await makeRequest({ hostname: DOMAIN, path: '/' });
+  const responseTime = Date.now() - startTime;
   
   if (response.accessible) {
-    console.log(`✅ Response time: ${responseTime}ms`);
+    console.log(`✅ Response time: ${formatResponseTime(responseTime)}`);
     
-    if (responseTime < 1000) {
-      console.log('   - ✅ Excellent response time');
-    } else if (responseTime < 3000) {
-      console.log('   - ⚠️  Acceptable response time');
-    } else {
-      console.log('   - ❌ Slow response time');
-    }
-    
-    // Check content size
     const contentLength = response.headers['content-length'];
     if (contentLength) {
       const sizeKB = Math.round(parseInt(contentLength) / 1024);
       console.log(`   - Content size: ${sizeKB} KB`);
     }
     
-    return { success: true, responseTime: responseTime };
+    return { success: true, responseTime };
   } else {
     console.log('❌ Could not measure performance - site not accessible');
     return { success: false };
@@ -316,12 +206,11 @@ async function checkPerformance() {
  */
 async function main() {
   console.log('🏥 Post-Transfer Health Check');
-  console.log('=' .repeat(50));
+  console.log('='.repeat(50));
   console.log(`Repository: ${TARGET_OWNER}/${TARGET_REPO}`);
   console.log(`Website: https://${DOMAIN}`);
-  console.log('=' .repeat(50));
+  console.log('='.repeat(50));
 
-  // Run all health checks
   const results = {
     repository: await checkRepositoryHealth(),
     domain: await checkDomainHealth(),
@@ -330,10 +219,9 @@ async function main() {
     performance: await checkPerformance()
   };
 
-  // Overall summary
-  console.log('\n' + '=' .repeat(50));
+  console.log('\n' + '='.repeat(50));
   console.log('📊 HEALTH CHECK SUMMARY');
-  console.log('=' .repeat(50));
+  console.log('='.repeat(50));
 
   const successCount = Object.values(results).filter(r => r.success).length;
   const totalChecks = Object.keys(results).length;
@@ -365,5 +253,4 @@ async function main() {
   console.log(`   - Actions: https://github.com/${TARGET_OWNER}/${TARGET_REPO}/actions`);
 }
 
-// Run health check
 main().catch(console.error);

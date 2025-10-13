@@ -18,6 +18,68 @@ Reference for debugging similar issues. Check here before investigating problems
 **Code**: `lib/utils/timezone.ts`
 **Prevention**: Always use timezone-aware date libraries
 
+
+### Admin Component Test Failures (2025-10-13) - 🔍 INVESTIGATED
+
+**Severity**: Medium (52 failing tests blocking deployments, but critical tests passing)
+
+**Problem**: 52 tests failing across 7 test files after recent changes. All failures fall into two distinct categories: NextRequest constructor issues and mock fetch structure/timing issues.
+
+**Affected Test Files**:
+1. `__tests__/api/admin-authentication-core.test.ts` - 15 failures
+2. `__tests__/components/admin/bookings.test.tsx` - ~15 failures
+3. `__tests__/components/admin/calendar.test.tsx` - ~15 failures
+4. `__tests__/components/booking-form.test.tsx` - ~2 failures
+5. `__tests__/integration/admin-components/admin-workflow.integration.test.tsx` - ~2 failures
+6. `__tests__/integration/booking-form-component.integration.test.tsx` - ~1 failure
+7. `__tests__/integration/calendar-component.integration.test.tsx` - ~2 failures
+
+**Root Causes Identified**:
+
+1. **NextRequest Constructor Issue** (15 failures in admin-authentication-core.test.ts):
+   - Error: `TypeError: NextRequest is not a constructor`
+   - Root cause: `NextRequest` from `next/server` isn't directly constructible in Jest environment
+   - Working pattern found in `booking-cancellation.test.ts` and `booking-status-transitions.test.ts`
+
+2. **Mock Fetch Structure/Timing Issues** (37 failures across component tests):
+   - Error: `Cannot read properties of undefined (reading 'bookings')`
+   - Root cause: Mock responses have correct structure but async timing causes tests to run before component finishes rendering
+   - Components show error states or loading states instead of expected data
+
+**Solution Patterns Identified**:
+
+```typescript
+// ✅ CORRECT NextRequest pattern (from working tests)
+new Request('http://localhost/api/admin/login', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ ... })
+}) as NextRequest
+
+// ❌ INCORRECT pattern (causes constructor error)
+new NextRequest('http://localhost/api/admin/login', { ... })
+```
+
+**Fix Strategy**:
+1. **Phase 1**: Fix NextRequest constructor pattern (15 failures, 5 minutes)
+2. **Phase 2**: Fix admin bookings mock structure and timing (~15 failures)
+3. **Phase 3**: Fix admin calendar mock structure and timing (~15 failures)
+4. **Phase 4**: Fix remaining integration test issues (~7 failures)
+
+**Detailed Investigation**: See `.docs/investigations/2025-10-13-admin-test-failures.md` for complete analysis, fix approach, and code examples.
+
+**Status**: Root causes identified, systematic fix approach defined. Ready for implementation.
+
+**Prevention**:
+- Add test pattern documentation for NextRequest usage
+- Create shared mock response builders for fetch
+- Add pre-commit check for `new NextRequest(` anti-pattern
+
+**Related Files**:
+- `.docs/investigations/2025-10-13-admin-test-failures.md` - Complete investigation report
+- `__tests__/integration/booking-cancellation.test.ts:38` - Working NextRequest pattern
+- `__tests__/integration/booking-status-transitions.test.ts:38` - Working NextRequest pattern
+
 ## Testing Issues
 
 ### E2E Accessibility Test Dialog Not Opening (2025-10-13) - ✅ RESOLVED

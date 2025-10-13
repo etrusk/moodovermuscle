@@ -191,24 +191,25 @@ function findTestFiles(dir) {
       
       // Normalize entry name to prevent path traversal
       const safeName = path.basename(entry.name);
-      const fullPath = path.join(resolvedDir, safeName);
+      const candidatePath = path.join(resolvedDir, safeName);
+      const resolvedPath = path.resolve(candidatePath);
       
-      // Double-check the resolved path is within base directory
-      if (!fullPath.startsWith(baseDir)) {
+      // Security: Double-check the resolved path is within base directory
+      if (!resolvedPath.startsWith(baseDir)) {
         return;
       }
       
       if (entry.isDirectory()) {
         if (!entry.name.startsWith('.') &&
             entry.name !== 'node_modules') {
-          traverse(fullPath);
+          traverse(resolvedPath);
         }
       } else if (
         entry.name.endsWith('.test.ts') ||
         entry.name.endsWith('.test.tsx') ||
         entry.name.endsWith('.spec.ts')
       ) {
-        testFiles.push(fullPath);
+        testFiles.push(resolvedPath);
       }
     });
   }

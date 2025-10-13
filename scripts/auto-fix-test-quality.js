@@ -167,9 +167,17 @@ function processFile(filePath) {
 
 function findTestFiles(dir) {
   const files = [];
+  const baseDir = path.resolve(dir);
   
   function traverse(currentDir) {
-    const entries = fs.readdirSync(currentDir, { withFileTypes: true });
+    const resolvedCurrentDir = path.resolve(currentDir);
+    
+    // Security: Ensure we're within base directory
+    if (!resolvedCurrentDir.startsWith(baseDir)) {
+      return;
+    }
+    
+    const entries = fs.readdirSync(resolvedCurrentDir, { withFileTypes: true });
     
     for (const entry of entries) {
       // Sanitize entry name to prevent path traversal
@@ -178,17 +186,23 @@ function findTestFiles(dir) {
       }
       
       const safeName = path.basename(entry.name);
-      const fullPath = path.join(currentDir, safeName);
+      const candidatePath = path.join(resolvedCurrentDir, safeName);
+      const resolvedPath = path.resolve(candidatePath);
+      
+      // Security: Double-check resolved path is within base directory
+      if (!resolvedPath.startsWith(baseDir)) {
+        continue;
+      }
       
       if (entry.isDirectory() && !entry.name.startsWith('.') && entry.name !== 'node_modules') {
-        traverse(fullPath);
+        traverse(resolvedPath);
       } else if (entry.name.endsWith('.test.ts') || entry.name.endsWith('.test.tsx') || entry.name.endsWith('.spec.ts')) {
-        files.push(fullPath);
+        files.push(resolvedPath);
       }
     }
   }
   
-  traverse(dir);
+  traverse(baseDir);
   return files;
 }
 

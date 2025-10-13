@@ -68,157 +68,117 @@ Next.js 14 booking platform for personal training/wellness services. TypeScript,
 1. Search codebase for similar code
 2. Check `.docs/patterns/index.md` for existing patterns
 3. If found once, wait for 2nd use
-4. If found twice, extract to shared location
+4. Only extract on confirmed 2nd occurrence
+
+## Constitutional Principles (Priority Order)
+
+**When principles conflict, follow this priority:**
+
+1. **SECURITY**: Never generate code with known vulnerabilities
+2. **CORRECTNESS**: Bug-free code over feature completeness  
+3. **MAINTAINABILITY**: Readable code over clever optimizations
+4. **TESTING**: Consider test cases for all code
+5. **PERFORMANCE**: Optimize only when profiling shows need
+
+**Examples of conflict resolution:**
+- Security vs Speed → Choose security (SQL parameterization over string concatenation)
+- Correctness vs Elegance → Choose correctness (explicit checks over assumed behavior)
+- Maintainability vs Performance → Choose maintainability (clear code over micro-optimizations)
+- Testing vs Speed → Choose testing (write tests even if it slows initial development)
+- YAGNI vs Future-Proofing → Choose YAGNI (implement for today's needs, not tomorrow's guesses)
+
+**When to escalate to human:**
+- Principles 1-2 conflict (Security vs Correctness) → Always ask
+- Unclear which principle applies → Always ask
+- Business requirement conflicts with any principle → Always ask
 
 ## Complexity Limits (Pre-Commit Enforced)
 
-**Function Complexity:**
-- ≤ 50 lines per function (AST-based detection)
-- ≤ 3 parameters per function
-- Break complex functions into smaller units
+**Hard Limits:**
+- Functions ≤ 50 lines (AST-based)
+- Files ≤ 300 lines
+- Function parameters ≤ 3
+- Code duplication ≤ 3%
 
-**File Complexity:**
-- ≤ 300 lines per file
-- Split large files by responsibility
-- Use barrel exports for related modules
+**When approaching limits:**
+- Functions 40-50 lines → Consider extracting
+- Files 250-300 lines → Consider splitting
+- Parameters = 3 → Consider options object for next addition
 
-**Code Duplication:**
-- ≤ 3% duplication (jscpd threshold)
-- Extract duplicate code to utilities
-- Apply DRY principle consistently
+## Documentation Standards
 
-## Institutional Memory Integration
+**Code Comments:**
+- Explain WHY, not WHAT (code shows what)
+- Complex algorithms need explanation
+- Non-obvious business logic needs context
+- Public APIs need JSDoc
 
-**MANDATORY BEFORE IMPLEMENTATION:**
-- Check `.docs/patterns/index.md` for similar implementations
-- Review `.docs/investigations/index.md` for component-related issues
-- Apply existing patterns rather than creating new approaches
-- Reference proven solutions from past work
+**Don't Document:**
+- Obvious code (`// increment counter`)
+- Self-explanatory variable names
+- Standard patterns from patterns index
 
-**Pattern-First Development:**
-1. Search patterns index for similar functionality
-2. Apply existing pattern if found
-3. Implement with minimal modifications
-4. Document new patterns only if genuinely reusable
+## Error Handling
+
+**Always handle errors explicitly:**
+- No silent failures
+- No generic `catch (error) {}` without logging
+- Return typed errors, not throwing strings
+- User-facing errors should be helpful
+
+**Error Categories:**
+- Validation errors → 400 with specific field messages
+- Auth errors → 401/403 with clear action
+- Not found → 404 with helpful suggestions
+- Server errors → 500 with incident ID (never expose internals)
+
+## Performance Guidelines
+
+**Don't optimize prematurely:**
+- Profile before optimizing
+- Measure, don't guess
+- Clear code first, fast code second
+- Optimize only proven bottlenecks
+
+**Do optimize:**
+- Database queries (N+1 prevention)
+- Large data transformations
+- Critical user paths (booking flow)
+- Bundle size (lazy loading)
+
+## Testing Philosophy
+
+**Test behavior, not implementation:**
+- Test what users see/experience
+- Test API contracts
+- Don't test internal details
+- Tests should survive refactoring
+
+**Coverage targets:**
+- Critical paths: 100% (booking, payment)
+- Business logic: 90%+
+- UI components: 70%+
+- Utilities: 80%+
 
 ## Security Requirements
 
-**MANDATORY:**
-- Validate ALL user inputs at API boundaries (use Zod)
-- Use established JWT patterns for authentication
-- NEVER commit secrets or API keys
-- Hash passwords with bcrypt
-- Implement rate limiting on public endpoints
-- Follow principle of least privilege
+**Never compromise on:**
+- Input validation (all user data)
+- SQL injection prevention (use Prisma, never raw queries)
+- XSS prevention (sanitize outputs)
+- CSRF protection (use Next.js defaults)
+- Rate limiting (public endpoints)
+- Secure password handling (bcrypt, never plaintext)
 
-**Input Validation:**
-```typescript
-// ✅ GOOD: Zod schema validation
-import { z } from 'zod';
-
-const bookingSchema = z.object({
-  serviceId: z.string().uuid(),
-  datetime: z.string().datetime(),
-  clientEmail: z.string().email()
-});
-
-// Validate at API boundary
-const validatedData = bookingSchema.parse(requestBody);
-```
-
-## Type Safety (TypeScript)
-
-**ZERO `any` types allowed:**
-- Use proper typing or `unknown` with type guards
-- Strict TypeScript configuration (`strict: true`)
-- Explicit return types for public APIs
-
-**Interface Design:**
-- Specific interfaces over large catch-all objects
-- Use utility types (`Partial<T>`, `Pick<T>`, `Omit<T>`)
-- Interface segregation: focused, single-purpose interfaces
-
-## Testing Standards
-
-**Test Pyramid:**
-- Unit tests: Component-level functionality (fast, many)
-- Integration tests: API and component interactions (medium speed, fewer)
-- E2E tests: Critical user journeys (slow, few)
-
-**TDD Approach (Preferred):**
-1. Write tests first (use test mode)
-2. Implement simplest code to pass tests (use implementation mode)
-3. Refactor with tests as safety net
-
-**AAA Pattern:**
-```typescript
-it('should create booking with valid data', async () => {
-  // Arrange
-  const mockData = { /* test data */ };
-  
-  // Act
-  const result = await createBooking(mockData);
-  
-  // Assert
-  expect(result).toMatchObject({ status: 'confirmed' });
-});
-```
-
-## Git Standards
-
-**Conventional Commits:**
-```bash
-feat(auth): add JWT refresh token rotation
-fix(booking): resolve calendar conflict detection
-docs(api): update booking endpoint documentation
-test(calendar): add availability integration tests
-refactor(user): extract validation to shared utility
-```
-
-**Commit Message Structure:**
-- Type: feat, fix, docs, test, refactor, style, chore
-- Scope: Component or feature area
-- Subject: Present tense, imperative mood
-- Body (optional): Detailed explanation
-- Footer (optional): Breaking changes, issue references
-
-**Branch Naming:**
-- `feature/profile-editing`
-- `hotfix/security-patch`
-- `investigation/performance-analysis`
-
-## Documentation Creation Policy
-
-**CRITICAL**: **NEVER create new documentation files unless explicitly requested by the user.**
-
-**Updates ONLY:**
-- Update existing `.docs/` files when adding new patterns, investigations, or memory
-- Update existing rule files when clarifying practices
-- Update `README.md` when core functionality changes
-
-**NEVER Create:**
-- New analysis documents
-- New strategy documents
-- New planning documents
-- New reference documents
-- New guides or tutorials
-
-**If You Think Documentation is Needed:**
-1. Ask user explicitly: "Should I create a new documentation file for [topic]?"
-2. Wait for confirmation
-3. Only proceed after explicit approval
-
-**Rationale**: Prevents documentation bloat and maintains lean, focused documentation structure.
+**Audit trigger points:**
+- Authentication changes
+- Authorization logic
+- Payment processing
+- User data access
+- API endpoint creation
 
 ## Success Metrics
 
-- 100% pre-commit compliance (automatic)
-- 90%+ pattern reuse from institutional memory
-- Zero manual quality verification (automated)
-- <3% code duplication (enforced)
-- All functions <50 lines (enforced)
-- All files <300 lines (enforced)
-- Zero `any` types in TypeScript
-- 70%+ test coverage
-
-These principles are non-negotiable and enforced through pre-commit hooks. Write code that respects these limits, and automation handles the rest.
+- Pre-commit pass rate >95%
+- Test coverage >70%
+- Zero

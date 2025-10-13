@@ -1,63 +1,51 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { adminAuth, AdminCredentials } from '@/lib/auth/admin-auth'
-import { z } from 'zod'
-
-const loginSchema = z.object({
-  email: z.string().email({ message: 'Please enter a valid email address.' }),
-  password: z.string().min(1, { message: 'Password is required.' }),
-})
+import { handleLogin } from '@/lib/auth/admin-auth-handlers'
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const body = await request.json()
     
-    // Validate request body
-    const validationResult = loginSchema.safeParse(body)
-    if (!validationResult.success) {
+    // Delegate business logic to pure handler
+    const result = await handleLogin(body)
+
+    // Handle validation errors
+    if (!result.success && result.validationErrors) {
       return NextResponse.json(
-        { 
-          error: 'Invalid input', 
-          details: validationResult.error.issues 
+        {
+          error: result.error,
+          details: result.validationErrors
         },
         { status: 400 }
       )
     }
 
-    const { email, password }: AdminCredentials = validationResult.data
-
-    // Authenticate admin
-    const authResult = await adminAuth.authenticateAdmin(email, password)
-    
-    if (!authResult) {
+    // Handle authentication failure
+    if (!result.success) {
       return NextResponse.json(
-        { error: 'Invalid email or password' },
+        { error: result.error },
         { status: 401 }
       )
     }
 
-    const { user, token } = authResult
-
-    // Create response with secure cookie
+    // Success - create response with secure cookie
     const response = NextResponse.json(
-      { 
-        message: 'Login successful', 
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-        }
+      {
+        message: 'Login successful',
+        user: result.user
       },
       { status: 200 }
     )
 
     // Set HTTP-only cookie for security
-    response.cookies.set('admin-token', token, {
+    if (result.token) {
+      response.cookies.set('admin-token', result.token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 8 * 60 * 60, // 8 hours
       path: '/',
-    })
+      })
+    }
 
     return response
 

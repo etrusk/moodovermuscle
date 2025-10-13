@@ -1,21 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { adminAuth } from '@/lib/auth/admin-auth'
+import { handleSessionValidation } from '@/lib/auth/admin-auth-handlers'
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const token = request.cookies.get('admin-token')?.value
 
-    if (!token) {
-      return NextResponse.json(
-        { error: 'No admin session found' },
-        { status: 401 }
-      )
-    }
+    // Delegate business logic to pure handler
+    const result = await handleSessionValidation(token)
 
-    const payload = await adminAuth.verifyAdminToken(token)
-    if (!payload) {
+    if (!result.valid) {
       return NextResponse.json(
-        { error: 'Invalid or expired session' },
+        { error: result.error },
         { status: 401 }
       )
     }
@@ -23,11 +18,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // Return admin session info
     return NextResponse.json(
       {
-        user: {
-          id: payload.adminId,
-          email: payload.email,
-          name: payload.name,
-        },
+        user: result.user,
         isAuthenticated: true,
       },
       { status: 200 }

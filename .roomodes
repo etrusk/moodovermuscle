@@ -171,9 +171,42 @@ customModes:
       - command
     customInstructions: |
       ## Before Writing Code
+      
       1. Check .docs/patterns/index.md for similar implementations
-      2. Apply existing patterns rather than creating new ones
-      3. Ensure tests exist (if not, suggest test mode first)
+      
+      2. **STEP BACK: Identify General Principles**
+         Before jumping to implementation, identify:
+         - What design patterns apply? (e.g., Repository, Factory, Strategy, Observer)
+         - What are the performance implications? (N+1 queries, memory usage, etc.)
+         - What edge cases must be handled? (empty input, null, undefined, boundary conditions)
+         - What security considerations apply? (input validation, SQL injection, XSS)
+         
+         Document thinking: "Pattern: [X] applies because [reason]. Security: Must validate [Y]."
+      
+      3. Apply existing patterns or document new pattern if genuinely reusable
+      
+      4. Ensure tests exist (if not, suggest test mode first)
+      
+      ## Critical Code Verification (Security/Data/API)
+      
+      **For authentication, data manipulation, or API endpoints:**
+      
+      1. Generate initial implementation
+      2. Generate test cases that could break it:
+         - Malicious input (SQL injection, XSS attempts)
+         - Invalid data types
+         - Boundary conditions
+         - Race conditions (concurrent access)
+      3. Check implementation against test cases
+      4. Revise if issues found
+      5. Document assumptions: `// ASSUMPTION: [description]`
+      
+      **Mark critical sections:**
+      ```typescript
+      // CRITICAL: Security - Confidence: 85%
+      // This endpoint validates user input before database access
+      // Assumption: Input already sanitized by Zod schema
+      ```
       
       ## Hard Limits (pre-commit enforced)
       - Function ≤ 50 lines
@@ -185,6 +218,12 @@ customModes:
       - No interfaces until 2+ implementations exist
       - No abstraction until 2nd use
       - Search codebase before creating similar code
+      
+      ## Confidence Expression
+      For uncertain decisions:
+      - HIGH (>80%): "This approach works because [evidence from codebase]"
+      - MEDIUM (50-80%): "This likely works, but verify [specific aspect]"
+      - LOW (<50%): "Insufficient information. Need clarification on: [specifics]"
       
       ## Auto-Commit and Push After Implementation
       After tests pass:
@@ -210,6 +249,45 @@ customModes:
       - command
       - browser
     customInstructions: |
+      ## Before Debugging
+      
+      1. Check .docs/investigations/index.md for similar issues
+      
+      2. **QUOTE-FIRST ANALYSIS**
+         Before analyzing, extract exact code:
+         
+         a. Extract exact code segments with line numbers:
+            ```
+            Line 42-47 in lib/auth.ts:
+            function validateToken(token: string) {
+              const decoded = jwt.verify(token, SECRET);
+              return decoded;
+            }
+            ```
+         
+         b. Reference ONLY these extracted segments in analysis
+         
+         c. Mark any assumptions beyond visible code:
+            "INFERENCE: Based on error message, the token might be expired, but cannot confirm without seeing token generation code"
+         
+         d. Never assume implementation details not shown in code:
+            ❌ "The function probably caches results"
+            ✅ "Cannot determine if caching is used - need to see function implementation"
+      
+      3. Apply proven debugging patterns from past resolutions
+      
+      ## Systematic Debugging Process
+      
+      1. **Reproduce**: Confirm the issue exists
+      2. **Isolate**: Narrow down to specific component/function
+      3. **Analyze**: Use quote-first approach to understand actual code
+      4. **Hypothesize**: Form testable theories about root cause
+      5. **Test**: Verify each hypothesis
+      6. **Fix**: Apply minimal fix that addresses root cause
+      7. **Verify**: Confirm fix resolves issue without side effects
+      
+      ## Debugging Constraints
+      
       Debugging constraints in .roo/rules-investigation/ apply during fixes.
       If bug is in function >50 lines: refactor FIRST, then fix.
       Never patch complex functions - break them down.
@@ -218,22 +296,32 @@ customModes:
       1. Use `read` tools for file inspection (never sed/cat/od)
       2. Use `command` for running tests/scripts only
       3. Use `browser` for external documentation
- 
-      ## Before Debugging
-      1. Check .docs/investigations/index.md for similar issues
-      2. Apply proven debugging patterns from past resolutions
-      3. Use systematic diagnosis (reproduce, isolate, analyze, fix)
       
-      ## After Resolution
-      1. Update .docs/investigations/index.md with new insights
-      2. Document: problem, root cause, solution, prevention
+      ## Root Cause Documentation
       
-      ## Auto-Commit After Fix Verified
-      After tests pass:
+      After fixing, document in .docs/investigations/index.md:
+      ```markdown
+      ## [Issue Description]
+      - **Problem**: What went wrong
+      - **Root Cause**: Why it happened (with code quotes)
+      - **Solution**: How it was fixed
+      - **Prevention**: How to avoid in future
+      - **Code**: `path/to/fixed-code.ts`
+      ```
+      
+      ## Confidence Expression for Fixes
+      
+      Express confidence in your fix:
+      - HIGH (>80%): "This fix resolves the issue because [evidence from testing]"
+      - MEDIUM (50-80%): "This should fix it, but monitor for [specific behavior]"
+      - LOW (<50%): "This is a workaround. Need deeper investigation of [component]"
+      
+      ## Auto-Commit and Push After Fix
+      After fix verified:
       ```bash
       git add -A
       git commit -m "fix: [description of bug fix]"
       git push
       ```
       
-      Then use attempt_completion with: root cause, fix applied, prevention strategy.
+      Then use attempt_completion with summary of issue and fix.

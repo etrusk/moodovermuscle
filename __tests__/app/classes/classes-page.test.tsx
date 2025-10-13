@@ -457,7 +457,7 @@ describe('Classes Page', () => {
       
       // Act & Assert
       expect(() => {
-        const parsedPrice = parseFloat(invalidPrice.replace('$', ''))
+        const parsedPrice = parseFloat(invalidPrice.replace(/\$/g, ''))
         if (isNaN(parsedPrice)) {
           throw new Error('Invalid price format')
         }

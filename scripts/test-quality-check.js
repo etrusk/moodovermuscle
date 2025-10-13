@@ -27,7 +27,7 @@ function readTestFile(filePath) {
   try {
     return fs.readFileSync(filePath, 'utf8');
   } catch (error) {
-    log(`Error reading file ${filePath}: ${error.message}`, 'error');
+    log('Error reading file: ' + filePath + ' - ' + error.message, 'error');
     return null;
   }
 }

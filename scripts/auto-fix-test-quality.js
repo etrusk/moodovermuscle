@@ -160,7 +160,7 @@ function processFile(filePath) {
     
     return false;
   } catch (error) {
-    console.error(`❌ Error processing ${filePath}:`, error.message);
+    console.error('❌ Error processing file:', filePath, error.message);
     return false;
   }
 }
@@ -172,7 +172,13 @@ function findTestFiles(dir) {
     const entries = fs.readdirSync(currentDir, { withFileTypes: true });
     
     for (const entry of entries) {
-      const fullPath = path.join(currentDir, entry.name);
+      // Sanitize entry name to prevent path traversal
+      if (entry.name.includes('..') || entry.name.includes('/') || entry.name.includes('\\')) {
+        continue;
+      }
+      
+      const safeName = path.basename(entry.name);
+      const fullPath = path.join(currentDir, safeName);
       
       if (entry.isDirectory() && !entry.name.startsWith('.') && entry.name !== 'node_modules') {
         traverse(fullPath);

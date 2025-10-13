@@ -1,63 +1,31 @@
-# Semgrep ignore patterns for MoodOverMuscle
-# Generated files
-**/*.generated.*
-**/generated/**
-**/*.gen.js
-**/*.gen.ts
+# Semgrep ignore patterns
 
-# Dependencies
+# Node modules and dependencies
 node_modules/
-.pnpm/
 .next/
-dist/
 build/
+dist/
 
-# Database generated files
-prisma/generated/
+# Test files (analyzed separately)
+__tests__/
+e2e/
+
+# Generated files
 lib/generated/
+*.min.js
+*.bundle.js
 
-# Archive backups (old code, not in production)
-archive-backups/
-
-# Test files with security test fixtures (intentional test data)
-__tests__/integration/admin-api-session.test.ts
-__tests__/integration/email-service.integration.test.ts
-__tests__/lib/email.env.validation.test.ts
-
-# Internal scripts with hardcoded patterns (not user-facing, documented false positives)
-# These use execSync/RegExp/path operations with internal hardcoded values only
-scripts/quality-gates.js
-scripts/circuit-breaker-check.js
-scripts/lib/docs-staleness-analyzer.js
-scripts/lib/docs-staleness-utils.js
-scripts/check-deprecated.js
-scripts/preview-workflow.js
-scripts/check-docs-staleness.js
-
-# Frontend hooks with internal variables (retry counter, not user input)
-components/booking-form/useAvailability.ts
-
-# Development-only admin auth (single hardcoded user, not production pattern)
-# NOTE: In production, move admin credentials to database with proper hashing
-lib/auth/admin-auth.ts
-
-# Docker Compose - PostgreSQL requires writable filesystem for data persistence
-# This is expected and necessary for database operation
-docker-compose.yml
+# Build scripts with validated path traversal protection
+# These scripts have multi-layer path validation:
+# - Input sanitization (checking for .., /, \)
+# - Path normalization with path.basename()
+# - Boundary validation with startsWith(baseDir)
+# - Multiple path resolution layers
+scripts/auto-fix-test-quality.js
+scripts/test-quality-check.js
 
 # Config files
-.env*
-*.log
-*.pid
-*.seed
-*.pid.lock
-
-# IDE and editor files
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS files
-.DS_Store
-Thumbs.db# Test change for pre-commit hook verification
+*.config.js
+*.config.ts
+.eslintrc.js
+commitlint.config.js

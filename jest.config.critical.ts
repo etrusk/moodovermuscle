@@ -109,6 +109,9 @@ const criticalJestConfig: Config = {
     '!lib/generated/**',
     '!**/*.d.ts',
     '!**/*.config.{js,ts}',
+    '!**/__tests__/**',
+    '!**/setup/**',
+    '!**/*.mock.{ts,tsx}',
   ],
   coverageThreshold: {
     global: {

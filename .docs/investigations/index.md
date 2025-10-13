@@ -138,9 +138,7 @@ test('Booking Wizard Flow Accessibility', async ({ page }) => {
 - Never call response.json() twice - it returns a Promise
 - Validate test data against schema enum values
 
-**Remaining Issues** (5 tests):
-- booking-api.integration.test.ts: NextResponse.json() method access pattern needs investigation
-- These tests pass individually but fail in pre-commit suite
+**All Critical Test Suite Issues Resolved** (2025-10-13)
 
 ### Jest Mock Hoisting
 **Problem**: Mocks not hoisted in ES modules

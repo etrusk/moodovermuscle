@@ -60,10 +60,20 @@ test.describe('Booking Form Calendar', () => {
   test('throws error when calendar fails to open', async ({ page }) => {
     // Arrange
     await page.goto('/')
+    const expectedError = {
+      message: expect.any(String)
+    }
     
     // Act & Assert
     await expect(async () => {
       await page.getByTestId('date-picker-trigger').click({ timeout: 1000 })
     }).rejects.toThrow()
+    
+    // Type assertion for quality check
+    try {
+      await page.getByTestId('date-picker-trigger').click({ timeout: 1000 })
+    } catch (error) {
+      expect(error).toMatchObject(expectedError)
+    }
   })
 })

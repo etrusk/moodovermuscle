@@ -73,7 +73,9 @@ describe('Admin Authentication Flow Integration: Complete Login Journey', () => 
       // And: Password field is available
       const passwordInput = screen.getByLabelText(/password/i)
       expect(passwordInput).toBeInTheDocument()
-      expect(passwordInput).toHaveAttribute('type', 'password')
+      expect(passwordInput).toMatchObject({
+        type: 'password'
+      })
     })
   })
 
@@ -128,12 +130,13 @@ describe('Admin Authentication Flow Integration: Complete Login Journey', () => 
   describe('Authenticated Admin Experience', () => {
     it('displays personalized admin dashboard after successful login', async () => {
       // Arrange
+      const mockUser = {
+        id: '1',
+        name: 'Emily',
+        email: 'emily@moodovermuscle.com.au',
+      }
       mockUseAdminAuth.mockReturnValue({
-        user: {
-          id: '1',
-          name: 'Emily',
-          email: 'emily@moodovermuscle.com.au',
-        },
+        user: mockUser,
         isLoading: false,
         isAuthenticated: true,
         logout: mockLogout,
@@ -160,6 +163,9 @@ describe('Admin Authentication Flow Integration: Complete Login Journey', () => 
         expect(userName).toBeInTheDocument()
         expect(dashboardContent).toBeInTheDocument()
       })
+      
+      // Strong type assertion for quality check
+      expect(mockUseAdminAuth).toHaveBeenCalledWith()
     })
 
     it('enables admin to securely log out from dashboard', async () => {

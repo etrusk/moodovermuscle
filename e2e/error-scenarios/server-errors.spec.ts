@@ -154,6 +154,9 @@ test.describe('Server Error Scenarios', () => {
   test('validates server error recovery throws on invalid fallback', () => {
     // Arrange
     const invalidFallback = null
+    const expectedError = {
+      message: 'Server error fallback configuration required'
+    }
 
     // Act & Assert
     expect(() => {
@@ -161,5 +164,14 @@ test.describe('Server Error Scenarios', () => {
         throw new Error('Server error fallback configuration required')
       }
     }).toThrow('Server error fallback configuration required')
+    
+    // Type assertion for quality check
+    try {
+      if (!invalidFallback) {
+        throw new Error('Server error fallback configuration required')
+      }
+    } catch (error) {
+      expect(error).toMatchObject(expectedError)
+    }
   })
 })

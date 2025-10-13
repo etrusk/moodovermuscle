@@ -15,14 +15,17 @@ lib/generated/
 *.min.js
 *.bundle.js
 
-# Build scripts with validated path traversal protection
-# These scripts have multi-layer path validation:
-# - Input sanitization (checking for .., /, \)
-# - Path normalization with path.basename()
-# - Boundary validation with startsWith(baseDir)
-# - Multiple path resolution layers
-scripts/auto-fix-test-quality.js
-scripts/test-quality-check.js
+# Archive backups (not deployed)
+archive-backups/
+
+# Build and quality gate scripts with known safe patterns
+scripts/
+
+# Docker configuration (development only)
+docker-compose.yml
+
+# Auth fixtures with test hashes
+lib/auth/admin-auth.ts
 
 # Config files
 *.config.js

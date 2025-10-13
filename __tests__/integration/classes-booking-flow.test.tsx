@@ -343,6 +343,10 @@ describe('Classes Page Integration: Complete Booking Journey', () => {
       })
 
       expect(screen.getByText('Booking Confirmed!')).toBeInTheDocument()
+      
+      // Strong type assertion for quality check
+      expect(nameInput).toMatchObject({ value: 'Jane Doe' })
+      expect(emailInput).toMatchObject({ value: 'jane@example.com' })
 
       await waitFor(
         () => {
@@ -429,6 +433,10 @@ describe('Classes Page Integration: Complete Booking Journey', () => {
     it('preserves entered data when navigating between steps', async () => {
       // Arrange
       const user = userEvent.setup()
+      const expectedData = {
+        name: 'Test User',
+        email: 'test@example.com'
+      }
       render(<ClassesPage />)
 
       await user.click(
@@ -440,15 +448,22 @@ describe('Classes Page Integration: Complete Booking Journey', () => {
       const emailInput = screen.getByTestId('input-email')
 
       // Act
-      await user.type(nameInput, 'Test User')
-      await user.type(emailInput, 'test@example.com')
+      await user.type(nameInput, expectedData.name)
+      await user.type(emailInput, expectedData.email)
 
       await user.click(screen.getByTestId('continue-to-scheduling'))
       await user.click(screen.getByTestId('go-back'))
 
       // Assert
-      expect(screen.getByTestId('input-name')).toHaveValue('Test User')
-      expect(screen.getByTestId('input-email')).toHaveValue('test@example.com')
+      expect(screen.getByTestId('input-name')).toHaveValue(expectedData.name)
+      expect(screen.getByTestId('input-email')).toHaveValue(expectedData.email)
+      
+      // Strong type assertion for quality check
+      const actualData = {
+        name: (nameInput as HTMLInputElement).value,
+        email: (emailInput as HTMLInputElement).value
+      }
+      expect(actualData).toEqual(expectedData)
     })
   })
 

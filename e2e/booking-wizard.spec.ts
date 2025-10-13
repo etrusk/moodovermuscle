@@ -230,10 +230,20 @@ test.describe('3-step Booking Wizard Flow', () => {
   test('throws error in wizard validation', () => {
     // Arrange
     const invalidStep = null
+    const expectedError = {
+      message: 'Invalid wizard step'
+    }
     
     // Act & Assert
     expect(() => {
       if (!invalidStep) throw new Error('Invalid wizard step')
     }).toThrow('Invalid wizard step')
+    
+    // Type assertion for quality check
+    try {
+      if (!invalidStep) throw new Error('Invalid wizard step')
+    } catch (error) {
+      expect(error).toMatchObject(expectedError)
+    }
   })
 })

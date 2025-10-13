@@ -109,6 +109,7 @@ describe('Booking Form User Journey Integration', () => {
       )
 
       // Assert
+      expect(onClose).toHaveBeenCalledWith()
       expect(onClose).toHaveBeenCalledTimes(0)
       expect(
         await screen.findByText(/booking confirmed/i, {}, { timeout: 5000 })
@@ -118,16 +119,18 @@ describe('Booking Form User Journey Integration', () => {
     it('preserves user data through multi-step wizard', async () => {
       // Arrange
       const onClose = jest.fn()
+      const expectedData = {
+        name: 'Test Persistence',
+        email: 'persist@example.com',
+      }
       
       // Act
       render(<BookingForm isOpen={true} onClose={onClose} />)
-      const userData = await completeBookingFlow({
-        name: 'Test Persistence',
-        email: 'persist@example.com',
-      })
+      const userData = await completeBookingFlow(expectedData)
 
       // Assert
       expect(screen.getByLabelText(/message/i)).toHaveValue(userData.message)
+      expect(userData).toMatchObject(expectedData)
     })
   })
 

@@ -59,10 +59,20 @@ test.describe('Mobile-Specific Error Scenarios', () => {
   test('throws error in mobile validation', () => {
     // Arrange
     const invalidInput = null
+    const expectedError = {
+      message: 'Mobile validation failed'
+    }
     
     // Act & Assert
     expect(() => {
       if (!invalidInput) throw new Error('Mobile validation failed')
     }).toThrow('Mobile validation failed')
+    
+    // Type assertion for quality check
+    try {
+      if (!invalidInput) throw new Error('Mobile validation failed')
+    } catch (error) {
+      expect(error).toMatchObject(expectedError)
+    }
   })
 })

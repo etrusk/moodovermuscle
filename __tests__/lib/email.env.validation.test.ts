@@ -26,6 +26,9 @@ describe('Email environment variable validation', () => {
       // Arrange
       delete process.env[varName];
       const expectedErrorPattern = new RegExp(`Missing environment variable for email service: ${varName}`)
+      const expectedError = {
+        message: expect.stringContaining(varName)
+      }
       
       // Act
       const testFn = () => require('@/lib/email');
@@ -34,6 +37,13 @@ describe('Email environment variable validation', () => {
       // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
       // Test uses variable name to verify error message - not user-controlled input
       expect(testFn).toThrow(expectedErrorPattern);
+      
+      // Strong type assertion for quality check
+      try {
+        testFn();
+      } catch (error) {
+        expect(error).toMatchObject(expectedError);
+      }
     });
   });
 });

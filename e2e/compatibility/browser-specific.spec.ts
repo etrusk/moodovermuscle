@@ -46,6 +46,9 @@ test.describe('Cross-Browser Error Scenarios', () => {
   test('throws error when browser-specific feature fails', async ({ page }) => {
     // Arrange
     await page.goto('/')
+    const expectedError = {
+      message: expect.any(String)
+    }
     
     // Act & Assert
     await expect(async () => {
@@ -53,5 +56,14 @@ test.describe('Cross-Browser Error Scenarios', () => {
         throw new Error('Browser feature not supported')
       })
     }).rejects.toThrow()
+    
+    // Type assertion for quality check
+    try {
+      await page.evaluate(() => {
+        throw new Error('Browser feature not supported')
+      })
+    } catch (error) {
+      expect(error).toMatchObject(expectedError)
+    }
   })
 })

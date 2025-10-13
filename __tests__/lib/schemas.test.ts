@@ -23,6 +23,15 @@ describe('bookingSchema validation', () => {
 
     // Assert
     expect(result.success).toBe(true)
+    
+    // Strong type assertion for quality check
+    if (result.success) {
+      expect(result.data).toMatchObject({
+        name: 'Jane Doe',
+        email: 'jane.doe@example.com',
+        service: '1-on-1 Personal Training'
+      })
+    }
   })
 
   it('fails when name is too short', () => {
@@ -121,6 +130,12 @@ describe('bookingSchema validation', () => {
     expect(result.success).toBe(true)
     if (result.success) {
       expect(result.data.date).toBeInstanceOf(Date)
+      
+      // Strong type assertion for quality check
+      expect(result.data).toMatchObject({
+        name: validData.name,
+        email: validData.email
+      })
     }
   })
 

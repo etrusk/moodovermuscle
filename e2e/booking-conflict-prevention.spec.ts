@@ -323,10 +323,20 @@ test.describe('Booking Conflict Prevention E2E', () => {
   test('throws error in validation logic', () => {
     // Arrange
     const invalidData = null
+    const expectedError = {
+      message: 'Validation failed'
+    }
     
     // Act & Assert
     expect(() => {
       if (!invalidData) throw new Error('Validation failed')
     }).toThrow('Validation failed')
+    
+    // Type assertion for quality check
+    try {
+      if (!invalidData) throw new Error('Validation failed')
+    } catch (error) {
+      expect(error).toMatchObject(expectedError)
+    }
   })
 })

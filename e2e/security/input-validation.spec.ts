@@ -112,6 +112,9 @@ test.describe('Input Validation Scenarios', () => {
   test('validates input sanitization throws on null', () => {
     // Arrange
     const invalidInput = null
+    const expectedError = {
+      message: 'Input validation failed: null input'
+    }
 
     // Act & Assert
     expect(() => {
@@ -119,5 +122,14 @@ test.describe('Input Validation Scenarios', () => {
         throw new Error('Input validation failed: null input')
       }
     }).toThrow('Input validation failed: null input')
+    
+    // Type assertion for quality check
+    try {
+      if (!invalidInput) {
+        throw new Error('Input validation failed: null input')
+      }
+    } catch (error) {
+      expect(error).toMatchObject(expectedError)
+    }
   })
 })

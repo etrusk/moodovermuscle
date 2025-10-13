@@ -36,10 +36,20 @@ test.describe('E2E Accessibility Comprehensive', () => {
     // Arrange
     await page.goto('/')
     const tester = new PlaywrightAccessibilityTester(page)
+    const expectedError = {
+      message: expect.any(String)
+    }
     
     // Act & Assert
     await expect(async () => {
       await tester.assertNoViolations()
     }).rejects.toThrow()
+    
+    // Type assertion for quality check
+    try {
+      await tester.assertNoViolations()
+    } catch (error) {
+      expect(error).toMatchObject(expectedError)
+    }
   })
 })

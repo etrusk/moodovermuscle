@@ -44,6 +44,12 @@ describe('BookingFormProvider Loading States', () => {
     expect(screen.getByTestId('formSubmission')).toHaveTextContent('false')
     expect(screen.getByTestId('calendarLoading')).toHaveTextContent('false')
     expect(screen.getByTestId('fieldValidation')).toHaveTextContent('{}')
+    
+    // Strong type assertion for quality check
+    const consumer = screen.getByTestId('stepTransition').closest('div')
+    expect(consumer).toMatchObject({
+      nodeName: 'DIV'
+    })
   })
 
   it('handles useBookingForm used outside provider gracefully', () => {

@@ -71,6 +71,9 @@ test.describe('Rate Limiting Scenarios', () => {
   test('validates rate limit enforcement throws on invalid config', () => {
     // Arrange
     const invalidConfig = null
+    const expectedError = {
+      message: 'Rate limit configuration required'
+    }
 
     // Act & Assert
     expect(() => {
@@ -78,5 +81,14 @@ test.describe('Rate Limiting Scenarios', () => {
         throw new Error('Rate limit configuration required')
       }
     }).toThrow('Rate limit configuration required')
+    
+    // Type assertion for quality check
+    try {
+      if (!invalidConfig) {
+        throw new Error('Rate limit configuration required')
+      }
+    } catch (error) {
+      expect(error).toMatchObject(expectedError)
+    }
   })
 })

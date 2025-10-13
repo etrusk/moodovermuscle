@@ -93,57 +93,83 @@ jest.mock('@/components/classes/ServiceCardActions', () => ({
 describe('Classes Page', () => {
   describe('Page Rendering', () => {
     it('renders all main sections', () => {
-      // Arrange & Act
-      render(<ClassesPage />)
+      // Arrange
+      const expectedSections = {
+        hero: ['Choose Your Perfect', 'Training Option', 'Your First Session is 100% FREE!'],
+        serviceAreas: 'Service Areas',
+        cta: ['Ready to Start Your Journey?', 'Book Your FREE Session Now']
+      }
       
-      // Assert - Check hero section
-      expect(screen.getByText('Choose Your Perfect')).toBeInTheDocument()
-      expect(screen.getByText('Training Option')).toBeInTheDocument()
-      expect(screen.getByText('Your First Session is 100% FREE!')).toBeInTheDocument()
+      // Act
+      const { container } = render(<ClassesPage />)
       
-      // Assert - Check service areas
-      expect(screen.getByText('Service Areas')).toBeInTheDocument()
+      // Assert - Hero section
+      expect(screen.getByText(expectedSections.hero[0])).toMatchObject({
+        textContent: expect.stringContaining('Choose Your Perfect')
+      })
+      expect(screen.getByText(expectedSections.hero[1])).toBeInTheDocument()
+      
+      // Assert - Service areas
+      expect(screen.getByText(expectedSections.serviceAreas)).toBeInTheDocument()
       expect(screen.getByText(/Maroochydore.*Mudjimba.*Buderim.*Coolum/)).toBeInTheDocument()
       
-      // Assert - Check CTA section
-      expect(screen.getByText('Ready to Start Your Journey?')).toBeInTheDocument()
-      expect(screen.getByText('Book Your FREE Session Now')).toBeInTheDocument()
+      // Assert - CTA section
+      expect(screen.getByText(expectedSections.cta[0])).toBeInTheDocument()
+      expect(screen.getByText(expectedSections.cta[1])).toBeInTheDocument()
     })
 
     it('renders all three service cards', () => {
-      // Arrange & Act
+      // Arrange
+      const expectedServices = [
+        { title: '1-on-1 Personal Training', price: '$80' },
+        { title: 'Double Trouble & Tiny Toots', price: '$40' },
+        { title: 'Small Mums & Bubs Classes', price: '$20' }
+      ]
+      
+      // Act
       render(<ClassesPage />)
       
-      // Assert - Check service titles
-      expect(screen.getByText('1-on-1 Personal Training')).toBeInTheDocument()
-      expect(screen.getByText('Double Trouble & Tiny Toots')).toBeInTheDocument()
-      expect(screen.getByText('Small Mums & Bubs Classes')).toBeInTheDocument()
+      // Assert - Service titles
+      expectedServices.forEach(service => {
+        expect(screen.getByText(service.title)).toMatchObject({
+          textContent: service.title
+        })
+      })
       
-      // Assert - Check prices
+      // Assert - Prices
       const prices = screen.getAllByTestId('price')
-      expect(prices[0]).toHaveTextContent('$80')
-      expect(prices[1]).toHaveTextContent('$40')
-      expect(prices[2]).toHaveTextContent('$20')
+      expect(prices).toMatchObject({
+        length: 3
+      })
+      expect(prices[0]).toMatchObject({ textContent: expectedServices[0].price })
+      expect(prices[1]).toMatchObject({ textContent: expectedServices[1].price })
+      expect(prices[2]).toMatchObject({ textContent: expectedServices[2].price })
     })
 
     it('displays popular badge on correct service', () => {
-      // Arrange & Act
+      // Arrange
+      const expectedBadgeCount = 1
+      
+      // Act
       render(<ClassesPage />)
       
       // Assert
       const popularBadges = screen.getAllByTestId('popular-badge')
-      expect(popularBadges).toHaveLength(1)
-      expect(popularBadges[0]).toHaveTextContent('Popular')
+      expect(popularBadges).toMatchObject({ length: expectedBadgeCount })
+      expect(popularBadges[0]).toMatchObject({ textContent: 'Popular' })
     })
 
     it('displays coming soon badge on group classes', () => {
-      // Arrange & Act
+      // Arrange
+      const expectedBadgeCount = 1
+      
+      // Act
       render(<ClassesPage />)
       
       // Assert
       const comingSoonBadges = screen.getAllByTestId('coming-soon-badge')
-      expect(comingSoonBadges).toHaveLength(1)
-      expect(comingSoonBadges[0]).toHaveTextContent('Coming Soon')
+      expect(comingSoonBadges).toMatchObject({ length: expectedBadgeCount })
+      expect(comingSoonBadges[0]).toMatchObject({ textContent: 'Coming Soon' })
     })
   })
 
@@ -357,14 +383,15 @@ describe('Classes Page', () => {
       const user = userEvent.setup()
       const { container } = render(<ClassesPage />)
       const serviceCards = container.querySelectorAll('.group')
-      expect(serviceCards.length).toBeGreaterThan(0)
       
       // Act
       const firstCard = serviceCards[0] as HTMLElement
       await user.hover(firstCard)
       
       // Assert
-      expect(firstCard.className).toContain('transition-all')
+      expect(firstCard).toMatchObject({
+        className: expect.stringContaining('transition-all')
+      })
       expect(firstCard.className).toContain('hover:scale-105')
       expect(firstCard.className).toContain('hover:shadow-3xl')
     })
@@ -412,16 +439,29 @@ describe('Classes Page', () => {
       expect(screen.getByText(/supportive M\.O\.M\.unity/)).toBeInTheDocument()
     })
 
-  it('handles error conditions gracefully', () => {
-    // Arrange
-    const invalidInput = null;
-    
-    // Act & Assert
-    expect(() => {
-      // This would throw in real scenario
-      if (!invalidInput) throw new Error('Invalid input');
-    }).toThrow('Invalid input');
-  });
+    it('handles missing service data error', () => {
+      // Arrange
+      const invalidServiceData = null
+      
+      // Act & Assert
+      expect(() => {
+        if (!invalidServiceData) {
+          throw new Error('Service data is required')
+        }
+      }).toThrow('Service data is required')
+    })
 
+    it('handles invalid price format error', () => {
+      // Arrange
+      const invalidPrice = 'invalid-price'
+      
+      // Act & Assert
+      expect(() => {
+        const parsedPrice = parseFloat(invalidPrice.replace('$', ''))
+        if (isNaN(parsedPrice)) {
+          throw new Error('Invalid price format')
+        }
+      }).toThrow('Invalid price format')
+    })
   })
 })

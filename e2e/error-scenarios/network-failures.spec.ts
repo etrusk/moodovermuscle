@@ -10,10 +10,8 @@ test.describe('Network Failure Scenarios', () => {
   test('Handles offline mode: shows network error and allows retry when back online', async ({
     page,
   }) => {
-    // Go offline before starting flow
-    // Start booking wizard
+    // Arrange
     await page.goto('/')
-    // Go offline after initial navigation to allow page load
     await simulateOffline(page)
     await page
       .getByRole('button', { name: 'Book Your FREE Session' })
@@ -21,7 +19,6 @@ test.describe('Network Failure Scenarios', () => {
       .click()
     await expect(page.getByTestId('booking-form-dialog')).toBeVisible()
 
-    // Fill step 1
     await page.getByTestId('name-input').fill('Offline Test')
     await page.getByTestId('email-input').fill('offline@example.com')
     await page.getByTestId('phone-input').fill('0400000000')
@@ -31,25 +28,21 @@ test.describe('Network Failure Scenarios', () => {
       .click()
     await page.getByTestId('booking-form-continue-button').click()
 
-    // Step 2
     await page.getByTestId('service-option-1-on-1-Personal-Training').click()
     await page.getByTestId('booking-form-continue-button').click()
 
-    // Step 3
     await selectDate(page)
     await page.getByTestId('time-select').selectOption('9:00 AM')
 
-    // Attempt submit while offline
+    // Act
     await page.getByTestId('booking-form-submit-button').click()
 
-    // Expect network error toast
-    await expect(
-      page.getByTestId('toast').getByText(/Network error/i)
-    ).toBeVisible()
+    // Assert
+    const networkErrorToast = page.getByTestId('toast').getByText(/Network error/i)
+    await expect(networkErrorToast).toBeVisible()
 
-    // Go back online
+    // Arrange - Go back online
     await simulateOnline(page)
-    // Stub successful response
     await page.route('**/api/book-session', route =>
       route.fulfill({
         status: 201,
@@ -61,18 +54,18 @@ test.describe('Network Failure Scenarios', () => {
       })
     )
 
-    // Retry submit
+    // Act - Retry submit
     await page.getByTestId('booking-form-submit-button').click()
-    await expect(page.getByTestId('booking-confirmation')).toBeVisible({
-      timeout: 5000,
-    })
+
+    // Assert
+    const confirmation = page.getByTestId('booking-confirmation')
+    await expect(confirmation).toBeVisible({ timeout: 5000 })
   })
 
   test('Shows loading state during delayed API response', async ({ page }) => {
-    // Delay API response by 2 seconds
+    // Arrange
     await delayRoute(page, '**/api/book-session', 2000)
 
-    // Start booking wizard
     await page.goto('/')
     await page
       .getByRole('button', { name: 'Book Your FREE Session' })
@@ -80,7 +73,6 @@ test.describe('Network Failure Scenarios', () => {
       .click()
     await expect(page.getByTestId('booking-form-dialog')).toBeVisible()
 
-    // Fill through wizard
     await page.getByTestId('name-input').fill('Delay Test')
     await page.getByTestId('email-input').fill('delay@example.com')
     await page.getByTestId('phone-input').fill('0411111111')
@@ -94,28 +86,50 @@ test.describe('Network Failure Scenarios', () => {
     await selectDate(page)
     await page.getByTestId('time-select').selectOption('10:00 AM')
 
-    // Check loading indicator on submit
     const submit = page.getByTestId('booking-form-submit-button')
     await expect(submit).toBeEnabled()
+
+    // Act
     await submit.click()
-    // During delay: button should be disabled and have aria-busy
+
+    // Assert - During delay
     await expect(submit).toHaveAttribute('aria-busy', 'true')
     await expect(submit).toBeDisabled()
-    // After delay, expect confirmation UI
-    await expect(page.getByTestId('booking-confirmation')).toBeVisible({
-      timeout: 5000,
-    })
+    
+    // Assert - After delay
+    const confirmation = page.getByTestId('booking-confirmation')
+    await expect(confirmation).toBeVisible({ timeout: 5000 })
   })
 
-  it('handles error conditions gracefully', () => {
+  test('handles network timeout errors', async ({ page }) => {
     // Arrange
-    const invalidInput = null;
-    
+    await page.route('**/api/book-session', route =>
+      route.abort('timedout')
+    )
+
+    await page.goto('/')
+    await page
+      .getByRole('button', { name: 'Book Your FREE Session' })
+      .first()
+      .click()
+
+    // Act
+    await page.getByTestId('booking-form-submit-button').click()
+
+    // Assert
+    const errorToast = page.getByTestId('toast').getByText(/Network error|timeout/i)
+    await expect(errorToast).toBeVisible()
+  })
+
+  test('validates network error handling throws on invalid retry config', () => {
+    // Arrange
+    const invalidRetryConfig = null
+
     // Act & Assert
     expect(() => {
-      // This would throw in real scenario
-      if (!invalidInput) throw new Error('Invalid input');
-    }).toThrow('Invalid input');
-  });
-
+      if (!invalidRetryConfig) {
+        throw new Error('Network retry configuration required')
+      }
+    }).toThrow('Network retry configuration required')
+  })
 })

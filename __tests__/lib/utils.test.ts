@@ -36,9 +36,7 @@ describe('cn utility', () => {
     // Assert
     // Tailwind-merge should keep the last conflicting utility
     expect(result).toBe('p-2 text-left')
-    expect(result).toMatchObject({
-      length: expect.any(Number)
-    })
+    expect(result).toEqual(expect.any(String))
   })
 
   it('handles empty input gracefully', () => {

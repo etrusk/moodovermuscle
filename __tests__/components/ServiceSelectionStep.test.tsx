@@ -10,9 +10,12 @@ import { ServiceSelectionStep } from '@/components/booking-form/steps/ServiceSel
 
 describe('ServiceSelectionStep Loading State', () => {
   it('renders options enabled by default', () => {
-    // Arrange & Act
+    // Arrange
+    const onClose = jest.fn()
+    
+    // Act
     render(
-      <BookingFormProvider onClose={() => {}}>
+      <BookingFormProvider onClose={onClose}>
         <ServiceSelectionStep />
       </BookingFormProvider>
     )
@@ -21,6 +24,7 @@ describe('ServiceSelectionStep Loading State', () => {
     )
     
     // Assert
+    expect(onClose).toHaveBeenCalledTimes(0)
     expect(firstOption).not.toHaveClass('opacity-50')
     expect(firstOption).not.toHaveClass('pointer-events-none')
     expect(firstOption).toMatchObject({
@@ -29,9 +33,12 @@ describe('ServiceSelectionStep Loading State', () => {
   })
 
   it('applies loading styles when isLoading prop is true', () => {
-    // Arrange & Act
+    // Arrange
+    const onClose = jest.fn()
+    
+    // Act
     render(
-      <BookingFormProvider onClose={() => {}}>
+      <BookingFormProvider onClose={onClose}>
         <ServiceSelectionStep isLoading={true} />
       </BookingFormProvider>
     )

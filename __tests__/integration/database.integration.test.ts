@@ -10,7 +10,7 @@ import { createTestBookingData } from '../setup/test-db-data'
 describe('Database Integration: Booking Lifecycle', () => {
   describe('CRUD Operations', () => {
     it('maintains data integrity through create-read-update-delete lifecycle', async () => {
-      // Given: A booking needs to be managed in the database
+      // Arrange
       const bookingData = createTestBookingData()
       const mockBooking = {
         id: 'test-booking-1',
@@ -29,13 +29,13 @@ describe('Database Integration: Booking Lifecycle', () => {
         sessionDuration: null,
       }
 
-      // When: Creating a new booking
+      // Act - Create
       testDb.booking.create.mockResolvedValue(mockBooking)
       const created = await testDb.booking.create({
         data: bookingData as never
       })
 
-      // Then: Booking is created with valid ID
+      // Assert - Create
       expect(created).toMatchObject({
         id: expect.any(String),
         email: bookingData.email,
@@ -43,18 +43,20 @@ describe('Database Integration: Booking Lifecycle', () => {
         status: 'PENDING',
       })
 
-      // When: Reading the booking back
+      // Act - Read
       testDb.booking.findUnique.mockResolvedValue(mockBooking)
       const retrieved = await testDb.booking.findUnique({
         where: { id: created.id },
       })
 
-      // Then: Retrieved data matches created data
-      expect(retrieved).toBeTruthy()
-      expect(retrieved?.email).toBe(bookingData.email)
-      expect(retrieved?.name).toBe(bookingData.name)
+      // Assert - Read
+      expect(retrieved).toMatchObject({
+        email: bookingData.email,
+        name: bookingData.name,
+        id: created.id,
+      })
 
-      // When: Updating the booking
+      // Act - Update
       const updatedMockBooking = {
         ...mockBooking,
         name: 'Updated Client Name',
@@ -65,30 +67,34 @@ describe('Database Integration: Booking Lifecycle', () => {
         data: { name: 'Updated Client Name' },
       })
 
-      // Then: Update is persisted
-      expect(updated.name).toBe('Updated Client Name')
-      expect(updated.id).toBe(created.id)
+      // Assert - Update
+      expect(updated).toMatchObject({
+        name: 'Updated Client Name',
+        id: created.id,
+      })
 
-      // When: Deleting the booking
+      // Act - Delete
       testDb.booking.delete.mockResolvedValue(mockBooking)
       const deleted = await testDb.booking.delete({
         where: { id: created.id },
       })
 
-      // Then: Correct booking is removed
-      expect(deleted.id).toBe(created.id)
+      // Assert - Delete
+      expect(deleted).toMatchObject({
+        id: created.id,
+      })
     })
 
-  it('handles error conditions gracefully', () => {
-    // Arrange
-    const invalidInput = null;
-    
-    // Act & Assert
-    expect(() => {
-      // This would throw in real scenario
-      if (!invalidInput) throw new Error('Invalid input');
-    }).toThrow('Invalid input');
-  });
+    it('throws error when database operation fails', async () => {
+      // Arrange
+      testDb.booking.create.mockRejectedValue(new Error('Database connection failed'))
+      const bookingData = createTestBookingData()
+
+      // Act & Assert
+      await expect(testDb.booking.create({
+        data: bookingData as never
+      })).rejects.toThrow('Database connection failed')
+    })
 
   })
 })

@@ -30,44 +30,31 @@ describe('Booking Form User Journey Integration', () => {
     await teardownIntegrationTest()
   })
 
-  const completeBookingFlow = async (overrides = {}) => {
-    const defaultData = {
-      name: 'Integration Test User',
-      email: 'integration-test@example.com',
-      phone: '0412345678',
-      service: '1-on-1 Personal Training',
-      goals: 'Build strength & energy',
-      message: 'Looking forward to the session!',
-      ...overrides,
-    }
-
-    // Wait for form to be ready
+  const fillPersonalDetails = async (data: any) => {
     await waitFor(() => {
       expect(screen.getByLabelText(/name/i)).toBeInTheDocument()
     })
 
-    // Step 1: Personal Details
-    await user.type(screen.getByLabelText(/name/i), defaultData.name)
-    await user.type(screen.getByLabelText(/email/i), defaultData.email)
-    await user.type(screen.getByLabelText(/phone/i), defaultData.phone)
+    await user.type(screen.getByLabelText(/name/i), data.name)
+    await user.type(screen.getByLabelText(/email/i), data.email)
+    await user.type(screen.getByLabelText(/phone/i), data.phone)
 
     await user.click(screen.getByTestId('goals-select-trigger'))
     await user.click(
-      await screen.findByRole('option', { name: defaultData.goals })
+      await screen.findByRole('option', { name: data.goals })
     )
 
-    // Progress to service selection
     await user.click(screen.getByRole('button', { name: /continue/i }))
     await screen.findByText(/what would you like to try/i)
+  }
 
-    // Step 2: Service Selection
-    await user.click(screen.getByText(defaultData.service))
-
-    // Progress to scheduling
+  const selectService = async (serviceName: string) => {
+    await user.click(screen.getByText(serviceName))
     await user.click(screen.getByRole('button', { name: /continue/i }))
     await screen.findByText(/preferred date/i)
+  }
 
-    // Step 3: Date and Time Selection
+  const selectDateAndTime = async (message: string) => {
     await user.click(screen.getByTestId('date-picker-trigger'))
     const dateToSelect = new Date()
     dateToSelect.setDate(dateToSelect.getDate() + 5)
@@ -88,64 +75,92 @@ describe('Booking Form User Journey Integration', () => {
       expect(screen.getByTestId('time-select')).not.toBeDisabled()
     })
     await user.selectOptions(screen.getByTestId('time-select'), '10:00 AM')
+    await user.type(screen.getByLabelText(/message/i), message)
+  }
 
-    await user.type(screen.getByLabelText(/message/i), defaultData.message)
+  const completeBookingFlow = async (overrides = {}) => {
+    const defaultData = {
+      name: 'Integration Test User',
+      email: 'integration-test@example.com',
+      phone: '0412345678',
+      service: '1-on-1 Personal Training',
+      goals: 'Build strength & energy',
+      message: 'Looking forward to the session!',
+      ...overrides,
+    }
+
+    await fillPersonalDetails(defaultData)
+    await selectService(defaultData.service)
+    await selectDateAndTime(defaultData.message)
 
     return defaultData
   }
 
   describe('Complete Booking Journey', () => {
     it('completes full booking flow from start to confirmation', async () => {
-      render(<BookingForm isOpen={true} onClose={() => {}} />)
+      // Arrange
+      const onClose = jest.fn()
       
+      // Act
+      render(<BookingForm isOpen={true} onClose={onClose} />)
       await completeBookingFlow()
-      
       await user.click(
         screen.getByRole('button', { name: /book my free session/i })
       )
 
+      // Assert
+      expect(onClose).toHaveBeenCalledTimes(0)
       expect(
         await screen.findByText(/booking confirmed/i, {}, { timeout: 5000 })
       ).toBeInTheDocument()
     })
 
     it('preserves user data through multi-step wizard', async () => {
-      render(<BookingForm isOpen={true} onClose={() => {}} />)
+      // Arrange
+      const onClose = jest.fn()
       
+      // Act
+      render(<BookingForm isOpen={true} onClose={onClose} />)
       const userData = await completeBookingFlow({
         name: 'Test Persistence',
         email: 'persist@example.com',
       })
 
-      // Verify data persists by checking form values are still present
+      // Assert
       expect(screen.getByLabelText(/message/i)).toHaveValue(userData.message)
     })
   })
 
   describe('Error Handling and Validation', () => {
     it('displays validation errors from API', async () => {
-      render(<BookingForm isOpen={true} onClose={() => {}} />)
+      // Arrange
+      const onClose = jest.fn()
       
+      // Act
+      render(<BookingForm isOpen={true} onClose={onClose} />)
       await completeBookingFlow({ email: 'validation@example.com' })
-      
       await user.click(
         screen.getByRole('button', { name: /book my free session/i })
       )
 
+      // Assert
       expect(
         await screen.findByText(/Invalid data/i, {}, { timeout: 5000 })
       ).toBeInTheDocument()
     })
 
     it('handles network failures gracefully', async () => {
-      render(<BookingForm isOpen={true} onClose={() => {}} />)
+      // Arrange
+      const onClose = jest.fn()
       
+      // Act
+      render(<BookingForm isOpen={true} onClose={onClose} />)
       await completeBookingFlow({ email: 'network@example.com' })
-      
       await user.click(
         screen.getByRole('button', { name: /book my free session/i })
       )
 
+      // Assert
       expect(
         await screen.findByText(/network error/i, {}, { timeout: 5000 })
       ).toBeInTheDocument()
@@ -154,9 +169,11 @@ describe('Booking Form User Journey Integration', () => {
 
   describe('Loading and Progress States', () => {
     it('shows loading state during step transitions', async () => {
-      render(<BookingForm isOpen={true} onClose={() => {}} />)
-
-      // Fill Step 1
+      // Arrange
+      const onClose = jest.fn()
+      
+      // Act
+      render(<BookingForm isOpen={true} onClose={onClose} />)
       await user.type(screen.getByLabelText(/name/i), 'Test User')
       await user.type(screen.getByLabelText(/email/i), 'test@example.com')
       await user.type(screen.getByLabelText(/phone/i), '0123456789')
@@ -164,37 +181,34 @@ describe('Booking Form User Journey Integration', () => {
       await user.click(
         await screen.findByRole('option', { name: 'Build strength & energy' })
       )
-
       const continueButton = screen.getByRole('button', { name: /continue/i })
       user.click(continueButton)
 
-      // Verify loading state appears
+      // Assert
       await waitFor(
         () => expect(screen.getByText(/validating/i)).toBeInTheDocument(),
         { timeout: 2000 }
       )
-
-      // Wait for next step
       await screen.findByText(/what would you like to try/i)
     })
 
     it('shows loading state during final submission', async () => {
-      render(<BookingForm isOpen={true} onClose={() => {}} />)
+      // Arrange
+      const onClose = jest.fn()
       
+      // Act
+      render(<BookingForm isOpen={true} onClose={onClose} />)
       await completeBookingFlow()
-
       const submitButton = screen.getByRole('button', {
         name: /book my free session/i,
       })
       user.click(submitButton)
 
-      // Verify submission loading state
+      // Assert
       await waitFor(
         () => expect(screen.getByText(/booking\.\.\./i)).toBeInTheDocument(),
         { timeout: 2000 }
       )
-
-      // Wait for confirmation
       expect(
         await screen.findByText(/booking confirmed/i)
       ).toBeInTheDocument()
@@ -203,9 +217,11 @@ describe('Booking Form User Journey Integration', () => {
 
   describe('User Interaction Patterns', () => {
     it('enables time selection only after date is chosen', async () => {
-      render(<BookingForm isOpen={true} onClose={() => {}} />)
-
-      // Complete steps 1 and 2
+      // Arrange
+      const onClose = jest.fn()
+      
+      // Act
+      render(<BookingForm isOpen={true} onClose={onClose} />)
       await user.type(screen.getByLabelText(/name/i), 'Test User')
       await user.type(screen.getByLabelText(/email/i), 'test@example.com')
       await user.type(screen.getByLabelText(/phone/i), '0123456789')
@@ -218,12 +234,12 @@ describe('Booking Form User Journey Integration', () => {
       await user.click(screen.getByText('1-on-1 Personal Training'))
       await user.click(screen.getByRole('button', { name: /continue/i }))
       await screen.findByText(/preferred date/i)
-
-      // Time select should initially be disabled
       const timeSelect = screen.getByTestId('time-select')
+
+      // Assert - Initially disabled
       expect(timeSelect).toBeDisabled()
 
-      // Select a date
+      // Act - Select a date
       await user.click(screen.getByTestId('date-picker-trigger'))
       const dateToSelect = new Date()
       dateToSelect.setDate(dateToSelect.getDate() + 5)
@@ -235,7 +251,7 @@ describe('Booking Form User Journey Integration', () => {
       if (!enabledDateCell) throw new Error('No enabled date cell found')
       await user.click(enabledDateCell)
 
-      // Time select should now be enabled
+      // Assert - Now enabled
       await waitFor(() => {
         expect(timeSelect).not.toBeDisabled()
       })

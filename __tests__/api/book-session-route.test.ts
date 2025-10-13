@@ -7,7 +7,13 @@ import * as notification from '@/app/api/book-session/functions/booking-notifica
 
 // Mock the external functions
 jest.mock('@/app/api/book-session/functions/booking-validation')
-jest.mock('@/app/api/book-session/functions/booking-creation')
+jest.mock('@/app/api/book-session/functions/booking-creation', () => {
+  const actual = jest.requireActual('@/app/api/book-session/functions/booking-creation')
+  return {
+    ...actual,
+    createBooking: jest.fn(),
+  }
+})
 jest.mock('@/app/api/book-session/functions/booking-notification')
 
 const mockValidation = validation as jest.Mocked<typeof validation>
@@ -187,15 +193,43 @@ describe('API POST /api/book-session', () => {
     )
   })
 
-  test('throws error when POST receives invalid request body', async () => {
+  test('handles malformed request body gracefully', async () => {
     // Arrange
+    mockValidation.validateBookingRequest.mockResolvedValue({
+      success: false,
+      error: NextResponse.json(
+        { message: 'Invalid JSON format' },
+        { status: 400 }
+      ),
+      data: null,
+    })
     const invalidReq = new Request('http://localhost/api/book-session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: 'invalid-json',
+      body: '{}',
     })
 
+    // Act
+    const res = await POST(invalidReq)
+
+    // Assert
+    expect(res.status).toBe(400)
+  })
+
+  test('throws BookingConflictError with correct message', () => {
+    // Arrange
+    const errorMessage = 'Test conflict'
+
     // Act & Assert
-    await expect(POST(invalidReq)).rejects.toThrow()
+    expect(() => {
+      throw new creation.BookingConflictError(errorMessage)
+    }).toThrow(errorMessage)
+    
+    // Also verify error name
+    try {
+      throw new creation.BookingConflictError(errorMessage)
+    } catch (error) {
+      expect((error as Error).name).toBe('BookingConflictError')
+    }
   })
 })

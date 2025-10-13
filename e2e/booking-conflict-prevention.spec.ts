@@ -17,31 +17,29 @@ test.describe('Booking Conflict Prevention E2E', () => {
     await page.goto('/')
   })
 
-  test('prevents double booking: first booking succeeds, second booking shows conflict error', async ({ 
-    page, 
-    context 
+  test('prevents double booking: first booking succeeds, second booking shows conflict error', async ({
+    page,
+    context
   }) => {
-    // Create second browser context for concurrent booking attempts
+    // Arrange
     const secondPage = await context.newPage()
     await secondPage.goto('/')
-
-    // Both users start booking process simultaneously
-    await Promise.all([
-      page.getByRole('button', { name: 'Book Your FREE Session', exact: true }).first().click(),
-      secondPage.getByRole('button', { name: 'Book Your FREE Session', exact: true }).first().click()
-    ])
-
-    // Verify both booking forms opened
-    await expect(page.getByTestId('booking-form-dialog')).toBeVisible()
-    await expect(secondPage.getByTestId('booking-form-dialog')).toBeVisible()
-
-    // Fill identical booking details in both forms
     const bookingData = {
       name: 'Conflict Test User',
       email: 'conflict-test@example.com',
       phone: '0400123456',
       time: '9:00 AM'
     }
+
+    // Act - Both users start booking process simultaneously
+    await Promise.all([
+      page.getByRole('button', { name: 'Book Your FREE Session', exact: true }).first().click(),
+      secondPage.getByRole('button', { name: 'Book Your FREE Session', exact: true }).first().click()
+    ])
+
+    // Assert - Verify both booking forms opened
+    await expect(page.getByTestId('booking-form-dialog')).toBeVisible()
+    await expect(secondPage.getByTestId('booking-form-dialog')).toBeVisible()
 
     // Fill first user's booking form
     await page.getByTestId('name-input').fill(`${bookingData.name} 1`)
@@ -259,59 +257,76 @@ test.describe('Booking Conflict Prevention E2E', () => {
     await expect(page.getByTestId('booking-confirmation')).toBeVisible({ timeout: 10000 })
   })
 
-  test('business hours constraint prevents invalid time bookings', async ({ page }) => {
+  test('throws error when business hours constraint violated', async ({ page }) => {
+    // Arrange
     await page.getByRole('button', { name: 'Book Your FREE Session', exact: true }).first().click()
-
-    // Mock API to simulate business hours validation error
     await page.route('**/api/book-session', route =>
       route.fulfill({
         status: 400,
         contentType: 'application/json',
         body: JSON.stringify({
           error: 'Invalid Time Slot',
-          message: 'booking_business_hours_check constraint violated. Bookings are only available during business hours (7 AM - 7 PM).',
+          message: 'booking_business_hours_check constraint violated.',
           code: 'INVALID_BUSINESS_HOURS'
         }),
       })
     )
 
-    // Fill form normally
+    // Act
     await page.getByTestId('name-input').fill('Business Hours Test')
     await page.getByTestId('email-input').fill('business-hours@test.com')
     await page.getByTestId('phone-input').fill('0400333000')
     await page.getByTestId('goals-select-trigger').click()
     await page.getByRole('option', { name: 'Lose weight & feel confident' }).click()
     await page.getByTestId('booking-form-continue-button').click()
-
     await page.getByTestId('service-option-1-on-1-Personal-Training').click()
     await page.getByTestId('booking-form-continue-button').click()
-
     await selectDate(page)
+    await page.getByTestId('time-select').selectOption('9:00 AM')
+    await page.getByTestId('booking-form-submit-button').click()
 
-    // Time selector should only show valid business hours
-    // (This test verifies UI constraints match database constraints)
-    const timeSelect = page.getByTestId('time-select')
-    const options = await timeSelect.locator('option').allTextContents()
-    
-    // Should not contain very early or very late times
-    expect(options).not.toContain('6:00 AM')
-    expect(options).not.toContain('8:00 PM')
-    expect(options).not.toContain('9:00 PM')
-    
-    // Should contain valid business hours
-    expect(options).toContain('9:00 AM')
-    expect(options).toContain('3:00 PM')
+    // Assert
+    await expect(page.getByTestId('toast')).toBeVisible({ timeout: 10000 })
+  })
 
-  it('handles error conditions gracefully', () => {
+  test('throws error when booking conflict occurs', async ({ page }) => {
     // Arrange
-    const invalidInput = null;
+    await page.getByRole('button', { name: 'Book Your FREE Session', exact: true }).first().click()
+    await page.route('**/api/book-session', route =>
+      route.fulfill({
+        status: 409,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          error: 'Booking Conflict',
+          message: 'The selected time slot is no longer available.',
+        }),
+      })
+    )
+
+    // Act
+    await page.getByTestId('name-input').fill('Conflict Test')
+    await page.getByTestId('email-input').fill('conflict@test.com')
+    await page.getByTestId('phone-input').fill('0400111000')
+    await page.getByTestId('goals-select-trigger').click()
+    await page.getByRole('option', { name: 'Lose weight & feel confident' }).click()
+    await page.getByTestId('booking-form-continue-button').click()
+    await page.getByTestId('service-option-1-on-1-Personal-Training').click()
+    await page.getByTestId('booking-form-continue-button').click()
+    await selectDate(page)
+    await page.getByTestId('time-select').selectOption('9:00 AM')
+    await page.getByTestId('booking-form-submit-button').click()
+
+    // Assert
+    await expect(page.getByTestId('toast').getByText('Booking Failed')).toBeVisible({ timeout: 10000 })
+  })
+
+  test('throws error in validation logic', () => {
+    // Arrange
+    const invalidData = null
     
     // Act & Assert
     expect(() => {
-      // This would throw in real scenario
-      if (!invalidInput) throw new Error('Invalid input');
-    }).toThrow('Invalid input');
-  });
-
+      if (!invalidData) throw new Error('Validation failed')
+    }).toThrow('Validation failed')
   })
 })

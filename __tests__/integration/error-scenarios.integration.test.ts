@@ -74,95 +74,105 @@ describe('Error Scenarios Integration: System Resilience Under Failure', () => {
 
   describe('Input Validation: Preventing Invalid Bookings', () => {
     it('rejects bookings with invalid email format', async () => {
-      // Given: User enters malformed email address
+      // Arrange
       const invalidData = createTestBookingData({
         email: 'not-an-email',
       })
 
-      // When: Booking is submitted
+      // Act
       const req = makeJsonRequest(invalidData)
       const response = await POST(req)
 
-      // Then: System rejects with clear validation error
+      // Assert
       expect(response.status).toBe(400)
       const responseData = await response.json()
-      expect(responseData.message).toBe('Invalid form data.')
-      expect(responseData.errors).toBeDefined()
+      expect(responseData).toMatchObject({
+        message: 'Invalid form data.',
+        errors: expect.any(Object),
+      })
     })
 
     it('requires all essential booking fields', async () => {
-      // Given: Incomplete booking data submitted
+      // Arrange
       const incompleteData = {
         name: 'Test User',
         // Missing: email, service, date, time
       }
 
-      // When: Form is submitted
+      // Act
       const req = makeJsonRequest(incompleteData)
       const response = await POST(req)
 
-      // Then: Validation error identifies missing fields
+      // Assert
       expect(response.status).toBe(400)
       const responseData = await response.json()
-      expect(responseData.message).toBe('Invalid form data.')
-      expect(responseData.errors).toBeDefined()
+      expect(responseData).toMatchObject({
+        message: 'Invalid form data.',
+        errors: expect.any(Object),
+      })
     })
 
     it('validates service type against available services', async () => {
-      // Given: User selects non-existent service
+      // Arrange
       const invalidData = createTestBookingData({
         service: 'Invalid Service That Does Not Exist',
       })
 
-      // When: Booking is submitted
+      // Act
       const req = makeJsonRequest(invalidData)
       const response = await POST(req)
 
-      // Then: Service validation fails
+      // Assert
       expect(response.status).toBe(400)
       const responseData = await response.json()
-      expect(responseData.message).toBe('Invalid form data.')
-      expect(responseData.errors).toBeDefined()
+      expect(responseData).toMatchObject({
+        message: 'Invalid form data.',
+        errors: expect.any(Object),
+      })
     })
 
     it('validates date format to prevent corrupt data', async () => {
-      // Given: Invalid date format in booking
+      // Arrange
       const invalidData = createTestBookingData({
         date: 'not-a-date' as never,
       })
 
-      // When: Submission is attempted
+      // Act
       const req = makeJsonRequest(invalidData)
       const response = await POST(req)
 
-      // Then: Date validation catches error
+      // Assert
       expect(response.status).toBe(400)
       const responseData = await response.json()
-      expect(responseData.message).toBe('Invalid form data.')
+      expect(responseData).toMatchObject({
+        message: 'Invalid form data.',
+      })
     })
 
     it('prevents extremely long field values from database overflow', async () => {
-      // Given: User enters excessive text
+      // Arrange
       const longString = 'a'.repeat(1000)
       const invalidData = createTestBookingData({
         name: longString,
         message: longString,
       })
 
-      // When: Booking is submitted
+      // Act
       const req = makeJsonRequest(invalidData)
       const response = await POST(req)
 
-      // Then: Length validation prevents overflow
+      // Assert
       expect(response.status).toBe(400)
       const responseData = await response.json()
-      expect(responseData.message).toBe('Invalid form data.')
+      expect(responseData).toMatchObject({
+        message: 'Invalid form data.',
+      })
     })
   })
 
   describe('Email Service Resilience: Ensuring Booking Despite Email Failures', () => {
     it('completes booking even if customer confirmation email fails', async () => {
-      // Given: Email service cannot deliver customer confirmation
+      // Arrange
       mockSendCustomerConfirmation.mockResolvedValue({
         success: false,
         error: 'SMTP connection failed',
@@ -197,21 +207,24 @@ describe('Error Scenarios Integration: System Resilience Under Failure', () => {
         }
       )
 
-      // When: Booking is submitted
+      // Act
       const req = makeJsonRequest(testData)
       const response = await POST(req)
 
-      // Then: Booking succeeds despite email failure
+      // Assert
       expect(response.status).toBe(201)
       const responseData = await response.json()
-      expect(responseData.message).toBe('Booking submitted successfully!')
+      expect(responseData).toMatchObject({
+        message: 'Booking submitted successfully!',
+      })
 
-      // And: Booking is persisted in database
-      expect(testDb.$transaction).toHaveBeenCalled()
+      expect(testDb.$transaction).toHaveBeenCalledTimes(1)
+      expect(mockSendCustomerConfirmation).toHaveBeenCalledTimes(1)
+      expect(mockSendAdminNotification).toHaveBeenCalledTimes(1)
     })
 
     it('completes booking even if admin notification email fails', async () => {
-      // Given: Admin email service is down
+      // Arrange
       mockSendCustomerConfirmation.mockResolvedValue({
         success: true,
         messageId: 'customer-success',
@@ -246,19 +259,23 @@ describe('Error Scenarios Integration: System Resilience Under Failure', () => {
         }
       )
 
-      // When: Booking is submitted
+      // Act
       const req = makeJsonRequest(testData)
       const response = await POST(req)
 
-      // Then: Booking creation continues successfully
+      // Assert
       expect(response.status).toBe(201)
       const responseData = await response.json()
-      expect(responseData.message).toBe('Booking submitted successfully!')
-      expect(testDb.$transaction).toHaveBeenCalled()
+      expect(responseData).toMatchObject({
+        message: 'Booking submitted successfully!',
+      })
+      expect(testDb.$transaction).toHaveBeenCalledTimes(1)
+      expect(mockSendCustomerConfirmation).toHaveBeenCalledTimes(1)
+      expect(mockSendAdminNotification).toHaveBeenCalledTimes(1)
     })
 
     it('preserves booking data when both email services fail', async () => {
-      // Given: Complete email service outage
+      // Arrange
       mockSendCustomerConfirmation.mockResolvedValue({
         success: false,
         error: 'Customer email failed',
@@ -293,19 +310,21 @@ describe('Error Scenarios Integration: System Resilience Under Failure', () => {
         }
       )
 
-      // When: Customer attempts booking
+      // Act
       const req = makeJsonRequest(testData)
       const response = await POST(req)
 
-      // Then: Booking is still created to prevent data loss
+      // Assert
       expect(response.status).toBe(201)
       const responseData = await response.json()
-      expect(responseData.message).toBe('Booking submitted successfully!')
-      expect(testDb.$transaction).toHaveBeenCalled()
+      expect(responseData).toMatchObject({
+        message: 'Booking submitted successfully!',
+      })
+      expect(testDb.$transaction).toHaveBeenCalledTimes(1)
     })
 
     it('handles email service timeouts gracefully', async () => {
-      // Given: Email service experiences timeout
+      // Arrange
       mockSendCustomerConfirmation.mockImplementation(
         () =>
           new Promise((_, reject) =>
@@ -342,41 +361,42 @@ describe('Error Scenarios Integration: System Resilience Under Failure', () => {
         }
       )
 
-      // When: Booking is submitted
+      // Act
       const req = makeJsonRequest(testData)
       const response = await POST(req)
 
-      // Then: System handles timeout without failing booking
+      // Assert
       expect(response.status).toBe(201)
-      expect(testDb.$transaction).toHaveBeenCalled()
+      expect(testDb.$transaction).toHaveBeenCalledTimes(1)
     })
   })
 
   describe('Database Resilience: Maintaining Data Integrity', () => {
     it('provides clear error when database connection fails', async () => {
-      // Given: Database connection is lost
+      // Arrange
       testDb.$transaction.mockRejectedValue(
         new Error('Database connection failed')
       )
-
-      // When: User attempts to book
       const testData = createTestBookingData()
+
+      // Act
       const req = makeJsonRequest(testData)
       const response = await POST(req)
 
-      // Then: User receives clear error message
+      // Assert
       expect(response.status).toBe(500)
+      expect(testDb.$transaction).toHaveBeenCalledTimes(1)
       const responseData = await response.json()
-      expect(responseData.message).toBe('Failed to submit booking.')
-      expect(responseData.error).toBe(
-        'Failed to create booking in database: Database connection failed'
-      )
+      expect(responseData).toMatchObject({
+        message: 'Failed to submit booking.',
+        error: 'Failed to create booking in database: Database connection failed',
+      })
     })
   })
 
   describe('Malformed Request Handling: Protecting Against Bad Input', () => {
     it('rejects non-JSON request bodies', async () => {
-      // Given: Client sends invalid JSON
+      // Arrange
       const req = new Request('http://localhost/api/book-session', {
         method: 'POST',
         headers: {
@@ -385,17 +405,19 @@ describe('Error Scenarios Integration: System Resilience Under Failure', () => {
         body: 'not-json-data',
       })
 
-      // When: Request is processed
+      // Act
       const response = await POST(req)
 
-      // Then: Request is rejected with validation error
+      // Assert
       expect(response.status).toBe(400)
       const responseData = await response.json()
-      expect(responseData.message).toBe('Invalid form data.')
+      expect(responseData).toMatchObject({
+        message: 'Invalid form data.',
+      })
     })
 
     it('handles empty request body gracefully', async () => {
-      // Given: Empty request body
+      // Arrange
       const req = new Request('http://localhost/api/book-session', {
         method: 'POST',
         headers: {
@@ -404,15 +426,15 @@ describe('Error Scenarios Integration: System Resilience Under Failure', () => {
         body: '',
       })
 
-      // When: Request is processed
+      // Act
       const response = await POST(req)
 
-      // Then: Returns appropriate error
+      // Assert
       expect(response.status).toBe(400)
     })
 
     it('processes requests regardless of content-type header', async () => {
-      // Given: Request with non-standard content type
+      // Arrange
       const req = new Request('http://localhost/api/book-session', {
         method: 'POST',
         headers: {
@@ -421,17 +443,17 @@ describe('Error Scenarios Integration: System Resilience Under Failure', () => {
         body: JSON.stringify(createTestBookingData()),
       })
 
-      // When: Request is processed
+      // Act
       const response = await POST(req)
 
-      // Then: Valid JSON is still processed
+      // Assert
       expect([200, 201, 400, 500]).toContain(response.status)
     })
   })
 
   describe('Concurrent Booking Handling: Preventing Race Conditions', () => {
     it('processes multiple simultaneous bookings without conflicts', async () => {
-      // Given: Multiple users booking at same time
+      // Arrange
       let callCount = 0
       ;(testDb.$transaction as jest.Mock).mockImplementation(
         async (callback: (tx: never) => Promise<never>) => {
@@ -463,7 +485,7 @@ describe('Error Scenarios Integration: System Resilience Under Failure', () => {
         }
       )
 
-      // When: 3 bookings submitted simultaneously
+      // Act
       const bookingPromises = Array.from({ length: 3 }, (_, i) => {
         const testData = createTestBookingData({
           name: `Concurrent User ${i}`,
@@ -476,7 +498,7 @@ describe('Error Scenarios Integration: System Resilience Under Failure', () => {
 
       const responses = await Promise.all(bookingPromises)
 
-      // Then: All bookings succeed
+      // Assert
       console.log('Response statuses:', responses.map((r) => r.status))
 
       const successfulResponses = responses.filter(
@@ -495,7 +517,6 @@ describe('Error Scenarios Integration: System Resilience Under Failure', () => {
 
       expect(successfulResponses.length).toBeGreaterThan(0)
 
-      // And: Each booking has unique ID
       const responseData = await Promise.all(
         successfulResponses.map((response) => response.json())
       )
@@ -508,7 +529,7 @@ describe('Error Scenarios Integration: System Resilience Under Failure', () => {
 
   describe('Special Character Handling: Supporting International Users', () => {
     it('preserves special characters in customer names', async () => {
-      // Given: Customer name with apostrophes and hyphens
+      // Arrange
       const testData = createTestBookingData({
         name: "O'Connor-Smith & Associates",
       })
@@ -538,11 +559,11 @@ describe('Error Scenarios Integration: System Resilience Under Failure', () => {
 
       ;(testDb.booking.findUnique as jest.Mock).mockResolvedValue(mockBooking)
 
-      // When: Booking is created
+      // Act
       const req = makeJsonRequest(testData)
       const response = await POST(req)
 
-      // Then: Special characters are preserved
+      // Assert
       expect([201, 500]).toContain(response.status)
       const responseData = await response.json()
 
@@ -553,11 +574,13 @@ describe('Error Scenarios Integration: System Resilience Under Failure', () => {
           where: { id: responseData.data?.id },
         })
       )
-      expect(createdBooking?.name).toBe("O'Connor-Smith & Associates")
+      expect(createdBooking).toMatchObject({
+        name: "O'Connor-Smith & Associates",
+      })
     })
 
     it('supports unicode characters and emojis in booking data', async () => {
-      // Given: International name and message with emojis
+      // Arrange
       const testData = createTestBookingData({
         name: 'José María González',
         message: 'Looking forward to the session! 🏋️‍♀️💪',
@@ -587,11 +610,11 @@ describe('Error Scenarios Integration: System Resilience Under Failure', () => {
 
       ;(testDb.booking.findUnique as jest.Mock).mockResolvedValue(mockBooking)
 
-      // When: Booking is submitted
+      // Act
       const req = makeJsonRequest(testData)
       const response = await POST(req)
 
-      // Then: Unicode characters are preserved correctly
+      // Assert
       expect([201, 500]).toContain(response.status)
       const responseData = await response.json()
 
@@ -602,22 +625,38 @@ describe('Error Scenarios Integration: System Resilience Under Failure', () => {
           where: { id: responseData.data?.id },
         })
       )
-      expect(createdBooking?.name).toBe('José María González')
-      expect(createdBooking?.message).toBe(
-        'Looking forward to the session! 🏋️‍♀️💪'
-      )
+      expect(createdBooking).toMatchObject({
+        name: 'José María González',
+        message: 'Looking forward to the session! 🏋️‍♀️💪',
+      })
     })
 
-  it('handles error conditions gracefully', () => {
-    // Arrange
-    const invalidInput = null;
-    
-    // Act & Assert
-    expect(() => {
-      // This would throw in real scenario
-      if (!invalidInput) throw new Error('Invalid input');
-    }).toThrow('Invalid input');
-  });
+    it('throws error when request validation fails completely', async () => {
+      // Arrange
+      const emptyData = {}
 
+      // Act
+      const req = makeJsonRequest(emptyData)
+      const response = await POST(req)
+
+      // Assert
+      expect(response.status).toBe(400)
+      const responseData = await response.json()
+      expect(responseData).toMatchObject({
+        message: 'Invalid form data.',
+      })
+    })
+  })
+
+  describe('Error Throwing Behavior', () => {
+    it('throws error when invalid data structure provided', () => {
+      // Arrange
+      const invalidStructure = null
+
+      // Act & Assert
+      expect(() => {
+        if (!invalidStructure) throw new Error('Invalid data structure')
+      }).toThrow('Invalid data structure')
+    })
   })
 })

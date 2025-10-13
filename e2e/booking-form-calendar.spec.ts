@@ -4,17 +4,20 @@ test.describe('Booking Form Calendar', () => {
   test('should disable past dates and today, allowing only future date selections', async ({
     page,
   }) => {
-    // Navigate to the booking form page
+    // Arrange
     await page.goto('/')
+    const today = new Date()
+    const todayDate = today.getDate()
+    const tomorrowDate = new Date(today)
+    tomorrowDate.setDate(today.getDate() + 1)
 
-    // Click through to the third step of the form where the calendar is
+    // Act - Navigate through booking form to calendar
     const bookSessionButton = page
       .getByRole('button', { name: 'Book Your FREE Session' })
       .first()
     await bookSessionButton.waitFor({ state: 'visible' })
     await bookSessionButton.click()
 
-    // Fill out step 1 form fields to enable Continue button
     await page.getByTestId('name-input').fill('Test User')
     await page.getByTestId('email-input').fill('test@example.com')
     await page.getByTestId('phone-input').fill('0412345678')
@@ -22,43 +25,27 @@ test.describe('Booking Form Calendar', () => {
     await page
       .getByRole('option', { name: 'Lose weight & feel confident' })
       .click()
-
-    // Click Continue to go to step 2
     await page.getByTestId('booking-form-continue-button').click()
-
-    // Select a service in step 2
     await page.getByTestId('service-option-1-on-1-Personal-Training').click()
-
-    // Click Continue to go to step 3 (calendar step)
     await page.getByTestId('booking-form-continue-button').click()
 
-    // Wait for the calendar step to render
+    // Assert - Calendar step visible
     await expect(page.getByTestId('booking-form-step-3')).toBeVisible()
-
-    // Open the calendar
     await page.getByTestId('date-picker-trigger').click()
     await expect(page.getByTestId('date-picker-content')).toBeVisible()
 
-    // Get today's date information
-    const today = new Date()
-    const todayDate = today.getDate()
-    const tomorrowDate = new Date(today)
-    tomorrowDate.setDate(today.getDate() + 1)
-
-    // Verify that today's date is disabled
+    // Assert - Today is disabled
     const todayButton = page
       .getByRole('button', { name: todayDate.toString() })
       .first()
     await expect(todayButton).toBeDisabled()
 
-    // Verify that a past date is disabled
-    // This will click the back button on the calendar to go to the previous month
+    // Assert - Past date is disabled
     await page.getByTestId('calendar-prev-button').click()
-    const pastDateButton = page.getByRole('button', { name: '15' }) // Arbitrary past date
+    const pastDateButton = page.getByRole('button', { name: '15' })
     await expect(pastDateButton).toBeDisabled()
 
-    // Verify that tomorrow's date is enabled and selectable
-    // This will click the forward button on the calendar to go back to the current month
+    // Assert - Tomorrow is enabled
     await page.getByTestId('calendar-next-button').click()
     const tomorrowButton = page
       .getByRole('button', {
@@ -70,15 +57,13 @@ test.describe('Booking Form Calendar', () => {
     await tomorrowButton.click()
   })
 
-  it('handles error conditions gracefully', () => {
+  test('throws error when calendar fails to open', async ({ page }) => {
     // Arrange
-    const invalidInput = null;
+    await page.goto('/')
     
     // Act & Assert
-    expect(() => {
-      // This would throw in real scenario
-      if (!invalidInput) throw new Error('Invalid input');
-    }).toThrow('Invalid input');
-  });
-
+    await expect(async () => {
+      await page.getByTestId('date-picker-trigger').click({ timeout: 1000 })
+    }).rejects.toThrow()
+  })
 })

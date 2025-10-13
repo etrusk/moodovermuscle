@@ -3,41 +3,43 @@ import { PlaywrightAccessibilityTester } from './utils/accessibility-helpers'
 
 test.describe('E2E Accessibility Comprehensive', () => {
   test('Homepage accessibility', async ({ page }) => {
+    // Arrange
     const tester = new PlaywrightAccessibilityTester(page)
+    
+    // Act
     await page.goto('/')
     await page.waitForLoadState('networkidle')
     
-    // Check accessibility but exclude html-has-lang rule as it may be a test server issue
+    // Assert
     await tester.assertNoViolations(undefined, ['html-has-lang'])
   })
 
   test.skip('Booking Wizard Flow Accessibility', async ({ page }) => {
+    // Arrange
     // TODO: Fix dialog opening issue in E2E environment
     // The booking form dialog is not opening in the E2E test environment
     // This needs investigation - possibly related to React hydration or state management
     // Unit tests for accessibility are passing, so the core functionality works
-    
     const tester = new PlaywrightAccessibilityTester(page)
+    
+    // Act
     await page.goto('/')
     await page.waitForLoadState('networkidle')
-    
-    // For now, just test that the button exists and is accessible
     const button = page.getByRole('button', { name: 'Book Your FREE Session', exact: true })
     await button.waitFor({ state: 'visible' })
     
-    // Test accessibility of the homepage with the button
+    // Assert
     await tester.assertNoViolations(undefined, ['html-has-lang'])
+  })
 
-  it('handles error conditions gracefully', () => {
+  test('throws error when accessibility violations found', async ({ page }) => {
     // Arrange
-    const invalidInput = null;
+    await page.goto('/')
+    const tester = new PlaywrightAccessibilityTester(page)
     
     // Act & Assert
-    expect(() => {
-      // This would throw in real scenario
-      if (!invalidInput) throw new Error('Invalid input');
-    }).toThrow('Invalid input');
-  });
-
+    await expect(async () => {
+      await tester.assertNoViolations()
+    }).rejects.toThrow()
   })
 })

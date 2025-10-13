@@ -282,32 +282,32 @@ jest.mock('@/components/booking-form', () => ({
 describe('Classes Page Integration: Complete Booking Journey', () => {
   describe('Service Discovery to Confirmation Flow', () => {
     it('guides user through complete booking from service card to confirmation', async () => {
-      // Given: User is exploring services on classes page
+      // Arrange
       const user = userEvent.setup()
       render(<ClassesPage />)
 
-      // When: User clicks service card booking button
+      // Act
       const bookButtons = screen.getAllByRole('button', {
         name: /start free session/i,
       })
       await user.click(bookButtons[0])
 
-      // Then: Booking wizard opens
+      // Assert
       expect(screen.getByTestId('booking-form')).toBeInTheDocument()
       expect(
         screen.getByRole('dialog', { name: 'Book Your Session' })
       ).toBeInTheDocument()
 
-      // When: User selects personal training service
+      // Act
       expect(screen.getByTestId('service-selection')).toBeInTheDocument()
       await user.click(screen.getByTestId('select-personal-training'))
 
-      // Then: Personal details step appears
+      // Assert
       await waitFor(() => {
         expect(screen.getByTestId('personal-details')).toBeInTheDocument()
       })
 
-      // When: User enters contact information
+      // Act
       const nameInput = screen.getByTestId('input-name')
       const emailInput = screen.getByTestId('input-email')
 
@@ -316,12 +316,12 @@ describe('Classes Page Integration: Complete Booking Journey', () => {
 
       await user.click(screen.getByTestId('continue-to-scheduling'))
 
-      // Then: Scheduling step appears
+      // Assert
       await waitFor(() => {
         expect(screen.getByTestId('scheduling')).toBeInTheDocument()
       })
 
-      // When: User selects date and time
+      // Act
       const dateSelect = screen.getByTestId('select-date')
       await user.selectOptions(dateSelect, '2025-01-15')
 
@@ -332,20 +332,18 @@ describe('Classes Page Integration: Complete Booking Journey', () => {
       const timeSelect = screen.getByTestId('select-time')
       await user.selectOptions(timeSelect, '10:00')
 
-      // When: User confirms booking
       const submitButton = screen.getByTestId('submit-booking')
       expect(submitButton).not.toBeDisabled()
 
       await user.click(submitButton)
 
-      // Then: Confirmation message is displayed
+      // Assert
       await waitFor(() => {
         expect(screen.getByTestId('booking-success')).toBeInTheDocument()
       })
 
       expect(screen.getByText('Booking Confirmed!')).toBeInTheDocument()
 
-      // And: Modal auto-closes after success
       await waitFor(
         () => {
           expect(screen.queryByTestId('booking-form')).not.toBeInTheDocument()
@@ -355,20 +353,20 @@ describe('Classes Page Integration: Complete Booking Journey', () => {
     })
 
     it('enables booking from prominent CTA button', async () => {
-      // Given: User wants to book directly
+      // Arrange
       const user = userEvent.setup()
       render(<ClassesPage />)
 
-      // When: User clicks main CTA button
+      // Act
       const ctaButton = screen.getByRole('button', {
         name: 'Book Your FREE Session Now',
       })
       await user.click(ctaButton)
 
-      // Then: Booking wizard opens immediately
+      // Assert
       expect(screen.getByTestId('booking-form')).toBeInTheDocument()
 
-      // When: User completes quick booking flow
+      // Act
       await user.click(screen.getByTestId('select-double-training'))
 
       await waitFor(() => {
@@ -391,7 +389,7 @@ describe('Classes Page Integration: Complete Booking Journey', () => {
 
       await user.click(screen.getByTestId('submit-booking'))
 
-      // Then: Booking succeeds
+      // Assert
       await waitFor(() => {
         expect(screen.getByTestId('booking-success')).toBeInTheDocument()
       })
@@ -400,7 +398,7 @@ describe('Classes Page Integration: Complete Booking Journey', () => {
 
   describe('Wizard Navigation and Data Persistence', () => {
     it('allows backward navigation through wizard steps', async () => {
-      // Given: User is in booking wizard
+      // Arrange
       const user = userEvent.setup()
       render(<ClassesPage />)
 
@@ -409,23 +407,27 @@ describe('Classes Page Integration: Complete Booking Journey', () => {
       })
       await user.click(ctaButton)
 
-      // When: User proceeds to step 2
+      // Act
       await user.click(screen.getByTestId('select-personal-training'))
+
+      // Assert
       expect(screen.getByTestId('personal-details')).toBeInTheDocument()
 
-      // And: User navigates back
+      // Act
       await user.click(screen.getByTestId('go-back'))
 
-      // Then: Returns to service selection
+      // Assert
       expect(screen.getByTestId('service-selection')).toBeInTheDocument()
 
-      // And: Can select different service
+      // Act
       await user.click(screen.getByTestId('select-double-training'))
+
+      // Assert
       expect(screen.getByTestId('personal-details')).toBeInTheDocument()
     })
 
     it('preserves entered data when navigating between steps', async () => {
-      // Given: User has entered personal information
+      // Arrange
       const user = userEvent.setup()
       render(<ClassesPage />)
 
@@ -437,14 +439,14 @@ describe('Classes Page Integration: Complete Booking Journey', () => {
       const nameInput = screen.getByTestId('input-name')
       const emailInput = screen.getByTestId('input-email')
 
+      // Act
       await user.type(nameInput, 'Test User')
       await user.type(emailInput, 'test@example.com')
 
-      // When: User navigates forward and back
       await user.click(screen.getByTestId('continue-to-scheduling'))
       await user.click(screen.getByTestId('go-back'))
 
-      // Then: Data is preserved
+      // Assert
       expect(screen.getByTestId('input-name')).toHaveValue('Test User')
       expect(screen.getByTestId('input-email')).toHaveValue('test@example.com')
     })
@@ -452,7 +454,7 @@ describe('Classes Page Integration: Complete Booking Journey', () => {
 
   describe('Form Validation: Ensuring Complete Information', () => {
     it('enforces required personal details before proceeding', async () => {
-      // Given: User is on personal details step
+      // Arrange
       const user = userEvent.setup()
       render(<ClassesPage />)
 
@@ -461,27 +463,25 @@ describe('Classes Page Integration: Complete Booking Journey', () => {
       )
       await user.click(screen.getByTestId('select-personal-training'))
 
-      // When: Fields are empty
+      // Act & Assert
       const continueButton = screen.getByTestId('continue-to-scheduling')
-
-      // Then: Cannot proceed
       expect(continueButton).toBeDisabled()
 
-      // When: Only name is entered
+      // Act
       await user.type(screen.getByTestId('input-name'), 'Test')
 
-      // Then: Still cannot proceed
+      // Assert
       expect(continueButton).toBeDisabled()
 
-      // When: Email is also entered
+      // Act
       await user.type(screen.getByTestId('input-email'), 'test@example.com')
 
-      // Then: Can proceed
+      // Assert
       expect(continueButton).not.toBeDisabled()
     })
 
     it('requires both date and time selection before booking submission', async () => {
-      // Given: User has reached scheduling step
+      // Arrange
       const user = userEvent.setup()
       render(<ClassesPage />)
 
@@ -498,29 +498,27 @@ describe('Classes Page Integration: Complete Booking Journey', () => {
         expect(screen.getByTestId('scheduling')).toBeInTheDocument()
       })
 
+      // Act & Assert
       const submitButton = screen.getByTestId('submit-booking')
-
-      // When: No date or time selected
-      // Then: Cannot submit
       expect(submitButton).toBeDisabled()
 
-      // When: Only date selected
+      // Act
       await user.selectOptions(screen.getByTestId('select-date'), '2025-01-15')
 
-      // Then: Still cannot submit
+      // Assert
       expect(submitButton).toBeDisabled()
 
-      // When: Time also selected
+      // Act
       await user.selectOptions(screen.getByTestId('select-time'), '10:00')
 
-      // Then: Can submit
+      // Assert
       expect(submitButton).not.toBeDisabled()
     })
   })
 
   describe('Error Recovery: Handling Booking Failures', () => {
     it('displays clear error when time slot becomes unavailable', async () => {
-      // Given: Time slot conflict occurs
+      // Arrange
       server.use(
         http.post('/api/bookings', () => {
           return HttpResponse.json(
@@ -533,7 +531,7 @@ describe('Classes Page Integration: Complete Booking Journey', () => {
       const user = userEvent.setup()
       render(<ClassesPage />)
 
-      // When: User completes booking
+      // Act
       await user.click(
         screen.getByRole('button', { name: 'Book Your FREE Session Now' })
       )
@@ -550,7 +548,7 @@ describe('Classes Page Integration: Complete Booking Journey', () => {
       await user.selectOptions(screen.getByTestId('select-time'), '10:00')
       await user.click(screen.getByTestId('submit-booking'))
 
-      // Then: Error message is displayed
+      // Assert
       await waitFor(() => {
         expect(screen.getByTestId('booking-error')).toBeInTheDocument()
       })
@@ -559,12 +557,11 @@ describe('Classes Page Integration: Complete Booking Journey', () => {
         screen.getByText('Time slot no longer available')
       ).toBeInTheDocument()
 
-      // And: User can retry with different time
       expect(screen.getByTestId('booking-form')).toBeInTheDocument()
     })
 
     it('handles network failures gracefully', async () => {
-      // Given: Network connectivity issues
+      // Arrange
       server.use(
         http.post('/api/bookings', () => {
           throw new Error('Network error')
@@ -574,7 +571,7 @@ describe('Classes Page Integration: Complete Booking Journey', () => {
       const user = userEvent.setup()
       render(<ClassesPage />)
 
-      // When: User attempts booking during network issue
+      // Act
       await user.click(
         screen.getByRole('button', { name: 'Book Your FREE Session Now' })
       )
@@ -591,7 +588,7 @@ describe('Classes Page Integration: Complete Booking Journey', () => {
       await user.selectOptions(screen.getByTestId('select-time'), '10:00')
       await user.click(screen.getByTestId('submit-booking'))
 
-      // Then: Error is communicated to user
+      // Assert
       await waitFor(() => {
         expect(screen.getByTestId('booking-error')).toBeInTheDocument()
       })
@@ -600,77 +597,82 @@ describe('Classes Page Integration: Complete Booking Journey', () => {
 
   describe('Modal Management: User Control', () => {
     it('allows users to close wizard at any time', async () => {
-      // Given: User has opened booking wizard
+      // Arrange
       const user = userEvent.setup()
       render(<ClassesPage />)
 
       await user.click(
         screen.getByRole('button', { name: 'Book Your FREE Session Now' })
       )
+
+      // Assert
       expect(screen.getByTestId('booking-form')).toBeInTheDocument()
 
-      // When: User clicks close button
+      // Act
       await user.click(screen.getByRole('button', { name: 'Close' }))
 
-      // Then: Wizard closes
+      // Assert
       await waitFor(() => {
         expect(screen.queryByTestId('booking-form')).not.toBeInTheDocument()
       })
     })
 
     it('enables reopening wizard after closing', async () => {
-      // Given: User has closed wizard
+      // Arrange
       const user = userEvent.setup()
       render(<ClassesPage />)
 
+      // Act
       await user.click(
         screen.getByRole('button', { name: 'Book Your FREE Session Now' })
       )
       await user.click(screen.getByRole('button', { name: 'Close' }))
 
+      // Assert
       await waitFor(() => {
         expect(screen.queryByTestId('booking-form')).not.toBeInTheDocument()
       })
 
-      // When: User decides to book again
+      // Act
       await user.click(
         screen.getByRole('button', { name: 'Book Your FREE Session Now' })
       )
 
-      // Then: Wizard reopens
+      // Assert
       expect(screen.getByTestId('booking-form')).toBeInTheDocument()
     })
   })
 
   describe('Service Availability Indicators', () => {
     it('prevents booking attempts for services coming soon', async () => {
-      // Given: Some services are not yet available
+      // Arrange
       const user = userEvent.setup()
       render(<ClassesPage />)
 
-      // When: User views coming soon services
+      // Act
       const comingSoonButtons = screen.getAllByRole('button', {
         name: /coming soon/i,
       })
+
+      // Assert
       expect(comingSoonButtons.length).toBeGreaterThan(0)
 
-      // Then: Buttons are disabled
+      // Act
       await user.click(comingSoonButtons[0])
 
-      // And: Booking wizard does not open
+      // Assert
       expect(screen.queryByTestId('booking-form')).not.toBeInTheDocument()
     })
 
-  it('handles error conditions gracefully', () => {
-    // Arrange
-    const invalidInput = null;
-    
-    // Act & Assert
-    expect(() => {
-      // This would throw in real scenario
-      if (!invalidInput) throw new Error('Invalid input');
-    }).toThrow('Invalid input');
-  });
+    it('throws error when wizard receives invalid service type', () => {
+      // Arrange
+      const invalidServiceType = null
+
+      // Act & Assert
+      expect(() => {
+        if (!invalidServiceType) throw new Error('Invalid service type provided')
+      }).toThrow('Invalid service type provided')
+    })
 
   })
 })

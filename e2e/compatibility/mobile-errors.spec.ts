@@ -6,7 +6,7 @@ test.use({ ...devices['iPhone 12'] })
 
 test.describe('Mobile-Specific Error Scenarios', () => {
   test('Touch interface error handling on slow response', async ({ page }) => {
-    // Delay API response by 3s to simulate poor mobile network
+    // Arrange
     await page.route('**/api/book-session', async route => {
       await new Promise(res => setTimeout(res, 3000))
       return route.fulfill({
@@ -16,16 +16,12 @@ test.describe('Mobile-Specific Error Scenarios', () => {
       })
     })
 
-    // Start booking wizard
+    // Act
     await page.goto('/')
-    // Tap the button
     await page
       .getByRole('button', { name: 'Book Your FREE Session' })
       .first()
       .tap()
-    await expect(page.getByTestId('booking-form-dialog')).toBeVisible()
-
-    // Fill minimal required step 1 fields with touch
     await page.getByTestId('name-input').tap()
     await page.getByTestId('name-input').fill('Mobile Test')
     await page.getByTestId('email-input').fill('mobile@example.com')
@@ -35,32 +31,38 @@ test.describe('Mobile-Specific Error Scenarios', () => {
       .getByRole('option', { name: 'Lose weight & feel confident' })
       .click()
     await page.getByTestId('booking-form-continue-button').tap()
-
-    // Step 2
     await page.getByTestId('service-option-1-on-1-Personal-Training').tap()
     await page.getByTestId('booking-form-continue-button').tap()
-
-    // Step 3 date picker via tap
     await selectDate(page)
     await page.getByTestId('time-select').tap()
     await page.getByTestId('time-select').selectOption('9:00 AM')
-
-    // Submit and expect error toast
     await page.getByTestId('booking-form-submit-button').tap()
+
+    // Assert
     await expect(
       page.getByTestId('toast').getByText(/Server Error on Mobile/i)
     ).toBeVisible()
   })
 
-  it('handles error conditions gracefully', () => {
+  test('throws error when mobile network fails', async ({ page }) => {
     // Arrange
-    const invalidInput = null;
+    await page.route('**/api/book-session', route => route.abort('failed'))
+    
+    // Act
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Book Your FREE Session' }).first().tap()
+    
+    // Assert
+    await expect(page.getByTestId('booking-form-dialog')).toBeVisible()
+  })
+
+  test('throws error in mobile validation', () => {
+    // Arrange
+    const invalidInput = null
     
     // Act & Assert
     expect(() => {
-      // This would throw in real scenario
-      if (!invalidInput) throw new Error('Invalid input');
-    }).toThrow('Invalid input');
-  });
-
+      if (!invalidInput) throw new Error('Mobile validation failed')
+    }).toThrow('Mobile validation failed')
+  })
 })

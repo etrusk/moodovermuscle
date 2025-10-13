@@ -22,13 +22,18 @@ describe('Email environment variable validation', () => {
   ];
 
   requiredEnvVars.forEach((varName) => {
-    it(`throws an error if ${varName} is missing`, () => {
+    it(`throws error when ${varName} is missing`, () => {
+      // Arrange
       delete process.env[varName];
+      const expectedErrorPattern = new RegExp(`Missing environment variable for email service: ${varName}`)
+      
+      // Act
+      const testFn = () => require('@/lib/email');
+      
+      // Assert
       // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
       // Test uses variable name to verify error message - not user-controlled input
-      expect(() => require('@/lib/email')).toThrow(
-        new RegExp(`Missing environment variable for email service: ${varName}`)
-      );
+      expect(testFn).toThrow(expectedErrorPattern);
     });
   });
 });

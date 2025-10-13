@@ -6,9 +6,8 @@ test.describe('Cross-Browser Error Scenarios', () => {
     page,
     browserName,
   }) => {
+    // Arrange
     test.skip(browserName !== 'firefox', 'Test specific to Firefox')
-
-    // Stub 500 error
     await page.route('**/api/book-session', route =>
       route.fulfill({
         status: 500,
@@ -17,15 +16,13 @@ test.describe('Cross-Browser Error Scenarios', () => {
       })
     )
 
-    // Start booking flow
+    // Act - Start booking flow and submit
     await page.goto('/')
     await page
       .getByRole('button', { name: 'Book Your FREE Session' })
       .first()
       .click()
     await page.getByTestId('booking-form-dialog').waitFor()
-
-    // Fill minimal fields
     await page.getByTestId('name-input').fill('Firefox Test')
     await page.getByTestId('email-input').fill('ff@example.com')
     await page.getByTestId('phone-input').fill('0400000000')
@@ -34,29 +31,27 @@ test.describe('Cross-Browser Error Scenarios', () => {
       .getByRole('option', { name: 'Lose weight & feel confident' })
       .click()
     await page.getByTestId('booking-form-continue-button').click()
-
     await page.getByTestId('service-option-1-on-1-Personal-Training').click()
     await page.getByTestId('booking-form-continue-button').click()
-
     await selectDate(page)
     await page.getByTestId('time-select').selectOption('12:00 PM')
-
-    // Submit and expect error toast
     await page.getByTestId('booking-form-submit-button').click()
+
+    // Assert
     await expect(
       page.getByTestId('toast').getByText(/Internal Server Error/i)
     ).toBeVisible()
   })
 
-  it('handles error conditions gracefully', () => {
+  test('throws error when browser-specific feature fails', async ({ page }) => {
     // Arrange
-    const invalidInput = null;
+    await page.goto('/')
     
     // Act & Assert
-    expect(() => {
-      // This would throw in real scenario
-      if (!invalidInput) throw new Error('Invalid input');
-    }).toThrow('Invalid input');
-  });
-
+    await expect(async () => {
+      await page.evaluate(() => {
+        throw new Error('Browser feature not supported')
+      })
+    }).rejects.toThrow()
+  })
 })

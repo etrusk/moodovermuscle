@@ -113,6 +113,7 @@ describe('Booking API Workflow Integration', () => {
       
       // Assert
       expect(response.status).toBe(201)
+      expect(mockPrisma.$transaction).toHaveBeenCalledTimes(1)
       const responseData = await response.json()
       expect(responseData.message).toMatch(/success/i)
       expect(responseData.data).toMatchObject({

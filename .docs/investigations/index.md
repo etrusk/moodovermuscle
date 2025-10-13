@@ -20,6 +20,92 @@ Reference for debugging similar issues. Check here before investigating problems
 
 ## Testing Issues
 
+### E2E Accessibility Test Dialog Not Opening (2025-10-13) - ✅ RESOLVED
+
+**Severity**: Low (Test was incomplete, not a functional bug)
+
+**Problem**: E2E accessibility test `'Booking Wizard Flow Accessibility'` in `e2e/accessibility-comprehensive.spec.ts` was skipped with comment claiming "dialog is not opening in E2E test environment" and suggesting hydration/state management issues.
+
+**Root Cause**:
+**The test never clicked the button to open the dialog.** This was not a hydration issue, timing issue, or framework bug - the test was simply incomplete.
+
+**Original Test Code** (lines 17-33):
+```typescript
+test.skip('Booking Wizard Flow Accessibility', async ({ page }) => {
+  // TODO: Fix dialog opening issue in E2E environment
+  // The booking form dialog is not opening in the E2E test environment
+  const tester = new PlaywrightAccessibilityTester(page)
+  
+  await page.goto('/')
+  await page.waitForLoadState('networkidle')
+  const button = page.getByRole('button', { name: 'Book Your FREE Session', exact: true })
+  await button.waitFor({ state: 'visible' })
+  
+  // Assert
+  await tester.assertNoViolations(undefined, ['html-has-lang'])
+})
+```
+
+**What Was Missing**:
+- Test found the button and waited for it to be visible
+- **Never called `.click()` on the button**
+- Attempted to run accessibility checks without opening the dialog
+- Dialog naturally wasn't visible because it was never opened
+
+**Why This Was Misleading**:
+- Working E2E test in `e2e/booking-wizard.spec.ts` (lines 8-12) clearly shows `.click()` is required
+- Unit tests pass because they render dialog with `open={true}` prop
+- TODO comment incorrectly attributed issue to React hydration/state management
+- Symptoms (dialog not visible) masked simple root cause (missing user action)
+
+**Solution Applied**:
+Added missing click action following the pattern from working E2E tests:
+
+```typescript
+test('Booking Wizard Flow Accessibility', async ({ page }) => {
+  const tester = new PlaywrightAccessibilityTester(page)
+  
+  await page.goto('/')
+  await page.waitForLoadState('networkidle')
+  
+  // Click button to open dialog (this was missing!)
+  await page
+    .getByRole('button', { name: 'Book Your FREE Session', exact: true })
+    .first()
+    .click()
+  
+  // Wait for dialog to be visible
+  await page.getByTestId('booking-form-dialog').waitFor({ state: 'visible' })
+  
+  // Assert
+  await tester.assertNoViolations(undefined, ['html-has-lang'])
+})
+```
+
+**Files Modified**:
+- `e2e/accessibility-comprehensive.spec.ts` - Added missing `.click()` call, removed `.skip()`, cleaned up misleading TODO
+
+**Prevention**:
+- Always compare skipped test with working similar tests before investigating complex issues
+- Check test execution flow systematically (arrange → act → assert)
+- Don't assume framework issues when user actions are missing
+- Reference working E2E patterns from same codebase
+
+**Key Lessons**:
+1. **Test completeness matters** - Missing user actions != framework bugs
+2. **Compare with working tests first** - `e2e/booking-wizard.spec.ts` showed correct pattern
+3. **Unit vs E2E differences** - Unit tests bypass interaction by setting `open={true}`, E2E requires real clicks
+4. **Misleading symptoms** - "Dialog not opening" technically true, but root cause was "dialog never triggered"
+5. **YAGNI for debugging** - No need for hydration waits, force clicks, or complex workarounds when simple action is missing
+
+**Related Files**:
+- `e2e/accessibility-comprehensive.spec.ts` - Fixed test
+- `e2e/booking-wizard.spec.ts` - Reference implementation showing correct pattern
+- `components/booking-form.tsx` - Dialog component (requires `isOpen={true}` state)
+- `app/page.tsx` - Page managing dialog state via `setIsBookingOpen(true)` on button click
+
+## Testing Issues
+
 ### Critical Test Suite Failures (2025-10-11)
 **Problem**: 17 tests failing across admin and booking integration tests
 **Root Causes**:

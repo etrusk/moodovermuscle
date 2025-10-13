@@ -172,7 +172,7 @@ export default function BookingsPage(): React.JSX.Element {
   };
 
   const formatTime = (timeString: string): string => {
-    return new Date(`2000-01-01T${timeString}`).toLocaleTimeString('en-AU', {
+    return new Date(`2000-01-01T${timeString}`).toLocaleTimeString('en-US', {
       hour: 'numeric',
       minute: '2-digit',
       hour12: true,

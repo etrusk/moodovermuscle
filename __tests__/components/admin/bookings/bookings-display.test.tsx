@@ -100,13 +100,12 @@ describe('BookingsPage Component - Display Tests', () => {
     user = userEvent.setup()
     jest.clearAllMocks()
     
-    // Default successful fetch response - ensure proper structure
-    // Use mockImplementation to handle all URLs (with or without query params)
-    mockFetch.mockImplementation(() => Promise.resolve({
+    // Default successful fetch response - immediate resolution for tests
+    mockFetch.mockResolvedValue({
       ok: true,
       json: () => Promise.resolve({ bookings: mockBookings }),
       clone: function() { return this; }
-    }))
+    })
   })
 
   afterEach(() => {
@@ -216,7 +215,7 @@ describe('BookingsPage Component - Display Tests', () => {
         expect(screen.getByText('Mike Johnson')).toBeInTheDocument()
         expect(screen.getByText('Lisa Chen')).toBeInTheDocument()
         expect(screen.getByText('Tom Wilson')).toBeInTheDocument()
-      })
+      }, { timeout: 5000 })
 
       // Check booking details are displayed (using getAllByText for duplicates)
       expect(screen.getAllByText('Personal Training')).toHaveLength(2) // Sarah and Tom

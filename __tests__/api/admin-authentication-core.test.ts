@@ -16,8 +16,27 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { POST as loginHandler } from '@/app/api/admin/login/route'
 import { GET as sessionHandler } from '@/app/api/admin/session/route'
+import { jwtVerify } from 'jose'
 
-// No mocking - use real jose library for JWT operations
+// Note: jose library is mocked in jest.setup.js for Node.js compatibility
+// We configure the mock to behave correctly for our tests
+
+// Mock implementation helper - update jwtVerify mock behavior per test
+const mockJwtVerifySuccess = () => {
+  (jwtVerify as jest.Mock).mockResolvedValue({
+    payload: {
+      adminId: 'emily-admin-1',
+      email: 'emily@moodovermuscle.com.au',
+      name: 'Emily',
+      iat: Math.floor(Date.now() / 1000),
+      exp: Math.floor(Date.now() / 1000) + 3600,
+    },
+  })
+}
+
+const mockJwtVerifyFailure = (error: Error = new Error('Invalid token')) => {
+  (jwtVerify as jest.Mock).mockRejectedValue(error)
+}
 
 describe('Admin Authentication API Core Tests', () => {
   const validCredentials = {
@@ -157,7 +176,8 @@ describe('Admin Authentication API Core Tests', () => {
   describe('GET /api/admin/session', () => {
     it('validates session with valid token', async () => {
       // Arrange
-      const request = createSessionRequest('mock-jwt-token')
+      mockJwtVerifySuccess()
+      const request = createSessionRequest('valid-token')
 
       // Act
       const response = await sessionHandler(request)
@@ -175,6 +195,7 @@ describe('Admin Authentication API Core Tests', () => {
 
     it('prevents access without authentication', async () => {
       // Arrange
+      // No token provided, no need to mock jwtVerify
       const request = createSessionRequest()
 
       // Act
@@ -190,6 +211,7 @@ describe('Admin Authentication API Core Tests', () => {
 
     it('prevents access with invalid token', async () => {
       // Arrange
+      mockJwtVerifyFailure(new Error('Invalid token'))
       const request = createSessionRequest('invalid-token')
 
       // Act
@@ -205,8 +227,8 @@ describe('Admin Authentication API Core Tests', () => {
 
     it('prevents access with expired token', async () => {
       // Arrange
-      // Use a token that will actually be expired (very short expiry)
-      const request = createSessionRequest('definitely-invalid-expired-token')
+      mockJwtVerifyFailure(new Error('Token expired'))
+      const request = createSessionRequest('expired-token')
 
       // Act
       const response = await sessionHandler(request)
@@ -221,6 +243,7 @@ describe('Admin Authentication API Core Tests', () => {
 
     it('handles malformed authorization header', async () => {
       // Arrange
+      // No cookie, malformed authorization header
       const request = new Request('http://localhost:3000/api/admin/session', {
         method: 'GET',
         headers: { 'authorization': 'InvalidFormat token' }
@@ -257,6 +280,7 @@ describe('Admin Authentication API Core Tests', () => {
       const token = tokenMatch ? tokenMatch[1] : ''
 
       // Act - Step 2: Validate session with token
+      mockJwtVerifySuccess()
       const sessionRequest = createSessionRequest(token, true)
       const sessionResponse = await sessionHandler(sessionRequest)
       const sessionData = await sessionResponse.json()

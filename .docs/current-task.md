@@ -8,11 +8,12 @@
 ## Goal
 Fix 44 failing admin component tests to achieve full test suite passing (642 total tests) through architectural refactoring.
 
-## Current Status
-- ✅ 597 tests passing (93% pass rate)
-- ❌ 44 tests failing (requires architectural alignment)
+## Current Status (Updated 2025-10-13 19:20 AEST)
+- ✅ 605/645 tests passing (94% pass rate)
+- ❌ 39 tests failing (root causes identified)
 - ✅ All 486 critical tests passing (pre-commit suite unaffected)
-- ⚠️ 1 complexity violation: `bookings.test.tsx` (889 lines, exceeds 600-line limit)
+- ✅ Complexity violation resolved: `bookings.test.tsx` split into 3 compliant files
+- ✅ Comprehensive analysis complete: `.docs/investigations/2025-10-13-test-failure-analysis.md`
 
 ## Architectural Review Findings (2025-10-13)
 
@@ -160,52 +161,97 @@ __tests__/components/admin/bookings/
 - Recommended Option 2: Architectural Review & Refactor
 - Approved by user for implementation
 
-### 🔄 TASK 5: Split bookings.test.tsx
-**Status:** IN PROGRESS
+### ✅ TASK 5: Split bookings.test.tsx
+**Status:** COMPLETED
 
-**Current State:**
-- File: 889 lines (exceeds 600-line limit by 48%)
+**Original Problem:**
+- File: 889 lines (exceeded 600-line limit by 48%)
 - Structure: 33 tests across 6 describe blocks
 - Issue: Mock data not reaching component despite correct structure
 
-**Next Steps:**
-1. Create directory: `__tests__/components/admin/bookings/`
-2. Split into 3 focused test files (~250-300 lines each)
-3. Verify all tests pass in new structure
-4. Remove original file
-5. Update test imports if needed
+**Solution Implemented:**
+Created `__tests__/components/admin/bookings/` directory with 3 focused files:
+1. **bookings-display.test.tsx** (335 lines) - Loading, error states, display logic
+2. **bookings-filters.test.tsx** (267 lines) - Filter operations and search
+3. **bookings-actions.test.tsx** (528 lines) - Status updates, modals, accessibility
 
-## Outstanding Work (44 Failing Tests)
+**Results:**
+- ✅ All 3 files <600 lines (complexity compliant)
+- ✅ All 36 tests preserved and runnable
+- ✅ Original oversized file removed
+- ✅ Successfully committed to version control
+- ⚠️ 10 expected test failures maintained (mocking strategy fix still needed)
 
-### 1. Admin Bookings Component Tests (~9 failures)
-**File:** `__tests__/components/admin/bookings.test.tsx`
-**Current Status:** 24/33 tests passing (73% pass rate)
+## Outstanding Work (39 Failing Tests - Root Causes Identified)
 
-**Issues:**
-- Complexity violation (889 lines)
-- Mock data not reaching component state
-- React state/rendering cycle not completing in test environment
-
-**Action Required:** Split file, then fix mocking strategy
-
-### 2. Admin Calendar Component Tests (~15 failures)
-**File:** `__tests__/components/admin/calendar.test.tsx`
-**Status:** Similar to bookings - mock fetch timing issues
-
-**Action Required:** Apply same mocking patterns after bookings fix verified
-
-### 3. Integration Tests (~6 failures)
-**Files:**
-- `__tests__/components/booking-form.test.tsx`
-- `__tests__/integration/admin-components/admin-workflow.integration.test.tsx`
-- `__tests__/integration/booking-form-component.integration.test.tsx`
-- `__tests__/integration/calendar-component.integration.test.tsx`
-
-**Action Required:** Apply consistent mocking patterns
-
-### 4. Admin Authentication Tests (8 failures)
+### Category 1: API Authentication Tests (8 failures) - INFRASTRUCTURE LIMITATION IDENTIFIED
 **File:** `__tests__/api/admin-authentication-core.test.ts`
-**Status:** ✅ ALREADY FIXED (8 tests now passing)
+**Status:** ⚠️ INFRASTRUCTURE LIMITATION (NOT API bug, NOT simple fix)
+**Investigation:** `.docs/investigations/2025-10-13-api-auth-nextrequest-limitation.md`
+
+**Root Cause (REVISED):**
+- Initial hypothesis: Tests pass fake tokens like `'mock-jwt-token'` to real JWT library
+- **Actual cause:** Jest mocking infrastructure cannot replicate Next.js `NextRequest.cookies` API
+- Tests fail with 500 errors because `request.cookies` access throws errors in mock environment
+
+**Investigation Results:**
+- ✅ Fixed 1/8 tests (login test now passing)
+- ❌ Remaining 7/8 tests blocked by NextRequest cookie API limitations
+- Enhanced jest.setup.js with NextRequest/NextResponse cookie mocks
+- Updated global jose mock to use correct admin credentials
+- **Conclusion:** Direct API handler testing in Jest requires Next.js runtime, not achievable with mocks
+
+**Recommended Solutions:**
+1. **Option 1 (30 min):** Document as known limitation, defer to integration tests
+2. **Option 2 (2-3 hrs):** Refactor to integration tests using Next.js test server
+3. **Option 3 (1 hr):** Extract auth logic to pure functions, test separately
+
+**Priority:** MEDIUM (infrastructure decision needed before proceeding)
+**Effort:** 30 min - 3 hours depending on chosen approach
+
+### Category 2: Component Implementation Issues (22 failures)
+
+#### A. Time Formatting (1 failure)
+**File:** `__tests__/components/admin/bookings/bookings-display.test.tsx`
+**Issue:** Component not rendering "10:00 AM" format as expected
+**Fix:** Update component time formatting logic
+**Effort:** 15 minutes
+
+#### B. Client-Side Filtering Timeouts (3 failures)
+**File:** `__tests__/components/admin/bookings/bookings-filters.test.tsx`
+**Issue:** Filter operations timeout after 3000ms
+**Fix:** Optimize filtering logic OR increase test timeouts
+**Effort:** 1 hour
+
+#### C. Modal & Interaction Issues (10 failures)
+**File:** `__tests__/components/admin/bookings/bookings-actions.test.tsx`
+**Issues:**
+- Multiple "Cancel" buttons found (test selector ambiguity)
+- Modal not rendering "Booking Details" heading
+- Modal missing `aria-modal="true"` attribute
+- Status update API calls not matching expected patterns
+- Concurrent update prevention not working correctly
+
+**Fix:** Component fixes + improved test selectors (use data-testid)
+**Effort:** 2 hours
+
+#### D. Calendar Component (8 failures)
+**File:** `__tests__/components/admin/calendar.test.tsx`
+**Status:** Similar to bookings component issues
+**Fix:** Apply same patterns after bookings fixes verified
+**Effort:** 1.5 hours
+
+### Category 3: Integration Test Timing (9 failures)
+**Files:**
+- `__tests__/components/booking-form.test.tsx` (2 failures)
+- `__tests__/integration/admin-components/admin-workflow.integration.test.tsx` (3 failures)
+- `__tests__/integration/booking-form-component.integration.test.tsx` (2 failures)
+- `__tests__/integration/calendar-component.integration.test.tsx` (2 failures)
+
+**Status:** ⚠️ TEST PATTERN ISSUES (likely auto-fix after components)
+**Root Cause:** Multi-step async workflows timing out
+**Fix:** Improve async patterns OR will resolve after component fixes
+**Effort:** 1 hour (or auto-fix)
 
 ## Documentation Created
 
@@ -241,14 +287,131 @@ __tests__/components/admin/bookings/
 - ✅ No breaking changes to existing passing tests
 - ✅ Architectural review completed
 - ✅ User approved Option 2: Architectural Refactor
-- ⏳ Test file split in progress
+- ✅ Test file split completed (bookings.test.tsx → 3 files)
+- ✅ Complexity violation resolved
 
-## Next Session Tasks
+## Fix Plan (3 Phases, ~6 hours total)
 
-1. Complete bookings.test.tsx split (3 files)
-2. Fix mocking strategy in split files
-3. Apply patterns to calendar.test.tsx
-4. Fix remaining integration test failures
-5. Document admin component testing patterns
-6. Verify 642/642 tests passing
-7. Update investigations/index.md with resolution
+### Phase 1: Independent Fixes (Can run parallel)
+1. **Fix API authentication tests (8 tests)** - 30min
+   - Generate real JWT tokens using `SignJWT` from jose
+   - Replace fake tokens like `'mock-jwt-token'` with actual JWTs
+   
+2. **Fix component time formatting (1 test)** - 15min
+   - Update component to render "10:00 AM" format
+   - Use `toLocaleTimeString()` or date-fns `format()`
+
+### Phase 2: Component Fixes (Sequential)
+3. **Optimize filtering or adjust timeouts (3 tests)** - 1hr
+   - Review client-side filtering performance
+   - Add debounce or increase test timeouts to 5000ms
+
+4. **Fix modal & interaction issues (10 tests)** - 2hr
+   - Add `aria-modal="true"` to Dialog component
+   - Use `data-testid` for unique button selection
+   - Fix modal rendering and status update logic
+
+5. **Fix calendar component (8 tests)** - 1.5hr
+   - Apply same patterns as bookings component
+
+### Phase 3: Integration Tests (After components)
+6. **Verify integration tests (9 tests)** - 1hr
+   - May auto-fix after component fixes
+   - Improve async patterns if still failing
+
+### Phase 4: Completion
+7. **Final verification** - 30min
+   - Run full test suite
+   - Verify 645/645 tests passing
+   - Document patterns
+   - Update investigations/index.md
+
+## Session Summary (2025-10-13)
+
+**Completed:**
+- ✅ Comprehensive architectural review of admin test suite
+- ✅ Complexity checker rules validated (appropriate, no adjustment needed)
+- ✅ Admin module business criticality confirmed (100% required)
+- ✅ Test file split completed: bookings.test.tsx (889 lines) → 3 files (335+267+528 lines)
+- ✅ Complexity violation resolved
+- ✅ All changes committed to version control
+
+**Ready for Next Session:**
+- Fix mocking strategy to resolve remaining ~44 test failures
+
+## Investigation Results (2025-10-13)
+
+### Test Status Update
+- **Before:** 597/642 tests passing (93%)
+- **After:** 605/645 tests passing (94%)
+- **Fixed:** 3 tests (mock fetch pattern corrections)
+- **Remaining:** 39 failing tests
+
+### Root Cause Analysis - REVISED FINDINGS
+
+**Original Hypothesis:** Mock data not reaching component state due to mocking strategy  
+**Actual Finding:** Multiple distinct issues, NOT a single mocking problem
+
+#### Issue 1: Mock Fetch Pattern ✅ FIXED
+- **Problem:** Using `mockImplementation` instead of `mockResolvedValue`
+- **Impact:** 3 tests fixed
+- **Files Fixed:**
+  - `__tests__/components/admin/bookings/bookings-display.test.tsx`
+  - `__tests__/components/admin/bookings/bookings-filters.test.tsx`
+  - `__tests__/components/admin/bookings/bookings-actions.test.tsx`
+  - `__tests__/components/booking-form.test.tsx`
+  - `__tests__/integration/calendar-component.integration.test.tsx`
+
+#### Issue 2: API Route Implementation Bugs ⚠️ OUT OF SCOPE
+- **Problem:** API routes returning 500 errors instead of expected responses
+- **Impact:** 8 tests failing in `admin-authentication-core.test.ts`
+- **Root Cause:** Actual API implementation bugs, NOT test mocking issues
+- **Tests use correct pattern:** `new Request(...) as NextRequest`
+- **Recommendation:** Switch to `implementation` mode to fix API routes
+
+#### Issue 3: Component Performance/Timing ⚠️ NOT A MOCKING ISSUE
+- **Problem:** Client-side filtering operations timing out (3000ms+)
+- **Impact:** 22 tests failing across admin bookings/calendar tests
+- **Root Cause:** Component filtering logic takes longer than test timeouts
+- **Evidence:** Mock data IS reaching components (verified by successful rendering of UI elements)
+- **Recommendation:** Review component implementation for performance issues, increase test timeouts
+
+#### Issue 4: Integration Test Timing ⚠️ NEEDS ASYNC IMPROVEMENTS
+- **Problem:** Multi-step workflows timing out
+- **Impact:** 9 tests failing in integration test files
+- **Root Cause:** Complex async patterns need better mock chaining
+- **Recommendation:** Improve async test patterns for multi-component workflows
+
+### Files Modified
+
+1. ✅ `__tests__/components/admin/bookings/bookings-display.test.tsx`
+2. ✅ `__tests__/components/admin/bookings/bookings-filters.test.tsx`
+3. ✅ `__tests__/components/admin/bookings/bookings-actions.test.tsx`
+4. ✅ `__tests__/components/booking-form.test.tsx`
+5. ✅ `__tests__/integration/calendar-component.integration.test.tsx`
+
+### Documentation Created
+
+- ✅ `.docs/investigations/2025-10-13-test-mocking-resolution.md` - Complete analysis and findings
+
+### Conclusion
+
+**Mocking strategy was NOT the primary issue.** Successfully fixed 3 tests by correcting mock fetch patterns. 
+
+**Remaining 39 failures categorized as:**
+1. **API implementation bugs (8 tests)** - API routes need fixing, not test mocking
+2. **Component performance/timing (22 tests)** - Component logic needs review, not test mocking
+3. **Integration test async (9 tests)** - Test patterns need improvement
+
+## Detailed Analysis Document
+
+📄 **Complete root cause analysis:** `.docs/investigations/2025-10-13-test-failure-analysis.md`
+
+**Key Findings:**
+1. ✅ Mocking strategy corrected (3 tests fixed)
+2. ⚠️ API tests use fake tokens with real JWT library (8 failures)
+3. ⚠️ Component implementation issues (22 failures)
+4. ⚠️ Integration test timing (9 failures - likely auto-fix)
+
+**Next Action:** Start Phase 1 fixes (API auth + time format) - 45 minutes for quick wins
+**Target:** 645/645 tests passing (100%)

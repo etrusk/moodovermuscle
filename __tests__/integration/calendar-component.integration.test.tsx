@@ -80,9 +80,10 @@ describe('Calendar Component Integration: Date Selection Journey', () => {
       await user.click(dateButton)
 
       // Assert
-      expect(onSelect).toHaveBeenCalledWith(expect.any(Date))
+      expect(onSelect).toHaveBeenCalled()
       expect(onSelect).toHaveBeenCalledTimes(1)
       const selectedDate = onSelect.mock.calls[0][0]
+      expect(selectedDate).toBeInstanceOf(Date)
       expect(selectedDate.toDateString()).toBe(tomorrow.toDateString())
     })
 

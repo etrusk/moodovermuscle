@@ -100,13 +100,12 @@ describe('BookingsPage Component - Filter Tests', () => {
     user = userEvent.setup()
     jest.clearAllMocks()
     
-    // Default successful fetch response - ensure proper structure
-    // Use mockImplementation to handle all URLs (with or without query params)
-    mockFetch.mockImplementation(() => Promise.resolve({
+    // Default successful fetch response - immediate resolution for tests
+    mockFetch.mockResolvedValue({
       ok: true,
       json: () => Promise.resolve({ bookings: mockBookings }),
       clone: function() { return this; }
-    }))
+    })
   })
 
   afterEach(() => {

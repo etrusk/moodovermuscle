@@ -329,22 +329,85 @@ jest.mock('next/navigation', () => ({
   },
 }))
 
-// Mock NextResponse for Node.js environment integration tests
-jest.mock('next/server', () => ({
-  NextResponse: {
-    json: (data, init) => {
-      const body = JSON.stringify(data)
-      return {
-        json: () => Promise.resolve(data),
-        status: init?.status || 200,
-        statusText: init?.statusText || 'OK',
-        headers: new Map(Object.entries(init?.headers || {})),
-        body,
-        ok: (init?.status || 200) >= 200 && (init?.status || 200) < 300,
-      }
+// Mock NextResponse and NextRequest for Node.js environment integration tests
+jest.mock('next/server', () => {
+  return {
+    NextResponse: {
+      json: (data, init) => {
+        const body = JSON.stringify(data)
+        const headers = new Map(Object.entries(init?.headers || {}))
+        
+        const response = {
+          json: () => Promise.resolve(data),
+          status: init?.status || 200,
+          statusText: init?.statusText || 'OK',
+          headers: {
+            get: (name) => headers.get(name.toLowerCase()),
+            set: (name, value) => headers.set(name.toLowerCase(), value),
+            has: (name) => headers.has(name.toLowerCase()),
+            delete: (name) => headers.delete(name.toLowerCase()),
+            entries: () => headers.entries(),
+          },
+          body,
+          ok: (init?.status || 200) >= 200 && (init?.status || 200) < 300,
+          cookies: {
+            set: (name, value, options) => {
+              // Create a cookie header
+              const cookieParts = [`${name}=${value}`]
+              if (options?.maxAge) cookieParts.push(`Max-Age=${options.maxAge}`)
+              if (options?.path) cookieParts.push(`Path=${options.path}`)
+              if (options?.httpOnly) cookieParts.push('HttpOnly')
+              if (options?.secure) cookieParts.push('Secure')
+              if (options?.sameSite) cookieParts.push(`SameSite=${options.sameSite}`)
+              
+              headers.set('set-cookie', cookieParts.join('; '))
+            },
+          }
+        }
+        
+        return response
+      },
     },
-  },
-}))
+    NextRequest: class NextRequest extends global.Request {
+      constructor(input, init) {
+        super(input, init)
+        
+        // Parse cookies from cookie header
+        const cookieHeader = this.headers.get('cookie') || ''
+        const cookieMap = new Map()
+        
+        if (cookieHeader) {
+          cookieHeader.split(';').forEach(cookie => {
+            const [name, ...valueParts] = cookie.trim().split('=')
+            if (name) {
+              cookieMap.set(name, valueParts.join('='))
+            }
+          })
+        }
+        
+        // Implement NextRequest cookies API
+        this.cookies = {
+          get: (name) => {
+            const value = cookieMap.get(name)
+            return value ? { name, value } : undefined
+          },
+          getAll: () => {
+            return Array.from(cookieMap.entries()).map(([name, value]) => ({ name, value }))
+          },
+          set: (name, value) => {
+            cookieMap.set(name, value)
+          },
+          delete: (name) => {
+            cookieMap.delete(name)
+          },
+          has: (name) => {
+            return cookieMap.has(name)
+          }
+        }
+      }
+    }
+  }
+})
 
 // Mock window.matchMedia (only in jsdom environment)
 if (typeof window !== 'undefined') {
@@ -436,11 +499,12 @@ jest.mock('jose', () => ({
     setExpirationTime: jest.fn().mockReturnThis(),
     sign: jest.fn().mockResolvedValue('mock-jwt-token'),
   })),
+  // Mock jwtVerify with correct admin credentials that match lib/auth/admin-auth.ts
   jwtVerify: jest.fn().mockResolvedValue({
     payload: {
-      adminId: 'test-admin-id',
-      email: 'admin@test.com',
-      name: 'Test Admin',
+      adminId: 'emily-admin-1',
+      email: 'emily@moodovermuscle.com.au',
+      name: 'Emily',
       iat: Math.floor(Date.now() / 1000),
       exp: Math.floor(Date.now() / 1000) + 3600,
     },

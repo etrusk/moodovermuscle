@@ -1,16 +1,111 @@
-# Admin Test Suite Fixes
+# Admin Test Suite Fixes - Architectural Refactor
 
 **Status:** In Progress
 **Started:** 2025-10-13
 **Mode:** Navigator → Investigation → Implementation
+**Decision:** Option 2 - Architectural Review & Refactor (APPROVED)
 
 ## Goal
-Fix 52 failing admin component tests to achieve full test suite passing (642 total tests).
+Fix 44 failing admin component tests to achieve full test suite passing (642 total tests) through architectural refactoring.
 
 ## Current Status
 - ✅ 597 tests passing (93% pass rate)
 - ❌ 44 tests failing (requires architectural alignment)
 - ✅ All 486 critical tests passing (pre-commit suite unaffected)
+- ⚠️ 1 complexity violation: `bookings.test.tsx` (889 lines, exceeds 600-line limit)
+
+## Architectural Review Findings (2025-10-13)
+
+### Complexity Checker Rules Assessment
+**Verdict**: Rules are **appropriate and well-designed** for this project.
+
+**Current Test File Limits:**
+- Unit tests: 600 lines (2x normal 300-line limit)
+- Integration tests: 800 lines (2.67x normal limit)
+- Rationale: Tests naturally require more setup, mocks, and AAA pattern structure
+
+**Decision**: SPLIT test files, NOT adjust limits
+- Limits balance readability vs. fragmentation effectively
+- Test framework detection properly excludes test callbacks from complexity checks
+- 600-line limit is reasonable for focused test suites
+
+### Admin Module Business Criticality
+**Status**: **CRITICAL (100% Required for Business Operations)**
+
+**Business Functions:**
+1. **Booking Management** - Core business operation
+   - View/filter/search all client bookings
+   - Update booking statuses (PENDING → CONFIRMED → COMPLETED)
+   - Cancel bookings with audit trail
+   
+2. **Calendar Management** - Schedule coordination
+   - Visual calendar view of bookings
+   - Multi-booking day management
+   - Real-time availability assessment
+
+3. **Authentication & Authorization** - Security
+   - Admin-only access to sensitive client data (PII)
+   - HTTP-only cookie-based security (best practice)
+   - Session management and validation
+
+**Business Impact:**
+- Revenue Impact: HIGH (cannot manage paid bookings)
+- Operational Impact: HIGH (cannot coordinate schedules)
+- Data Security: HIGH (protects PII: names, emails, phones, health goals)
+
+**Current Admin Test Status:**
+- 44 failures out of ~70 admin tests (~37% failure rate)
+- **Conclusion**: 37% failure rate is unacceptable for business-critical infrastructure
+
+## Approved Strategy: Architectural Review & Refactor
+
+### Scope
+1. **Split oversized test files** (bookings: 889 → 3×300 lines)
+2. **Review component mocking strategy** across admin tests
+3. **Implement consistent async rendering patterns** (proper waitFor usage)
+4. **Verify cookie-based auth pattern** in all admin tests
+
+### Effort Estimate: 6-8 hours
+- Split test files: 2 hours
+- Fix mocking strategy: 3-4 hours
+- Verification & documentation: 1-2 hours
+
+### Success Criteria
+- [ ] 642/642 tests passing (100%)
+- [ ] All test files <600 lines (complexity compliance)
+- [ ] Admin module fully validated by automated tests
+- [ ] Patterns documented for institutional memory
+- [ ] Pre-commit gates remain green
+
+### Priority Sequence
+1. **IMMEDIATE**: Split `bookings.test.tsx` into 3 focused files (resolves complexity violation)
+2. **HIGH**: Fix mocking strategy for admin component tests (resolves remaining failures)
+3. **HIGH**: Apply same patterns to `calendar.test.tsx` if needed (proactive)
+4. **MEDIUM**: Document patterns in `.docs/patterns/admin-component-testing.md`
+
+### Proposed Test File Split
+```
+__tests__/components/admin/bookings/
+  ├── bookings-display.test.tsx       (~250 lines)
+  │   ├── Loading & Error States
+  │   ├── Bookings Display
+  │   └── Performance & Edge Cases
+  │
+  ├── bookings-filters.test.tsx       (~300 lines)
+  │   ├── Filter Operations
+  │   └── Search & Date Range Logic
+  │
+  └── bookings-actions.test.tsx       (~300 lines)
+      ├── Status Update Functionality
+      ├── Modal Interactions
+      └── Accessibility & UX
+```
+
+**Benefits:**
+- Each file under 600-line limit
+- Focused test responsibilities (follows SRP)
+- Faster test execution (parallel runs)
+- Easier to locate and maintain specific test scenarios
 
 ## Work Completed
 
@@ -47,85 +142,70 @@ Fix 52 failing admin component tests to achieve full test suite passing (642 tot
    - Error: `Cannot read properties of undefined (reading 'bookings')`
    - Solution: Proper async/await patterns and mock response timing
 
-### 🔄 TASK 3: Apply Fixes (PARTIAL - INVESTIGATION REQUIRED)
-**Status:** BLOCKED - Requires architectural review
+### ✅ TASK 3: Partial Fixes Applied
+**Status:** COMPLETED (Phase 1)
 
 **Phase 1 - Completed:**
 - ✅ Fixed NextRequest constructor pattern in `admin-authentication-core.test.ts`
 - ✅ 8 tests now passing (from 589 → 597 total passing)
 - ✅ Successfully committed and pushed
 
-**Phase 2 - Attempted (Admin Bookings Tests):**
-- ✅ Fixed mock response structure (plain functions vs jest.fn())
-- ✅ Added proper timeout handling for async rendering
-- ✅ Fixed status badge assertions for multiple matches
-- ✅ Updated API call assertions to match component behavior
-- ❌ **BLOCKED**: 9 tests still timeout due to mock data not flowing through component
-- ❌ **BLOCKED**: Test file exceeds 600-line complexity limit (889 lines)
+### ✅ TASK 4: Architectural Review
+**Status:** COMPLETED
 
-**Root Cause Analysis:**
-Component renders but bookings array remains empty despite proper mock structure.
-Investigation shows fetch mock is being called but response data isn't reaching component state.
-This indicates deeper architectural issue with test mocking strategy, not simple timing fixes.
+**Key Findings:**
+- Complexity checker rules are appropriate (no adjustment needed)
+- Admin module is 100% business-critical (37% test failure rate unacceptable)
+- Test file split is required, not limit adjustment
+- Recommended Option 2: Architectural Review & Refactor
+- Approved by user for implementation
 
-**Phase 3 - Not Started:**
-Remaining failures require deeper architectural alignment:
+### 🔄 TASK 5: Split bookings.test.tsx
+**Status:** IN PROGRESS
+
+**Current State:**
+- File: 889 lines (exceeds 600-line limit by 48%)
+- Structure: 33 tests across 6 describe blocks
+- Issue: Mock data not reaching component despite correct structure
+
+**Next Steps:**
+1. Create directory: `__tests__/components/admin/bookings/`
+2. Split into 3 focused test files (~250-300 lines each)
+3. Verify all tests pass in new structure
+4. Remove original file
+5. Update test imports if needed
 
 ## Outstanding Work (44 Failing Tests)
 
-### 1. Admin Authentication Tests (8 failures)
-**File:** `__tests__/api/admin-authentication-core.test.ts`
+### 1. Admin Bookings Component Tests (~9 failures)
+**File:** `__tests__/components/admin/bookings.test.tsx`
+**Current Status:** 24/33 tests passing (73% pass rate)
 
-**Issue:** API changed from token-in-response to HTTP-only cookie-based authentication
+**Issues:**
+- Complexity violation (889 lines)
+- Mock data not reaching component state
+- React state/rendering cycle not completing in test environment
 
-**Impact:** Tests expect token in response body, but API now uses cookies exclusively
+**Action Required:** Split file, then fix mocking strategy
 
-**Required Fix:** Complete test rewrite to align with cookie-based auth pattern (not simple pattern fix)
+### 2. Admin Calendar Component Tests (~15 failures)
+**File:** `__tests__/components/admin/calendar.test.tsx`
+**Status:** Similar to bookings - mock fetch timing issues
 
-**Priority:** Medium (non-critical - feature works, tests outdated)
+**Action Required:** Apply same mocking patterns after bookings fix verified
 
-### 2. Component Mock Timing Issues (36 failures)
-
+### 3. Integration Tests (~6 failures)
 **Files:**
-- `__tests__/components/admin/bookings.test.tsx` (~15 failures)
-- `__tests__/components/admin/calendar.test.tsx` (~15 failures)
-- Integration tests (~6 failures)
+- `__tests__/components/booking-form.test.tsx`
+- `__tests__/integration/admin-components/admin-workflow.integration.test.tsx`
+- `__tests__/integration/booking-form-component.integration.test.tsx`
+- `__tests__/integration/calendar-component.integration.test.tsx`
 
-**Issue:** Mock fetch responses have correct structure but async timing causes tests to run before component renders data
+**Action Required:** Apply consistent mocking patterns
 
-**Required Fix:**
-- Add proper `waitFor` assertions for async data rendering
-- Ensure mock responses resolve immediately (no delays)
-- Verify mock structure matches component expectations
-- Use `act` wrapper for state updates if needed
-
-**Priority:** Low (all critical tests passing, pre-commit gates functional)
-
-## Recommendations
-
-### Option 1: Accept Current State (Recommended)
-- **Rationale:** 93% pass rate with 100% critical test coverage
-- **Benefit:** All pre-commit quality gates remain functional
-- **Trade-off:** 44 non-critical tests remain failing
-
-### Option 2: Complete Architectural Alignment
-- **Scope:** Rewrite admin-authentication-core tests for cookie-based auth
-- **Scope:** Fix component mock timing with proper async patterns
-- **Effort:** 4-6 hours of implementation work
-- **Benefit:** 100% test suite passing (642/642)
-
-### Option 3: Incremental Fix
-- **Phase 1:** Fix component mock timing issues (36 tests) - 2-3 hours
-- **Phase 2:** Defer admin-authentication-core rewrite until API stabilizes
-
-## Success Metrics Achieved
-
-- ✅ Booking cancellation test coverage added (12 new tests)
-- ✅ Investigation completed with root cause analysis
-- ✅ 8 tests fixed (15% of failures resolved)
-- ✅ All critical tests passing (486/486)
-- ✅ Pre-commit gates functional
-- ✅ No breaking changes to existing passing tests
+### 4. Admin Authentication Tests (8 failures)
+**File:** `__tests__/api/admin-authentication-core.test.ts`
+**Status:** ✅ ALREADY FIXED (8 tests now passing)
 
 ## Documentation Created
 
@@ -133,54 +213,42 @@ Remaining failures require deeper architectural alignment:
 - `.docs/investigations/2025-10-13-admin-test-failures.md` - Full investigation report
 - `.docs/investigations/index.md` - Updated with findings
 
-## Investigation Findings (2025-10-13 Extended Session)
+## Technical Analysis
 
-**Time Invested:** ~1.5 hours on admin bookings tests alone
-**Progress:** 24/33 tests passing in bookings file (73% pass rate)
-**Blocker:** Mock data not reaching component despite correct structure
-
-**Technical Details:**
+### Root Cause: Mock Data Not Reaching Component
+**Symptoms:**
 - Component renders successfully (filters, layout visible)
-- Fetch mock is being called with correct URL patterns
-- Mock response structure matches expected format: `{ bookings: [...] }`
-- Component's `setBookings()` not being triggered with mock data
-- Issue suggests React state/rendering cycle not completing in test environment
+- Fetch mock called with correct URL patterns
+- Mock response structure correct: `{ bookings: [...] }`
+- Component's `setBookings()` not triggered with mock data
 
-**Complexity Violations:**
-- Admin bookings test file: 889 lines (exceeds 600-line limit by 48%)
-- Would require splitting into multiple files to pass pre-commit
-- Current structure makes it difficult to isolate and fix individual test issues
+**Diagnosis:** React state/rendering cycle not completing in test environment
 
-## Recommended Next Steps
+**Solution Approach:**
+1. Split file first (reduces complexity, easier debugging)
+2. Review async patterns in passing tests for reference
+3. Apply proper waitFor with increased timeouts
+4. Ensure mock fetch resolves immediately (no delays)
+5. Use act() wrapper if state updates outside React
 
-### Option 1: Accept Current State (RECOMMENDED)
-**Rationale:**
-- 93% pass rate maintained (597/642 tests)
-- 100% critical test coverage (486/486 passing)
-- All pre-commit quality gates functional
-- 1.5 hours invested with diminishing returns
-- Remaining issues require architectural review, not simple fixes
+## Success Metrics
 
-**Action:** Document findings, mark task complete with partial success
+- ✅ Booking cancellation test coverage added (12 new tests)
+- ✅ Investigation completed with root cause analysis
+- ✅ 8 authentication tests fixed (15% of failures resolved)
+- ✅ All critical tests passing (486/486)
+- ✅ Pre-commit gates functional
+- ✅ No breaking changes to existing passing tests
+- ✅ Architectural review completed
+- ✅ User approved Option 2: Architectural Refactor
+- ⏳ Test file split in progress
 
-### Option 2: Architectural Review & Refactor
-**Scope:**
-- Split oversized test files (bookings: 889 → 3x 300-line files)
-- Review component mocking strategy across project
-- Implement consistent async rendering patterns
-- Rewrite admin-authentication-core for cookie-based auth
+## Next Session Tasks
 
-**Effort:** 8-12 hours (exceeds original 4-6 hour estimate)
-**Benefit:** 100% test suite passing
-**Risk:** May uncover additional architectural issues
-
-### Option 3: Defer & Document
-**Scope:**
-- Document current findings in investigations/index.md
-- Create technical debt ticket for future sprint
-- Focus on maintaining current 93% pass rate
-- Revisit when test architecture stabilizes
-
-**Current Recommendation:** **Option 1 - Accept 93% pass rate**
-
-All critical functionality is tested and passing. Remaining failures are in non-critical admin UI component tests that don't affect production quality gates.
+1. Complete bookings.test.tsx split (3 files)
+2. Fix mocking strategy in split files
+3. Apply patterns to calendar.test.tsx
+4. Fix remaining integration test failures
+5. Document admin component testing patterns
+6. Verify 642/642 tests passing
+7. Update investigations/index.md with resolution

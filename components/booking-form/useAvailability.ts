@@ -156,9 +156,8 @@ const createFetchAttempt = (
       }
       params.performanceMetricsRef.current = currentMetrics
     } catch (error) {
-      // nosemgrep: javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring
-      // Retry count is internal counter, not user input - no format string vulnerability
-      console.error(`Error fetching availability (attempt ${retryCount + 1}):`, error)
+      // Retry count is internal counter, not user input - safe for logging
+      console.error('Error fetching availability (attempt ' + String(retryCount + 1) + '):', error) // nosemgrep: javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring
       throw error // Re-throw to let fetchWithRetry handle retry logic
     }
   }

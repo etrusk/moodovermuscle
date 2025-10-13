@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
@@ -43,7 +43,6 @@ const statusLabels = {
 
 export default function BookingsPage(): React.JSX.Element {
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -60,7 +59,6 @@ export default function BookingsPage(): React.JSX.Element {
 
       const params = new URLSearchParams();
       if (statusFilter !== 'ALL') params.append('status', statusFilter);
-      if (searchQuery) params.append('search', searchQuery);
       if (dateFrom) params.append('dateFrom', dateFrom);
       if (dateTo) params.append('dateTo', dateTo);
 
@@ -79,46 +77,44 @@ export default function BookingsPage(): React.JSX.Element {
     } finally {
       setLoading(false);
     }
-  }, [statusFilter, searchQuery, dateFrom, dateTo]);
+  }, [statusFilter, dateFrom, dateTo]);
 
-  const applyFilters = useCallback((): void => {
-    let filtered = [...bookings];
+  // Apply filters synchronously using useMemo to avoid race conditions
+  const filteredBookings = useMemo(() => {
+    return bookings.filter(booking => {
+      // Status filter
+      if (statusFilter !== 'ALL' && booking.status !== statusFilter) {
+        return false;
+      }
 
-    // Status filter
-    if (statusFilter !== 'ALL') {
-      filtered = filtered.filter(booking => booking.status === statusFilter);
-    }
+      // Search filter
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        const matchesSearch =
+          booking.name.toLowerCase().includes(query) ||
+          booking.email.toLowerCase().includes(query) ||
+          booking.service.toLowerCase().includes(query);
+        if (!matchesSearch) {
+          return false;
+        }
+      }
 
-    // Search filter
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(booking =>
-        booking.name.toLowerCase().includes(query) ||
-        booking.email.toLowerCase().includes(query) ||
-        booking.service.toLowerCase().includes(query)
-      );
-    }
+      // Date range filter
+      if (dateFrom && booking.date < dateFrom) {
+        return false;
+      }
+      if (dateTo && booking.date > dateTo) {
+        return false;
+      }
 
-    // Date range filter
-    if (dateFrom) {
-      filtered = filtered.filter(booking => booking.date >= dateFrom);
-    }
-    if (dateTo) {
-      filtered = filtered.filter(booking => booking.date <= dateTo);
-    }
-
-    setFilteredBookings(filtered);
+      return true;
+    });
   }, [bookings, statusFilter, searchQuery, dateFrom, dateTo]);
 
-  // Load bookings
+  // Load bookings on mount and when filter dependencies change
   useEffect(() => {
-    fetchBookings();
+    void fetchBookings();
   }, [fetchBookings]);
-
-  // Apply filters
-  useEffect(() => {
-    applyFilters();
-  }, [applyFilters]);
 
   const updateBookingStatus = async (bookingId: string, newStatus: string): Promise<void> => {
     try {

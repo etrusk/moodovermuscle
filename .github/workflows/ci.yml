@@ -45,7 +45,7 @@ jobs:
       - name: Run type-check
         run: pnpm type-check
 
-  # Job for running critical tests (must pass)
+  # Job for running critical tests with Vitest (must pass)
   test-critical:
     name: test-critical
     runs-on: ubuntu-latest
@@ -114,7 +114,7 @@ jobs:
               body: '🚫 **Accessibility tests are failing** - this is a critical quality gate that must be resolved before merging. WCAG 2.1 AA compliance is required. Check the uploaded test artifacts for detailed failure reports.'
             })
 
-  # Job for running integration tests (allowed to fail with warning)
+  # Job for running integration tests with Vitest (allowed to fail with warning)
   test-integration:
     name: test-integration
     runs-on: ubuntu-latest

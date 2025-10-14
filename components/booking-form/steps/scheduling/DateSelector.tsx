@@ -45,6 +45,7 @@ export function DateSelector(props: DateSelectorProps): React.JSX.Element {
             <InlineCalendar
               field={field}
               availabilityCache={props.availabilityCache}
+              isLoading={props.isLoading}
             />
           </FormControl>
           <FormMessage />
@@ -84,9 +85,11 @@ function useCalendarLoadingEffects(
 function InlineCalendar({
   field,
   availabilityCache,
+  isLoading,
 }: {
   field: ControllerRenderProps<BookingFormData, 'date'>
   availabilityCache: Record<string, { availableTimes: string[]; bookedTimes: string[] }>
+  isLoading: boolean
 }): React.JSX.Element {
   const minDate = getMinDate()
   const availabilityIndicator = useDateAvailabilityIndicator(field.value, availabilityCache)
@@ -113,6 +116,7 @@ function InlineCalendar({
         onChange={handleDateChange}
         min={minDate}
         aria-label="Select date"
+        disabled={isLoading}
         className="w-full max-w-[350px] px-3 py-2 text-base border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
       />
       {availabilityIndicator && (

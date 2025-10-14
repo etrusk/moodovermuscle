@@ -10,14 +10,7 @@ import {
   FormControl,
   FormMessage,
 } from '@/components/ui/form'
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from '@/components/ui/popover'
-import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
-import { CalendarIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { timeSlots } from '../timeSlots'
 import {
@@ -38,10 +31,9 @@ interface DateSelectorProps {
 }
 
 export function DateSelector(props: DateSelectorProps): React.JSX.Element {
-  const { setCalendarLoading, setCalendarOpen, isCalendarOpen, performanceMetrics } = props
-  const handleCalendarToggle = useCalendarToggle(setCalendarLoading, setCalendarOpen)
+  const { setCalendarLoading, performanceMetrics } = props
   
-  useCalendarLoadingEffects(isCalendarOpen, performanceMetrics, setCalendarLoading)
+  useCalendarLoadingEffects(performanceMetrics, setCalendarLoading)
 
   return (
     <FormField
@@ -50,23 +42,12 @@ export function DateSelector(props: DateSelectorProps): React.JSX.Element {
       render={({ field }) => (
         <FormItem className="flex flex-col">
           <DateSelectorHeader performanceMetrics={performanceMetrics} />
-          <Popover
-            open={isCalendarOpen}
-            onOpenChange={handleCalendarToggle}
-          >
-            <DatePickerTrigger
+          <FormControl>
+            <InlineCalendar
               field={field}
-              isLoading={props.isLoading}
-              calendarLoading={props.calendarLoading}
-            />
-            <DatePickerContent
-              field={field}
-              setCalendarOpen={setCalendarOpen}
-              fetchDateAvailability={props.fetchDateAvailability}
               availabilityCache={props.availabilityCache}
-              performanceMetrics={performanceMetrics}
             />
-          </Popover>
+          </FormControl>
           <FormMessage />
         </FormItem>
       )}
@@ -86,18 +67,11 @@ function DateSelectorHeader({ performanceMetrics }: {
   )
 }
 
-// Extract loading effects logic
+// Extract loading effects logic (simplified without calendar open state)
 function useCalendarLoadingEffects(
-  isCalendarOpen: boolean,
   performanceMetrics: DateSelectorProps['performanceMetrics'],
   setCalendarLoading: (loading: boolean) => void
 ): void {
-  React.useEffect(() => {
-    if (isCalendarOpen) {
-      setCalendarLoading(false)
-    }
-  }, [isCalendarOpen, setCalendarLoading])
-
   // Show performance feedback for cache hits (instant response)
   React.useEffect(() => {
     if (performanceMetrics?.cacheHit && performanceMetrics?.responseTime && performanceMetrics.responseTime < 50) {
@@ -107,94 +81,33 @@ function useCalendarLoadingEffects(
   }, [performanceMetrics, setCalendarLoading])
 }
 
-// Extract calendar toggle logic
-function useCalendarToggle(
-  setCalendarLoading: (loading: boolean) => void,
-  setCalendarOpen: (open: boolean) => void
-) {
-  return (open: boolean): void => {
-    if (open) {
-      setCalendarLoading(true)
-      setCalendarOpen(true)
-    } else {
-      setCalendarOpen(false)
-    }
-  }
-}
-
-// Extract date picker trigger component
-function DatePickerTrigger({
+// Inline calendar component without Popover/Portal
+function InlineCalendar({
   field,
-  isLoading,
-  calendarLoading
-}: {
-  field: ControllerRenderProps<BookingFormData, 'date'>
-  isLoading: boolean
-  calendarLoading: boolean
-}): React.JSX.Element {
-  return (
-    <PopoverTrigger asChild>
-      <FormControl>
-        <Button
-          variant="outline"
-          disabled={isLoading}
-          aria-busy={calendarLoading}
-          className={cn(
-            'w-full pl-3 text-left font-normal min-h-[3.5rem] h-auto',
-            !field.value && 'text-muted-foreground'
-          )}
-          data-testid="date-picker-trigger"
-        >
-          {field.value ? (
-            field.value.toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })
-          ) : (
-            <span>Pick a date</span>
-          )}
-          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-        </Button>
-      </FormControl>
-    </PopoverTrigger>
-  )
-}
-
-// Extract date picker content component
-function DatePickerContent({
-  field,
-  setCalendarOpen,
-  fetchDateAvailability,
   availabilityCache,
-  performanceMetrics: _performanceMetrics,
 }: {
   field: ControllerRenderProps<BookingFormData, 'date'>
-  setCalendarOpen: (open: boolean) => void
-  fetchDateAvailability: (date: Date) => void
   availabilityCache: Record<string, { availableTimes: string[]; bookedTimes: string[] }>
-  performanceMetrics?: { responseTime?: number; cacheHit: boolean }
 }): React.JSX.Element {
   const dateDisabledCheck = useDateDisabledCheck(availabilityCache)
   const calendarModifiers = useCalendarModifiers(availabilityCache)
 
   return (
-    <PopoverContent
-      className="w-auto p-0"
-      align="start"
-      data-testid="date-picker-content"
+    <div
+      className="date-selector-inline w-full flex justify-center sm:justify-start"
+      data-testid="date-picker-inline"
     >
       <Calendar
         mode="single"
         selected={field.value}
         onSelect={day => {
           if (day) field.onChange(day)
-          setCalendarOpen(false)
         }}
-        onDayMouseEnter={fetchDateAvailability}
         disabled={dateDisabledCheck}
-        initialFocus
-        className="rounded-md border"
+        className={cn(
+          "rounded-md border bg-white shadow-sm",
+          "w-full max-w-[350px]"
+        )}
         modifiers={calendarModifiers}
         modifiersClassNames={{
           busy: 'bg-yellow-200/50 border-yellow-300 text-yellow-900',
@@ -203,7 +116,7 @@ function DatePickerContent({
           loading: 'bg-gray-200/60 animate-pulse',
         }}
       />
-    </PopoverContent>
+    </div>
   )
 }
 

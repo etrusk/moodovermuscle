@@ -185,9 +185,14 @@ describe('BookingsPage Component - Actions and Accessibility Tests', () => {
       const headers = requestOptions.headers?.map || requestOptions.headers
       expect(headers['content-type'] || headers['Content-Type']).toBe('application/json')
       
-      // Check body
+      // Check body with type assertion
       const body = requestOptions.body || requestOptions._bodyText
       expect(body).toBe(JSON.stringify({ status: 'CONFIRMED' }))
+      
+      // Type assertion for request structure (verify method exists)
+      expect(requestOptions).toMatchObject({
+        method: 'PATCH'
+      })
     })
 
     it('updates booking status when Cancel is clicked', async () => {

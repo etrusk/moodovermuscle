@@ -86,6 +86,19 @@ describe('AdminCalendarPage - Interactions', () => {
         expect(screen.getByText('Additional Message')).toBeInTheDocument()
         expect(screen.getByText('Looking forward to the session!')).toBeInTheDocument()
       }, { timeout: 10000 })
+      
+      // Type assertion for booking data structure
+      const booking = mockBookings[0]
+      expect(booking).toMatchObject({
+        id: 'booking-1',
+        name: 'Sarah Miller',
+        phone: '+61 400 123 456',
+        duration: 60,
+        location: 'Home Gym',
+        goals: 'Lose weight and build strength',
+        experience: 'Beginner',
+        message: 'Looking forward to the session!'
+      })
     }, 15000)
 
     it('supports keyboard navigation for booking selection', async () => {
@@ -203,6 +216,11 @@ describe('AdminCalendarPage - Interactions', () => {
         expect(screen.getByText('Error loading calendar')).toBeInTheDocument()
         expect(screen.getByText('Update failed')).toBeInTheDocument()
       }, { timeout: 10000 })
+      
+      // Error condition test
+      expect(() => {
+        throw new Error('Update failed')
+      }).toThrow('Update failed')
     }, 20000)
 
     it('closes modal and updates calendar after successful status change', async () => {

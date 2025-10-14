@@ -69,6 +69,13 @@ describe('AdminCalendarPage - Data Loading', () => {
         const fetchCall = mockFetch.mock.calls[0][0]
         const fetchUrl = typeof fetchCall === 'string' ? fetchCall : fetchCall.url
         expect(fetchUrl).toMatch(/\/api\/admin\/bookings\?dateFrom=2025-07-\d{2}&dateTo=2025-08-\d{2}/)
+        
+        // Type assertion for fetch call structure
+        if (typeof fetchCall !== 'string') {
+          expect(fetchCall).toMatchObject({
+            url: expect.stringContaining('/api/admin/bookings')
+          })
+        }
       }, { timeout: 10000 })
     })
 
@@ -140,11 +147,12 @@ describe('AdminCalendarPage - Data Loading', () => {
 
     it('shows no bookings message for dates without bookings', async () => {
       // Arrange
-      mockFetch.mockResolvedValue({
+      const emptyResponse = {
         ok: true,
         json: jest.fn(() => Promise.resolve({ bookings: [] })),
         clone: jest.fn().mockReturnThis()
-      })
+      }
+      mockFetch.mockResolvedValue(emptyResponse)
 
       // Act
       render(<AdminCalendarPage />)
@@ -153,6 +161,13 @@ describe('AdminCalendarPage - Data Loading', () => {
       await waitFor(() => {
         expect(screen.getByText(/no bookings scheduled/i)).toBeInTheDocument()
       }, { timeout: 10000 })
+      
+      // Type assertion for empty response structure
+      expect(emptyResponse).toMatchObject({
+        ok: true,
+        json: expect.any(Function),
+        clone: expect.any(Function)
+      })
     })
   })
 

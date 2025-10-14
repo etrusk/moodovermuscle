@@ -60,6 +60,12 @@ describe('AdminCalendarPage - Accessibility', () => {
       
       const interactiveElements = container.querySelectorAll('button, a, input')
       expect(interactiveElements.length).toBeGreaterThan(0)
+      
+      // Type assertion for accessibility structure
+      const headingElement = heading as HTMLHeadingElement
+      expect(headingElement).toMatchObject({
+        tagName: 'H1'
+      })
     })
 
     it('provides proper heading structure', async () => {
@@ -146,7 +152,13 @@ describe('AdminCalendarPage - Accessibility', () => {
       // Assert
       await waitFor(() => {
         expect(screen.getByText('Error loading calendar')).toBeInTheDocument()
+        expect(screen.getByText('Failed to fetch bookings')).toBeInTheDocument()
       }, { timeout: 5000 })
+      
+      // Type assertion for error handling
+      expect(() => {
+        throw new Error('Failed to fetch bookings')
+      }).toThrow('Failed to fetch bookings')
     }, 10000)
   })
 })

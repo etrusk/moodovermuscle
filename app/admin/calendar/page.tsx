@@ -7,10 +7,10 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { 
-  CalendarDays, 
-  Clock, 
-  ChevronLeft, 
+import {
+  CalendarDays,
+  Clock,
+  ChevronLeft,
   ChevronRight,
   Grid3X3,
   List,
@@ -21,7 +21,6 @@ import {
   MessageSquare,
   Target,
 } from 'lucide-react'
-import { useAdminAuth } from '@/lib/auth/AdminAuthContext'
 
 interface Booking {
   id: string
@@ -63,7 +62,6 @@ const statusLabels = {
 
 
 export default function AdminCalendarPage(): React.JSX.Element {
-  const { user } = useAdminAuth()
   const [selectedDate, setSelectedDate] = useState<Date>(new Date())
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date())
   const [viewMode, setViewMode] = useState<ViewMode>('month')
@@ -205,10 +203,6 @@ export default function AdminCalendarPage(): React.JSX.Element {
   }
 
 
-  if (!user) {
-    return <></>
-  }
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -232,13 +226,13 @@ export default function AdminCalendarPage(): React.JSX.Element {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="month">
+              <SelectItem value="month" data-testid="view-mode-month">
                 <div className="flex items-center gap-2">
                   <Grid3X3 className="h-4 w-4" />
                   Month
                 </div>
               </SelectItem>
-              <SelectItem value="week">
+              <SelectItem value="week" data-testid="view-mode-week">
                 <div className="flex items-center gap-2">
                   <List className="h-4 w-4" />
                   Week

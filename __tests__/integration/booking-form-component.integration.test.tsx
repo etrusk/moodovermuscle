@@ -55,21 +55,13 @@ describe('Booking Form User Journey Integration', () => {
   }
 
   const selectDateAndTime = async (message: string) => {
-    await user.click(screen.getByTestId('date-picker-trigger'))
     const dateToSelect = new Date()
     dateToSelect.setDate(dateToSelect.getDate() + 5)
-    const day = dateToSelect.getDate().toString()
+    const dateString = dateToSelect.toISOString().split('T')[0]
 
-    const dateCells = await screen.findAllByText(day)
-    const enabledDateCell = dateCells.find(
-      cell => cell.closest('button') && !cell.closest('button')?.disabled
-    )
-
-    if (!enabledDateCell) {
-      throw new Error(`Could not find enabled date cell for day ${day}`)
-    }
-
-    await user.click(enabledDateCell)
+    const dateInput = screen.getByLabelText(/select date/i)
+    await user.clear(dateInput)
+    await user.type(dateInput, dateString)
 
     await waitFor(() => {
       expect(screen.getByTestId('time-select')).not.toBeDisabled()
@@ -97,10 +89,7 @@ describe('Booking Form User Journey Integration', () => {
   }
 
   describe('Complete Booking Journey', () => {
-    // KNOWN ISSUE: React 19 + Radix UI focus management - inline calendar still triggers infinite loop
-    // Investigation: .docs/investigations/2025-01-14-radix-ui-react19-focus-scope.md
-    // Inline calendar approach attempted but issue persists - may be Calendar component itself
-    it.skip('completes full booking flow from start to confirmation', async () => {
+    it('completes full booking flow from start to confirmation', async () => {
       // Arrange
       const onClose = jest.fn()
       
@@ -112,15 +101,13 @@ describe('Booking Form User Journey Integration', () => {
       )
 
       // Assert
-      expect(onClose).toHaveBeenCalledWith()
-      expect(onClose).toHaveBeenCalledTimes(0)
       expect(
         await screen.findByText(/booking confirmed/i, {}, { timeout: 5000 })
       ).toBeInTheDocument()
+      expect(onClose).toHaveBeenCalledTimes(1)
     })
 
-    // KNOWN ISSUE: React 19 + Radix UI focus management
-    it.skip('preserves user data through multi-step wizard', async () => {
+    it('preserves user data through multi-step wizard', async () => {
       // Arrange
       const onClose = jest.fn()
       const expectedData = {
@@ -139,8 +126,7 @@ describe('Booking Form User Journey Integration', () => {
   })
 
   describe('Error Handling and Validation', () => {
-    // KNOWN ISSUE: React 19 + Radix UI focus management
-    it.skip('displays validation errors from API', async () => {
+    it('displays validation errors from API', async () => {
       // Arrange
       const onClose = jest.fn()
       
@@ -157,8 +143,7 @@ describe('Booking Form User Journey Integration', () => {
       ).toBeInTheDocument()
     })
 
-    // KNOWN ISSUE: React 19 + Radix UI focus management
-    it.skip('handles network failures gracefully', async () => {
+    it('handles network failures gracefully', async () => {
       // Arrange
       const onClose = jest.fn()
       
@@ -201,8 +186,7 @@ describe('Booking Form User Journey Integration', () => {
       await screen.findByText(/what would you like to try/i)
     })
 
-    // KNOWN ISSUE: React 19 + Radix UI focus management
-    it.skip('shows loading state during final submission', async () => {
+    it('shows loading state during final submission', async () => {
       // Arrange
       const onClose = jest.fn()
       
@@ -226,8 +210,7 @@ describe('Booking Form User Journey Integration', () => {
   })
 
   describe('User Interaction Patterns', () => {
-    // KNOWN ISSUE: React 19 + Radix UI focus management
-    it.skip('enables time selection only after date is chosen', async () => {
+    it('enables time selection only after date is chosen', async () => {
       // Arrange
       const onClose = jest.fn()
       
@@ -251,16 +234,12 @@ describe('Booking Form User Journey Integration', () => {
       expect(timeSelect).toBeDisabled()
 
       // Act - Select a date
-      await user.click(screen.getByTestId('date-picker-trigger'))
       const dateToSelect = new Date()
       dateToSelect.setDate(dateToSelect.getDate() + 5)
-      const day = dateToSelect.getDate().toString()
-      const dateCells = await screen.findAllByText(day)
-      const enabledDateCell = dateCells.find(
-        cell => cell.closest('button') && !cell.closest('button')?.disabled
-      )
-      if (!enabledDateCell) throw new Error('No enabled date cell found')
-      await user.click(enabledDateCell)
+      const dateString = dateToSelect.toISOString().split('T')[0]
+      const dateInput = screen.getByLabelText(/select date/i)
+      await user.clear(dateInput)
+      await user.type(dateInput, dateString)
 
       // Assert - Now enabled
       await waitFor(() => {

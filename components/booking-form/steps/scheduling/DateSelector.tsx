@@ -10,8 +10,7 @@ import {
   FormControl,
   FormMessage,
 } from '@/components/ui/form'
-import { Calendar } from '@/components/ui/calendar'
-import { cn } from '@/lib/utils'
+import { format } from 'date-fns'
 import { timeSlots } from '../timeSlots'
 import {
   AvailabilityPerformanceIndicator,
@@ -81,7 +80,7 @@ function useCalendarLoadingEffects(
   }, [performanceMetrics, setCalendarLoading])
 }
 
-// Inline calendar component without Popover/Portal
+// Native date input component
 function InlineCalendar({
   field,
   availabilityCache,
@@ -89,47 +88,71 @@ function InlineCalendar({
   field: ControllerRenderProps<BookingFormData, 'date'>
   availabilityCache: Record<string, { availableTimes: string[]; bookedTimes: string[] }>
 }): React.JSX.Element {
-  const dateDisabledCheck = useDateDisabledCheck(availabilityCache)
-  const calendarModifiers = useCalendarModifiers(availabilityCache)
+  const minDate = getMinDate()
+  const availabilityIndicator = useDateAvailabilityIndicator(field.value, availabilityCache)
+
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const dateValue = e.target.value
+    if (dateValue) {
+      const selectedDate = new Date(dateValue + 'T00:00:00')
+      field.onChange(selectedDate)
+    } else {
+      field.onChange(undefined)
+    }
+  }
 
   return (
     <div
-      className="date-selector-inline w-full flex justify-center sm:justify-start"
+      className="date-selector-inline w-full flex flex-col gap-2"
       data-testid="date-picker-inline"
     >
-      <Calendar
-        mode="single"
-        selected={field.value}
-        onSelect={day => {
-          if (day) field.onChange(day)
-        }}
-        disabled={dateDisabledCheck}
-        className={cn(
-          "rounded-md border bg-white shadow-sm",
-          "w-full max-w-[350px]"
-        )}
-        modifiers={calendarModifiers}
-        modifiersClassNames={{
-          busy: 'bg-yellow-200/50 border-yellow-300 text-yellow-900',
-          packed: 'bg-red-300/80 border-red-400 text-red-900',
-          available: 'bg-green-100/60 border-green-300 text-green-900',
-          loading: 'bg-gray-200/60 animate-pulse',
-        }}
+      <input
+        type="date"
+        id="booking-date"
+        value={field.value ? format(field.value, 'yyyy-MM-dd') : ''}
+        onChange={handleDateChange}
+        min={minDate}
+        aria-label="Select date"
+        className="w-full max-w-[350px] px-3 py-2 text-base border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
       />
+      {availabilityIndicator && (
+        <div className={`text-sm px-2 py-1 rounded-md inline-block max-w-[350px] ${availabilityIndicator.className}`}>
+          {availabilityIndicator.text}
+        </div>
+      )}
     </div>
   )
 }
 
-// Extract date disabled check logic
-function useDateDisabledCheck(availabilityCache: Record<string, { availableTimes: string[]; bookedTimes: string[] }>) {
-  return (date: Date) => {
-    const tomorrow = new Date()
-    tomorrow.setDate(tomorrow.getDate())
-    tomorrow.setHours(0, 0, 0, 0)
-    if (date < tomorrow) return true
-    const key = date.toISOString().split('T')[0]
-    const cachedData = availabilityCache[key]
-    return cachedData ? cachedData.availableTimes.length === 0 : false
+// Get minimum date (today)
+function getMinDate(): string {
+  const today = new Date()
+  return format(today, 'yyyy-MM-dd')
+}
+
+// Get availability indicator for selected date
+function useDateAvailabilityIndicator(
+  selectedDate: Date | undefined,
+  availabilityCache: Record<string, { availableTimes: string[]; bookedTimes: string[] }>
+): { text: string; className: string } | null {
+  if (!selectedDate) return null
+
+  const key = selectedDate.toISOString().split('T')[0]
+  const dayData = availabilityCache[key]
+  
+  if (!dayData) return null
+
+  const totalSlots = timeSlots.length
+  const availableCount = dayData.availableTimes.length
+  
+  if (availableCount === 0) {
+    return { text: 'No available times', className: 'bg-red-100 text-red-900' }
+  } else if (availableCount < totalSlots * 0.3) {
+    return { text: `Only ${availableCount} slots available`, className: 'bg-yellow-100 text-yellow-900' }
+  } else if (availableCount >= totalSlots * 0.7) {
+    return { text: `${availableCount} slots available`, className: 'bg-green-100 text-green-900' }
+  } else {
+    return { text: `${availableCount} slots available`, className: 'bg-blue-100 text-blue-900' }
   }
 }
 
@@ -152,58 +175,4 @@ function PerformanceIndicator({
       isVisible={isVisible}
     />
   )
-}
-
-// Extract calendar modifiers logic
-function useCalendarModifiers(availabilityCache: Record<string, { availableTimes: string[]; bookedTimes: string[] }>): {
-  busy: (date: Date) => boolean
-  packed: (date: Date) => boolean
-  available: (date: Date) => boolean
-  loading: (date: Date) => boolean
-} {
-  return {
-    // High availability - mostly free slots
-    available: (date: Date) => {
-      const key = date.toISOString().split('T')[0]
-      const dayData = availabilityCache[key]
-      if (!dayData) return false
-      const totalSlots = timeSlots.length
-      const availableThreshold = totalSlots * 0.7 // 70% or more available
-      return dayData.availableTimes.length >= availableThreshold
-    },
-    
-    // Medium availability - some slots taken
-    busy: (date: Date) => {
-      const key = date.toISOString().split('T')[0]
-      const dayData = availabilityCache[key]
-      if (!dayData) return false
-      const totalSlots = timeSlots.length
-      const busyThreshold = totalSlots * 0.3 // 30% or more available, but less than 70%
-      return (
-        dayData.availableTimes.length >= busyThreshold &&
-        dayData.availableTimes.length < totalSlots * 0.7
-      )
-    },
-    
-    // Low availability - very few slots left
-    packed: (date: Date) => {
-      const key = date.toISOString().split('T')[0]
-      const dayData = availabilityCache[key]
-      if (!dayData) return false
-      const totalSlots = timeSlots.length
-      const packedThreshold = totalSlots * 0.3 // Less than 30% available
-      return dayData.availableTimes.length < packedThreshold && dayData.availableTimes.length > 0
-    },
-    
-    // Loading state for dates being fetched
-    loading: (date: Date) => {
-      const key = date.toISOString().split('T')[0]
-      const dayData = availabilityCache[key]
-      // Show loading for dates that haven't been cached yet (within reasonable range)
-      const today = new Date()
-      const thirtyDaysFromNow = new Date()
-      thirtyDaysFromNow.setDate(today.getDate() + 30)
-      return !dayData && date >= today && date <= thirtyDaysFromNow
-    },
-  }
 }

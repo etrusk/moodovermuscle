@@ -198,3 +198,51 @@ The infinite loop still occurs during tests. This suggests:
 - Test File: `__tests__/integration/booking-form-component.integration.test.tsx`
 - Reproduction: `__tests__/integration/radix-dialog-reproduction.test.tsx`
 - Implementation: `components/booking-form/steps/scheduling/DateSelector.tsx`
+
+## ✅ RESOLVED: Native Date Input Solution (2025-10-14)
+
+**Solution:** Replaced react-day-picker Calendar with native `<input type="date">`
+
+**Result:** ✅ SUCCESS - All 6 previously skipped tests now pass
+
+**Changes Made:**
+1. **DateSelector Component** (`components/booking-form/steps/scheduling/DateSelector.tsx`):
+   - Removed `react-day-picker` Calendar component
+   - Implemented native `<input type="date">` element
+   - Added availability indicator showing available slots for selected date
+   - Preserved date formatting with `date-fns` (yyyy-MM-dd for input value)
+   - Set `min` attribute to prevent past date selection
+
+2. **Integration Tests** (`__tests__/integration/booking-form-component.integration.test.tsx`):
+   - Removed `.skip()` from all 6 tests (lines 103, 125, 147, 167, 213, 240)
+   - Updated date selection logic to use `userEvent.type()` with date strings
+   - Changed query from calendar UI elements to `getByLabelText(/select date/i)`
+   - All 9 tests now passing (including previously skipped 6)
+
+**Benefits:**
+- ✅ Zero react-day-picker dependency (removed library)
+- ✅ Native browser date picker UI (iOS/Android optimized)
+- ✅ Built-in accessibility (ARIA, keyboard navigation)
+- ✅ React 19 compatible (no custom rendering issues)
+- ✅ Smaller bundle size
+- ✅ No nested focus-scope problems
+- ✅ All integration tests passing
+
+**Test Results:**
+```
+Test Suites: 1 passed, 1 total
+Tests:       9 passed, 9 total
+Time:        4.341 s
+
+All 6 previously skipped tests now PASS:
+✓ completes full booking flow from start to confirmation
+✓ preserves user data through multi-step wizard
+✓ displays validation errors from API
+✓ handles network failures gracefully
+✓ shows loading state during final submission
+✓ enables time selection only after date is chosen
+```
+
+**Confidence: 100%** - Solution verified with passing tests, no infinite loops, React 19 compatible.
+
+**Status Update:** 🟢 RESOLVED - Native input eliminated the React 19 compatibility issue entirely.

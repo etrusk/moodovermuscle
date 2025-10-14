@@ -3,6 +3,8 @@
  * @why-this-approach Semantic queries via getByRole/getByText for accessibility-first dashboard testing
  * @last-refactored 2025-10-10
  */
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
+
 import React from 'react'
 import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -12,9 +14,9 @@ import { useAdminAuth } from '@/lib/auth/AdminAuthContext'
 import { useRouter } from 'next/navigation'
 
 // Mock Next.js router
-const mockPush = jest.fn()
-const mockReplace = jest.fn()
-jest.mock('next/navigation', () => ({
+const mockPush = vi.fn()
+const mockReplace = vi.fn()
+vi.mock('next/navigation', () => ({
   useRouter: () => ({
     push: mockPush,
     replace: mockReplace,
@@ -22,13 +24,13 @@ jest.mock('next/navigation', () => ({
 }))
 
 // Mock AdminAuthContext
-const mockUseAdminAuth = jest.fn()
-jest.mock('@/lib/auth/AdminAuthContext', () => ({
+const mockUseAdminAuth = vi.fn()
+vi.mock('@/lib/auth/AdminAuthContext', () => ({
   useAdminAuth: () => mockUseAdminAuth(),
 }))
 
 // Mock fetch globally
-const mockFetch = jest.fn()
+const mockFetch = vi.fn()
 global.fetch = mockFetch
 
 // Test data constants
@@ -48,7 +50,7 @@ const mockStatsData = {
 const mockStatsResponse = {
   ok: true,
   json: () => Promise.resolve(mockStatsData),
-  clone: jest.fn().mockReturnThis(),
+  clone: vi.fn().mockReturnThis(),
   status: 200,
   statusText: 'OK'
 } as unknown as Response
@@ -57,7 +59,7 @@ const mockErrorResponse = {
   ok: false,
   statusText: 'Internal Server Error',
   json: () => Promise.resolve({ error: 'Failed to fetch stats' }),
-  clone: jest.fn().mockReturnThis(),
+  clone: vi.fn().mockReturnThis(),
   status: 500
 } as unknown as Response
 
@@ -66,14 +68,14 @@ describe('AdminDashboardPage Component', () => {
 
   beforeEach(() => {
     user = userEvent.setup()
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     
     // Default successful auth mock
     mockUseAdminAuth.mockReturnValue({
       user: mockUser,
       isLoading: false,
       isAuthenticated: true,
-      logout: jest.fn(),
+      logout: vi.fn(),
     })
 
     // Default successful fetch mock
@@ -81,7 +83,7 @@ describe('AdminDashboardPage Component', () => {
   })
 
   afterEach(() => {
-    jest.resetAllMocks()
+    vi.resetAllMocks()
   })
 
   describe('Authentication Integration', () => {
@@ -91,9 +93,9 @@ describe('AdminDashboardPage Component', () => {
         user: null,
         isLoading: true,
         isAuthenticated: false,
-        login: jest.fn(),
-        logout: jest.fn(),
-        refreshSession: jest.fn(),
+        login: vi.fn(),
+        logout: vi.fn(),
+        refreshSession: vi.fn(),
       })
 
       // Act
@@ -113,9 +115,9 @@ describe('AdminDashboardPage Component', () => {
         user: null,
         isLoading: false,
         isAuthenticated: false,
-        login: jest.fn(),
-        logout: jest.fn(),
-        refreshSession: jest.fn(),
+        login: vi.fn(),
+        logout: vi.fn(),
+        refreshSession: vi.fn(),
       })
 
       // Act
@@ -196,9 +198,9 @@ describe('AdminDashboardPage Component', () => {
         user: null,
         isLoading: false,
         isAuthenticated: true,
-        login: jest.fn(),
-        logout: jest.fn(),
-        refreshSession: jest.fn(),
+        login: vi.fn(),
+        logout: vi.fn(),
+        refreshSession: vi.fn(),
       })
 
       // Act
@@ -394,9 +396,9 @@ describe('AdminDashboardPage Component', () => {
         user: newUser,
         isLoading: false,
         isAuthenticated: true,
-        login: jest.fn(),
-        logout: jest.fn(),
-        refreshSession: jest.fn(),
+        login: vi.fn(),
+        logout: vi.fn(),
+        refreshSession: vi.fn(),
       })
 
       rerender(<AdminDashboardPage />)

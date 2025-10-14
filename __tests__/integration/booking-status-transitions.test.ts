@@ -5,6 +5,8 @@
  * @jest-environment node
  */
 
+import { vi, describe, it, expect, beforeEach, afterAll } from 'vitest'
+
 import { POST } from '@/app/api/book-session/[id]/status/route'
 import { NextRequest } from 'next/server'
 import { testDb } from '../setup/test-db'
@@ -15,16 +17,16 @@ import {
 } from '../setup/test-helpers'
 import type { Booking, Prisma } from '@/lib/generated/prisma'
 
-jest.setTimeout(15000)
+// Test timeout configured in vitest.config.ts
 
-jest.mock('@/lib/prisma', () => ({
+vi.mock('@/lib/prisma', () => ({
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   prisma: require('../setup/test-db').testDb,
 }))
 
-jest.mock('@/lib/email', () => ({
-  sendCustomerConfirmation: jest.fn().mockResolvedValue({ success: true }),
-  sendAdminNotification: jest.fn().mockResolvedValue({ success: true }),
+vi.mock('@/lib/email', () => ({
+  sendCustomerConfirmation: vi.fn().mockResolvedValue({ success: true }),
+  sendAdminNotification: vi.fn().mockResolvedValue({ success: true }),
 }))
 
 const BookingStatus = {
@@ -45,11 +47,11 @@ function makeStatusRequest(id: string, status: string): NextRequest {
 describe('Booking Status Lifecycle Integration', () => {
   beforeEach(async () => {
     await setupIntegrationTest()
-    ;(testDb.$transaction as jest.Mock).mockImplementation(
+    ;(testDb.$transaction as vi.Mock).mockImplementation(
       async (cb: (tx: Prisma.TransactionClient) => Promise<Booking>) =>
         await cb(testDb as unknown as Prisma.TransactionClient)
     )
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   afterAll(async () => {
@@ -84,7 +86,7 @@ describe('Booking Status Lifecycle Integration', () => {
       testDb.booking.findUnique.mockResolvedValue(pendingBooking)
       testDb.booking.update.mockResolvedValue(confirmedBooking)
       ;(
-        testDb.bookingStatusChange as unknown as { create: jest.Mock }
+        testDb.bookingStatusChange as unknown as { create: vi.Mock }
       ).create.mockResolvedValue({
         id: 'change-1',
         fromStatus: 'PENDING',
@@ -102,7 +104,7 @@ describe('Booking Status Lifecycle Integration', () => {
       const body = await response.json()
       expect(body).toEqual(confirmedBooking)
       expect(
-        (testDb.bookingStatusChange as unknown as { create: jest.Mock }).create
+        (testDb.bookingStatusChange as unknown as { create: vi.Mock }).create
       ).toHaveBeenCalledWith({
         data: {
           bookingId,
@@ -126,7 +128,7 @@ describe('Booking Status Lifecycle Integration', () => {
         status: BookingStatus.CONFIRMED,
       } as unknown as Booking)
       ;(
-        testDb.bookingStatusChange as unknown as { create: jest.Mock }
+        testDb.bookingStatusChange as unknown as { create: vi.Mock }
       ).create.mockResolvedValue({})
 
       // Act
@@ -161,7 +163,7 @@ describe('Booking Status Lifecycle Integration', () => {
       expect(body.error).toMatch(/Cannot transition/i)
       expect(testDb.booking.update).not.toHaveBeenCalled()
       expect(
-        (testDb.bookingStatusChange as unknown as { create: jest.Mock }).create
+        (testDb.bookingStatusChange as unknown as { create: vi.Mock }).create
       ).not.toHaveBeenCalled()
     })
 
@@ -220,7 +222,7 @@ describe('Booking Status Lifecycle Integration', () => {
         status: BookingStatus.CONFIRMED,
       } as unknown as Booking)
       ;(
-        testDb.bookingStatusChange as unknown as { create: jest.Mock }
+        testDb.bookingStatusChange as unknown as { create: vi.Mock }
       ).create.mockResolvedValue({
         id: 'audit-1',
         bookingId,
@@ -235,7 +237,7 @@ describe('Booking Status Lifecycle Integration', () => {
 
       // Assert
       const createCall = (
-        testDb.bookingStatusChange as unknown as { create: jest.Mock }
+        testDb.bookingStatusChange as unknown as { create: vi.Mock }
       ).create.mock.calls[0][0]
       expect(createCall.data).toMatchObject({
         bookingId,
@@ -259,7 +261,7 @@ describe('Booking Status Lifecycle Integration', () => {
         status: BookingStatus.CONFIRMED,
       } as unknown as Booking)
       ;(
-        testDb.bookingStatusChange as unknown as { create: jest.Mock }
+        testDb.bookingStatusChange as unknown as { create: vi.Mock }
       ).create.mockResolvedValue({})
 
       // Act

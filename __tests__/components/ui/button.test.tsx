@@ -3,6 +3,8 @@
  * @why-this-approach Semantic queries via getByRole for button component testing, removed TEST_STRINGS dependency
  * @last-refactored 2025-10-10
  */
+import { vi, describe, expect } from 'vitest'
+
 import React from 'react'
 import { render, screen } from '@/__tests__/setup/test-utils'
 import userEvent from '@testing-library/user-event'
@@ -28,7 +30,7 @@ describe('Button Component', () => {
   test('handles click events', async () => {
     // Arrange
     const user = userEvent.setup()
-    const handleClick = jest.fn()
+    const handleClick = vi.fn()
     render(<Button onClick={handleClick}>Click me</Button>)
 
     // Act

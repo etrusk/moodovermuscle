@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest'
 import {
   handleLogin,
   handleSessionValidation,
@@ -8,16 +9,16 @@ import {
 import { adminAuth } from '@/lib/auth/admin-auth'
 
 // Mock the adminAuth module
-jest.mock('@/lib/auth/admin-auth', () => ({
+vi.mock('@/lib/auth/admin-auth', () => ({
   adminAuth: {
-    authenticateAdmin: jest.fn(),
-    verifyAdminToken: jest.fn(),
+    authenticateAdmin: vi.fn(),
+    verifyAdminToken: vi.fn(),
   },
 }))
 
 describe('admin-auth-handlers', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('handleLogin', () => {
@@ -39,7 +40,7 @@ describe('admin-auth-handlers', () => {
         token: 'mock-jwt-token',
       }
 
-      ;(adminAuth.authenticateAdmin as jest.Mock).mockResolvedValue(mockAuthResult)
+      ;(adminAuth.authenticateAdmin as vi.Mock).mockResolvedValue(mockAuthResult)
 
       // Act
       const result: LoginResult = await handleLogin(validRequest)
@@ -102,7 +103,7 @@ describe('admin-auth-handlers', () => {
 
     it('should return error for invalid credentials', async () => {
       // Arrange
-      ;(adminAuth.authenticateAdmin as jest.Mock).mockResolvedValue(null)
+      ;(adminAuth.authenticateAdmin as vi.Mock).mockResolvedValue(null)
 
       // Act
       const result: LoginResult = await handleLogin(validRequest)
@@ -152,7 +153,7 @@ describe('admin-auth-handlers', () => {
         exp: Math.floor(Date.now() / 1000) + 3600,
       }
 
-      ;(adminAuth.verifyAdminToken as jest.Mock).mockResolvedValue(mockPayload)
+      ;(adminAuth.verifyAdminToken as vi.Mock).mockResolvedValue(mockPayload)
 
       // Act
       const result: SessionValidationResult = await handleSessionValidation(validToken)
@@ -170,7 +171,7 @@ describe('admin-auth-handlers', () => {
 
     it('should return error for invalid token', async () => {
       // Arrange
-      ;(adminAuth.verifyAdminToken as jest.Mock).mockResolvedValue(null)
+      ;(adminAuth.verifyAdminToken as vi.Mock).mockResolvedValue(null)
 
       // Act
       const result: SessionValidationResult = await handleSessionValidation('invalid-token')
@@ -184,7 +185,7 @@ describe('admin-auth-handlers', () => {
 
     it('should return error for expired token', async () => {
       // Arrange
-      ;(adminAuth.verifyAdminToken as jest.Mock).mockResolvedValue(null)
+      ;(adminAuth.verifyAdminToken as vi.Mock).mockResolvedValue(null)
 
       // Act
       const result: SessionValidationResult = await handleSessionValidation('expired-token')

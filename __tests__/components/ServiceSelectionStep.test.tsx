@@ -3,6 +3,8 @@
  * @why-this-approach Tests loading state via data-testid for implementation-specific CSS classes
  * @last-refactored 2025-10-10
  */
+import { vi, describe, it, expect } from 'vitest'
+
 import React from 'react'
 import { render, screen } from '@/__tests__/setup/test-utils'
 import { BookingFormProvider } from '@/components/booking-form/BookingFormProvider'
@@ -11,7 +13,7 @@ import { ServiceSelectionStep } from '@/components/booking-form/steps/ServiceSel
 describe('ServiceSelectionStep Loading State', () => {
   it('renders options enabled by default', () => {
     // Arrange
-    const onClose = jest.fn()
+    const onClose = vi.fn()
     
     // Act
     render(
@@ -34,7 +36,7 @@ describe('ServiceSelectionStep Loading State', () => {
 
   it('applies loading styles when isLoading prop is true', () => {
     // Arrange
-    const onClose = jest.fn()
+    const onClose = vi.fn()
     
     // Act
     render(

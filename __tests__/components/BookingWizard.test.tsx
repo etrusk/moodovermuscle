@@ -3,6 +3,8 @@
  * @why-this-approach Semantic queries via getByRole for button state testing
  * @last-refactored 2025-10-10
  */
+import { vi, describe, it, expect, afterEach } from 'vitest'
+
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { BookingWizard } from '@/components/booking-form/BookingWizard'
@@ -12,16 +14,16 @@ import {
 } from '@/components/booking-form/BookingFormProvider'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 
-jest.mock('@/components/booking-form/BookingFormProvider', () => ({
-  ...jest.requireActual('@/components/booking-form/BookingFormProvider'),
-  useBookingForm: jest.fn(),
+vi.mock('@/components/booking-form/BookingFormProvider', () => ({
+  ...vi.importActual('@/components/booking-form/BookingFormProvider'),
+  useBookingForm: vi.fn(),
 }))
 
-const useBookingFormMock = useBookingForm as jest.Mock
+const useBookingFormMock = useBookingForm as vi.Mock
 
 describe('BookingWizard', () => {
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   const renderInDialog = (
@@ -39,10 +41,10 @@ describe('BookingWizard', () => {
     })
 
     return render(
-      <BookingFormProvider onClose={jest.fn()}>
+      <BookingFormProvider onClose={vi.fn()}>
         <Dialog open={true}>
           <DialogContent>
-            <BookingWizard onClose={jest.fn()} />
+            <BookingWizard onClose={vi.fn()} />
           </DialogContent>
         </Dialog>
       </BookingFormProvider>
@@ -113,7 +115,7 @@ describe('BookingWizard', () => {
     // Act & Assert
     expect(() => {
       render(
-        <BookingFormProvider onClose={jest.fn()}>
+        <BookingFormProvider onClose={vi.fn()}>
           <Dialog open={true}>
             <DialogContent>
               <BookingWizard onClose={undefined as any} />
@@ -126,7 +128,7 @@ describe('BookingWizard', () => {
 
   it('verifies onClose is not called on initial render', () => {
     // Arrange
-    const mockOnClose = jest.fn()
+    const mockOnClose = vi.fn()
     const mockLoadingStates = {
       stepTransition: false,
       formSubmission: false,

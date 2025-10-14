@@ -1,3 +1,5 @@
+import { vi, describe, expect, beforeEach } from 'vitest'
+
 import { POST } from '@/app/api/book-session/route'
 import { RATE_LIMIT_MAX, rateLimitStore } from '@/lib/rate-limit'
 import { NextResponse } from 'next/server'
@@ -6,21 +8,21 @@ import * as creation from '@/app/api/book-session/functions/booking-creation'
 import * as notification from '@/app/api/book-session/functions/booking-notification'
 
 // Mock the external functions
-jest.mock('@/app/api/book-session/functions/booking-validation')
-jest.mock('@/app/api/book-session/functions/booking-creation', () => {
-  const actual = jest.requireActual('@/app/api/book-session/functions/booking-creation')
+vi.mock('@/app/api/book-session/functions/booking-validation')
+vi.mock('@/app/api/book-session/functions/booking-creation', () => {
+  const actual = vi.importActual('@/app/api/book-session/functions/booking-creation')
   return {
     ...actual,
-    createBooking: jest.fn(),
+    createBooking: vi.fn(),
   }
 })
-jest.mock('@/app/api/book-session/functions/booking-notification')
+vi.mock('@/app/api/book-session/functions/booking-notification')
 
-const mockValidation = validation as jest.Mocked<typeof validation>
-const mockCreation = creation as jest.Mocked<typeof creation>
-const mockNotification = notification as jest.Mocked<typeof notification>
+const mockValidation = validation as vi.Mocked<typeof validation>
+const mockCreation = creation as vi.Mocked<typeof creation>
+const mockNotification = notification as vi.Mocked<typeof notification>
 
-jest.spyOn(NextResponse, 'json').mockImplementation((body, init) => {
+vi.spyOn(NextResponse, 'json').mockImplementation((body, init) => {
   return {
     status: init?.status || 200,
     json: () => Promise.resolve(body),
@@ -64,7 +66,7 @@ const mockBooking = {
 
 describe('API POST /api/book-session', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     // Reset rate limit store
     for (const key in rateLimitStore) {
       delete rateLimitStore[key]

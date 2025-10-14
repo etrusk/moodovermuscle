@@ -5,6 +5,8 @@
  * @jest-environment node
  */
 
+import { vi, describe, it, expect, beforeEach, afterAll } from 'vitest'
+
 import { testDb } from '../setup/test-db'
 import {
   setupIntegrationTest,
@@ -12,25 +14,25 @@ import {
 } from '../setup/test-helpers'
 import { PATCH } from '@/app/api/admin/bookings/route'
 
-jest.setTimeout(15000)
+// Test timeout configured in vitest.config.ts
 
 // Mock Prisma for admin API route
-jest.mock('@/lib/prisma', () => ({
+vi.mock('@/lib/prisma', () => ({
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   prisma: require('../setup/test-db').testDb,
 }))
 
 // Mock PrismaClient constructor used by admin API routes
-jest.mock('@/lib/generated/prisma', () => {
-  const actual = jest.requireActual('@/lib/generated/prisma')
+vi.mock('@/lib/generated/prisma', () => {
+  const actual = vi.importActual('@/lib/generated/prisma')
   return {
     ...actual,
-    PrismaClient: jest.fn().mockImplementation(() => {
+    PrismaClient: vi.fn().mockImplementation(() => {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const { testDb } = require('../setup/test-db')
       return {
         ...testDb,
-        $transaction: jest.fn().mockImplementation(async (callback: any) => {
+        $transaction: vi.fn().mockImplementation(async (callback: any) => {
           // Mock transaction client
           const mockTx = {
             booking: {
@@ -38,7 +40,7 @@ jest.mock('@/lib/generated/prisma', () => {
               update: testDb.booking.update,
             },
             bookingStatusChange: {
-              create: jest.fn().mockResolvedValue({
+              create: vi.fn().mockResolvedValue({
                 id: 'status-change-id',
                 bookingId: 'test-booking-id',
                 fromStatus: 'PENDING',

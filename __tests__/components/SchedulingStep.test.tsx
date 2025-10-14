@@ -3,6 +3,8 @@
  * @why-this-approach Semantic queries via getByRole for select/option testing
  * @last-refactored 2025-10-10
  */
+import { vi, describe, it, expect, afterEach } from 'vitest'
+
 import React from 'react';
 import { render, screen } from '@/__tests__/setup/test-utils'
 import { BookingFormProvider } from '@/components/booking-form/BookingFormProvider'
@@ -10,14 +12,14 @@ import { SchedulingStep } from '@/components/booking-form/steps/SchedulingStep'
 import * as useAvailability from '@/components/booking-form/useAvailability'
 
 // Mock the useAvailability hook
-jest.mock('@/components/booking-form/useAvailability')
-const mockedUseAvailability = useAvailability.useAvailability as jest.Mock
+vi.mock('@/components/booking-form/useAvailability')
+const mockedUseAvailability = useAvailability.useAvailability as vi.Mock
 
 describe('SchedulingStep', () => {
-  const mockFetchAvailability = jest.fn()
+  const mockFetchAvailability = vi.fn()
 
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('disables controls when isLoading prop is true', () => {

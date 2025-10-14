@@ -3,6 +3,8 @@
  * Purpose: Identify actual root cause of skipped booking form tests
  */
 
+import { vi, describe, it, expect, beforeEach, afterEach, afterAll } from 'vitest'
+
 import React from 'react'
 import { render, screen, waitFor, cleanup } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -12,7 +14,7 @@ import {
   teardownIntegrationTest,
 } from '../setup/test-helpers'
 
-jest.setTimeout(30000)
+// Test timeout configured in vitest.config.ts
 
 describe('Radix UI Dialog - Minimal Reproduction', () => {
   const user = userEvent.setup()
@@ -31,7 +33,7 @@ describe('Radix UI Dialog - Minimal Reproduction', () => {
 
   it('should render dialog without errors', async () => {
     // Arrange
-    const onClose = jest.fn()
+    const onClose = vi.fn()
     
     // Act
     render(<BookingForm isOpen={true} onClose={onClose} />)
@@ -53,7 +55,7 @@ describe('Radix UI Dialog - Minimal Reproduction', () => {
 
   it('should handle basic user interaction', async () => {
     // Arrange
-    const onClose = jest.fn()
+    const onClose = vi.fn()
     
     // Act
     render(<BookingForm isOpen={true} onClose={onClose} />)
@@ -82,7 +84,7 @@ describe('Radix UI Dialog - Minimal Reproduction', () => {
 
   it('should complete multi-step flow with date picker', async () => {
     // Arrange
-    const onClose = jest.fn()
+    const onClose = vi.fn()
     
     // Act
     render(<BookingForm isOpen={true} onClose={onClose} />)
@@ -136,8 +138,8 @@ describe('Radix UI Dialog - Minimal Reproduction', () => {
   describe('Error Handling', () => {
     it('should handle dialog rendering errors gracefully', async () => {
       // Arrange
-      const onClose = jest.fn()
-      const consoleError = jest.spyOn(console, 'error').mockImplementation()
+      const onClose = vi.fn()
+      const consoleError = vi.spyOn(console, 'error').mockImplementation()
       
       // Act & Assert
       expect(() => {
@@ -154,7 +156,7 @@ describe('Radix UI Dialog - Minimal Reproduction', () => {
 
     it('should verify mock function calls for dialog close', async () => {
       // Arrange
-      const onClose = jest.fn()
+      const onClose = vi.fn()
       
       // Act
       const { rerender } = render(<BookingForm isOpen={true} onClose={onClose} />)

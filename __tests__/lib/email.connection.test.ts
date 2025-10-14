@@ -10,15 +10,17 @@ beforeAll(() => {
   process.env.SMTP_PASS = 'pass'
 })
 
-jest.mock('nodemailer', () => {
-  const mockVerify = jest.fn()
+vi.mock('nodemailer', () => {
+  const mockVerify = vi.fn()
   return {
-    createTransport: jest.fn(() => ({
+    createTransport: vi.fn(() => ({
       verify: mockVerify,
     })),
     __mockVerify: mockVerify,
   }
 })
+
+import { vi, describe, it, expect, beforeEach, beforeAll } from 'vitest'
 
 import { testEmailConnection } from '@/lib/email'
 import nodemailer from 'nodemailer'

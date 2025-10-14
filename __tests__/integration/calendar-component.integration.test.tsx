@@ -4,6 +4,8 @@
  * @user-journey Users interact with calendar to choose available appointment dates
  */
 
+import { vi, describe, it, expect } from 'vitest'
+
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -39,7 +41,7 @@ describe('Calendar Component Integration: Date Selection Journey', () => {
     it('allows users to browse through months to find available dates', async () => {
       // Arrange
       const user = userEvent.setup()
-      const onMonthChange = jest.fn()
+      const onMonthChange = vi.fn()
       render(<Calendar mode="single" onMonthChange={onMonthChange} />)
 
       // Act
@@ -67,7 +69,7 @@ describe('Calendar Component Integration: Date Selection Journey', () => {
     it('captures user date selection for booking', async () => {
       // Arrange
       const user = userEvent.setup()
-      const onSelect = jest.fn()
+      const onSelect = vi.fn()
       render(<Calendar mode="single" onSelect={onSelect} />)
 
       // Act
@@ -90,7 +92,7 @@ describe('Calendar Component Integration: Date Selection Journey', () => {
     it('prevents selection of unavailable dates', async () => {
       // Arrange
       const user = userEvent.setup()
-      const onSelect = jest.fn()
+      const onSelect = vi.fn()
       render(
         <Calendar mode="single" onSelect={onSelect} disabled={[today]} />
       )

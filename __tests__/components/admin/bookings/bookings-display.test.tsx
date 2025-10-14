@@ -4,6 +4,8 @@
  * @last-refactored 2025-10-13
  * @description Display, loading, error, and performance tests for admin bookings page
  */
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
+
 import React from 'react'
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -11,7 +13,7 @@ import { axe } from 'jest-axe'
 import BookingsPage from '@/app/admin/bookings/page'
 
 // Mock fetch globally
-const mockFetch = jest.fn()
+const mockFetch = vi.fn()
 global.fetch = mockFetch
 
 // Test data constants
@@ -98,7 +100,7 @@ describe('BookingsPage Component - Display Tests', () => {
 
   beforeEach(() => {
     user = userEvent.setup()
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     
     // Default successful fetch response - immediate resolution for tests
     mockFetch.mockResolvedValue({
@@ -109,7 +111,7 @@ describe('BookingsPage Component - Display Tests', () => {
   })
 
   afterEach(() => {
-    jest.resetAllMocks()
+    vi.resetAllMocks()
   })
 
   describe('Loading and Error States', () => {

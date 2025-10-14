@@ -4,6 +4,8 @@
  * @last-refactored 2025-10-14
  * @test-focus Navigation structure and active state management
  */
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
+
 import React from 'react'
 import { render, screen, waitFor, cleanup } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -11,11 +13,11 @@ import AdminLayout from '@/app/admin/layout'
 import { useAdminAuth } from '@/lib/auth/AdminAuthContext'
 
 // Mock Next.js navigation hooks
-const mockPush = jest.fn()
-const mockReplace = jest.fn()
-const mockPathname = jest.fn()
+const mockPush = vi.fn()
+const mockReplace = vi.fn()
+const mockPathname = vi.fn()
 
-jest.mock('next/navigation', () => ({
+vi.mock('next/navigation', () => ({
   useRouter: () => ({
     push: mockPush,
     replace: mockReplace,
@@ -24,14 +26,14 @@ jest.mock('next/navigation', () => ({
 }))
 
 // Mock AdminAuthContext
-const mockLogout = jest.fn()
+const mockLogout = vi.fn()
 
-jest.mock('@/lib/auth/AdminAuthContext', () => ({
+vi.mock('@/lib/auth/AdminAuthContext', () => ({
   AdminAuthProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  useAdminAuth: jest.fn(),
+  useAdminAuth: vi.fn(),
 }))
 
-const mockUseAdminAuth = useAdminAuth as jest.MockedFunction<typeof useAdminAuth>
+const mockUseAdminAuth = useAdminAuth as vi.MockedFunction<typeof useAdminAuth>
 
 // Test data constants
 const mockUser = {
@@ -45,16 +47,16 @@ describe('AdminLayout - Navigation Structure', () => {
 
   beforeEach(() => {
     user = userEvent.setup()
-    jest.clearAllMocks()
+    vi.clearAllMocks()
 
     // Default authenticated state
     mockUseAdminAuth.mockReturnValue({
       user: mockUser,
       isLoading: false,
       isAuthenticated: true,
-      login: jest.fn(),
+      login: vi.fn(),
       logout: mockLogout,
-      refreshSession: jest.fn(),
+      refreshSession: vi.fn(),
     })
 
     // Default to dashboard path
@@ -63,7 +65,7 @@ describe('AdminLayout - Navigation Structure', () => {
 
   afterEach(() => {
     cleanup()
-    jest.resetAllMocks()
+    vi.resetAllMocks()
   })
 
   it('renders admin header with correct title and user info', async () => {

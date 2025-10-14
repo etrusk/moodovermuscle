@@ -3,6 +3,8 @@
  * @why-this-approach Semantic queries via getByRole for button interaction testing
  * @last-refactored 2025-10-10
  */
+import { vi, describe, it, expect, beforeEach } from 'vitest'
+
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -13,7 +15,7 @@ import { axe, toHaveNoViolations } from 'jest-axe'
 expect.extend(toHaveNoViolations)
 
 // Mock the Button component
-jest.mock('@/components/ui/button', () => ({
+vi.mock('@/components/ui/button', () => ({
   Button: ({ 
     children, 
     onClick, 
@@ -42,7 +44,7 @@ jest.mock('@/components/ui/button', () => ({
 }))
 
 describe('ServiceCardActions Component', () => {
-  const mockOnBookSessionClick = jest.fn()
+  const mockOnBookSessionClick = vi.fn()
 
   beforeEach(() => {
     mockOnBookSessionClick.mockClear()

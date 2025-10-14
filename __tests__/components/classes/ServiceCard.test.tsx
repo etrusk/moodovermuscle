@@ -3,6 +3,8 @@
  * @why-this-approach Semantic queries via getByRole and getByTestId for component-specific testing
  * @last-refactored 2025-10-10
  */
+import { vi, describe, it, expect, beforeEach } from 'vitest'
+
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -13,7 +15,7 @@ import { axe, toHaveNoViolations } from 'jest-axe'
 expect.extend(toHaveNoViolations)
 
 // Mock the sub-components
-jest.mock('@/components/classes/ServiceCardHeader', () => ({
+vi.mock('@/components/classes/ServiceCardHeader', () => ({
   ServiceCardHeader: ({ popular, comingSoon }: { popular?: boolean; comingSoon?: boolean }) => (
     <div data-testid="service-card-header">
       {popular && <span data-testid="popular-badge">Most Popular</span>}
@@ -22,12 +24,12 @@ jest.mock('@/components/classes/ServiceCardHeader', () => ({
   ),
 }))
 
-jest.mock('@/components/classes/ServiceCardContent', () => ({
-  ServiceCardContent: jest.requireActual('@/components/classes/ServiceCardContent').ServiceCardContent,
+vi.mock('@/components/classes/ServiceCardContent', () => ({
+  ServiceCardContent: vi.importActual('@/components/classes/ServiceCardContent').ServiceCardContent,
 }))
 
-jest.mock('@/components/classes/ServiceCardActions', () => ({
-  ServiceCardActions: jest.requireActual('@/components/classes/ServiceCardActions').ServiceCardActions,
+vi.mock('@/components/classes/ServiceCardActions', () => ({
+  ServiceCardActions: vi.importActual('@/components/classes/ServiceCardActions').ServiceCardActions,
 }))
 
 // Since ServiceCard is defined inline in the page component, we'll create a test version
@@ -81,7 +83,7 @@ const ServiceCard = ({
 }
 
 describe('ServiceCard Component', () => {
-  const mockOnBookSessionClick = jest.fn()
+  const mockOnBookSessionClick = vi.fn()
 
   const defaultService = {
     icon: Users,

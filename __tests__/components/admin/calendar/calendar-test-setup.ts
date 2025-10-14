@@ -2,6 +2,8 @@
  * Shared test setup for calendar component tests
  */
 
+import { vi } from 'vitest'
+
 export const mockUser = {
   id: '1',
   name: 'Emily',
@@ -75,8 +77,8 @@ export const mockBookings = [
 
 export const createMockResponse = (data: any) => ({
   ok: true,
-  json: jest.fn(() => Promise.resolve(data)),
-  clone: jest.fn().mockReturnThis(),
+  json: vi.fn(() => Promise.resolve(data)),
+  clone: vi.fn().mockReturnThis(),
   status: 200,
   statusText: 'OK'
 })
@@ -84,6 +86,6 @@ export const createMockResponse = (data: any) => ({
 export const createMockErrorResponse = (error: string) => ({
   ok: false,
   statusText: 'Internal Server Error',
-  json: jest.fn(() => Promise.resolve({ error })),
-  clone: jest.fn().mockReturnThis()
+  json: vi.fn(() => Promise.resolve({ error })),
+  clone: vi.fn().mockReturnThis()
 })

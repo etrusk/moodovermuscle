@@ -3,13 +3,15 @@
  * @why-this-approach Tests input state via data-testid for implementation-specific validation
  * @last-refactored 2025-10-10
  */
+import { vi, describe, it, expect, beforeEach } from 'vitest'
+
 import React from 'react'
 import { render, screen } from '@/__tests__/setup/test-utils'
 import { BookingFormProvider } from '@/components/booking-form/BookingFormProvider'
 import { PersonalDetailsStep } from '@/components/booking-form/steps/PersonalDetailsStep'
 
 describe('PersonalDetailsStep Loading State', () => {
-  const mockOnClose = jest.fn()
+  const mockOnClose = vi.fn()
 
   beforeEach(() => {
     mockOnClose.mockClear()
@@ -17,7 +19,7 @@ describe('PersonalDetailsStep Loading State', () => {
 
   it('renders enabled inputs by default', () => {
     // Arrange
-    const mockOnClose = jest.fn()
+    const mockOnClose = vi.fn()
 
     // Act
     render(
@@ -53,7 +55,7 @@ describe('PersonalDetailsStep Loading State', () => {
 
   it('disables inputs when isLoading prop is true', () => {
     // Arrange
-    const mockOnClose = jest.fn()
+    const mockOnClose = vi.fn()
 
     // Act
     render(
@@ -89,7 +91,7 @@ describe('PersonalDetailsStep Loading State', () => {
 
   it('handles invalid isLoading prop type gracefully', () => {
     // Arrange
-    const mockOnClose = jest.fn()
+    const mockOnClose = vi.fn()
 
     // Act
     render(

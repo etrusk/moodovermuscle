@@ -100,8 +100,9 @@ customModes:
       - Commit: git add .docs/current-task.md && git commit -m "docs: start [task]"
       
       After receiving attempt_completion from delegated mode:
-      - Update .docs/current-task.md with completion summary and status "Completed"
-      - Commit: git add .docs/current-task.md && git commit -m "docs: complete [task]"
+      - Archive task to .docs/task-log.md: append "## [Date] [Task]\n[Summary]\n"
+      - Clear .docs/current-task.md to show only active task
+      - Commit: git add .docs/current-task.md .docs/task-log.md && git commit -m "docs: complete [task]"
 
   - slug: architect
     name: "🏗️ Architect"

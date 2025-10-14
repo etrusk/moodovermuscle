@@ -4,6 +4,8 @@
  * @coverage behavior-focused
  */
 
+import { vi, describe, it, expect, beforeEach, afterEach, afterAll } from 'vitest'
+
 import React from 'react'
 import { render, screen, waitFor, cleanup } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -13,7 +15,7 @@ import {
   teardownIntegrationTest,
 } from '../setup/test-helpers'
 
-jest.setTimeout(30000)
+// Test timeout configured in vitest.config.ts
 
 describe('Booking Form User Journey Integration', () => {
   const user = userEvent.setup()
@@ -91,7 +93,7 @@ describe('Booking Form User Journey Integration', () => {
   describe('Complete Booking Journey', () => {
     it('completes full booking flow from start to confirmation', async () => {
       // Arrange
-      const onClose = jest.fn()
+      const onClose = vi.fn()
       
       // Act
       render(<BookingForm isOpen={true} onClose={onClose} />)
@@ -109,7 +111,7 @@ describe('Booking Form User Journey Integration', () => {
 
     it('preserves user data through multi-step wizard', async () => {
       // Arrange
-      const onClose = jest.fn()
+      const onClose = vi.fn()
       const expectedData = {
         name: 'Test Persistence',
         email: 'persist@example.com',
@@ -128,7 +130,7 @@ describe('Booking Form User Journey Integration', () => {
   describe('Error Handling and Validation', () => {
     it('displays validation errors from API', async () => {
       // Arrange
-      const onClose = jest.fn()
+      const onClose = vi.fn()
       
       // Act
       render(<BookingForm isOpen={true} onClose={onClose} />)
@@ -145,7 +147,7 @@ describe('Booking Form User Journey Integration', () => {
 
     it('handles network failures gracefully', async () => {
       // Arrange
-      const onClose = jest.fn()
+      const onClose = vi.fn()
       
       // Act
       render(<BookingForm isOpen={true} onClose={onClose} />)
@@ -164,7 +166,7 @@ describe('Booking Form User Journey Integration', () => {
   describe('Loading and Progress States', () => {
     it('shows loading state during step transitions', async () => {
       // Arrange
-      const onClose = jest.fn()
+      const onClose = vi.fn()
       
       // Act
       render(<BookingForm isOpen={true} onClose={onClose} />)
@@ -188,7 +190,7 @@ describe('Booking Form User Journey Integration', () => {
 
     it('shows loading state during final submission', async () => {
       // Arrange
-      const onClose = jest.fn()
+      const onClose = vi.fn()
       
       // Act
       render(<BookingForm isOpen={true} onClose={onClose} />)
@@ -212,7 +214,7 @@ describe('Booking Form User Journey Integration', () => {
   describe('User Interaction Patterns', () => {
     it('enables time selection only after date is chosen', async () => {
       // Arrange
-      const onClose = jest.fn()
+      const onClose = vi.fn()
       
       // Act
       render(<BookingForm isOpen={true} onClose={onClose} />)

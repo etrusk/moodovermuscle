@@ -1,3 +1,5 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest'
+
 import {
   getAvailableTimesForDate,
   checkSingleSlotAvailability,
@@ -7,21 +9,21 @@ import {
 import { prisma } from '@/lib/prisma'
 import { timeSlots } from '@/components/booking-form/steps/timeSlots'
 
-jest.mock('@/lib/prisma', () => ({
+vi.mock('@/lib/prisma', () => ({
   prisma: {
-    $transaction: jest.fn(),
+    $transaction: vi.fn(),
     booking: {
-      findMany: jest.fn(),
-      findFirst: jest.fn(),
+      findMany: vi.fn(),
+      findFirst: vi.fn(),
     },
   },
 }))
 
-jest.mock('@/components/booking-form/steps/timeSlots', () => ({
+vi.mock('@/components/booking-form/steps/timeSlots', () => ({
   timeSlots: ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00'],
 }))
 
-const mockPrisma = prisma as jest.Mocked<typeof prisma>
+const mockPrisma = prisma as vi.Mocked<typeof prisma>
 
 interface MockBooking {
   id: string
@@ -30,7 +32,7 @@ interface MockBooking {
 
 const setupMockTransactionWithNoBookings = (): void => {
   mockPrisma.$transaction.mockImplementation(async callback => {
-    const mockTx = { booking: { findMany: jest.fn().mockResolvedValue([]) } }
+    const mockTx = { booking: { findMany: vi.fn().mockResolvedValue([]) } }
     return callback(mockTx as never)
   })
 }
@@ -38,7 +40,7 @@ const setupMockTransactionWithNoBookings = (): void => {
 const setupMockTransactionWithBookings = (bookings: MockBooking[]): void => {
   mockPrisma.$transaction.mockImplementation(async callback => {
     const mockTx = {
-      booking: { findMany: jest.fn().mockResolvedValue(bookings) },
+      booking: { findMany: vi.fn().mockResolvedValue(bookings) },
     }
     return callback(mockTx as never)
   })
@@ -47,7 +49,7 @@ const setupMockTransactionWithBookings = (bookings: MockBooking[]): void => {
 const setupMockTransactionForSlotCheck = (result: unknown): void => {
   mockPrisma.$transaction.mockImplementation(async callback => {
     const mockTx = {
-      booking: { findFirst: jest.fn().mockResolvedValue(result) },
+      booking: { findFirst: vi.fn().mockResolvedValue(result) },
     }
     return callback(mockTx as never)
   })
@@ -57,7 +59,7 @@ describe('availability-checking', () => {
   const testDate = new Date('2024-12-25')
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('getAvailableTimesForDate', () => {
@@ -155,7 +157,7 @@ describe('availability-checking', () => {
     it('passes validation when slot is available', async () => {
       // Arrange
       const mockClient = {
-        booking: { findFirst: jest.fn().mockResolvedValue(null) },
+        booking: { findFirst: vi.fn().mockResolvedValue(null) },
       }
 
       // Act & Assert
@@ -177,7 +179,7 @@ describe('availability-checking', () => {
         name: 'John Doe',
       }
       const mockClient = {
-        booking: { findFirst: jest.fn().mockResolvedValue(conflictingBooking) },
+        booking: { findFirst: vi.fn().mockResolvedValue(conflictingBooking) },
       }
 
       // Act & Assert
@@ -189,7 +191,7 @@ describe('availability-checking', () => {
     it('throws error for invalid time slot', async () => {
       // Arrange
       const mockClient = {
-        booking: { findFirst: jest.fn().mockResolvedValue(null) },
+        booking: { findFirst: vi.fn().mockResolvedValue(null) },
       }
 
       // Act & Assert
@@ -200,7 +202,7 @@ describe('availability-checking', () => {
 
     it('uses default prisma client when no transaction client provided', async () => {
       // Arrange
-      mockPrisma.booking.findFirst = jest.fn().mockResolvedValue(null)
+      mockPrisma.booking.findFirst = vi.fn().mockResolvedValue(null)
 
       // Act & Assert
       await expect(

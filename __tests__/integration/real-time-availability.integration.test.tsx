@@ -4,6 +4,8 @@
  * @user-journey Users see accurate, up-to-date availability when selecting appointment times
  */
 
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
+
 import React from 'react'
 import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import { useAvailability } from '@/components/booking-form/useAvailability'
@@ -113,13 +115,13 @@ describe('Real-Time Availability Integration: Live Booking Prevention', () => {
       })
     )
 
-    jest.clearAllTimers()
-    jest.useFakeTimers()
+    vi.clearAllTimers()
+    vi.useFakeTimers()
   })
 
   afterEach(() => {
-    jest.runOnlyPendingTimers()
-    jest.useRealTimers()
+    vi.runOnlyPendingTimers()
+    vi.useRealTimers()
   })
 
   describe('Availability Data Synchronization', () => {

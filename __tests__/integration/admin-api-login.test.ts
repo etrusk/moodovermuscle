@@ -5,15 +5,17 @@
  * @jest-environment node
  */
 
+import { vi, describe, it, expect, beforeEach, afterAll } from 'vitest'
+
 import { testDb } from '../setup/test-db'
 import {
   setupIntegrationTest,
   teardownIntegrationTest,
 } from '../setup/test-helpers'
 
-jest.setTimeout(15000)
+// Test timeout configured in vitest.config.ts
 
-jest.mock('@/lib/prisma', () => ({
+vi.mock('@/lib/prisma', () => ({
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   prisma: require('../setup/test-db').testDb,
 }))

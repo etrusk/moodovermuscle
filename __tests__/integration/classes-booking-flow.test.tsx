@@ -4,6 +4,8 @@
  * @user-journey Users browse services, select options, complete wizard, and receive booking confirmation
  */
 
+import { vi, describe, it, expect, afterEach, beforeAll, afterAll } from 'vitest'
+
 import React from 'react'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -72,7 +74,7 @@ afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
 
 // Mock the components to simulate real behavior
-jest.mock('@/components/header', () => ({
+vi.mock('@/components/header', () => ({
   Header: ({ onBookSessionClick }: { onBookSessionClick: () => void }) => (
     <header data-testid="header">
       <nav>
@@ -83,7 +85,7 @@ jest.mock('@/components/header', () => ({
 }))
 
 // Simplified booking form mock that simulates the real flow
-jest.mock('@/components/booking-form', () => ({
+vi.mock('@/components/booking-form', () => ({
   BookingForm: ({
     isOpen,
     onClose,

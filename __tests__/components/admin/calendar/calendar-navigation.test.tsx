@@ -3,6 +3,8 @@
  * @why-this-approach Semantic queries for accessibility-first calendar navigation testing
  * @last-refactored 2025-10-14
  */
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
+
 import React from 'react'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -10,7 +12,7 @@ import AdminCalendarPage from '@/app/admin/calendar/page'
 import { mockBookings, createMockResponse } from './calendar-test-setup'
 
 // Mock fetch globally
-const mockFetch = jest.fn()
+const mockFetch = vi.fn()
 global.fetch = mockFetch
 
 describe('AdminCalendarPage - Navigation', () => {
@@ -19,18 +21,18 @@ describe('AdminCalendarPage - Navigation', () => {
 
   beforeEach(() => {
     user = userEvent.setup({ delay: null })
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     
     mockSuccessResponse = createMockResponse({ bookings: mockBookings })
     mockFetch.mockResolvedValue(mockSuccessResponse)
 
-    jest.useFakeTimers()
-    jest.setSystemTime(new Date('2025-08-10T12:00:00Z'))
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2025-08-10T12:00:00Z'))
   })
 
   afterEach(async () => {
-    jest.resetAllMocks()
-    jest.useRealTimers()
+    vi.resetAllMocks()
+    vi.useRealTimers()
     await new Promise(resolve => setTimeout(resolve, 100))
     if ((global as any).axe) {
       delete (global as any).axe

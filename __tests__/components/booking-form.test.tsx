@@ -3,6 +3,8 @@
  * @why-this-approach Semantic queries via getByRole for accessibility-first testing, removed TEST_STRINGS dependency
  * @last-refactored 2025-10-10
  */
+import { vi, describe, expect, beforeEach } from 'vitest'
+
 import React from 'react'
 import { render, screen } from '@/__tests__/setup/test-utils'
 import userEvent from '@testing-library/user-event'
@@ -11,9 +13,9 @@ import { BookingForm } from '@/components/booking-form'
 import '@testing-library/jest-dom'
 
 // Mock the toast hook to prevent issues in tests
-jest.mock('@/components/ui/use-toast', () => ({
+vi.mock('@/components/ui/use-toast', () => ({
   useToast: () => ({
-    toast: jest.fn(),
+    toast: vi.fn(),
   }),
 }))
 
@@ -22,7 +24,7 @@ jest.mock('@/components/ui/use-toast', () => ({
 // import { http, HttpResponse } from 'msw'
 
 describe('BookingForm Component', () => {
-  const mockOnClose = jest.fn()
+  const mockOnClose = vi.fn()
 
   beforeEach(() => {
     mockOnClose.mockClear()
@@ -88,7 +90,7 @@ describe('BookingForm Component', () => {
 
   test('handles invalid prop values gracefully', () => {
     // Arrange
-    const consoleError = jest.spyOn(console, 'error').mockImplementation()
+    const consoleError = vi.spyOn(console, 'error').mockImplementation()
     
     // Act & Assert
     expect(() => {

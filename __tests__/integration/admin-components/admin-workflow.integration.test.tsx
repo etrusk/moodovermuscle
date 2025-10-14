@@ -15,6 +15,8 @@
  * 4. Admin views calendar to check availability
  * 5. Changes propagate across all admin views in real-time
  */
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
+
 import React from 'react'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -26,10 +28,10 @@ import AdminCalendarPage from '@/app/admin/calendar/page'
 import { useAdminAuth } from '@/lib/auth/AdminAuthContext'
 import { useRouter, usePathname } from 'next/navigation'
 // Mock Next.js navigation
-const mockPush = jest.fn()
-const mockReplace = jest.fn()
-const mockPathname = jest.fn()
-jest.mock('next/navigation', () => ({
+const mockPush = vi.fn()
+const mockReplace = vi.fn()
+const mockPathname = vi.fn()
+vi.mock('next/navigation', () => ({
   useRouter: () => ({
     push: mockPush,
     replace: mockReplace,
@@ -37,14 +39,14 @@ jest.mock('next/navigation', () => ({
   usePathname: () => mockPathname(),
 }))
 // Mock AdminAuthContext
-const mockUseAdminAuth = jest.fn()
-const mockLogout = jest.fn()
-jest.mock('@/lib/auth/AdminAuthContext', () => ({
+const mockUseAdminAuth = vi.fn()
+const mockLogout = vi.fn()
+vi.mock('@/lib/auth/AdminAuthContext', () => ({
   AdminAuthProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   useAdminAuth: () => mockUseAdminAuth(),
 }))
 // Mock fetch globally
-const mockFetch = jest.fn()
+const mockFetch = vi.fn()
 global.fetch = mockFetch
 // Test data - realistic admin workflow data
 const mockUser = {
@@ -96,47 +98,47 @@ describe('Admin Workflow Integration Tests', () => {
   let user: ReturnType<typeof userEvent.setup>
   beforeEach(() => {
     user = userEvent.setup({ delay: null })
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     // Default authenticated state
     mockUseAdminAuth.mockReturnValue({
       user: mockUser,
       isLoading: false,
       isAuthenticated: true,
-      login: jest.fn(),
+      login: vi.fn(),
       logout: mockLogout,
-      refreshSession: jest.fn(),
+      refreshSession: vi.fn(),
     })
     mockPathname.mockReturnValue('/admin/dashboard')
     // Default successful mock responses
     mockFetch.mockResolvedValue({
       ok: true,
-      json: jest.fn(() => Promise.resolve({ bookings: mockBookingsData })),
-      clone: jest.fn().mockReturnThis()
+      json: vi.fn(() => Promise.resolve({ bookings: mockBookingsData })),
+      clone: vi.fn().mockReturnThis()
     })
-    jest.useFakeTimers()
-    jest.setSystemTime(new Date('2025-08-10T12:00:00Z'))
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2025-08-10T12:00:00Z'))
   })
   afterEach(() => {
-    jest.resetAllMocks()
-    jest.useRealTimers()
+    vi.resetAllMocks()
+    vi.useRealTimers()
   })
   describe('Complete Admin Workflow: Dashboard → Bookings → Status Update → Calendar', () => {
     it('enables seamless navigation and data synchronization across all admin views', async () => {
       // Arrange - Use persistent mock responses instead of chained mockResolvedValueOnce
       const mockStatsResponse = {
         ok: true,
-        json: jest.fn(() => Promise.resolve(mockStatsData)),
-        clone: jest.fn().mockReturnThis()
+        json: vi.fn(() => Promise.resolve(mockStatsData)),
+        clone: vi.fn().mockReturnThis()
       } as any
       const mockBookingsResponse = {
         ok: true,
-        json: jest.fn(() => Promise.resolve({ bookings: mockBookingsData })),
-        clone: jest.fn().mockReturnThis()
+        json: vi.fn(() => Promise.resolve({ bookings: mockBookingsData })),
+        clone: vi.fn().mockReturnThis()
       } as any
       const mockUpdateResponse = {
         ok: true,
-        json: jest.fn(() => Promise.resolve({ success: true })),
-        clone: jest.fn().mockReturnThis()
+        json: vi.fn(() => Promise.resolve({ success: true })),
+        clone: vi.fn().mockReturnThis()
       } as any
       // Mock fetch to handle all calls dynamically based on URL
       mockFetch.mockImplementation((url: string | Request, options?: any) => {
@@ -189,13 +191,13 @@ describe('Admin Workflow Integration Tests', () => {
       // Given: Multiple admin views are displaying booking data
       const mockStatsResponse = {
         ok: true,
-        json: jest.fn(() => Promise.resolve(mockStatsData)),
-        clone: jest.fn().mockReturnThis()
+        json: vi.fn(() => Promise.resolve(mockStatsData)),
+        clone: vi.fn().mockReturnThis()
       } as any
       const mockBookingsResponse = {
         ok: true,
-        json: jest.fn(() => Promise.resolve({ bookings: mockBookingsData })),
-        clone: jest.fn().mockReturnThis()
+        json: vi.fn(() => Promise.resolve({ bookings: mockBookingsData })),
+        clone: vi.fn().mockReturnThis()
       } as any
       mockFetch
         .mockResolvedValueOnce(mockStatsResponse) // Dashboard stats
@@ -225,8 +227,8 @@ describe('Admin Workflow Integration Tests', () => {
       // Given: Admin is authenticated and navigating between admin sections
       const mockStatsResponse = {
         ok: true,
-        json: jest.fn(() => Promise.resolve(mockStatsData)),
-        clone: jest.fn().mockReturnThis()
+        json: vi.fn(() => Promise.resolve(mockStatsData)),
+        clone: vi.fn().mockReturnThis()
       } as any
       mockFetch.mockResolvedValue(mockStatsResponse)
       const components = [AdminDashboardPage, BookingsPage, AdminCalendarPage]
@@ -289,8 +291,8 @@ describe('Admin Workflow Integration Tests', () => {
       // Given: Initial request fails due to network error
       const mockStatsResponse = {
         ok: true,
-        json: jest.fn(() => Promise.resolve(mockStatsData)),
-        clone: jest.fn().mockReturnThis()
+        json: vi.fn(() => Promise.resolve(mockStatsData)),
+        clone: vi.fn().mockReturnThis()
       } as any
       mockFetch
         .mockRejectedValueOnce(new Error('Network error'))
@@ -319,8 +321,8 @@ describe('Admin Workflow Integration Tests', () => {
       // Given: Admin is on dashboard with navigation available
       const mockBookingsResponse = {
         ok: true,
-        json: jest.fn(() => Promise.resolve({ bookings: mockBookingsData })),
-        clone: jest.fn().mockReturnThis()
+        json: vi.fn(() => Promise.resolve({ bookings: mockBookingsData })),
+        clone: vi.fn().mockReturnThis()
       } as any
       mockFetch.mockResolvedValue(mockBookingsResponse)
       // When: Admin views dashboard
@@ -347,8 +349,8 @@ describe('Admin Workflow Integration Tests', () => {
       // Given: Admin is authenticated in dashboard
       const mockStatsResponse = {
         ok: true,
-        json: jest.fn(() => Promise.resolve(mockStatsData)),
-        clone: jest.fn().mockReturnThis()
+        json: vi.fn(() => Promise.resolve(mockStatsData)),
+        clone: vi.fn().mockReturnThis()
       } as any
       mockFetch.mockResolvedValue(mockStatsResponse)
       // When: Admin initiates logout
@@ -371,23 +373,23 @@ describe('Admin Workflow Integration Tests', () => {
       // Given: Admin is managing bookings with pending confirmations
       const mockBookingsResponse = {
         ok: true,
-        json: jest.fn(() => Promise.resolve({ bookings: mockBookingsData })),
-        clone: jest.fn().mockReturnThis()
+        json: vi.fn(() => Promise.resolve({ bookings: mockBookingsData })),
+        clone: vi.fn().mockReturnThis()
       } as any
       const mockUpdateResponse = {
         ok: true,
-        json: jest.fn(() => Promise.resolve({ success: true })),
-        clone: jest.fn().mockReturnThis()
+        json: vi.fn(() => Promise.resolve({ success: true })),
+        clone: vi.fn().mockReturnThis()
       } as any
       const updatedStatsResponse = {
         ok: true,
-        json: jest.fn(() => Promise.resolve({
+        json: vi.fn(() => Promise.resolve({
           totalBookings: 25,
           pendingBookings: 2, // Decreased by 1 after confirmation
           todayBookings: 2,
           thisWeekBookings: 8
         })),
-        clone: jest.fn().mockReturnThis()
+        clone: vi.fn().mockReturnThis()
       } as any
       // Mock fetch to handle all calls dynamically
       let statsCallCount = 0
@@ -408,8 +410,8 @@ describe('Admin Workflow Integration Tests', () => {
       // Define mockStatsResponse for first dashboard render
       const mockStatsResponse = {
         ok: true,
-        json: jest.fn(() => Promise.resolve(mockStatsData)),
-        clone: jest.fn().mockReturnThis()
+        json: vi.fn(() => Promise.resolve(mockStatsData)),
+        clone: vi.fn().mockReturnThis()
       } as any
       // When: Admin views bookings page
       const { rerender } = render(
@@ -439,8 +441,8 @@ describe('Admin Workflow Integration Tests', () => {
       // Given: Admin has multiple bookings to manage
       const mockBookingsResponse = {
         ok: true,
-        json: jest.fn(() => Promise.resolve({ bookings: mockBookingsData })),
-        clone: jest.fn().mockReturnThis()
+        json: vi.fn(() => Promise.resolve({ bookings: mockBookingsData })),
+        clone: vi.fn().mockReturnThis()
       } as any
       mockFetch.mockResolvedValue(mockBookingsResponse)
       // When: Admin views all bookings
@@ -486,8 +488,8 @@ describe('Admin Workflow Integration Tests', () => {
       // Given: Admin is actively navigating between sections
       const mockBookingsResponse = {
         ok: true,
-        json: jest.fn(() => Promise.resolve({ bookings: mockBookingsData })),
-        clone: jest.fn().mockReturnThis()
+        json: vi.fn(() => Promise.resolve({ bookings: mockBookingsData })),
+        clone: vi.fn().mockReturnThis()
       } as any
       mockFetch.mockResolvedValue(mockBookingsResponse)
       const { rerender } = render(
@@ -506,7 +508,7 @@ describe('Admin Workflow Integration Tests', () => {
           )
           
           // Advance timers instead of real delays
-          jest.advanceTimersByTime(10)
+          vi.advanceTimersByTime(10)
           await Promise.resolve()
         }
       }
@@ -519,13 +521,13 @@ describe('Admin Workflow Integration Tests', () => {
       // Given: Multiple components need data simultaneously
       const mockStatsResponse = {
         ok: true,
-        json: jest.fn(() => Promise.resolve(mockStatsData)),
-        clone: jest.fn().mockReturnThis()
+        json: vi.fn(() => Promise.resolve(mockStatsData)),
+        clone: vi.fn().mockReturnThis()
       } as any
       const mockBookingsResponse = {
         ok: true,
-        json: jest.fn(() => Promise.resolve({ bookings: mockBookingsData })),
-        clone: jest.fn().mockReturnThis()
+        json: vi.fn(() => Promise.resolve({ bookings: mockBookingsData })),
+        clone: vi.fn().mockReturnThis()
       } as any
       mockFetch
         .mockResolvedValueOnce(mockStatsResponse)
@@ -561,8 +563,8 @@ describe('Admin Workflow Integration Tests', () => {
       // Given: Admin workflow requires accessible interface
       const mockBookingsResponse = {
         ok: true,
-        json: jest.fn(() => Promise.resolve({ bookings: mockBookingsData })),
-        clone: jest.fn().mockReturnThis()
+        json: vi.fn(() => Promise.resolve({ bookings: mockBookingsData })),
+        clone: vi.fn().mockReturnThis()
       } as any
       mockFetch.mockResolvedValue(mockBookingsResponse)
       // Test dashboard only - other sections have separate accessibility tests
@@ -587,8 +589,8 @@ describe('Admin Workflow Integration Tests', () => {
       // Given: Admin is using keyboard navigation
       const mockBookingsResponse = {
         ok: true,
-        json: jest.fn(() => Promise.resolve({ bookings: mockBookingsData })),
-        clone: jest.fn().mockReturnThis()
+        json: vi.fn(() => Promise.resolve({ bookings: mockBookingsData })),
+        clone: vi.fn().mockReturnThis()
       } as any
       mockFetch.mockResolvedValue(mockBookingsResponse)
       // When: Admin views dashboard
@@ -613,7 +615,7 @@ describe('Admin Workflow Integration Tests', () => {
     it('isolates component errors without crashing admin interface', async () => {
       // Given: Component encounters unexpected error
       const originalError = console.error
-      console.error = jest.fn()
+      console.error = vi.fn()
       try {
         mockUseAdminAuth.mockImplementation(() => {
           throw new Error('Auth component error')
@@ -635,8 +637,8 @@ describe('Admin Workflow Integration Tests', () => {
       // Given: System encounters temporary error
       const mockStatsResponse = {
         ok: true,
-        json: jest.fn(() => Promise.resolve(mockStatsData)),
-        clone: jest.fn().mockReturnThis()
+        json: vi.fn(() => Promise.resolve(mockStatsData)),
+        clone: vi.fn().mockReturnThis()
       } as any
       mockFetch.mockRejectedValueOnce(new Error('Temporary error'))
       const { rerender } = render(

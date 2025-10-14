@@ -3,13 +3,15 @@
  * @why-this-approach Semantic queries via getByRole/getByLabelText for accessibility-first testing
  * @last-refactored 2025-10-10
  */
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
+
 import React from 'react'
 import { render, screen } from '@/__tests__/setup/test-utils'
 import userEvent from '@testing-library/user-event'
 import { BookingForm } from '@/components/booking-form'
 
 describe('BookingForm navigation and validation logic', () => {
-  const mockOnClose = jest.fn()
+  const mockOnClose = vi.fn()
 
   beforeEach(() => {
     mockOnClose.mockClear()
@@ -208,7 +210,7 @@ describe('BookingForm navigation and validation logic', () => {
   it('verifies onClose is called when close button is clicked', async () => {
     // Arrange
     const user = userEvent.setup()
-    const mockOnClose = jest.fn()
+    const mockOnClose = vi.fn()
     render(<BookingForm isOpen={true} onClose={mockOnClose} />)
 
     // Act

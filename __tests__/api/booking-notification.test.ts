@@ -1,13 +1,14 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest'
 import { sendBookingNotifications } from '@/app/api/book-session/functions/booking-notification'
 import * as email from '@/lib/email'
 import type { Booking, BookingStatus } from '../../lib/generated/prisma'
 
-jest.mock('@/lib/email', () => ({
-  sendCustomerConfirmation: jest.fn(),
-  sendAdminNotification: jest.fn(),
+vi.mock('@/lib/email', () => ({
+  sendCustomerConfirmation: vi.fn(),
+  sendAdminNotification: vi.fn(),
 }))
 
-const mockedEmail = email as jest.Mocked<typeof email>
+const mockedEmail = email as vi.Mocked<typeof email>
 
 const mockBooking: Booking = {
   id: 'mock-booking-id',
@@ -28,7 +29,7 @@ const mockBooking: Booking = {
 
 describe('sendBookingNotifications', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('calls both email functions with correct data', () => {
@@ -77,7 +78,7 @@ describe('sendBookingNotifications', () => {
       new Error('SMTP error')
     )
 
-    const consoleErrorSpy = jest
+    const consoleErrorSpy = vi
       .spyOn(console, 'error')
       .mockImplementation(() => {})
 

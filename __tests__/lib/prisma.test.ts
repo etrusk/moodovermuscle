@@ -1,11 +1,13 @@
-jest.resetModules()
+vi.resetModules()
 
-jest.mock('@/lib/generated/prisma', () => ({
-  PrismaClient: jest.fn().mockImplementation(() => ({
-    $connect: jest.fn(),
-    $disconnect: jest.fn(),
+vi.mock('@/lib/generated/prisma', () => ({
+  PrismaClient: vi.fn().mockImplementation(() => ({
+    $connect: vi.fn(),
+    $disconnect: vi.fn(),
   })),
 }))
+
+import { vi, describe, it, expect } from 'vitest'
 
 import { prisma } from '@/lib/prisma'
 import { PrismaClient } from '@/lib/generated/prisma'

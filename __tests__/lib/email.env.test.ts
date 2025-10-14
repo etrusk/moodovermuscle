@@ -13,7 +13,7 @@ describe('Environment variable validation in email module', () => {
   let originalEnv: NodeJS.ProcessEnv
 
   beforeEach(() => {
-    jest.resetModules()
+    vi.resetModules()
     originalEnv = { ...process.env }
   })
 
@@ -36,6 +36,8 @@ describe('Environment variable validation in email module', () => {
     
     // Act
     const result = allVarsPresent
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
+
     
     // Assert
     expect(result).toBe(true)

@@ -3,6 +3,7 @@
  * @why-this-approach Semantic queries via getByRole and getByText with regex for accessibility-first testing
  * @last-refactored 2025-10-10
  */
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 import React from 'react'
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -13,7 +14,7 @@ import ClassesPage from '@/app/classes/page'
 expect.extend(toHaveNoViolations)
 
 // Mock the required components
-jest.mock('@/components/header', () => ({
+vi.mock('@/components/header', () => ({
   Header: ({ onBookSessionClick }: { onBookSessionClick: () => void }) => (
     <header data-testid="header">
       <button onClick={onBookSessionClick}>Book Now</button>
@@ -21,7 +22,7 @@ jest.mock('@/components/header', () => ({
   ),
 }))
 
-jest.mock('@/components/booking-form', () => ({
+vi.mock('@/components/booking-form', () => ({
   BookingForm: ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => 
     isOpen ? (
       <div data-testid="booking-form">
@@ -32,7 +33,7 @@ jest.mock('@/components/booking-form', () => ({
 }))
 
 // Mock the ServiceCard sub-components
-jest.mock('@/components/classes/ServiceCardHeader', () => ({
+vi.mock('@/components/classes/ServiceCardHeader', () => ({
   ServiceCardHeader: ({ popular, comingSoon }: { popular?: boolean; comingSoon?: boolean }) => (
     <div data-testid="service-card-header">
       {popular && <span data-testid="popular-badge">Popular</span>}
@@ -41,7 +42,7 @@ jest.mock('@/components/classes/ServiceCardHeader', () => ({
   ),
 }))
 
-jest.mock('@/components/classes/ServiceCardContent', () => ({
+vi.mock('@/components/classes/ServiceCardContent', () => ({
   ServiceCardContent: ({ 
     title, 
     description, 
@@ -67,7 +68,7 @@ jest.mock('@/components/classes/ServiceCardContent', () => ({
   ),
 }))
 
-jest.mock('@/components/classes/ServiceCardActions', () => ({
+vi.mock('@/components/classes/ServiceCardActions', () => ({
   ServiceCardActions: ({
     comingSoon,
     onBookSessionClick

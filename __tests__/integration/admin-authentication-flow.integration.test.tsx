@@ -4,6 +4,8 @@
  * @user-journey Admin users can log in, access protected content, and log out securely
  */
 
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
+
 import { render, screen, waitFor, cleanup } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import AdminLoginPage from '@/app/admin/login/page'
@@ -11,17 +13,17 @@ import AdminLayout from '@/app/admin/layout'
 import { AdminAuthProvider } from '@/lib/auth/AdminAuthContext'
 
 // Mock Next.js navigation
-const mockPush = jest.fn()
-const mockReplace = jest.fn()
-const mockLogout = jest.fn()
-jest.mock('next/navigation', () => ({
+const mockPush = vi.fn()
+const mockReplace = vi.fn()
+const mockLogout = vi.fn()
+vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: mockPush, replace: mockReplace }),
-  usePathname: jest.fn(() => '/admin/dashboard'),
+  usePathname: vi.fn(() => '/admin/dashboard'),
 }))
 
 // Mock AdminAuthContext
-const mockUseAdminAuth = jest.fn()
-jest.mock('@/lib/auth/AdminAuthContext', () => ({
+const mockUseAdminAuth = vi.fn()
+vi.mock('@/lib/auth/AdminAuthContext', () => ({
   AdminAuthProvider: ({ children }: { children: React.ReactNode }) => (
     <div>{children}</div>
   ),
@@ -33,7 +35,7 @@ describe('Admin Authentication Flow Integration: Complete Login Journey', () => 
 
   beforeEach(() => {
     user = userEvent.setup()
-    jest.clearAllMocks()
+    vi.clearAllMocks()
 
     // Default: Unauthenticated state
     mockUseAdminAuth.mockReturnValue({

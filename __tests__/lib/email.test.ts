@@ -1,12 +1,14 @@
-jest.mock('nodemailer', () => {
-  const mockSendMail = jest.fn()
+vi.mock('nodemailer', () => {
+  const mockSendMail = vi.fn()
   return {
-    createTransport: jest.fn(() => ({
+    createTransport: vi.fn(() => ({
       sendMail: mockSendMail,
     })),
     __mockSendMail: mockSendMail,
   }
 })
+
+import { vi, describe, it, expect, beforeEach } from 'vitest'
 
 import { sendCustomerConfirmation, sendAdminNotification } from '@/lib/email'
 import nodemailer from 'nodemailer'

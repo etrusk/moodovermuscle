@@ -5,8 +5,10 @@
  * @jest-environment node
  */
 
+import { vi, describe, it, expect, beforeEach, afterAll } from 'vitest'
+
 import { POST } from '@/app/api/book-session/route'
-jest.setTimeout(20000)
+// Test timeout configured in vitest.config.ts
 import { testDb } from '../setup/test-db'
 import { createTestBookingData } from '../setup/test-db-data'
 import {
@@ -17,19 +19,19 @@ import {
 import type { Booking, Prisma } from '@/lib/generated/prisma'
 
 // Mock the prisma client to use the test database
-jest.mock('@/lib/prisma', () => ({
+vi.mock('@/lib/prisma', () => ({
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   prisma: require('../setup/test-db').testDb,
 }))
 
 // Mock the email module
-jest.mock('@/lib/email')
+vi.mock('@/lib/email')
 
 // Import the mocked functions to control them in tests
 import { sendCustomerConfirmation, sendAdminNotification } from '@/lib/email'
 
-const mockSendCustomerConfirmation = sendCustomerConfirmation as jest.Mock
-const mockSendAdminNotification = sendAdminNotification as jest.Mock
+const mockSendCustomerConfirmation = sendCustomerConfirmation as vi.Mock
+const mockSendAdminNotification = sendAdminNotification as vi.Mock
 
 // Set default email mocks to return promises
 mockSendCustomerConfirmation.mockResolvedValue({
@@ -193,14 +195,14 @@ describe('Error Scenarios Integration: System Resilience Under Failure', () => {
         status: 'PENDING' as const,
         sessionDuration: 60,
       }
-      ;(testDb.$transaction as jest.Mock).mockImplementation(
+      ;(testDb.$transaction as vi.Mock).mockImplementation(
         async (
           callback: (tx: Prisma.TransactionClient) => Promise<Booking>
         ) => {
           const mockTx = {
             booking: {
-              findFirst: jest.fn().mockResolvedValue(null),
-              create: jest.fn().mockResolvedValue(mockBooking),
+              findFirst: vi.fn().mockResolvedValue(null),
+              create: vi.fn().mockResolvedValue(mockBooking),
             },
           }
           return await callback(mockTx as unknown as Prisma.TransactionClient)
@@ -245,14 +247,14 @@ describe('Error Scenarios Integration: System Resilience Under Failure', () => {
         status: 'PENDING' as const,
         sessionDuration: 60,
       }
-      ;(testDb.$transaction as jest.Mock).mockImplementation(
+      ;(testDb.$transaction as vi.Mock).mockImplementation(
         async (
           callback: (tx: Prisma.TransactionClient) => Promise<Booking>
         ) => {
           const mockTx = {
             booking: {
-              findFirst: jest.fn().mockResolvedValue(null),
-              create: jest.fn().mockResolvedValue(mockBooking),
+              findFirst: vi.fn().mockResolvedValue(null),
+              create: vi.fn().mockResolvedValue(mockBooking),
             },
           }
           return await callback(mockTx as unknown as Prisma.TransactionClient)
@@ -296,14 +298,14 @@ describe('Error Scenarios Integration: System Resilience Under Failure', () => {
         status: 'PENDING' as const,
         sessionDuration: 60,
       }
-      ;(testDb.$transaction as jest.Mock).mockImplementation(
+      ;(testDb.$transaction as vi.Mock).mockImplementation(
         async (
           callback: (tx: Prisma.TransactionClient) => Promise<Booking>
         ) => {
           const mockTx = {
             booking: {
-              findFirst: jest.fn().mockResolvedValue(null),
-              create: jest.fn().mockResolvedValue(mockBooking),
+              findFirst: vi.fn().mockResolvedValue(null),
+              create: vi.fn().mockResolvedValue(mockBooking),
             },
           }
           return await callback(mockTx as unknown as Prisma.TransactionClient)
@@ -347,14 +349,14 @@ describe('Error Scenarios Integration: System Resilience Under Failure', () => {
         status: 'PENDING' as const,
         sessionDuration: 60,
       }
-      ;(testDb.$transaction as jest.Mock).mockImplementation(
+      ;(testDb.$transaction as vi.Mock).mockImplementation(
         async (
           callback: (tx: Prisma.TransactionClient) => Promise<Booking>
         ) => {
           const mockTx = {
             booking: {
-              findFirst: jest.fn().mockResolvedValue(null),
-              create: jest.fn().mockResolvedValue(mockBooking),
+              findFirst: vi.fn().mockResolvedValue(null),
+              create: vi.fn().mockResolvedValue(mockBooking),
             },
           }
           return await callback(mockTx as unknown as Prisma.TransactionClient)
@@ -455,7 +457,7 @@ describe('Error Scenarios Integration: System Resilience Under Failure', () => {
     it('processes multiple simultaneous bookings without conflicts', async () => {
       // Arrange
       let callCount = 0
-      ;(testDb.$transaction as jest.Mock).mockImplementation(
+      ;(testDb.$transaction as vi.Mock).mockImplementation(
         async (callback: (tx: never) => Promise<never>) => {
           const currentCall = callCount++
           const mockBooking = {
@@ -477,8 +479,8 @@ describe('Error Scenarios Integration: System Resilience Under Failure', () => {
 
           const mockTx = {
             booking: {
-              findFirst: jest.fn().mockResolvedValue(null),
-              create: jest.fn().mockResolvedValue(mockBooking),
+              findFirst: vi.fn().mockResolvedValue(null),
+              create: vi.fn().mockResolvedValue(mockBooking),
             },
           }
           return await callback(mockTx as never)
@@ -545,19 +547,19 @@ describe('Error Scenarios Integration: System Resilience Under Failure', () => {
         sessionDuration: 60,
       }
 
-      ;(testDb.$transaction as jest.Mock).mockImplementation(
+      ;(testDb.$transaction as vi.Mock).mockImplementation(
         async (callback: (tx: never) => Promise<never>) => {
           const mockTx = {
             booking: {
-              findFirst: jest.fn().mockResolvedValue(null),
-              create: jest.fn().mockResolvedValue(mockBooking),
+              findFirst: vi.fn().mockResolvedValue(null),
+              create: vi.fn().mockResolvedValue(mockBooking),
             },
           }
           return await callback(mockTx as never)
         }
       )
 
-      ;(testDb.booking.findUnique as jest.Mock).mockResolvedValue(mockBooking)
+      ;(testDb.booking.findUnique as vi.Mock).mockResolvedValue(mockBooking)
 
       // Act
       const req = makeJsonRequest(testData)
@@ -596,19 +598,19 @@ describe('Error Scenarios Integration: System Resilience Under Failure', () => {
         sessionDuration: 60,
       }
 
-      ;(testDb.$transaction as jest.Mock).mockImplementation(
+      ;(testDb.$transaction as vi.Mock).mockImplementation(
         async (callback: (tx: never) => Promise<never>) => {
           const mockTx = {
             booking: {
-              findFirst: jest.fn().mockResolvedValue(null),
-              create: jest.fn().mockResolvedValue(mockBooking),
+              findFirst: vi.fn().mockResolvedValue(null),
+              create: vi.fn().mockResolvedValue(mockBooking),
             },
           }
           return await callback(mockTx as never)
         }
       )
 
-      ;(testDb.booking.findUnique as jest.Mock).mockResolvedValue(mockBooking)
+      ;(testDb.booking.findUnique as vi.Mock).mockResolvedValue(mockBooking)
 
       // Act
       const req = makeJsonRequest(testData)

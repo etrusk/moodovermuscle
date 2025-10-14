@@ -1,3 +1,5 @@
+import { vi, describe, it, expect, beforeEach } from 'vitest'
+
 import {
   createBooking,
   BookingConflictError,
@@ -31,14 +33,14 @@ const mockFullBooking = {
 
 const mockTx = {
   booking: {
-    findFirst: jest.fn(),
-    create: jest.fn().mockResolvedValue(mockFullBooking),
+    findFirst: vi.fn(),
+    create: vi.fn().mockResolvedValue(mockFullBooking),
   },
 }
 
-jest.mock('@/lib/prisma', () => ({
+vi.mock('@/lib/prisma', () => ({
   prisma: {
-    $transaction: jest.fn().mockImplementation(async (callback) => {
+    $transaction: vi.fn().mockImplementation(async (callback) => {
       return await callback(mockTx)
     }),
   },
@@ -46,7 +48,7 @@ jest.mock('@/lib/prisma', () => ({
 
 describe('createBooking', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('creates a booking successfully', async () => {

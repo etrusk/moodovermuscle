@@ -5,6 +5,7 @@
  * @jest-environment node
  */
 
+import { vi, describe, it, expect, beforeEach, afterAll } from 'vitest'
 import { POST } from '@/app/api/book-session/route'
 import { prisma } from '@/lib/prisma'
 import { createTestBookingData } from '../setup/test-db-data'
@@ -14,34 +15,34 @@ import {
 } from '../setup/test-helpers'
 import type { Booking, Prisma } from '@/lib/generated/prisma'
 
-const mockPrisma = prisma as jest.Mocked<typeof prisma>
+const mockPrisma = prisma as vi.Mocked<typeof prisma>
 
-jest.setTimeout(15000)
+// Test timeout configured in vitest.config.ts
 
 type TransactionCallback = (tx: Prisma.TransactionClient) => Promise<Booking>
 
-jest.mock('@/lib/prisma', () => ({
+vi.mock('@/lib/prisma', () => ({
   prisma: {
     booking: {
-      create: jest.fn(),
-      findMany: jest.fn(),
-      findUnique: jest.fn(),
-      findFirst: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
-      count: jest.fn(),
+      create: vi.fn(),
+      findMany: vi.fn(),
+      findUnique: vi.fn(),
+      findFirst: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+      count: vi.fn(),
     },
-    $transaction: jest.fn(),
-    $connect: jest.fn(),
-    $disconnect: jest.fn(),
+    $transaction: vi.fn(),
+    $connect: vi.fn(),
+    $disconnect: vi.fn(),
   },
 }))
 
-jest.mock('@/lib/email', () => ({
-  sendCustomerConfirmation: jest
+vi.mock('@/lib/email', () => ({
+  sendCustomerConfirmation: vi
     .fn()
     .mockResolvedValue({ success: true, messageId: 'test-id' }),
-  sendAdminNotification: jest
+  sendAdminNotification: vi
     .fn()
     .mockResolvedValue({ success: true, messageId: 'test-id' }),
 }))
@@ -67,12 +68,12 @@ const setupMockBooking = (testData: Record<string, unknown>, id = 'mock-booking-
 }
 
 const mockTransaction = (mockBooking: Booking): void => {
-  ;(mockPrisma.$transaction as jest.Mock).mockImplementation(
+  ;(mockPrisma.$transaction as vi.Mock).mockImplementation(
     async (callback: TransactionCallback) => {
       const mockTx = {
         booking: {
-          findFirst: jest.fn().mockResolvedValue(null),
-          create: jest.fn().mockResolvedValue(mockBooking),
+          findFirst: vi.fn().mockResolvedValue(null),
+          create: vi.fn().mockResolvedValue(mockBooking),
         },
       }
       return await callback(mockTx as unknown as Prisma.TransactionClient)
@@ -92,8 +93,8 @@ function makeJsonRequest(data: Record<string, unknown>): Request {
 
 describe('Booking API Workflow Integration', () => {
   beforeEach(async () => {
-    jest.resetModules()
-    jest.clearAllMocks()
+    vi.resetModules()
+    vi.clearAllMocks()
     await setupIntegrationTest()
   })
 
@@ -142,7 +143,7 @@ describe('Booking API Workflow Integration', () => {
       const responseData = await response.json()
 
       const verificationBooking = setupMockBooking(customerData, responseData.data.id)
-      ;(mockPrisma.booking.findUnique as jest.Mock).mockResolvedValue(verificationBooking)
+      ;(mockPrisma.booking.findUnique as vi.Mock).mockResolvedValue(verificationBooking)
       
       const createdBooking = await mockPrisma.booking.findUnique({
         where: { id: responseData.data.id },
@@ -164,12 +165,12 @@ describe('Booking API Workflow Integration', () => {
       const mockBooking1 = setupMockBooking(booking1, 'booking-1')
       const mockBooking2 = setupMockBooking(booking2, 'booking-2')
 
-      ;(mockPrisma.$transaction as jest.Mock)
+      ;(mockPrisma.$transaction as vi.Mock)
         .mockImplementationOnce(async (callback: TransactionCallback) => {
           const mockTx = {
             booking: {
-              findFirst: jest.fn().mockResolvedValue(null),
-              create: jest.fn().mockResolvedValue(mockBooking1),
+              findFirst: vi.fn().mockResolvedValue(null),
+              create: vi.fn().mockResolvedValue(mockBooking1),
             },
           }
           return await callback(mockTx as unknown as Prisma.TransactionClient)
@@ -177,8 +178,8 @@ describe('Booking API Workflow Integration', () => {
         .mockImplementationOnce(async (callback: TransactionCallback) => {
           const mockTx = {
             booking: {
-              findFirst: jest.fn().mockResolvedValue(null),
-              create: jest.fn().mockResolvedValue(mockBooking2),
+              findFirst: vi.fn().mockResolvedValue(null),
+              create: vi.fn().mockResolvedValue(mockBooking2),
             },
           }
           return await callback(mockTx as unknown as Prisma.TransactionClient)
@@ -270,7 +271,7 @@ describe('Booking API Workflow Integration', () => {
       const responseData = await response.json()
 
       const verificationBooking = setupMockBooking(bookingData, responseData.data.id)
-      ;(mockPrisma.booking.findUnique as jest.Mock).mockResolvedValue(verificationBooking)
+      ;(mockPrisma.booking.findUnique as vi.Mock).mockResolvedValue(verificationBooking)
       
       const createdBooking = await mockPrisma.booking.findUnique({
         where: { id: responseData.data.id },
@@ -302,7 +303,7 @@ describe('Booking API Workflow Integration', () => {
       const responseData = await response.json()
 
       const verificationBooking = setupMockBooking(minimalData, responseData.data.id)
-      ;(mockPrisma.booking.findUnique as jest.Mock).mockResolvedValue(verificationBooking)
+      ;(mockPrisma.booking.findUnique as vi.Mock).mockResolvedValue(verificationBooking)
       
       const createdBooking = await mockPrisma.booking.findUnique({
         where: { id: responseData.data.id },
@@ -328,7 +329,7 @@ describe('Booking API Workflow Integration', () => {
       const responseData = await response.json()
 
       const verificationBooking = setupMockBooking(completeData, responseData.data.id)
-      ;(mockPrisma.booking.findUnique as jest.Mock).mockResolvedValue(verificationBooking)
+      ;(mockPrisma.booking.findUnique as vi.Mock).mockResolvedValue(verificationBooking)
       
       const createdBooking = await mockPrisma.booking.findUnique({
         where: { id: responseData.data.id },

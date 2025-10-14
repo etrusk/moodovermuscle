@@ -1,5 +1,6 @@
 import { PrismaClient } from '@/lib/generated/prisma'
 import { mockDeep, mockReset, DeepMockProxy } from 'jest-mock-extended'
+import { vi, beforeEach } from 'vitest'
 
 const prismaMock = mockDeep<PrismaClient>()
 
@@ -96,7 +97,8 @@ prismaMock.booking.count.mockImplementation(async () => {
 beforeEach(() => {
   // Clear the in-memory store and mock call history
   bookingsStore = []
-  jest.clearAllMocks()
+  vi.clearAllMocks()
+  mockReset(prismaMock)
 })
 
 export const prismaMockTyped: DeepMockProxy<PrismaClient> = prismaMock

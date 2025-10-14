@@ -7,27 +7,29 @@
 
 // @ts-nocheck - Complex Prisma mock typing, focus on behavior
 
-jest.mock('@/lib/prisma', () => ({
+vi.mock('@/lib/prisma', () => ({
   prisma: {
     booking: {
-      create: jest.fn(),
-      findMany: jest.fn(),
-      findUnique: jest.fn(),
-      findFirst: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
-      count: jest.fn(),
+      create: vi.fn(),
+      findMany: vi.fn(),
+      findUnique: vi.fn(),
+      findFirst: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+      count: vi.fn(),
     },
-    $transaction: jest.fn(),
-    $connect: jest.fn(),
-    $disconnect: jest.fn(),
+    $transaction: vi.fn(),
+    $connect: vi.fn(),
+    $disconnect: vi.fn(),
   },
 }))
 
-jest.mock('@/lib/email', () => ({
-  sendCustomerConfirmation: jest.fn().mockResolvedValue({ success: true }),
-  sendAdminNotification: jest.fn().mockResolvedValue({ success: true }),
+vi.mock('@/lib/email', () => ({
+  sendCustomerConfirmation: vi.fn().mockResolvedValue({ success: true }),
+  sendAdminNotification: vi.fn().mockResolvedValue({ success: true }),
 }))
+
+import { vi, describe, it, expect, beforeEach, afterAll } from 'vitest'
 
 import { POST } from '@/app/api/book-session/route'
 import { prisma } from '@/lib/prisma'
@@ -38,9 +40,9 @@ import {
   teardownIntegrationTest 
 } from '../setup/test-helpers'
 
-const mockPrisma = prisma as jest.Mocked<typeof prisma>
+const mockPrisma = prisma as vi.Mocked<typeof prisma>
 
-jest.setTimeout(15000)
+// Test timeout configured in vitest.config.ts
 
 function makeJsonRequest(data: Record<string, unknown>): Request {
   return new Request('http://localhost/api/book-session', {
@@ -55,8 +57,8 @@ function makeJsonRequest(data: Record<string, unknown>): Request {
 describe('Booking Transaction Integrity Integration', () => {
   beforeEach(async () => {
     await setupIntegrationTest()
-    jest.clearAllMocks()
-    ;(mockPrisma.$transaction as jest.Mock).mockImplementation(
+    vi.clearAllMocks()
+    ;(mockPrisma.$transaction as vi.Mock).mockImplementation(
       async (cb: any) => await cb(mockPrisma)
     )
   })
@@ -70,7 +72,7 @@ describe('Booking Transaction Integrity Integration', () => {
       // Arrange
       const bookingData = createTestBookingData()
       const request = makeJsonRequest(bookingData)
-      ;(mockPrisma.booking.findFirst as jest.Mock).mockResolvedValue(null)
+      ;(mockPrisma.booking.findFirst as vi.Mock).mockResolvedValue(null)
       const createdBooking = {
         ...bookingData,
         id: 'transaction-success-1',
@@ -81,7 +83,7 @@ describe('Booking Transaction Integrity Integration', () => {
         phone: bookingData.phone ?? null,
         message: bookingData.message ?? null,
       }
-      ;(mockPrisma.booking.create as jest.Mock).mockResolvedValue(createdBooking)
+      ;(mockPrisma.booking.create as vi.Mock).mockResolvedValue(createdBooking)
 
       // Act
       const response = await POST(request)
@@ -101,7 +103,7 @@ describe('Booking Transaction Integrity Integration', () => {
         email: 'john@example.com',
         service: '1-on-1 Personal Training',
       })
-      ;(mockPrisma.booking.findFirst as jest.Mock).mockResolvedValue(null)
+      ;(mockPrisma.booking.findFirst as vi.Mock).mockResolvedValue(null)
       const createdBooking = {
         ...bookingData,
         id: 'persist-test-1',
@@ -112,7 +114,7 @@ describe('Booking Transaction Integrity Integration', () => {
         phone: bookingData.phone ?? null,
         message: bookingData.message ?? null,
       }
-      ;(mockPrisma.booking.create as jest.Mock).mockResolvedValue(createdBooking)
+      ;(mockPrisma.booking.create as vi.Mock).mockResolvedValue(createdBooking)
 
       // Act
       const response = await POST(makeJsonRequest(bookingData))
@@ -142,8 +144,8 @@ describe('Booking Transaction Integrity Integration', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
       }
-      ;(mockPrisma.booking.create as jest.Mock).mockClear()
-      ;(mockPrisma.booking.findFirst as jest.Mock).mockResolvedValue(existingBooking)
+      ;(mockPrisma.booking.create as vi.Mock).mockClear()
+      ;(mockPrisma.booking.findFirst as vi.Mock).mockResolvedValue(existingBooking)
 
       // Act
       const response = await POST(request)
@@ -163,10 +165,10 @@ describe('Booking Transaction Integrity Integration', () => {
       const booking2 = createTestBookingData({
         time: '10:00 AM'
       })
-      ;(mockPrisma.booking.findFirst as jest.Mock)
+      ;(mockPrisma.booking.findFirst as vi.Mock)
         .mockResolvedValueOnce(null)
         .mockResolvedValueOnce(null)
-      ;(mockPrisma.booking.create as jest.Mock)
+      ;(mockPrisma.booking.create as vi.Mock)
         .mockResolvedValueOnce({
           ...booking1,
           id: 'slot-1',
@@ -209,7 +211,7 @@ describe('Booking Transaction Integrity Integration', () => {
       // Arrange
       const bookingData = createTestBookingData()
       const request = makeJsonRequest(bookingData)
-      ;(mockPrisma.booking.findFirst as jest.Mock).mockResolvedValue(null)
+      ;(mockPrisma.booking.findFirst as vi.Mock).mockResolvedValue(null)
       const createdBooking = {
         ...bookingData,
         id: 'email-fail-test',
@@ -220,8 +222,8 @@ describe('Booking Transaction Integrity Integration', () => {
         phone: bookingData.phone ?? null,
         message: bookingData.message ?? null,
       }
-      ;(mockPrisma.booking.create as jest.Mock).mockResolvedValue(createdBooking)
-      jest.spyOn(email, 'sendCustomerConfirmation').mockRejectedValue(
+      ;(mockPrisma.booking.create as vi.Mock).mockResolvedValue(createdBooking)
+      vi.spyOn(email, 'sendCustomerConfirmation').mockRejectedValue(
         new Error('Email service unavailable')
       )
 
@@ -239,8 +241,8 @@ describe('Booking Transaction Integrity Integration', () => {
     it('sends both customer and admin notifications on success', async () => {
       // Arrange
       const bookingData = createTestBookingData()
-      ;(mockPrisma.booking.findFirst as jest.Mock).mockResolvedValue(null)
-      ;(mockPrisma.booking.create as jest.Mock).mockResolvedValue({
+      ;(mockPrisma.booking.findFirst as vi.Mock).mockResolvedValue(null)
+      ;(mockPrisma.booking.create as vi.Mock).mockResolvedValue({
         ...bookingData,
         id: 'notification-test',
         status: 'PENDING',
@@ -266,7 +268,7 @@ describe('Booking Transaction Integrity Integration', () => {
       const bookingData = createTestBookingData()
       const request1 = makeJsonRequest(bookingData)
       const request2 = makeJsonRequest(bookingData)
-      ;(mockPrisma.booking.findFirst as jest.Mock)
+      ;(mockPrisma.booking.findFirst as vi.Mock)
         .mockResolvedValueOnce(null)
         .mockResolvedValueOnce({
           id: 'existing',
@@ -286,7 +288,7 @@ describe('Booking Transaction Integrity Integration', () => {
         phone: bookingData.phone ?? null,
         message: bookingData.message ?? null,
       }
-      ;(mockPrisma.booking.create as jest.Mock).mockResolvedValue(createdBooking)
+      ;(mockPrisma.booking.create as vi.Mock).mockResolvedValue(createdBooking)
 
       // Act
       const [response1, response2] = await Promise.all([
@@ -304,8 +306,8 @@ describe('Booking Transaction Integrity Integration', () => {
     it('rolls back transaction on database constraint violation', async () => {
       // Arrange
       const bookingData = createTestBookingData()
-      ;(mockPrisma.booking.findFirst as jest.Mock).mockResolvedValue(null)
-      ;(mockPrisma.booking.create as jest.Mock).mockRejectedValue(
+      ;(mockPrisma.booking.findFirst as vi.Mock).mockResolvedValue(null)
+      ;(mockPrisma.booking.create as vi.Mock).mockRejectedValue(
         new Error('Unique constraint violation')
       )
 
@@ -326,8 +328,8 @@ describe('Booking Transaction Integrity Integration', () => {
         goals: 'Test Goals',
         experience: 'Beginner',
       })
-      ;(mockPrisma.booking.findFirst as jest.Mock).mockResolvedValue(null)
-      ;(mockPrisma.booking.create as jest.Mock).mockResolvedValue({
+      ;(mockPrisma.booking.findFirst as vi.Mock).mockResolvedValue(null)
+      ;(mockPrisma.booking.create as vi.Mock).mockResolvedValue({
         ...bookingData,
         id: 'integrity-test',
         status: 'PENDING',

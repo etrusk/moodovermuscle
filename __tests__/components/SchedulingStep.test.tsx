@@ -38,7 +38,7 @@ describe('SchedulingStep', () => {
     )
 
     // Assert
-    const datePicker = screen.getByTestId('date-picker-trigger')
+    const datePicker = screen.getByLabelText(/select date/i)
     const timeSelect = screen.getByTestId('time-select')
     const messageTextarea = screen.getByTestId('message-textarea')
 

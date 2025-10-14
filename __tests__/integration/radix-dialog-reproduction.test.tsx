@@ -91,21 +91,13 @@ describe('Radix UI Dialog - Minimal Reproduction', () => {
     await screen.findByText(/preferred date/i)
     
     // Select date
-    await user.click(screen.getByTestId('date-picker-trigger'))
     const dateToSelect = new Date()
     dateToSelect.setDate(dateToSelect.getDate() + 5)
-    const day = dateToSelect.getDate().toString()
+    const dateString = dateToSelect.toISOString().split('T')[0]
     
-    const dateCells = await screen.findAllByText(day)
-    const enabledDateCell = dateCells.find(
-      cell => cell.closest('button') && !cell.closest('button')?.disabled
-    )
-    
-    if (!enabledDateCell) {
-      throw new Error(`Could not find enabled date cell for day ${day}`)
-    }
-    
-    await user.click(enabledDateCell)
+    const dateInput = screen.getByLabelText(/select date/i)
+    await user.clear(dateInput)
+    await user.type(dateInput, dateString)
     
     // Assert - Should reach this point without infinite loop
     await waitFor(() => {

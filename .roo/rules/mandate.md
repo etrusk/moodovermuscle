@@ -18,6 +18,8 @@ If your task changes relevant information, update as part of your work:
 
 This keeps documentation accurate for future tasks.
 
-## Documentation Policy
+## File Creation Policy
 
-Ask before creating new .docs/ files - most needs already met.
+Prefer editing existing files over creating new ones. Only create new files when absolutely necessary for functionality.
+
+NEVER proactively create documentation files (*.md, README) unless explicitly requested by user.

@@ -170,6 +170,92 @@ customModes:
       - edit
       - command
     customInstructions: |
+      ## PRE-GENERATION COMPLEXITY ESTIMATION (MANDATORY - DO THIS FIRST)
+      
+      Before generating ANY code, estimate ALL complexity metrics:
+      
+      ### 1. FUNCTION COMPLEXITY ESTIMATION
+      ```
+      Task: [Describe what you're implementing]
+      
+      Functions needed: [List each function]
+      
+      For each function:
+      - Function name: [name]
+        - Lines: ~[X] lines (must be ≤40, hard limit 50)
+        - Parameters: [N] params (must be ≤3, use options object if >3)
+        - Logic complexity: [simple/moderate/complex]
+        - Will extract duplication? [yes/no - extract on 2nd occurrence]
+      
+      Total functions: [N]
+      Average lines per function: ~[X]
+      Functions with >3 params: [0 required - all using options objects]
+      ```
+      
+      ### 2. FILE SIZE ESTIMATION
+      ```
+      Code lines estimate:
+      - Function code: [N functions × avg lines = Y lines]
+      - Overhead (imports, types, exports): ~[Z lines]
+      
+      TOTAL FILE SIZE ESTIMATE: [Y + Z lines]
+      
+      Limit check:
+      - Production code: Target <250, hard limit 300
+      - Test files: Target <550, hard limit 600
+      - Integration tests: Target <750, hard limit 800
+      ```
+      
+      ### 3. PARAMETER COMPLEXITY CHECK
+      ```
+      Functions with parameters:
+      - [Function1]: [N] params → [OK if ≤3 / REFACTOR to options object if >3]
+      - [Function2]: [N] params → [OK if ≤3 / REFACTOR to options object if >3]
+      
+      Strategy for >3 params:
+      - Use options object: interface [Name]Options { field1: type; field2: type; ... }
+      - Single parameter: (options: [Name]Options)
+      ```
+      
+      ### 4. DUPLICATION PREVENTION PLAN
+      ```
+      Repeated patterns identified:
+      - [Pattern1]: Used in [N] places → Extract to [utility function name]
+      - [Pattern2]: Used in [N] places → Extract to [utility function name]
+      
+      Extraction plan:
+      - Create utility file: [path/to/utils.ts]
+      - Functions to extract: [list]
+      - Estimated duplication after extraction: <3% ✓
+      ```
+      
+      ### 5. COMPLIANCE VERIFICATION
+      ```
+      ✓ All functions ≤40 lines (target) / 50 lines (hard limit)?
+      ✓ File size <250 lines (target) / 300 lines (hard limit)?
+      ✓ All functions ≤3 parameters (or using options objects)?
+      ✓ No code duplication >3% (extract on 2nd occurrence)?
+      ✓ If any NO: Revise plan above
+      ```
+      
+      ### 6. FILE SPLIT PLAN (if file size >250 lines)
+      ```
+      Proposed split:
+      - File 1: [name.ts] - [Responsibility] (~X lines, Y functions, all ≤3 params)
+      - File 2: [name.ts] - [Responsibility] (~X lines, Y functions, all ≤3 params)
+      
+      Verification:
+      ✓ Each file <250 lines?
+      ✓ All functions still ≤50 lines?
+      ✓ All functions ≤3 params?
+      ✓ Shared utilities extracted to avoid duplication?
+      ```
+      
+      **STOP if any metric fails. Revise plan until ALL metrics pass.**
+      **Only proceed to code generation after ALL checks pass.**
+      
+      ---
+
       ## Before Writing Code
       
       1. Check .docs/patterns/index.md for similar implementations

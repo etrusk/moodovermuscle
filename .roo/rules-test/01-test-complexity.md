@@ -1,3 +1,127 @@
+# MANDATORY: Pre-Generation Test Complexity Planning
+
+**Complete this planning BEFORE writing any test code:**
+
+## Step 1: Test Count & Complexity Estimation
+
+```
+Feature being tested: [Description]
+
+Test categories:
+- Happy path scenarios: [N tests × ~15 lines = X lines]
+- Edge cases: [M tests × ~20 lines = Y lines]  
+- Error conditions: [P tests × ~15 lines = Z lines]
+- Integration workflows: [Q tests × ~30 lines = W lines]
+
+TOTAL TEST COUNT: [N + M + P + Q = T tests]
+TOTAL TEST CODE: [X + Y + Z + W = S lines]
+```
+
+## Step 2: Test Utilities & Setup Estimation
+
+```
+Setup requirements:
+- Mock utilities: ~[X lines]
+  - Functions needed: [list]
+  - Parameters per function: [≤3, use options if >3]
+  
+- beforeEach/afterEach: ~[Y lines]
+- Test fixtures/factories: ~[Z lines]
+  - Will extract duplication? [Extract on 2nd occurrence]
+
+- Imports/types: ~15 lines
+
+OVERHEAD TOTAL: ~[X + Y + Z + 15 lines]
+```
+
+## Step 3: File Size Calculation
+
+```
+Test code: [S lines from Step 1]
+Overhead: [T lines from Step 2]
+
+TOTAL FILE SIZE ESTIMATE: [S + T lines]
+
+File type limit:
+- Unit tests: Target <550, hard limit 600
+- Integration tests: Target <750, hard limit 800
+
+Current estimate within limits? [YES/NO]
+```
+
+## Step 4: Parameter Complexity Check
+
+```
+Test helper functions:
+- [Helper1]: [N] params → [OK if ≤3 / Use options object if >3]
+- [Helper2]: [N] params → [OK if ≤3 / Use options object if >3]
+
+Mock factory functions:
+- createMock[Entity]: [N] params → [OK if ≤3 / Use options object with defaults]
+
+Example:
+❌ createMockBooking(id, name, email, phone, status) // 5 params
+✓ createMockBooking(overrides?: Partial<Booking>) // 1 param with defaults
+```
+
+## Step 5: Duplication Prevention
+
+```
+Repeated test patterns identified:
+- [Pattern1]: Setup used in [N] tests → Extract to beforeEach or utility
+- [Pattern2]: Assertion used in [M] tests → Extract to custom matcher
+- [Pattern3]: Mock data used in [P] tests → Extract to test-fixtures.ts
+
+Extraction plan:
+- Shared setup → beforeEach()
+- Repeated mocks → test-fixtures.ts (≤300 lines)
+- Custom assertions → test-matchers.ts (≤300 lines)
+
+Estimated duplication after extraction: <3% ✓
+```
+
+## Step 6: File Split Decision
+
+```
+Is TOTAL < target limit (550 for unit / 750 for integration)? [YES/NO]
+
+If NO:
+  For unit tests (600-line limit):
+    Minimum files: [TOTAL ÷ 550 = N files, round up]
+    Target per file: [TOTAL ÷ N = ~X lines each]
+  
+  For integration tests (800-line limit):
+    Minimum files: [TOTAL ÷ 750 = N files, round up]
+    Target per file: [TOTAL ÷ N = ~X lines each]
+  
+  Proposed split by functionality:
+  - File 1: [name.test.tsx] - [Test group] (~X lines, Y tests)
+  - File 2: [name.test.tsx] - [Test group] (~Z lines, W tests)
+  
+  Verification:
+  ✓ Each file under target limit?
+  ✓ All test functions ≤50 lines?
+  ✓ All helper functions ≤3 params?
+  ✓ Utilities extracted to separate file?
+```
+
+## Step 7: Complete Pre-Generation Checklist
+
+Before writing ANY test code:
+
+- [ ] Test count estimated with line counts
+- [ ] Helper functions use ≤3 params (or options objects)
+- [ ] File size estimated (code + overhead)
+- [ ] Estimate < target limit (550 unit / 750 integration) OR split plan created
+- [ ] Each split file < target limit
+- [ ] Duplication prevention planned (extract on 2nd occurrence)
+- [ ] All test functions will be ≤50 lines
+- [ ] Shared utilities extracted to separate files
+
+**STOP AND REVISE if any checkbox fails.**
+
+---
+
 # Test Mode: Complexity Constraints
 
 **CRITICAL**: Pre-commit WILL BLOCK test commits that violate complexity limits. Write focused tests that pass pre-commit checks upfront.

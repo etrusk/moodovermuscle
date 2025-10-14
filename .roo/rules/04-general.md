@@ -144,6 +144,164 @@ new_task({ mode: "code" })
 new_task({ mode: "debug" })
 new_task({ mode: "architect" })
 ```
+## Pre-Generation Complexity Planning (All Coding Modes)
+
+**MANDATORY before generating ANY code - check ALL complexity metrics:**
+
+### Complete Pre-Generation Checklist
+
+- [ ] **Function complexity:** Each function ≤40 lines (target) / 50 (limit)
+- [ ] **Function parameters:** All functions ≤3 params (use options objects if needed)
+- [ ] **File size:** Estimated <250 lines (code) / <550 (tests) / <750 (integration)
+- [ ] **Split plan:** If exceeding target, N-file split defined with sizes
+- [ ] **Duplication plan:** Repeated patterns identified for extraction
+- [ ] **Verification:** All metrics pass in planned output
+
+**If ANY checkbox fails:**
+1. Refactor to fix (split functions, use options objects, extract utilities)
+2. Re-estimate with fixes applied
+3. Only proceed when ALL checks pass
+
+### The Four Complexity Metrics
+
+| Metric | Rule | Enforcement |
+|--------|------|-------------|
+| **Function Lines** | ≤50 lines | AST analysis at commit |
+| **Function Params** | ≤3 parameters | AST analysis at commit |
+| **File Lines** | ≤300 (code), ≤600 (tests), ≤800 (integration) | Line count at commit |
+| **Duplication** | ≤3% | jscpd scan at commit |
+
+### Why These Limits?
+
+**Function Lines (≤50):**
+- Cognitive load: Fits in one screen view
+- Testing: Easier to unit test focused functions
+- Maintenance: Simpler to understand and modify
+- Target 40 for buffer
+
+**Function Parameters (≤3):**
+- Complexity: >3 parameters indicate complex interface
+- Solution: Use options object/interface for grouped params
+- Readability: Named properties vs. positional arguments
+- Example: `createBooking(options)` vs. `createBooking(id, name, email, phone, date)`
+
+**File Lines:**
+- Code files: <250 target, 300 limit (50-line buffer)
+- Test files: <550 target, 600 limit (50-line buffer)
+- Integration: <750 target, 800 limit (50-line buffer)
+- Rationale: Focused responsibilities, easier navigation
+
+**Duplication (≤3%):**
+- DRY principle: Don't Repeat Yourself
+- Maintenance: Change once, not in N places
+- Bugs: Fix once, not in N places
+- Rule: Extract to utility on 2nd occurrence
+
+### Decision Trees
+
+**Function Parameter Count:**
+```
+How many parameters does function need?
+├─ ≤3 → Use directly
+└─ >3 → Create options interface
+        Example:
+        interface CreateBookingOptions {
+          serviceId: string;
+          datetime: Date;
+          clientInfo: ClientInfo;
+          notes?: string;
+        }
+        function createBooking(options: CreateBookingOptions)
+```
+
+**File Size:**
+```
+Estimated file size?
+├─ <250 (code) / <550 (tests) → Single file OK
+└─ ≥250 (code) / ≥550 (tests) → Calculate split
+    files_needed = ceil(estimate ÷ target)
+    lines_per_file = estimate ÷ files_needed
+    
+    Verify each file < target?
+    ├─ YES → Proceed with split
+    └─ NO → Increase files_needed, recalculate
+```
+
+**Duplication:**
+```
+Is code block used >1 time?
+├─ NO → Keep inline
+└─ YES → Extract to utility
+    - Create utility file if needed
+    - Move to shared location
+    - Import where needed
+    - Verify duplication <3%
+```
+
+### Examples Reference
+
+See `.docs/patterns/complexity-estimation-examples.md` for complete examples including:
+- Simple features (all metrics)
+- Parameter refactoring (>3 params → options object)
+- Test suite splitting
+- Duplication extraction
+- Real project refactoring
+
+### Common Violations & Fixes
+
+**Violation: Function with 5 parameters**
+```typescript
+// ❌ WRONG
+function createBooking(serviceId, datetime, name, email, phone) { }
+
+// ✓ CORRECT
+interface BookingRequest {
+  serviceId: string;
+  datetime: Date;
+  clientName: string;
+  clientEmail: string;
+  phone: string;
+}
+function createBooking(request: BookingRequest) { }
+```
+
+**Violation: 8% code duplication**
+```typescript
+// ❌ WRONG: Mock setup repeated in 15 tests
+it('test 1', () => {
+  const booking = { id: '1', status: 'pending', ... };
+  const service = { id: '1', name: 'Service', ... };
+  // test logic
+});
+
+// ✓ CORRECT: Extract to utility
+// In test-helpers.ts:
+export function createMockBooking(overrides?: Partial<Booking>): Booking {
+  return { id: '1', status: 'pending', ...overrides };
+}
+
+// In test:
+it('test 1', () => {
+  const booking = createMockBooking();
+  const service = createMockService();
+  // test logic
+});
+```
+
+**Violation: 367-line file without buffer**
+```
+// ❌ WRONG PLANNING
+890 lines to split
+890 ÷ 3 = 297 lines per file
+"Should fit in 300-line limit"
+
+// ✓ CORRECT PLANNING
+890 lines to split
+Target: 250 lines (50-line buffer)
+890 ÷ 250 = 3.56 → Need 4 files
+890 ÷ 4 = 223 lines per file ✓
+```
+
 
 ## Removed Modes (Now Automated)
 

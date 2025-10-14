@@ -12,7 +12,7 @@ let hasWarnings = false;
 console.log('📊 Check 1: Weak Assertion Detection');
 try {
   const weakAssertions = execSync(
-    'grep -r "toBeDefined\\|toBeTruthy\\|toBeGreaterThan(0)" __tests__/ --include="*.test.ts" --include="*.test.tsx" || true',
+    'grep -rE "toBeDefined|toBeTruthy|toBeGreaterThan\\(0\\)" __tests__/ --include="*.test.ts" --include="*.test.tsx" || true',
     { encoding: 'utf8' }
   );
   
@@ -36,9 +36,9 @@ try {
 console.log('\n📊 Check 2: AAA Pattern Structure');
 try {
   const testFiles = execSync(
-    'find __tests__/ -name "*.test.ts" -o -name "*.test.tsx"',
+    'find __tests__/ \\( -name "*.test.ts" -o -name "*.test.tsx" \\)',
     { encoding: 'utf8' }
-  ).trim().split('\n');
+  ).trim().split('\n').filter(f => f);
   
   let filesWithoutAAA = 0;
   for (const file of testFiles) {
@@ -68,9 +68,9 @@ try {
 console.log('\n📊 Check 3: Error Case Coverage');
 try {
   const testFiles = execSync(
-    'find __tests__/ -name "*.test.ts" -o -name "*.test.tsx"',
+    'find __tests__/ \\( -name "*.test.ts" -o -name "*.test.tsx" \\)',
     { encoding: 'utf8' }
-  ).trim().split('\n');
+  ).trim().split('\n').filter(f => f);
   
   let filesWithoutErrors = [];
   for (const file of testFiles) {
@@ -102,7 +102,7 @@ try {
 console.log('\n📊 Check 4: Integration Test Mocking Ratio');
 try {
   const integrationTests = execSync(
-    'find __tests__/integration/ -name "*.test.ts" -o -name "*.test.tsx" 2>/dev/null || true',
+    'find __tests__/integration/ \\( -name "*.test.ts" -o -name "*.test.tsx" \\) 2>/dev/null || true',
     { encoding: 'utf8' }
   ).trim();
   

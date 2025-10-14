@@ -72,7 +72,9 @@ describe('admin-auth-handlers', () => {
       // Assert
       expect(result.success).toBe(false)
       expect(result.error).toBe('Invalid input')
-      expect(result.validationErrors).toBeDefined()
+      expect(result.validationErrors).toEqual(expect.arrayContaining([
+        expect.objectContaining({ message: expect.stringContaining('valid email') })
+      ]))
       expect(result.validationErrors).toHaveLength(1)
       expect(result.validationErrors![0].message).toContain('valid email')
       expect(adminAuth.authenticateAdmin).not.toHaveBeenCalled()
@@ -91,7 +93,9 @@ describe('admin-auth-handlers', () => {
       // Assert
       expect(result.success).toBe(false)
       expect(result.error).toBe('Invalid input')
-      expect(result.validationErrors).toBeDefined()
+      expect(result.validationErrors).toEqual(expect.arrayContaining([
+        expect.objectContaining({ message: expect.stringContaining('required') })
+      ]))
       expect(result.validationErrors![0].message).toContain('required')
       expect(adminAuth.authenticateAdmin).not.toHaveBeenCalled()
     })
@@ -127,8 +131,10 @@ describe('admin-auth-handlers', () => {
       // Assert
       expect(result.success).toBe(false)
       expect(result.error).toBe('Invalid input')
-      expect(result.validationErrors).toBeDefined()
-      expect(result.validationErrors!.length).toBeGreaterThan(0)
+      expect(result.validationErrors).toEqual(expect.arrayContaining([
+        expect.objectContaining({ message: expect.any(String) })
+      ]))
+      expect(result.validationErrors!).toHaveLength(2) // Email and password both required
       expect(adminAuth.authenticateAdmin).not.toHaveBeenCalled()
     })
   })

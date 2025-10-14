@@ -59,7 +59,7 @@ describe('AdminCalendarPage - Accessibility', () => {
       expect(heading).toBeInTheDocument()
       
       const interactiveElements = container.querySelectorAll('button, a, input')
-      expect(interactiveElements.length).toBeGreaterThan(0)
+      expect(interactiveElements.length).toBeGreaterThanOrEqual(3) // At least Today button, combobox, and navigation buttons
       
       // Type assertion for accessibility structure
       const headingElement = heading as HTMLHeadingElement

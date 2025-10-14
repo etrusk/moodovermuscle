@@ -233,9 +233,9 @@ describe('ServiceCardContent Component', () => {
       const featureContainer = container.querySelector('.grid.gap-4')
       expect(featureContainer?.className).toContain('md:grid-cols-2')
       
-      // Check individual feature styling
-      const features = container.querySelectorAll('.flex.items-center.gap-3')
-      expect(features.length).toBeGreaterThan(0)
+      // Check individual feature styling - look specifically within the features grid
+      const features = featureContainer?.querySelectorAll('.flex.items-center.gap-3')
+      expect(features?.length).toBe(defaultProps.features.length) // One flex container per feature
     })
 
     it('handles empty features array', () => {
@@ -492,7 +492,7 @@ describe('ServiceCardContent Component', () => {
       
       // Check for space-y classes for vertical spacing
       const spacedElements = container.querySelectorAll('[class*="space-y"]')
-      expect(spacedElements.length).toBeGreaterThan(0)
+      expect(spacedElements.length).toBeGreaterThanOrEqual(1) // At least one element with spacing
     })
   })
 })

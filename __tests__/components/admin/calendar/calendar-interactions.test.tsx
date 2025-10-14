@@ -179,7 +179,7 @@ describe('AdminCalendarPage - Interactions', () => {
           const method = call[1]?.method || firstArg.method
           return url.includes('/api/admin/bookings') && method === 'PATCH'
         })
-        expect(patchCalls.length).toBeGreaterThan(0)
+        expect(patchCalls).toHaveLength(1) // Exactly one PATCH call for status update
       }, { timeout: 10000 })
 
       await waitFor(() => {

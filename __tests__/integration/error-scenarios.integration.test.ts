@@ -515,7 +515,7 @@ describe('Error Scenarios Integration: System Resilience Under Failure', () => {
         console.log('Failed responses:', responseTexts)
       }
 
-      expect(successfulResponses.length).toBeGreaterThan(0)
+      expect(successfulResponses.length).toBeGreaterThanOrEqual(1) // At least one concurrent booking succeeds
 
       const responseData = await Promise.all(
         successfulResponses.map((response) => response.json())

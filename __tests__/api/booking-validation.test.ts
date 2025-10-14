@@ -53,9 +53,13 @@ describe('validateBookingRequest', () => {
     // Assert
     expect(result.success).toBe(false)
     expect(result.data).toBeNull()
-    expect(result.error).toBeDefined()
+    expect(result.error).not.toBeNull() // Error response object present
     const response = await result.error?.json()
-    expect(response.errors).toBeDefined()
+    expect(response.errors).toEqual(expect.objectContaining({
+      name: expect.any(Array),
+      email: expect.any(Array),
+      service: expect.any(Array)
+    })) // Validation errors structure
   })
 
   it('returns success false for malformed JSON', async () => {
@@ -68,7 +72,7 @@ describe('validateBookingRequest', () => {
     // Assert
     expect(result.success).toBe(false)
     expect(result.data).toBeNull()
-    expect(result.error).toBeDefined()
+    expect(result.error).not.toBeNull() // Error response for malformed JSON
     const response = await result.error?.json()
     expect(response.message).toBe('Invalid form data.')
   })

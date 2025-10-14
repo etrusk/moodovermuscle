@@ -32,10 +32,11 @@ describe('Admin Session Validation Integration', () => {
       }
       
       // Act
-      const hasAllComponents =
+      const hasAllComponents = Boolean(
         completeToken.header &&
         completeToken.payload &&
         completeToken.signature
+      )
       
       // Assert
       expect(completeToken).toMatchObject({
@@ -43,7 +44,7 @@ describe('Admin Session Validation Integration', () => {
         payload: expect.any(String),
         signature: expect.any(String)
       })
-      expect(hasAllComponents).toBeTruthy()
+      expect(hasAllComponents).toBe(true) // All JWT components present
     })
   })
 
@@ -78,7 +79,7 @@ describe('Admin Session Validation Integration', () => {
       }
       
       // Act
-      const hasValidStructure = cookieSession.valid && cookieSession.user?.username
+      const hasValidStructure = Boolean(cookieSession.valid && cookieSession.user?.username)
       
       // Assert
       expect(cookieSession).toMatchObject({
@@ -87,7 +88,7 @@ describe('Admin Session Validation Integration', () => {
           username: expect.any(String)
         }
       })
-      expect(hasValidStructure).toBeTruthy()
+      expect(hasValidStructure).toBe(true) // Valid structure with user
     })
 
     it('confirms session has not expired', () => {
@@ -304,7 +305,7 @@ describe('Admin Session Validation Integration', () => {
       }
       
       // Act
-      const hasUserInfo = sessionResponse.valid && sessionResponse.user?.username
+      const hasUserInfo = Boolean(sessionResponse.valid && sessionResponse.user?.username)
       
       // Assert
       expect(sessionResponse).toMatchObject({
@@ -314,7 +315,7 @@ describe('Admin Session Validation Integration', () => {
           id: expect.any(String)
         }
       })
-      expect(hasUserInfo).toBeTruthy()
+      expect(hasUserInfo).toBe(true) // User info present in valid session
     })
   })
 
@@ -330,7 +331,7 @@ describe('Admin Session Validation Integration', () => {
       
       // Assert
       expect(timeRemaining).toBe(expiresIn)
-      expect(timeRemaining).toBeGreaterThan(0)
+      expect(timeRemaining).toBe(3600) // Exactly 1 hour remaining
     })
 
     it('detects recently expired tokens', () => {
@@ -357,7 +358,7 @@ describe('Admin Session Validation Integration', () => {
       
       // Assert
       expect(timeUntilExpiry).toBeLessThan(600) // less than 10 minutes
-      expect(timeUntilExpiry).toBeGreaterThan(0)
+      expect(timeUntilExpiry).toBe(300) // Exactly 5 minutes until expiry
     })
 
     it('throws error for tampered JWT signature', () => {

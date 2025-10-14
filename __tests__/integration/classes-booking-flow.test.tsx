@@ -670,7 +670,7 @@ describe('Classes Page Integration: Complete Booking Journey', () => {
       })
 
       // Assert
-      expect(comingSoonButtons.length).toBeGreaterThan(0)
+      expect(comingSoonButtons).toHaveLength(1) // Exactly one "coming soon" service
 
       // Act
       await user.click(comingSoonButtons[0])

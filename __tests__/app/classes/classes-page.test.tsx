@@ -335,7 +335,7 @@ describe('Classes Page', () => {
       const focusableButton = bookButtons.find(button =>
         button === document.activeElement
       )
-      expect(focusableButton).toBeDefined()
+      expect(focusableButton).toBeInstanceOf(HTMLElement) // Button is focusable element
     })
   })
 

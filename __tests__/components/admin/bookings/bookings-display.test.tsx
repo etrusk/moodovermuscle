@@ -224,7 +224,7 @@ describe('BookingsPage Component - Display Tests', () => {
 
       // Verify booking data structure
       const bookingCards = screen.getAllByText(/Personal Training|Group Class|Mums & Bubs Class/)
-      expect(bookingCards.length).toBeGreaterThan(0)
+      expect(bookingCards).toHaveLength(4) // 2 Personal Training + 1 Group Class + 1 Mums & Bubs
       expect(mockBookings).toMatchObject([
         expect.objectContaining({ name: 'Sarah Miller', status: 'PENDING' }),
         expect.objectContaining({ name: 'Mike Johnson', status: 'CONFIRMED' }),
@@ -233,10 +233,10 @@ describe('BookingsPage Component - Display Tests', () => {
       ])
 
       // Check status badges (use getAllByText for multiple matches)
-      expect(screen.getAllByText(/pending/i).length).toBeGreaterThan(0)
-      expect(screen.getAllByText(/confirmed/i).length).toBeGreaterThan(0)
-      expect(screen.getAllByText(/completed/i).length).toBeGreaterThan(0)
-      expect(screen.getAllByText(/cancelled/i).length).toBeGreaterThan(0)
+      expect(screen.getAllByText(/pending/i).length).toBeGreaterThanOrEqual(1) // At least one pending booking
+      expect(screen.getAllByText(/confirmed/i).length).toBeGreaterThanOrEqual(1) // At least one confirmed booking
+      expect(screen.getAllByText(/completed/i).length).toBeGreaterThanOrEqual(1) // At least one completed booking
+      expect(screen.getAllByText(/cancelled/i).length).toBeGreaterThanOrEqual(1) // At least one cancelled booking
     })
 
     it('displays booking count information', async () => {

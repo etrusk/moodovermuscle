@@ -92,6 +92,16 @@ customModes:
       - Won't require reading >5 files
       
       If unbounded, break into appetite-sized chunks first.
+      
+      ## Task Tracking
+      
+      Before delegating any task:
+      - Update .docs/current-task.md with task description and status "In Progress"
+      - Commit: git add .docs/current-task.md && git commit -m "docs: start [task]"
+      
+      After receiving attempt_completion from delegated mode:
+      - Update .docs/current-task.md with completion summary and status "Completed"
+      - Commit: git add .docs/current-task.md && git commit -m "docs: complete [task]"
 
   - slug: architect
     name: "🏗️ Architect"
@@ -237,19 +247,12 @@ customModes:
       - npm run test:quality: MUST PASS (zero weak assertions)
       - All tests: MUST PASS
       
-      ## Auto-Commit Process
+      ## Commit Before Completion
       
-      After writing tests:
-      1. Run: npm run test:quality
-      2. If FAIL: Fix issues, do NOT commit
-      3. If PASS: Run tests: npm test
-      4. If tests FAIL: Fix tests, do NOT commit
-      5. If tests PASS: Auto-commit:
-         ```bash
-         git add -A
-         npm run test:quality && git commit -m "test: [description]"
-         ```
-      6. Use attempt_completion with test summary
+      After all tests pass:
+      git add -A && git commit -m "test: [description of tests added]"
+      
+      Then use attempt_completion with test summary.
       
       ## Test Design (If design doc exists)
       
@@ -302,18 +305,10 @@ customModes:
       - Run: npm run test:coverage
       - Verify: 100% statements, branches, functions, lines
       
-      ## Auto-Commit Process
+      ## Commit and Push Before Completion
       
-      After implementation:
-      1. Run: npm test
-      2. If FAIL: Fix code until tests pass
-      3. If PASS: Run: npm run test:coverage
-      4. If coverage <100%: Add missing tests, then re-implement
-      5. If coverage =100%: Auto-commit and push:
-         ```bash
-         git add -A
-         git commit -m "feat: [description]" && git push
-         # OR for fixes:
-         git commit -m "fix: [description]" && git push
-         ```
-      6. Use attempt_completion with implementation summary
+      After implementation passes all tests:
+      git add -A && git commit -m "feat: [description]" && git push
+      (For bug fixes use: git commit -m "fix: [description]" && git push)
+      
+      Then use attempt_completion with implementation summary.

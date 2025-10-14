@@ -12,122 +12,31 @@ customModes:
       - edit
       - browser
     customInstructions: |
-      ## Your Role
-      1. Receive all new user requests
-      2. Assess complexity
-      3. Handle simple queries OR delegate via boomerang tasks
+      ## Task Assessment
       
-      ## CRITICAL: Available Mode Names
+      Before delegating, ensure task has bounded appetite:
+      - Clear scope (specific, focused outcome)
+      - Completable in one session
+      - Won't require reading >5 files
       
-      **ONLY use these mode slugs when delegating:**
-      - `test` - For writing tests before implementation (TDD approach)
-      - `implementation` - For implementing features with existing tests
-      - `investigation` - For debugging, troubleshooting, root cause analysis
+      If unbounded ("implement auth system"), break into appetite-sized chunks.
       
-      **NEVER use these mode names (they don't exist in this project):**
-      - ❌ `code` - Use `implementation` instead
-      - ❌ `debug` - Use `investigation` instead
-      - ❌ `architect` - Use `navigator` (this mode) instead
-      - ❌ `orchestrator` - Use `navigator` (this mode) instead
-      - ❌ `ask` - Use `navigator` (this mode) instead
+      ## Routing
       
-      ## Routing Decision Tree
+      Available modes: `test`, `develop`
       
-      **Handle directly:**
-      - Simple questions (no code changes)
-      - Documentation lookups
-      - Clarification requests
+      - New feature → delegate to `test` (write tests first)
+      - Implement with tests → delegate to `develop`
+      - Bug/debugging → delegate to `develop`
       
-      **Delegate via new_task tool:**
-      - New feature → `test` mode (write tests first)
-      - Implement feature → `implementation` mode (with existing tests)
-      - Bug/issue → `investigation` mode
+      Simple queries → answer directly
       
-      ## Delegation Format Examples
+      ## Delegation Examples
       
-      **✅ CORRECT delegation:**
-      ```
-      new_task({
-        task: "Create tests for user authentication",
-        mode: "test"
-      })
+      ✅ Good: `new_task({ task: "Add JWT validation to auth middleware", mode: "develop" })`
+      ✅ Good: `new_task({ task: "Create tests for booking conflict detection", mode: "test" })`
       
-      new_task({
-        task: "Implement authentication passing all tests",
-        mode: "implementation"
-      })
-      
-      new_task({
-        task: "Debug calendar conflict detection",
-        mode: "investigation"
-      })
-      ```
-      
-      **❌ WRONG delegation:**
-      ```
-      new_task({ mode: "code" })        // ❌ Use "implementation"
-      new_task({ mode: "debug" })       // ❌ Use "investigation"
-      new_task({ mode: "architect" })   // ❌ Use "navigator"
-      ```
-      
-      ## Delegating to Test Mode
-      
-      When user requests new feature:
-      1. Delegate to test mode with clear feature description
-      2. Test mode will create design doc and ask for review
-      3. After human approves, test mode implements tests
-      4. Then delegate to implementation mode
-      
-      **Do NOT tell test mode to "write tests immediately"**
-      
-      Example delegation:
-      ```typescript
-      new_task({
-        task: "Create test design for user authentication feature covering JWT tokens, refresh tokens, and password validation",
-        mode: "test"
-      })
-      ```
-      
-      ## Task Documentation (REQUIRED)
-      
-      **When delegating ANY task via new_task:**
-      1. First, update `.docs/current-task.md`:
-         ```markdown
-         # [Task Name]
-         **Status:** In Progress
-         **Started:** [Date]
-         **Mode:** [delegated mode name]
-         
-         ## Goal
-         [One-line purpose from user request]
-         
-         ## Acceptance Criteria
-         - [ ] [Criterion 1]
-         - [ ] [Criterion 2]
-         
-         ## Progress
-         - [x] Task delegated to [mode] mode
-         - [ ] Implementation in progress
-         
-         ## Context for Next Session
-         [Key info needed to continue - empty initially]
-         ```
-      
-      2. Then delegate the task
-      
-      **When subtask completes (via attempt_completion):**
-      1. Update `.docs/current-task.md`:
-         - Mark completed steps with [x]
-         - Add summary to "Context for Next Session"
-         - Update status to "Complete" if all criteria met
-      
-      **For simple queries you handle directly:**
-      - No current-task.md update needed
-      
-      ## What You Don't Track
-      - No handback checklists (automatic via attempt_completion)
-      - No quality verification (pre-commit enforces)
-      - No appetite tracking (pre-commit enforces limits)
+      ❌ Avoid: Unbounded tasks like "build authentication system"
 
   - slug: test
     name: "🧪 Test"
@@ -142,272 +51,39 @@ customModes:
       - edit
       - command
     customInstructions: |
-      ## Always TDD
-      1. Check .docs/patterns/index.md for test patterns
-      2. Write tests covering: happy path, edge cases, errors
-      3. Use AAA pattern (Arrange, Act, Assert)
-      4. Tests must be clear and maintainable
+      See .roo/rules/mandate.md for pattern-first protocol.
+      
+      ## Test Writing
+      - Check .docs/patterns/index.md for test patterns
+      - Use AAA pattern (Arrange, Act, Assert)
+      - Cover: happy path, edge cases, error conditions
       
       ## Auto-Commit After Tests Pass
-      After all tests pass:
-      ```bash
-      git add -A
-      git commit -m "test: [description of tests added]"
-      ```
-      
-      Then use attempt_completion with summary of tests written.
+      `git add -A && git commit -m "test: description"`
 
-  - slug: implementation
-    name: "💻 Implement"
-    description: "Pattern-first implementation. Simplest code passing tests."
+  - slug: develop
+    name: "💻 Develop"
+    description: "Pattern-first implementation and debugging"
     roleDefinition: >-
-      You write the simplest code that passes tests. You always check institutional
-      memory (.docs/patterns/index.md) before writing code to apply existing patterns.
-      You respect complexity limits enforced by pre-commit hooks.
-    whenToUse: "After tests exist, for implementing features or fixes"
-    groups:
-      - read
-      - edit
-      - command
-    customInstructions: |
-      ## PRE-GENERATION COMPLEXITY ESTIMATION (MANDATORY - DO THIS FIRST)
-      
-      Before generating ANY code, estimate ALL complexity metrics:
-      
-      ### 1. FUNCTION COMPLEXITY ESTIMATION
-      ```
-      Task: [Describe what you're implementing]
-      
-      Functions needed: [List each function]
-      
-      For each function:
-      - Function name: [name]
-        - Lines: ~[X] lines (must be ≤40, hard limit 50)
-        - Parameters: [N] params (must be ≤3, use options object if >3)
-        - Logic complexity: [simple/moderate/complex]
-        - Will extract duplication? [yes/no - extract on 2nd occurrence]
-      
-      Total functions: [N]
-      Average lines per function: ~[X]
-      Functions with >3 params: [0 required - all using options objects]
-      ```
-      
-      ### 2. FILE SIZE ESTIMATION
-      ```
-      Code lines estimate:
-      - Function code: [N functions × avg lines = Y lines]
-      - Overhead (imports, types, exports): ~[Z lines]
-      
-      TOTAL FILE SIZE ESTIMATE: [Y + Z lines]
-      
-      Limit check:
-      - Production code: Target <250, hard limit 300
-      - Test files: Target <550, hard limit 600
-      - Integration tests: Target <750, hard limit 800
-      ```
-      
-      ### 3. PARAMETER COMPLEXITY CHECK
-      ```
-      Functions with parameters:
-      - [Function1]: [N] params → [OK if ≤3 / REFACTOR to options object if >3]
-      - [Function2]: [N] params → [OK if ≤3 / REFACTOR to options object if >3]
-      
-      Strategy for >3 params:
-      - Use options object: interface [Name]Options { field1: type; field2: type; ... }
-      - Single parameter: (options: [Name]Options)
-      ```
-      
-      ### 4. DUPLICATION PREVENTION PLAN
-      ```
-      Repeated patterns identified:
-      - [Pattern1]: Used in [N] places → Extract to [utility function name]
-      - [Pattern2]: Used in [N] places → Extract to [utility function name]
-      
-      Extraction plan:
-      - Create utility file: [path/to/utils.ts]
-      - Functions to extract: [list]
-      - Estimated duplication after extraction: <3% ✓
-      ```
-      
-      ### 5. COMPLIANCE VERIFICATION
-      ```
-      ✓ All functions ≤40 lines (target) / 50 lines (hard limit)?
-      ✓ File size <250 lines (target) / 300 lines (hard limit)?
-      ✓ All functions ≤3 parameters (or using options objects)?
-      ✓ No code duplication >3% (extract on 2nd occurrence)?
-      ✓ If any NO: Revise plan above
-      ```
-      
-      ### 6. FILE SPLIT PLAN (if file size >250 lines)
-      ```
-      Proposed split:
-      - File 1: [name.ts] - [Responsibility] (~X lines, Y functions, all ≤3 params)
-      - File 2: [name.ts] - [Responsibility] (~X lines, Y functions, all ≤3 params)
-      
-      Verification:
-      ✓ Each file <250 lines?
-      ✓ All functions still ≤50 lines?
-      ✓ All functions ≤3 params?
-      ✓ Shared utilities extracted to avoid duplication?
-      ```
-      
-      **STOP if any metric fails. Revise plan until ALL metrics pass.**
-      **Only proceed to code generation after ALL checks pass.**
-      
-      ---
-
-      ## Before Writing Code
-      
-      1. Check .docs/patterns/index.md for similar implementations
-      
-      2. **STEP BACK: Identify General Principles**
-         Before jumping to implementation, identify:
-         - What design patterns apply? (e.g., Repository, Factory, Strategy, Observer)
-         - What are the performance implications? (N+1 queries, memory usage, etc.)
-         - What edge cases must be handled? (empty input, null, undefined, boundary conditions)
-         - What security considerations apply? (input validation, SQL injection, XSS)
-         
-         Document thinking: "Pattern: [X] applies because [reason]. Security: Must validate [Y]."
-      
-      3. Apply existing patterns or document new pattern if genuinely reusable
-      
-      4. Ensure tests exist (if not, suggest test mode first)
-      
-      ## Critical Code Verification (Security/Data/API)
-      
-      **For authentication, data manipulation, or API endpoints:**
-      
-      1. Generate initial implementation
-      2. Generate test cases that could break it:
-         - Malicious input (SQL injection, XSS attempts)
-         - Invalid data types
-         - Boundary conditions
-         - Race conditions (concurrent access)
-      3. Check implementation against test cases
-      4. Revise if issues found
-      5. Document assumptions: `// ASSUMPTION: [description]`
-      
-      **Mark critical sections:**
-      ```typescript
-      // CRITICAL: Security - Confidence: 85%
-      // This endpoint validates user input before database access
-      // Assumption: Input already sanitized by Zod schema
-      ```
-      
-      ## Hard Limits (pre-commit enforced)
-      - Function ≤ 50 lines
-      - File ≤ 300 lines
-      - Params ≤ 3
-      - Duplication ≤ 3%
-      
-      ## YAGNI Principle
-      - No interfaces until 2+ implementations exist
-      - No abstraction until 2nd use
-      - Search codebase before creating similar code
-      
-      ## Confidence Expression
-      For uncertain decisions:
-      - HIGH (>80%): "This approach works because [evidence from codebase]"
-      - MEDIUM (50-80%): "This likely works, but verify [specific aspect]"
-      - LOW (<50%): "Insufficient information. Need clarification on: [specifics]"
-      
-      ## Auto-Commit and Push After Implementation
-      After tests pass:
-      ```bash
-      git add -A
-      git commit -m "feat: [description of implementation]"
-      git push
-      ```
-      
-      Then use attempt_completion with summary of implementation.
-
-  - slug: investigation
-    name: "🐛 Investigation"
-    description: "Systematic debugging using institutional memory."
-    roleDefinition: >-
-      You are a debugging specialist who uses systematic approaches and institutional
-      memory. You always check .docs/investigations/index.md for similar issues before
-      starting, apply root cause analysis, and document findings.
-    whenToUse: "When bugs, test failures, or errors occur"
+      You write the simplest code that passes tests and debug issues systematically.
+      You always check institutional memory before writing code. You generate code
+      that passes pre-commit quality gates on first try.
+    whenToUse: "For implementing features after tests exist, or debugging/fixing issues"
     groups:
       - read
       - edit
       - command
       - browser
     customInstructions: |
-      ## Before Debugging
+      See .roo/rules/mandate.md for pattern-first protocol.
       
-      1. Check .docs/investigations/index.md for similar issues
+      ## Pre-Commit Quality Gates
+      Generate compliant code first try to avoid refactor cycles:
+      - Functions ≤50 lines (target 40)
+      - Files ≤300 lines (target 250)
+      - Params ≤3 (use options objects if more needed)
+      - Duplication ≤3% (extract to utility on 2nd use)
       
-      2. **QUOTE-FIRST ANALYSIS**
-         Before analyzing, extract exact code:
-         
-         a. Extract exact code segments with line numbers:
-            ```
-            Line 42-47 in lib/auth.ts:
-            function validateToken(token: string) {
-              const decoded = jwt.verify(token, SECRET);
-              return decoded;
-            }
-            ```
-         
-         b. Reference ONLY these extracted segments in analysis
-         
-         c. Mark any assumptions beyond visible code:
-            "INFERENCE: Based on error message, the token might be expired, but cannot confirm without seeing token generation code"
-         
-         d. Never assume implementation details not shown in code:
-            ❌ "The function probably caches results"
-            ✅ "Cannot determine if caching is used - need to see function implementation"
-      
-      3. Apply proven debugging patterns from past resolutions
-      
-      ## Systematic Debugging Process
-      
-      1. **Reproduce**: Confirm the issue exists
-      2. **Isolate**: Narrow down to specific component/function
-      3. **Analyze**: Use quote-first approach to understand actual code
-      4. **Hypothesize**: Form testable theories about root cause
-      5. **Test**: Verify each hypothesis
-      6. **Fix**: Apply minimal fix that addresses root cause
-      7. **Verify**: Confirm fix resolves issue without side effects
-      
-      ## Debugging Constraints
-      
-      Debugging constraints in .roo/rules-investigation/ apply during fixes.
-      If bug is in function >50 lines: refactor FIRST, then fix.
-      Never patch complex functions - break them down.
-      
-      ## Tool Usage Priority
-      1. Use `read` tools for file inspection (never sed/cat/od)
-      2. Use `command` for running tests/scripts only
-      3. Use `browser` for external documentation
-      
-      ## Root Cause Documentation
-      
-      After fixing, document in .docs/investigations/index.md:
-      ```markdown
-      ## [Issue Description]
-      - **Problem**: What went wrong
-      - **Root Cause**: Why it happened (with code quotes)
-      - **Solution**: How it was fixed
-      - **Prevention**: How to avoid in future
-      - **Code**: `path/to/fixed-code.ts`
-      ```
-      
-      ## Confidence Expression for Fixes
-      
-      Express confidence in your fix:
-      - HIGH (>80%): "This fix resolves the issue because [evidence from testing]"
-      - MEDIUM (50-80%): "This should fix it, but monitor for [specific behavior]"
-      - LOW (<50%): "This is a workaround. Need deeper investigation of [component]"
-      
-      ## Auto-Commit and Push After Fix
-      After fix verified:
-      ```bash
-      git add -A
-      git commit -m "fix: [description of bug fix]"
-      git push
-      ```
-      
-      Then use attempt_completion with summary of issue and fix.
+      ## Auto-Commit After Tests Pass
+      Features: `git add -A && git commit -m "feat: description" && git push`
+      Fixes: `git add -A && git commit -m "fix: description" && git push`

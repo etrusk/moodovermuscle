@@ -57,7 +57,10 @@
     "quality-gates": "node scripts/quality-gates.js",
     "quality-gates:critical": "node scripts/quality-gates.js",
     "memory:update": "node scripts/memory-updater.js update",
-    "deployment:gates": "pnpm run quality-gates && pnpm run memory:update"
+    "deployment:gates": "pnpm run quality-gates && pnpm run memory:update",
+    "deps:check": "node scripts/check-dependencies.js",
+    "deps:update": "pnpm update --latest -r",
+    "deps:audit": "pnpm audit --audit-level moderate"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

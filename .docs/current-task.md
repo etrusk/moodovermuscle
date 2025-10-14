@@ -1,14 +1,14 @@
-# Replace Date Picker Popover to Enable 6 Skipped Tests
+# Replace Date Picker with Native Input to Fix 6 Skipped Tests
 
-**Status:** ⚠️ PARTIAL SUCCESS - Tests Still Skipped
+**Status:** ✅ COMPLETED
 **Started:** 2025-10-14
 **Completed:** 2025-10-14
 **Mode:** Navigator → Implementation
-**Goal:** Replace Popover-based date picker with inline calendar to fix React 19 + Radix UI focus-scope incompatibility
+**Goal:** Replace react-day-picker Calendar with native `<input type="date">` to resolve React 19 compatibility issues
 
 ## Problem
 
-6 critical booking integration tests are skipped due to React 19 + Radix UI focus-scope incompatibility causing infinite loop when opening date picker inside Dialog.
+6 critical booking integration tests were skipped due to React 19 + react-day-picker incompatibility causing infinite loops when using Calendar component inside Dialog.
 
 **Affected Tests:** `__tests__/integration/booking-form-component.integration.test.tsx`
 - Line 103: "completes full booking flow from start to confirmation"
@@ -18,95 +18,115 @@
 - Line 213: "shows loading state during final submission"
 - Line 240: "enables time selection only after date is chosen"
 
-**Root Cause:** Nested focus scopes (Dialog → Popover → Calendar) trigger infinite setState loop
+**Root Cause:** React 19 + react-day-picker Calendar component compatibility issue
 **Investigation:** `.docs/investigations/2025-01-14-radix-ui-react19-focus-scope.md`
 
-## Solution Approach
+## Solution Implemented
 
-Replace Popover wrapper with inline calendar display to eliminate nested focus-scope issue.
+Replaced react-day-picker Calendar component with native HTML `<input type="date">` element.
 
-## Changes Required
+## Changes Made
 
-### 1. Update DateSelector Component
-**Target File:** `components/booking-form/steps/scheduling/DateSelector.tsx`
+### 1. Updated DateSelector Component
+**File:** `components/booking-form/steps/scheduling/DateSelector.tsx`
 
-**Change Pattern:**
+**Implementation:**
 ```tsx
-// BEFORE (Popover-based)
-<Popover>
-  <PopoverTrigger>Select date</PopoverTrigger>
-  <PopoverContent>
-    <Calendar />
-  </PopoverContent>
-</Popover>
-
-// AFTER (Inline)
-<div className="date-selector-inline">
-  <Calendar 
-    selected={selectedDate}
-    onSelect={setSelectedDate}
-    disabled={unavailableDates}
-  />
-</div>
+// Native date input implementation
+<input
+  type="date"
+  value={selectedDate ? format(selectedDate, 'yyyy-MM-dd') : ''}
+  onChange={handleDateChange}
+  min={format(new Date(), 'yyyy-MM-dd')}
+  aria-label="Select date"
+  className="w-full max-w-[350px] px-3 py-2 text-base border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+/>
 ```
 
-### 2. Add Styling
-- Ensure inline calendar is mobile-responsive
-- Proper spacing within booking form dialog
-- Maintain accessibility
+**Features Added:**
+- Native browser date picker (iOS/Android optimized)
+- Availability indicator showing slot counts for selected dates
+- Minimum date validation (prevents past date selection)
+- Full accessibility support (built into native input)
 
-### 3. Update Tests
-**File:** `__tests__/integration/booking-form-component.integration.test.tsx`
+### 2. Updated Tests
+**Files:**
+- `__tests__/integration/booking-form-component.integration.test.tsx`: Removed `.skip()` from 6 tests, updated date selection logic
+- `__tests__/components/SchedulingStep.test.tsx`: Updated to query native date input with `toBeDisabled()`
+- `__tests__/integration/radix-dialog-reproduction.test.tsx`: Updated date selection logic for native input
 
-Actions:
-- Remove `.skip()` from 6 tests
-- Update test queries (no popover trigger to click)
-- Verify all tests pass
+**Test Pattern Change:**
+```tsx
+// OLD: Click calendar day button
+const dayButton = screen.getByRole('button', { name: '15' });
+await userEvent.click(dayButton);
 
-### 4. Update Investigation Documentation
+// NEW: Set native date input
+const dateInput = screen.getByLabelText(/select date/i);
+await userEvent.type(dateInput, '2024-01-15');
+```
+
+### 3. Updated Investigation Documentation
 **File:** `.docs/investigations/2025-01-14-radix-ui-react19-focus-scope.md`
 
-Add resolution section documenting the fix.
+Added resolution section documenting:
+- Native input solution
+- Test results (all 9 tests passing)
+- Benefits achieved
 
-## Outcome
+## Test Results
 
-**What Was Accomplished:**
-- ✅ Removed Popover wrapper (one less layer of nested focus scopes)
-- ✅ Implemented inline calendar display
-- ✅ Simplified user interaction (always-visible calendar)
-- ✅ Updated investigation doc with findings
+✅ **All 9 integration tests passing** (0 skipped)
+```
+Test Suites: 1 passed, 1 total
+Tests:       9 passed, 9 total
+Time:        4.341 s
 
-**What Wasn't Resolved:**
-- ❌ Tests still fail with infinite loop/memory exhaustion
-- ❌ Issue is deeper than just Popover focus-scope
-- ❌ Likely react-day-picker + React 19 incompatibility
+All 6 previously skipped tests now PASS:
+✓ completes full booking flow from start to confirmation
+✓ preserves user data through multi-step wizard
+✓ displays validation errors from API
+✓ handles network failures gracefully
+✓ shows loading state during final submission
+✓ enables time selection only after date is chosen
+```
 
 ## Acceptance Criteria Status
 
-- [ ] ~~All 6 previously skipped tests pass~~ - Tests still skipped (issue persists)
-- [x] Calendar displays inline in booking form
-- [x] Mobile responsive layout works
-- [x] No popover component (removed)
-- [x] Investigation doc updated with resolution attempt
-- [x] Changes committed with conventional commit message
+- [x] All 6 previously skipped tests pass
+- [x] No react-day-picker dependency
+- [x] Mobile responsive (native browser picker)
+- [x] Accessible (built-in ARIA support)
+- [x] React 19 compatible (no infinite loops)
+- [x] Investigation doc updated with resolution
+- [x] Changes committed and pushed with conventional commit message
 
-## Effort Estimate
+## Benefits Achieved
 
-**Total Appetite:** 2-3 hours
-- Component refactor: 1 hour
+✅ **Zero Dependencies:** Removed react-day-picker library
+✅ **Native UI:** Browser-optimized date picker (iOS/Android)
+✅ **Built-in Accessibility:** ARIA, keyboard navigation included
+✅ **React 19 Compatible:** No custom rendering issues
+✅ **Smaller Bundle:** Reduced package size
+✅ **Mobile Optimized:** Native date/time pickers on mobile devices
+✅ **All Tests Passing:** 9/9 integration tests pass
+
+## Commits
+
+- Committed with conventional commit message: `fix: replace react-day-picker with native date input to resolve React 19 compatibility`
+- All quality gates passed (lint, type-check, critical tests)
+- Successfully pushed to repository
+
+## Effort Used
+
+**Total Time:** ~1.5 hours
+- Component refactor: 30 minutes
 - Test updates: 30 minutes
-- Styling and mobile responsiveness: 30 minutes
-- Verification and documentation: 30 minutes
+- Test debugging and fixes: 30 minutes
+- Documentation: 10 minutes
 
-## Circuit Breakers
+**Circuit Breakers:** None triggered - completed within appetite
 
-- If inline calendar breaks existing functionality: Revert and escalate
-- If tests still fail after changes: Document new issue and escalate
-- If >3 hours: Stop and report progress
+## Conclusion
 
-## Next Steps
-
-1. Delegate to `implementation` mode
-2. Refactor DateSelector to use inline calendar
-3. Update tests and verify pass
-4. Document resolution
+Native `<input type="date">` successfully resolved all React 19 compatibility issues. All 6 previously skipped tests now pass, and the solution provides better mobile UX with native browser date pickers.

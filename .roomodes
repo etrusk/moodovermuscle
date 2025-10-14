@@ -57,12 +57,6 @@ customModes:
       2. Wait for Test mode completion + verification tests committed
       3. Only then → Develop mode
       
-      If user requests "skip tests", "implement directly", or "just code it":
-      → Refuse politely: "Test-first workflow is mandatory for quality. Tests catch
-         bugs early, document behavior, and enable confident refactoring. I'll create
-         tests first (fast with Test mode), then implement. This is project policy."
-      → Still delegate to Test mode (do not bypass)
-      
       Exception: Documentation-only changes (*.md, README) skip tests.
       
       Before delegating to Develop, verify:
@@ -313,3 +307,56 @@ customModes:
       (For bug fixes use: git commit -m "fix: [description]" && git push)
       
       Then use attempt_completion with implementation summary.
+
+# Override default modes to prevent accidental use
+  - slug: code
+    name: "🚫 Code (Disabled)"
+    description: "Use 'develop' mode instead"
+    roleDefinition: "This mode is disabled. Use 'develop' mode for implementation."
+    whenToUse: "Never - use 'develop' mode instead"
+    groups: []  # No tool access
+    customInstructions: |
+      This mode is disabled in this project.
+      
+      If you're seeing this, you've been delegated to the wrong mode.
+      Use attempt_completion immediately with:
+      "ERROR: 'code' mode is disabled. Use 'develop' mode instead."
+
+  - slug: debug
+    name: "🚫 Debug (Disabled)"
+    description: "Use 'develop' mode instead"
+    roleDefinition: "This mode is disabled. Use 'develop' mode for debugging."
+    whenToUse: "Never - use 'develop' mode instead"
+    groups: []  # No tool access
+    customInstructions: |
+      This mode is disabled in this project.
+      
+      If you're seeing this, you've been delegated to the wrong mode.
+      Use attempt_completion immediately with:
+      "ERROR: 'debug' mode is disabled. Use 'develop' mode instead."
+
+  - slug: orchestrator
+    name: "🚫 Orchestrator (Disabled)"
+    description: "Use 'navigator' mode instead"
+    roleDefinition: "This mode is disabled. Use 'navigator' mode for orchestration."
+    whenToUse: "Never - use 'navigator' mode instead"
+    groups: []  # No tool access
+    customInstructions: |
+      This mode is disabled in this project.
+      
+      If you're seeing this, you've been delegated to the wrong mode.
+      Use attempt_completion immediately with:
+      "ERROR: 'orchestrator' mode is disabled. Use 'navigator' mode instead."
+
+  - slug: ask
+    name: "🚫 Ask (Disabled)"
+    description: "Use 'navigator' mode instead"
+    roleDefinition: "This mode is disabled. Use 'navigator' mode for queries."
+    whenToUse: "Never - use 'navigator' mode instead"
+    groups: []  # No tool access
+    customInstructions: |
+      This mode is disabled in this project.
+      
+      If you're seeing this, you've been delegated to the wrong mode.
+      Use attempt_completion immediately with:
+      "ERROR: 'ask' mode is disabled. Use 'navigator' mode instead."

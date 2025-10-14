@@ -184,8 +184,9 @@ describe('BookingsPage Component - Actions and Accessibility Tests', () => {
       expect(requestOptions.method).toBe('PATCH')
       
       // Check headers (can be Headers object or plain object)
-      const headers = requestOptions.headers?.map || requestOptions.headers
-      expect(headers['content-type'] || headers['Content-Type']).toBe('application/json')
+      const headers = requestOptions.headers
+      const contentType = headers?.get ? headers.get('content-type') : (headers?.['content-type'] || headers?.['Content-Type'])
+      expect(contentType).toBe('application/json')
       
       // Check body with type assertion
       const body = requestOptions.body || requestOptions._bodyText
@@ -239,8 +240,9 @@ describe('BookingsPage Component - Actions and Accessibility Tests', () => {
       expect(requestOptions.method).toBe('PATCH')
       
       // Check headers (can be Headers object or plain object)
-      const headers = requestOptions.headers?.map || requestOptions.headers
-      expect(headers['content-type'] || headers['Content-Type']).toBe('application/json')
+      const headers = requestOptions.headers
+      const contentType = headers?.get ? headers.get('content-type') : (headers?.['content-type'] || headers?.['Content-Type'])
+      expect(contentType).toBe('application/json')
       
       // Check body
       const body = requestOptions.body || requestOptions._bodyText
@@ -437,8 +439,9 @@ describe('BookingsPage Component - Actions and Accessibility Tests', () => {
       expect(requestOptions.method).toBe('PATCH')
       
       // Check headers (can be Headers object or plain object)
-      const headers = requestOptions.headers?.map || requestOptions.headers
-      expect(headers['content-type'] || headers['Content-Type']).toBe('application/json')
+      const headers = requestOptions.headers
+      const contentType = headers?.get ? headers.get('content-type') : (headers?.['content-type'] || headers?.['Content-Type'])
+      expect(contentType).toBe('application/json')
       
       // Check body
       const body = requestOptions.body || requestOptions._bodyText

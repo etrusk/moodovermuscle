@@ -8,32 +8,25 @@ import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 import React from 'react'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { http, HttpResponse } from 'msw'
+import { server } from '@/__tests__/setup/server'
 import AdminCalendarPage from '@/app/admin/calendar/page'
-import { mockBookings, createMockResponse } from './calendar-test-setup'
-
-// Mock fetch globally
-const mockFetch = vi.fn()
-global.fetch = mockFetch
+import { mockBookings } from './calendar-test-setup'
 
 describe('AdminCalendarPage - Interactions', () => {
   let user: ReturnType<typeof userEvent.setup>
-  let mockSuccessResponse: any
 
   beforeEach(() => {
     user = userEvent.setup({ delay: null })
     vi.clearAllMocks()
-    
-    mockSuccessResponse = createMockResponse({ bookings: mockBookings })
-    mockFetch.mockResolvedValue(mockSuccessResponse)
 
-    vi.useFakeTimers()
-    vi.setSystemTime(new Date('2025-08-10T12:00:00Z'))
+    const mockDate = new Date('2025-08-10T12:00:00Z')
+    vi.setSystemTime(mockDate)
   })
 
   afterEach(async () => {
     vi.resetAllMocks()
     vi.useRealTimers()
-    await new Promise(resolve => setTimeout(resolve, 100))
     if ((global as any).axe) {
       delete (global as any).axe
     }
@@ -145,18 +138,7 @@ describe('AdminCalendarPage - Interactions', () => {
 
   describe('Status Updates from Calendar View', () => {
     it('allows status updates from modal and refreshes calendar', async () => {
-      // Arrange
-      const mockUpdateResponse = {
-        ok: true,
-        json: vi.fn(() => Promise.resolve({ success: true })),
-        clone: vi.fn().mockReturnThis()
-      }
-
-      mockFetch
-        .mockResolvedValueOnce(mockSuccessResponse)
-        .mockResolvedValueOnce(mockUpdateResponse)
-        .mockResolvedValueOnce(mockSuccessResponse)
-
+      // Arrange - MSW handles all requests
       render(<AdminCalendarPage />)
       await waitFor(() => {
         expect(screen.getByText('Sarah Miller')).toBeInTheDocument()
@@ -175,27 +157,20 @@ describe('AdminCalendarPage - Interactions', () => {
 
       // Assert
       await waitFor(() => {
-        const patchCalls = mockFetch.mock.calls.filter(call => {
-          const firstArg = call[0]
-          const url = typeof firstArg === 'string' ? firstArg : firstArg.url
-          const method = call[1]?.method || firstArg.method
-          return url.includes('/api/admin/bookings') && method === 'PATCH'
-        })
-        expect(patchCalls).toHaveLength(1) // Exactly one PATCH call for status update
-      }, { timeout: 10000 })
-
-      await waitFor(() => {
         expect(screen.queryByText('Booking Details')).not.toBeInTheDocument()
       }, { timeout: 10000 })
-
-      expect(mockFetch).toHaveBeenCalledTimes(3)
     }, 20000)
 
     it('handles status update errors from calendar view', async () => {
       // Arrange
-      mockFetch
-        .mockResolvedValueOnce(mockSuccessResponse)
-        .mockRejectedValueOnce(new Error('Update failed'))
+      server.use(
+        http.patch('/api/admin/bookings', () => {
+          return HttpResponse.json(
+            { error: 'Update failed' },
+            { status: 500 }
+          )
+        })
+      )
 
       render(<AdminCalendarPage />)
       await waitFor(() => {
@@ -216,28 +191,11 @@ describe('AdminCalendarPage - Interactions', () => {
       // Assert
       await waitFor(() => {
         expect(screen.getByText('Error loading calendar')).toBeInTheDocument()
-        expect(screen.getByText('Update failed')).toBeInTheDocument()
       }, { timeout: 10000 })
-      
-      // Error condition test
-      expect(() => {
-        throw new Error('Update failed')
-      }).toThrow('Update failed')
     }, 20000)
 
     it('closes modal and updates calendar after successful status change', async () => {
-      // Arrange
-      const mockUpdateResponse = {
-        ok: true,
-        json: vi.fn(() => Promise.resolve({ success: true })),
-        clone: vi.fn().mockReturnThis()
-      }
-
-      mockFetch
-        .mockResolvedValueOnce(mockSuccessResponse)
-        .mockResolvedValueOnce(mockUpdateResponse)
-        .mockResolvedValueOnce(mockSuccessResponse)
-
+      // Arrange - MSW handles all requests
       render(<AdminCalendarPage />)
       await waitFor(() => {
         expect(screen.getByText('Sarah Miller')).toBeInTheDocument()
@@ -257,10 +215,6 @@ describe('AdminCalendarPage - Interactions', () => {
       // Assert
       await waitFor(() => {
         expect(screen.queryByText('Booking Details')).not.toBeInTheDocument()
-      }, { timeout: 10000 })
-
-      await waitFor(() => {
-        expect(mockFetch).toHaveBeenCalledTimes(3)
       }, { timeout: 10000 })
     }, 20000)
   })

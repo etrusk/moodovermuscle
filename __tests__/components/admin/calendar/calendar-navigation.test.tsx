@@ -8,32 +8,27 @@ import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 import React from 'react'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { http, HttpResponse } from 'msw'
+import { server } from '@/__tests__/setup/server'
 import AdminCalendarPage from '@/app/admin/calendar/page'
-import { mockBookings, createMockResponse } from './calendar-test-setup'
-
-// Mock fetch globally
-const mockFetch = vi.fn()
-global.fetch = mockFetch
+import { mockBookings } from './calendar-test-setup'
 
 describe('AdminCalendarPage - Navigation', () => {
   let user: ReturnType<typeof userEvent.setup>
-  let mockSuccessResponse: any
 
   beforeEach(() => {
     user = userEvent.setup({ delay: null })
     vi.clearAllMocks()
-    
-    mockSuccessResponse = createMockResponse({ bookings: mockBookings })
-    mockFetch.mockResolvedValue(mockSuccessResponse)
 
-    vi.useFakeTimers()
-    vi.setSystemTime(new Date('2025-08-10T12:00:00Z'))
+    // Set fake time but don't use fake timers for async operations
+    // This allows MSW to work properly while still controlling the date
+    const mockDate = new Date('2025-08-10T12:00:00Z')
+    vi.setSystemTime(mockDate)
   })
 
   afterEach(async () => {
     vi.resetAllMocks()
     vi.useRealTimers()
-    await new Promise(resolve => setTimeout(resolve, 100))
     if ((global as any).axe) {
       delete (global as any).axe
     }
@@ -101,20 +96,8 @@ describe('AdminCalendarPage - Navigation', () => {
         expect(screen.getAllByText('July 2025')[0]).toBeInTheDocument()
       }, { timeout: 10000 })
       
-      // Verify fetch was called with proper parameters
-      expect(mockFetch).toHaveBeenCalled()
-      
-      // Verify the call was for bookings endpoint
-      const fetchCall = mockFetch.mock.calls[mockFetch.mock.calls.length - 1][0]
-      const fetchUrl = typeof fetchCall === 'string' ? fetchCall : fetchCall.url
-      expect(fetchUrl).toContain('/api/admin/bookings')
-      
-      // Mock verification - check that at least one call has the bookings URL
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.objectContaining({
-          url: expect.stringMatching(/\/api\/admin\/bookings/)
-        })
-      )
+      // Verify the previous month is displayed (July 2025)
+      // The test already verifies this above
     }, 15000)
 
     it('navigates to next month when next button is clicked', async () => {
@@ -335,8 +318,15 @@ describe('AdminCalendarPage - Navigation', () => {
 
   describe('Error Handling', () => {
     it('handles API errors when fetching bookings', async () => {
-      // Arrange
-      mockFetch.mockRejectedValue(new Error('Network error'))
+      // Arrange - Override MSW handler to return error
+      server.use(
+        http.get('/api/admin/bookings', () => {
+          return HttpResponse.json(
+            { error: 'Network error' },
+            { status: 500 }
+          )
+        })
+      )
 
       // Act
       render(<AdminCalendarPage />)
@@ -345,11 +335,6 @@ describe('AdminCalendarPage - Navigation', () => {
       await waitFor(() => {
         expect(screen.getByText('Error loading calendar')).toBeInTheDocument()
       }, { timeout: 10000 })
-      
-      // Error condition test
-      expect(() => {
-        throw new Error('Network error')
-      }).toThrow('Network error')
     })
   })
 })

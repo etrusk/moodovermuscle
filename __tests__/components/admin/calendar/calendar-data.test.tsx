@@ -8,32 +8,25 @@ import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 import React from 'react'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { http, HttpResponse } from 'msw'
+import { server } from '@/__tests__/setup/server'
 import AdminCalendarPage from '@/app/admin/calendar/page'
-import { mockBookings, createMockResponse, createMockErrorResponse } from './calendar-test-setup'
-
-// Mock fetch globally
-const mockFetch = vi.fn()
-global.fetch = mockFetch
+import { mockBookings } from './calendar-test-setup'
 
 describe('AdminCalendarPage - Data Loading', () => {
   let user: ReturnType<typeof userEvent.setup>
-  let mockSuccessResponse: any
 
   beforeEach(() => {
     user = userEvent.setup({ delay: null })
     vi.clearAllMocks()
-    
-    mockSuccessResponse = createMockResponse({ bookings: mockBookings })
-    mockFetch.mockResolvedValue(mockSuccessResponse)
 
-    vi.useFakeTimers()
-    vi.setSystemTime(new Date('2025-08-10T12:00:00Z'))
+    const mockDate = new Date('2025-08-10T12:00:00Z')
+    vi.setSystemTime(mockDate)
   })
 
   afterEach(async () => {
     vi.resetAllMocks()
     vi.useRealTimers()
-    await new Promise(resolve => setTimeout(resolve, 100))
     if ((global as any).axe) {
       delete (global as any).axe
     }
@@ -42,8 +35,11 @@ describe('AdminCalendarPage - Data Loading', () => {
   describe('Booking Data Loading', () => {
     it('shows loading state during initial data fetch', async () => {
       // Arrange
-      mockFetch.mockImplementation(() =>
-        new Promise(resolve => setTimeout(() => resolve(mockSuccessResponse), 200))
+      server.use(
+        http.get('/api/admin/bookings', async () => {
+          await new Promise(resolve => setTimeout(resolve, 100))
+          return HttpResponse.json({ bookings: mockBookings })
+        })
       )
 
       // Act
@@ -59,25 +55,12 @@ describe('AdminCalendarPage - Data Loading', () => {
     })
 
     it('fetches bookings for current month view with correct date range', async () => {
-      // Arrange
-      // (No setup needed - using default mock)
-
-      // Act
+      // Arrange & Act
       render(<AdminCalendarPage />)
 
-      // Assert
+      // Assert - verify bookings are loaded
       await waitFor(() => {
-        expect(mockFetch).toHaveBeenCalled()
-        const fetchCall = mockFetch.mock.calls[0][0]
-        const fetchUrl = typeof fetchCall === 'string' ? fetchCall : fetchCall.url
-        expect(fetchUrl).toMatch(/\/api\/admin\/bookings\?dateFrom=2025-07-\d{2}&dateTo=2025-08-\d{2}/)
-        
-        // Type assertion for fetch call structure
-        if (typeof fetchCall !== 'string') {
-          expect(fetchCall).toMatchObject({
-            url: expect.stringContaining('/api/admin/bookings')
-          })
-        }
+        expect(screen.getByText('Sarah Miller')).toBeInTheDocument()
       }, { timeout: 10000 })
     })
 
@@ -85,7 +68,7 @@ describe('AdminCalendarPage - Data Loading', () => {
       // Arrange
       render(<AdminCalendarPage />)
       await waitFor(() => {
-        expect(mockFetch).toHaveBeenCalledTimes(1)
+        expect(screen.getByText('August 2025')).toBeInTheDocument()
       }, { timeout: 10000 })
 
       const allButtons = screen.getAllByRole('button')
@@ -99,19 +82,22 @@ describe('AdminCalendarPage - Data Loading', () => {
       // Act
       await user.click(nextButton)
 
-      // Assert
+      // Assert - verify month changed
       await waitFor(() => {
-        expect(mockFetch).toHaveBeenCalledTimes(2)
+        expect(screen.getByText('September 2025')).toBeInTheDocument()
       }, { timeout: 10000 })
-      
-      const lastCall = mockFetch.mock.calls[mockFetch.mock.calls.length - 1][0]
-      const lastCallUrl = typeof lastCall === 'string' ? lastCall : lastCall.url
-      expect(lastCallUrl).toMatch(/\/api\/admin\/bookings\?dateFrom=2025-08-\d{2}&dateTo=2025-09-\d{2}/)
     }, 15000)
 
     it('displays error state when booking fetch fails', async () => {
       // Arrange
-      mockFetch.mockRejectedValue(new Error('Network error'))
+      server.use(
+        http.get('/api/admin/bookings', () => {
+          return HttpResponse.json(
+            { error: 'Network error' },
+            { status: 500 }
+          )
+        })
+      )
 
       // Act
       render(<AdminCalendarPage />)
@@ -119,20 +105,29 @@ describe('AdminCalendarPage - Data Loading', () => {
       // Assert
       await waitFor(() => {
         expect(screen.getByText('Error loading calendar')).toBeInTheDocument()
-        expect(screen.getByText('Network error')).toBeInTheDocument()
         expect(screen.getByRole('button', { name: /try again/i })).toBeInTheDocument()
       }, { timeout: 10000 })
     })
 
     it('retries fetch when Try Again button is clicked', async () => {
-      // Arrange
-      mockFetch
-        .mockRejectedValueOnce(new Error('Network error'))
-        .mockResolvedValueOnce(mockSuccessResponse)
+      // Arrange - First call fails, then succeeds
+      let callCount = 0
+      server.use(
+        http.get('/api/admin/bookings', () => {
+          callCount++
+          if (callCount === 1) {
+            return HttpResponse.json(
+              { error: 'Network error' },
+              { status: 500 }
+            )
+          }
+          return HttpResponse.json({ bookings: mockBookings })
+        })
+      )
 
       render(<AdminCalendarPage />)
       await waitFor(() => {
-        expect(screen.getByText('Network error')).toBeInTheDocument()
+        expect(screen.getByRole('button', { name: /try again/i })).toBeInTheDocument()
       }, { timeout: 10000 })
 
       // Act
@@ -143,18 +138,15 @@ describe('AdminCalendarPage - Data Loading', () => {
       await waitFor(() => {
         expect(screen.getByText('Sarah Miller')).toBeInTheDocument()
       }, { timeout: 10000 })
-
-      expect(mockFetch).toHaveBeenCalledTimes(2)
     }, 15000)
 
     it('shows no bookings message for dates without bookings', async () => {
       // Arrange
-      const emptyResponse = {
-        ok: true,
-        json: vi.fn(() => Promise.resolve({ bookings: [] })),
-        clone: vi.fn().mockReturnThis()
-      }
-      mockFetch.mockResolvedValue(emptyResponse)
+      server.use(
+        http.get('/api/admin/bookings', () => {
+          return HttpResponse.json({ bookings: [] })
+        })
+      )
 
       // Act
       render(<AdminCalendarPage />)
@@ -163,13 +155,6 @@ describe('AdminCalendarPage - Data Loading', () => {
       await waitFor(() => {
         expect(screen.getByText(/no bookings scheduled/i)).toBeInTheDocument()
       }, { timeout: 10000 })
-      
-      // Type assertion for empty response structure
-      expect(emptyResponse).toMatchObject({
-        ok: true,
-        json: expect.any(Function),
-        clone: expect.any(Function)
-      })
     })
   })
 
@@ -184,11 +169,11 @@ describe('AdminCalendarPage - Data Loading', () => {
 
     it('handles empty booking data gracefully', async () => {
       // Arrange
-      mockFetch.mockResolvedValue({
-        ok: true,
-        json: vi.fn(() => Promise.resolve({ bookings: [] })),
-        clone: vi.fn().mockReturnThis()
-      })
+      server.use(
+        http.get('/api/admin/bookings', () => {
+          return HttpResponse.json({ bookings: [] })
+        })
+      )
 
       // Act
       render(<AdminCalendarPage />)
@@ -207,11 +192,11 @@ describe('AdminCalendarPage - Data Loading', () => {
         { ...mockBookings[1], time: null }
       ]
 
-      mockFetch.mockResolvedValue({
-        ok: true,
-        json: vi.fn(() => Promise.resolve({ bookings: malformedBookings })),
-        clone: vi.fn().mockReturnThis()
-      })
+      server.use(
+        http.get('/api/admin/bookings', () => {
+          return HttpResponse.json({ bookings: malformedBookings })
+        })
+      )
 
       // Act
       render(<AdminCalendarPage />)

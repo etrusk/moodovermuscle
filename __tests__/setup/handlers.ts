@@ -5,6 +5,42 @@ interface BookingRequestBody {
   email: string
 }
 
+// Mock bookings data for admin endpoints
+const mockBookings = [
+  {
+    id: 'booking-1',
+    name: 'Sarah Miller',
+    email: 'sarah@example.com',
+    phone: '+61 400 123 456',
+    service: 'Personal Training',
+    date: '2025-08-10',
+    time: '10:00',
+    duration: 60,
+    status: 'PENDING',
+    goals: 'Lose weight and build strength',
+    experience: 'Beginner',
+    message: 'Looking forward to the session!',
+    location: 'Home Gym',
+    createdAt: '2025-08-08T02:00:00Z',
+    updatedAt: '2025-08-08T02:00:00Z'
+  },
+  {
+    id: 'booking-2',
+    name: 'Mike Johnson',
+    email: 'mike@example.com',
+    phone: '+61 400 987 654',
+    service: 'Group Class',
+    date: '2025-08-10',
+    time: '14:30',
+    duration: 45,
+    status: 'CONFIRMED',
+    goals: 'Improve fitness',
+    experience: 'Intermediate',
+    createdAt: '2025-08-07T15:30:00Z',
+    updatedAt: '2025-08-07T16:00:00Z'
+  }
+]
+
 export const handlers = [
   http.post('/api/book-session', async ({ request }) => {
     let body: BookingRequestBody
@@ -44,10 +80,61 @@ export const handlers = [
       { status: 201 }
     )
   }),
+  
   http.get('/api/availability', () => {
     return HttpResponse.json({
       availableTimes: ['09:00', '10:00'],
       bookedTimes: [],
+    })
+  }),
+  
+  // Admin bookings endpoint - GET
+  http.get('/api/admin/bookings', ({ request }) => {
+    const url = new URL(request.url)
+    const dateFrom = url.searchParams.get('dateFrom')
+    const dateTo = url.searchParams.get('dateTo')
+    
+    // Filter bookings by date range if provided
+    let filteredBookings = mockBookings
+    if (dateFrom && dateTo) {
+      filteredBookings = mockBookings.filter(booking =>
+        booking.date >= dateFrom && booking.date <= dateTo
+      )
+    }
+    
+    return HttpResponse.json({ bookings: filteredBookings })
+  }),
+  
+  // Admin bookings endpoint - PATCH (status updates)
+  http.patch('/api/admin/bookings', async ({ request }) => {
+    try {
+      const body = await request.json() as { bookingId?: string; status?: string }
+      
+      if (!body.bookingId || !body.status) {
+        return HttpResponse.json(
+          { error: 'Missing bookingId or status' },
+          { status: 400 }
+        )
+      }
+      
+      return HttpResponse.json({ success: true })
+    } catch (e) {
+      return HttpResponse.json(
+        { error: 'Invalid request body' },
+        { status: 400 }
+      )
+    }
+  }),
+  
+  // Admin stats endpoint
+  http.get('/api/admin/stats', () => {
+    return HttpResponse.json({
+      totalBookings: 25,
+      pendingBookings: 3,
+      todayBookings: 2,
+      thisWeekBookings: 8,
+      confirmedBookings: mockBookings.filter(b => b.status === 'CONFIRMED').length,
+      completedBookings: mockBookings.filter(b => b.status === 'COMPLETED').length,
     })
   }),
 ]

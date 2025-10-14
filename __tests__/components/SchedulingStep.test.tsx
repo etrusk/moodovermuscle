@@ -42,9 +42,7 @@ describe('SchedulingStep', () => {
     const timeSelect = screen.getByTestId('time-select')
     const messageTextarea = screen.getByTestId('message-textarea')
 
-    expect(datePicker).toMatchObject({
-      disabled: true
-    })
+    expect(datePicker).toBeDisabled()
     expect(timeSelect).toMatchObject({
       disabled: true,
       tagName: 'SELECT'

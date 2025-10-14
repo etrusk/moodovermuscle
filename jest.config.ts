@@ -33,18 +33,11 @@ const customJestConfig: Config = {
   ],
   coverageThreshold: {
     global: {
-      statements: 85,
-      branches: 80,
-      functions: 85,
-      lines: 85,
+      statements: 100,
+      branches: 100,
+      functions: 100,
+      lines: 100,
     },
-    // Critical business logic (100% required)
-    './lib/db/': { statements: 100, branches: 100, functions: 100, lines: 100 },
-    './lib/auth/': { statements: 100, branches: 100, functions: 100, lines: 100 },
-    './app/api/': { statements: 100, branches: 100, functions: 100, lines: 100 },
-    
-    // TODO: Increase to 100% after fixing 52 failing admin component tests
-    './components/': { statements: 85, branches: 80, functions: 85, lines: 85 },
   },
   transformIgnorePatterns: ['/node_modules/(?!(msw|@mswjs)/)'],
   testEnvironmentOptions: {

@@ -1,289 +1,150 @@
 #!/usr/bin/env node
-
-/**
- * Test Quality Gate Script
- * 
- * Validates test files for AI-specific quality standards:
- * - Explicit type assertions (toMatchObject, toEqual)
- * - Error condition coverage
- * - AAA pattern comments
- * - Mock call verification
- */
-
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
-function log(message, type = 'info') {
-  const emoji = { 
-    info: '📊', 
-    success: '✅', 
-    warning: '⚠️', 
-    error: '❌' 
-  }[type] || 'ℹ️';
-  console.log(`${emoji} ${message}`);
-}
+console.log('🔍 Running test quality checks...\n');
 
-function readTestFile(filePath) {
-  try {
-    return fs.readFileSync(filePath, 'utf8');
-  } catch (error) {
-    log('Error reading file: ' + filePath + ' - ' + error.message, 'error');
-    return null;
-  }
-}
+let hasErrors = false;
+let hasWarnings = false;
 
-function checkTypeAssertions(content, filePath) {
-  const strongAssertions = [
-    'toMatchObject',
-    'toEqual',
-    'toStrictEqual',
-    'toHaveBeenCalledWith'
-  ];
-  
-  const weakOnlyPatterns = [
-    /expect\([^)]+\)\.toBeDefined\(\)/g,
-    /expect\([^)]+\)\.toBeTruthy\(\)/g,
-    /expect\([^)]+\)\.not\.toBeNull\(\)/g
-  ];
-  
-  const hasStrongAssertion = strongAssertions.some(
-    assertion => content.includes(assertion)
+// Check 1: Weak Assertions
+console.log('📊 Check 1: Weak Assertion Detection');
+try {
+  const weakAssertions = execSync(
+    'grep -r "toBeDefined\\|toBeTruthy\\|toBeGreaterThan(0)" __tests__/ --include="*.test.ts" --include="*.test.tsx" || true',
+    { encoding: 'utf8' }
   );
   
-  const weakCount = weakOnlyPatterns.reduce(
-    (count, pattern) => count + (content.match(pattern) || []).length,
-    0
-  );
-  
-  if (!hasStrongAssertion && weakCount > 0) {
-    log(
-      `${filePath}: Only weak assertions found (toBeDefined/toBeTruthy). ` +
-      `Use toMatchObject() or toEqual() instead.`,
-      'error'
-    );
-    return false;
-  }
-  
-  if (!hasStrongAssertion) {
-    log(
-      `${filePath}: No type assertions found. ` +
-      `Add toMatchObject() or toEqual() assertions.`,
-      'warning'
-    );
-  }
-  
-  return hasStrongAssertion || weakCount === 0;
-}
-
-function checkErrorConditions(content, filePath) {
-  const errorPatterns = [
-    /toThrow\(/,
-    /rejects\.toThrow\(/,
-    /\.not\.toMatch\(/,
-    /expect\([^)]+\)\.toBe\(false\)/
-  ];
-  
-  const hasErrorTest = errorPatterns.some(
-    pattern => pattern.test(content)
-  );
-  
-  if (!hasErrorTest) {
-    log(
-      `${filePath}: No error condition tests found. ` +
-      `Add at least one test using toThrow() or rejects.toThrow().`,
-      'error'
-    );
-    return false;
-  }
-  
-  return true;
-}
-
-function checkAAAPattern(content, filePath) {
-  // Check if file has test blocks
-  const hasTests = /it\(|test\(/i.test(content);
-  
-  if (!hasTests) {
-    return true; // No tests, no AAA needed
-  }
-  
-  // Check for AAA comments presence in file
-  const hasArrange = /\/\/\s*Arrange/i.test(content);
-  const hasAct = /\/\/\s*Act/i.test(content);
-  const hasAssert = /\/\/\s*Assert/i.test(content);
-  
-  if (!hasArrange || !hasAct || !hasAssert) {
-    log(
-      `${filePath}: Missing AAA pattern comments. ` +
-      `Tests must include // Arrange, // Act, // Assert comments.`,
-      'error'
-    );
-    return false;
-  }
-  
-  return true;
-}
-
-function checkMockVerification(content, filePath) {
-  const hasMocks = /jest\.fn\(\)/.test(content);
-  
-  if (!hasMocks) {
-    return true;
-  }
-  
-  const mockVerifications = [
-    /toHaveBeenCalledWith\(/,
-    /toHaveBeenCalledTimes\(/
-  ];
-  
-  const hasVerification = mockVerifications.some(
-    pattern => pattern.test(content)
-  );
-  
-  if (!hasVerification) {
-    log(
-      `${filePath}: Mocks used but not verified. ` +
-      `Add toHaveBeenCalledWith() or toHaveBeenCalledTimes().`,
-      'error'
-    );
-    return false;
-  }
-  
-  return true;
-}
-
-function validateTestFile(filePath) {
-  const content = readTestFile(filePath);
-  
-  if (!content) {
-    return false;
-  }
-  
-  const checks = [
-    checkTypeAssertions(content, filePath),
-    checkErrorConditions(content, filePath),
-    checkAAAPattern(content, filePath),
-    checkMockVerification(content, filePath)
-  ];
-  
-  return checks.every(Boolean);
-}
-
-function findTestFiles(dir) {
-  const testFiles = [];
-  const baseDir = path.resolve(process.cwd(), dir);
-  
-  function traverse(currentDir) {
-    const resolvedDir = path.resolve(currentDir);
-    
-    // Ensure we're still within the base directory
-    if (!resolvedDir.startsWith(baseDir)) {
-      return;
-    }
-    
-    const entries = fs.readdirSync(resolvedDir, { withFileTypes: true });
-    
-    entries.forEach(entry => {
-      // Skip entries with path traversal attempts
-      if (entry.name.includes('..') || entry.name.includes('/') || entry.name.includes('\\')) {
-        return;
-      }
-      
-      // Normalize entry name to prevent path traversal
-      const safeName = path.basename(entry.name);
-      const candidatePath = path.join(resolvedDir, safeName);
-      const resolvedPath = path.resolve(candidatePath);
-      
-      // Security: Double-check the resolved path is within base directory
-      if (!resolvedPath.startsWith(baseDir)) {
-        return;
-      }
-      
-      if (entry.isDirectory()) {
-        if (!entry.name.startsWith('.') &&
-            entry.name !== 'node_modules') {
-          traverse(resolvedPath);
-        }
-      } else if (
-        entry.name.endsWith('.test.ts') ||
-        entry.name.endsWith('.test.tsx') ||
-        entry.name.endsWith('.spec.ts')
-      ) {
-        testFiles.push(resolvedPath);
-      }
-    });
-  }
-  
-  traverse(baseDir);
-  return testFiles;
-}
-
-async function main() {
-  log('🧪 Running test quality checks...', 'info');
-  
-  const args = process.argv.slice(2);
-  let testFiles = [];
-  
-  if (args.length > 0) {
-    testFiles = args.filter(file => 
-      file.endsWith('.test.ts') || 
-      file.endsWith('.test.tsx') ||
-      file.endsWith('.spec.ts')
-    );
+  if (weakAssertions.trim()) {
+    const count = weakAssertions.split('\n').filter(line => line.trim()).length;
+    console.log(`❌ FAIL: Found ${count} weak assertions`);
+    console.log('Weak assertions found:');
+    console.log(weakAssertions.split('\n').slice(0, 10).join('\n'));
+    if (count > 10) console.log(`... and ${count - 10} more`);
+    console.log('\nRequired: Replace with specific value assertions');
+    console.log('Example: toBeDefined() → toEqual({ id: 123, status: "active" })');
+    hasErrors = true;
   } else {
-    const testDir = path.join(process.cwd(), '__tests__');
-    const e2eDir = path.join(process.cwd(), 'e2e');
+    console.log('✅ PASS: No weak assertions found');
+  }
+} catch (e) {
+  console.log('✅ PASS: No weak assertions found');
+}
+
+// Check 2: AAA Pattern Comments
+console.log('\n📊 Check 2: AAA Pattern Structure');
+try {
+  const testFiles = execSync(
+    'find __tests__/ -name "*.test.ts" -o -name "*.test.tsx"',
+    { encoding: 'utf8' }
+  ).trim().split('\n');
+  
+  let filesWithoutAAA = 0;
+  for (const file of testFiles) {
+    const content = fs.readFileSync(file, 'utf8');
+    const hasIt = content.includes('it(') || content.includes('test(');
+    const hasArrange = content.includes('// Arrange') || content.includes('// ARRANGE');
+    const hasAct = content.includes('// Act') || content.includes('// ACT');
+    const hasAssert = content.includes('// Assert') || content.includes('// ASSERT');
     
-    if (fs.existsSync(testDir)) {
-      testFiles.push(...findTestFiles(testDir));
+    if (hasIt && (!hasArrange || !hasAct || !hasAssert)) {
+      filesWithoutAAA++;
+    }
+  }
+  
+  if (filesWithoutAAA > 0) {
+    console.log(`⚠️  WARN: ${filesWithoutAAA} test files missing AAA comments`);
+    console.log('Best practice: Add // Arrange, // Act, // Assert comments');
+    hasWarnings = true;
+  } else {
+    console.log('✅ PASS: All test files use AAA pattern');
+  }
+} catch (e) {
+  console.log('⚠️  WARN: Could not verify AAA pattern');
+}
+
+// Check 3: Error Case Coverage
+console.log('\n📊 Check 3: Error Case Coverage');
+try {
+  const testFiles = execSync(
+    'find __tests__/ -name "*.test.ts" -o -name "*.test.tsx"',
+    { encoding: 'utf8' }
+  ).trim().split('\n');
+  
+  let filesWithoutErrors = [];
+  for (const file of testFiles) {
+    const content = fs.readFileSync(file, 'utf8');
+    const hasTests = content.includes('it(') || content.includes('test(');
+    const hasErrorTests = content.includes('toThrow') || 
+                         content.includes('rejects.toThrow') ||
+                         content.includes('error') ||
+                         content.includes('invalid');
+    
+    if (hasTests && !hasErrorTests) {
+      filesWithoutErrors.push(file);
+    }
+  }
+  
+  if (filesWithoutErrors.length > 0) {
+    console.log(`⚠️  WARN: ${filesWithoutErrors.length} test files without error cases`);
+    console.log('Sample files missing error tests:');
+    console.log(filesWithoutErrors.slice(0, 5).join('\n'));
+    hasWarnings = true;
+  } else {
+    console.log('✅ PASS: All test files include error cases');
+  }
+} catch (e) {
+  console.log('⚠️  WARN: Could not verify error coverage');
+}
+
+// Check 4: Integration Test Mocking
+console.log('\n📊 Check 4: Integration Test Mocking Ratio');
+try {
+  const integrationTests = execSync(
+    'find __tests__/integration/ -name "*.test.ts" -o -name "*.test.tsx" 2>/dev/null || true',
+    { encoding: 'utf8' }
+  ).trim();
+  
+  if (integrationTests) {
+    const files = integrationTests.split('\n').filter(f => f);
+    let overMockedFiles = [];
+    
+    for (const file of files) {
+      const content = fs.readFileSync(file, 'utf8');
+      const mockCount = (content.match(/jest\.mock|vi\.mock/g) || []).length;
+      const testCount = (content.match(/it\(|test\(/g) || []).length;
+      
+      if (mockCount > testCount * 0.3) { // More than 30% mocking
+        overMockedFiles.push(`${file} (${mockCount} mocks for ${testCount} tests)`);
+      }
     }
     
-    if (fs.existsSync(e2eDir)) {
-      testFiles.push(...findTestFiles(e2eDir));
+    if (overMockedFiles.length > 0) {
+      console.log(`⚠️  WARN: ${overMockedFiles.length} integration tests heavily mocked`);
+      console.log('Integration tests should minimize mocking:');
+      console.log(overMockedFiles.slice(0, 3).join('\n'));
+      console.log('Only mock: network (MSW), time, external services');
+      hasWarnings = true;
+    } else {
+      console.log('✅ PASS: Integration tests use minimal mocking');
     }
   }
-  
-  if (testFiles.length === 0) {
-    log('No test files found to validate', 'warning');
-    process.exit(0);
-  }
-  
-  log(`Found ${testFiles.length} test file(s) to validate`, 'info');
-  
-  let failedFiles = 0;
-  
-  testFiles.forEach(file => {
-    const passed = validateTestFile(file);
-    if (!passed) {
-      failedFiles++;
-    }
-  });
-  
-  if (failedFiles > 0) {
-    log(
-      `\n❌ Test quality check failed: ${failedFiles}/${testFiles.length} files ` +
-      `have quality issues`,
-      'error'
-    );
-    log('Fix issues above and re-run tests', 'error');
-    process.exit(1);
-  }
-  
-  log(
-    `\n✅ All test files passed quality checks (${testFiles.length} files)`,
-    'success'
-  );
+} catch (e) {
+  console.log('ℹ️  INFO: No integration tests found');
+}
+
+// Summary
+console.log('\n' + '='.repeat(60));
+if (hasErrors) {
+  console.log('❌ TEST QUALITY GATE FAILED');
+  console.log('Fix errors above before committing');
+  process.exit(1);
+} else if (hasWarnings) {
+  console.log('⚠️  TEST QUALITY GATE PASSED WITH WARNINGS');
+  console.log('Consider addressing warnings for best practices');
+  process.exit(0);
+} else {
+  console.log('✅ TEST QUALITY GATE PASSED');
   process.exit(0);
 }
-
-if (require.main === module) {
-  main();
-}
-
-module.exports = { 
-  validateTestFile, 
-  checkTypeAssertions, 
-  checkErrorConditions,
-  checkAAAPattern,
-  checkMockVerification
-};

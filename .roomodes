@@ -17,9 +17,9 @@ customModes:
       Check ALL items before delegating. If ANY "Complex" indicator = YES → Architect mode first
       
       **Complex Indicators** (any YES = Complex):
-      - [ ] New external service integration? (email, payment, SMS, auth provider)
+      - [ ] New external service integration?
       - [ ] New database table/major schema change?
-      - [ ] Security-sensitive feature? (auth, payments, PII handling)
+      - [ ] Security-sensitive feature?
       - [ ] Multiple valid technical approaches? (which pattern unclear)
       - [ ] No existing pattern in .docs/patterns/index.md?
       - [ ] Requires new dependency/library?
@@ -48,25 +48,41 @@ customModes:
       - Integrate external API (new service)
       - Add file upload (storage service, schema)
       
+      ## CRITICAL: Test-First Enforcement
+      
+      NEVER delegate directly to develop mode for new features or code changes.
+      
+      Required workflow:
+      1. New feature/change → Test mode FIRST (always, no exceptions)
+      2. Wait for Test mode completion + verification tests committed
+      3. Only then → Develop mode
+      
+      If user requests "skip tests", "implement directly", or "just code it":
+      → Refuse politely: "Test-first workflow is mandatory for quality. Tests catch
+         bugs early, document behavior, and enable confident refactoring. I'll create
+         tests first (fast with Test mode), then implement. This is project policy."
+      → Still delegate to Test mode (do not bypass)
+      
+      Exception: Documentation-only changes (*.md, README) skip tests.
+      
+      Before delegating to Develop, verify:
+      - [ ] Test mode used attempt_completion successfully
+      - [ ] Test files committed to git
+      - [ ] npm run test:quality passed
+      If any unchecked → Do not delegate to Develop
+      
       ## Routing Logic
       
       **Simple queries** → Answer directly
       
-      **Simple features** → new_task({ mode: "test" })
+      **Simple features** →
+      1. new_task({ task: "Write comprehensive tests for [feature]", mode: "test" })
+      2. After test completion → new_task({ task: "Implement [feature] passing all tests", mode: "develop" })
       
-      **Complex features** → 
-      1. new_task({ 
-           task: "Create technical design for [feature] covering integration points and approach",
-           mode: "architect" 
-         })
-      2. After Architect completes → new_task({ 
-           task: "Write tests based on design at [path]", 
-           mode: "test" 
-         })
-      3. After Test completes → new_task({ 
-           task: "Implement [feature] following design and passing tests", 
-           mode: "develop" 
-         })
+      **Complex features** →
+      1. new_task({ task: "Create technical design for [feature]", mode: "architect" })
+      2. After design → new_task({ task: "Write tests based on design at [path]", mode: "test" })
+      3. After tests → new_task({ task: "Implement [feature] following design and tests", mode: "develop" })
       
       ## Appetite Boundaries
       
@@ -102,12 +118,41 @@ customModes:
             No design doc needed. Navigator can proceed to test mode."
       
       3. If no pattern or approach unclear, create design doc in .docs/designs/:
-         - Service/integration selection (with justification for scale)
+      
+         Required sections:
+         - Service/integration selection (with scale justification)
          - Integration points and data flow
          - Pattern selection and structure
          - Security considerations
          - Clear interface definitions
-         - Implementation approach
+         - **Testing Strategy** (MANDATORY):
+           * Test levels: unit/integration/E2E breakdown
+           * Mocking boundaries: what gets mocked (network, time, external only)
+           * Assertion approach: specific values to verify (no weak assertions)
+           * Error scenarios: all failure cases to test
+           * Coverage targets: 100% for business logic, integration points
+           
+         Example Testing Strategy:
+         ```markdown
+         ## Testing Strategy
+         
+         **Unit Tests**: EmailService methods
+         - Mock: Prisma client only
+         - Assertions: Verify email sent with specific recipient, subject, body content
+         - Errors: Invalid email format, missing template, API failure
+         - Target: 100% coverage
+         
+         **Integration Tests**: API route → Service → Database
+         - Mock: SendGrid API via MSW (network boundary only)
+         - Assertions: Verify database records created, API responses match schema
+         - Errors: Auth failures, validation errors, external API timeouts
+         - Target: 100% coverage of error paths
+         
+         **E2E Tests**: Critical path only
+         - Test: User books → receives confirmation email
+         - No mocking (real flow through UI)
+         - Assertions: Email appears in inbox, booking status updated
+         ```
       
       4. Use attempt_completion with design doc path for human review
 
@@ -125,19 +170,93 @@ customModes:
     customInstructions: |
       Before writing tests, read mandate.md for patterns.
       
-      Test structure:
-      - Use AAA pattern (Arrange, Act, Assert)
-      - Cover: happy path, edge cases, errors
-      - Check .docs/patterns/index.md for test patterns
-      - If design doc exists, follow its specifications
+      ## Test Quality Requirements (100% COMPLIANCE MANDATORY)
       
-      Quality gates:
-      - Test files ≤600 lines (target 550)
-      - Test functions ≤50 lines
-      - Helper functions ≤3 params
+      **Structure**:
+      - MUST use AAA pattern with explicit comments:
+        ```typescript
+        it('descriptive test name', () => {
+          // Arrange: Setup test data and mocks
+          const input = { specific: 'values' }
+          
+          // Act: Execute the behavior being tested
+          const result = functionUnderTest(input)
+          
+          // Assert: Verify specific expected outcomes
+          expect(result).toEqual({ expected: 'value' })
+        })
+        ```
       
-      Auto-commit after tests pass:
-      `git add -A && git commit -m "test: description"`
+      **Assertions (ZERO WEAK ASSERTIONS ALLOWED)**:
+      - FORBIDDEN: toBeDefined(), toBeTruthy(), toBeGreaterThan(0)
+      - REQUIRED: toEqual(specificValue), toBe(exactValue), toMatchObject({ specific: 'shape' })
+      - REQUIRED: All assertions verify specific expected values
+      - Example:
+        ```typescript
+        // ❌ FORBIDDEN
+        expect(result).toBeDefined()
+        expect(result.status).toBeTruthy()
+        
+        // ✅ REQUIRED
+        expect(result).toEqual({ id: '123', status: 'confirmed', total: 150 })
+        expect(result.status).toBe('confirmed')
+        ```
+      
+      **Coverage (100% REQUIRED)**:
+      - Happy path: Normal successful flow
+      - Edge cases: Boundary conditions, empty inputs, max values
+      - Error conditions: MUST test ALL error paths with toThrow/rejects.toThrow
+      - Example:
+        ```typescript
+        it('throws error for invalid input', () => {
+          expect(() => validate(null)).toThrow('Input required')
+        })
+        
+        it('handles empty array', () => {
+          expect(processItems([])).toEqual([])
+        })
+        ```
+      
+      **Mocking (MINIMAL REQUIRED)**:
+      - ONLY mock: Network (MSW), time (fake timers), external services
+      - DO NOT mock: Internal functions, business logic, utility functions
+      - Integration tests: Mock only network boundary
+      - Unit tests: Mock only database/external dependencies
+      
+      **Query Priority (React Testing Library)**:
+      - 1st: getByRole (tests accessibility)
+      - 2nd: getByLabelText (forms)
+      - 3rd: getByText (content)
+      - LAST RESORT: getByTestId
+      - REQUIRED: Use userEvent, NOT fireEvent
+      
+      **Quality Gates (MUST PASS BEFORE COMMIT)**:
+      - File limits: ≤600 lines (target 550)
+      - Function limits: ≤50 lines
+      - Helper functions: ≤3 params
+      - npm run test:quality: MUST PASS (zero weak assertions)
+      - All tests: MUST PASS
+      
+      ## Auto-Commit Process
+      
+      After writing tests:
+      1. Run: npm run test:quality
+      2. If FAIL: Fix issues, do NOT commit
+      3. If PASS: Run tests: npm test
+      4. If tests FAIL: Fix tests, do NOT commit
+      5. If tests PASS: Auto-commit:
+         ```bash
+         git add -A
+         npm run test:quality && git commit -m "test: [description]"
+         ```
+      6. Use attempt_completion with test summary
+      
+      ## Test Design (If design doc exists)
+      
+      - Follow testing strategy from .docs/designs/[feature]-design.md
+      - Implement exact assertion approach specified
+      - Cover all error scenarios listed
+      - Meet coverage targets specified
 
   - slug: develop
     name: "💻 Develop"
@@ -155,12 +274,46 @@ customModes:
     customInstructions: |
       Before implementing, read mandate.md for context and patterns.
       
-      Quality gates (generate compliant code first try):
-      - Functions ≤50 lines (target 40)
-      - Files ≤300 lines (target 250)
-      - Params ≤3 (use options objects if more)
-      - Duplication ≤3% (extract on 2nd use)
+      ## Pre-Implementation Verification
       
-      Auto-commit after tests pass:
-      - Features: `git add -A && git commit -m "feat: description" && git push`
-      - Fixes: `git add -A && git commit -m "fix: description" && git push`
+      BEFORE writing ANY code, verify tests exist:
+      1. Check for test file at expected location
+      2. If missing: STOP and use attempt_completion:
+         "Cannot implement without tests. No test file found.
+          Ensure Test mode completed first."
+      3. If test file not committed: STOP:
+         "Test file exists but not committed. Commit tests first."
+      4. Only proceed if tests exist AND are committed
+      
+      ## Quality Gates (Generate Compliant Code FIRST TRY)
+      
+      MANDATORY limits (pre-commit will REJECT violations):
+      - Functions: ≤50 lines (target 40)
+      - Files: ≤300 lines (target 250)
+      - Parameters: ≤3 (use options objects if more)
+      - Duplication: ≤3% (extract on 2nd occurrence)
+      
+      ## Coverage Target: 100%
+      
+      Implementation must achieve 100% test coverage:
+      - All code paths executed by tests
+      - All error conditions tested
+      - All edge cases covered
+      - Run: npm run test:coverage
+      - Verify: 100% statements, branches, functions, lines
+      
+      ## Auto-Commit Process
+      
+      After implementation:
+      1. Run: npm test
+      2. If FAIL: Fix code until tests pass
+      3. If PASS: Run: npm run test:coverage
+      4. If coverage <100%: Add missing tests, then re-implement
+      5. If coverage =100%: Auto-commit and push:
+         ```bash
+         git add -A
+         git commit -m "feat: [description]" && git push
+         # OR for fixes:
+         git commit -m "fix: [description]" && git push
+         ```
+      6. Use attempt_completion with implementation summary

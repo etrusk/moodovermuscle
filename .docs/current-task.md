@@ -1,132 +1,73 @@
-# Replace Date Picker with Native Input to Fix 6 Skipped Tests
+# Testing Infrastructure Improvements
 
-**Status:** ✅ COMPLETED
-**Started:** 2025-10-14
-**Completed:** 2025-10-14
-**Mode:** Navigator → Implementation
-**Goal:** Replace react-day-picker Calendar with native `<input type="date">` to resolve React 19 compatibility issues
+**Status:** Queued
+**Priority:** HIGH - Technical debt resolution
+**Estimated Effort:** 4-5 days
 
-## Problem
+## Task Queue
 
-6 critical booking integration tests were skipped due to React 19 + react-day-picker incompatibility causing infinite loops when using Calendar component inside Dialog.
+### 1. Audit Existing Tests for Weak Assertions (4 hours)
+**Goal**: Replace all weak assertions with specific value assertions
 
-**Affected Tests:** `__tests__/integration/booking-form-component.integration.test.tsx`
-- Line 103: "completes full booking flow from start to confirmation"
-- Line 125: "preserves user data through multi-step wizard"
-- Line 147: "displays validation errors from API"
-- Line 167: "handles network failures gracefully"
-- Line 213: "shows loading state during final submission"
-- Line 240: "enables time selection only after date is chosen"
-
-**Root Cause:** React 19 + react-day-picker Calendar component compatibility issue
-**Investigation:** `.docs/investigations/2025-01-14-radix-ui-react19-focus-scope.md`
-
-## Solution Implemented
-
-Replaced react-day-picker Calendar component with native HTML `<input type="date">` element.
-
-## Changes Made
-
-### 1. Updated DateSelector Component
-**File:** `components/booking-form/steps/scheduling/DateSelector.tsx`
-
-**Implementation:**
-```tsx
-// Native date input implementation
-<input
-  type="date"
-  value={selectedDate ? format(selectedDate, 'yyyy-MM-dd') : ''}
-  onChange={handleDateChange}
-  min={format(new Date(), 'yyyy-MM-dd')}
-  aria-label="Select date"
-  className="w-full max-w-[350px] px-3 py-2 text-base border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
-/>
+**Scope**:
+```bash
+# Find all weak assertions
+grep -r "toBeDefined\|toBeTruthy\|toBeGreaterThan(0)" __tests__/ --include="*.test.ts" --include="*.test.tsx"
 ```
 
-**Features Added:**
-- Native browser date picker (iOS/Android optimized)
-- Availability indicator showing slot counts for selected dates
-- Minimum date validation (prevents past date selection)
-- Full accessibility support (built into native input)
+**Action Required**:
+- Replace `toBeDefined()` with `toEqual(specificValue)`
+- Replace `toBeTruthy()` with `toBe(true)` or specific value checks
+- Replace `toBeGreaterThan(0)` with `toBe(expectedNumber)`
+- Verify each replacement catches actual bugs by breaking code
 
-### 2. Updated Tests
-**Files:**
-- `__tests__/integration/booking-form-component.integration.test.tsx`: Removed `.skip()` from 6 tests, updated date selection logic
-- `__tests__/components/SchedulingStep.test.tsx`: Updated to query native date input with `toBeDisabled()`
-- `__tests__/integration/radix-dialog-reproduction.test.tsx`: Updated date selection logic for native input
+**Acceptance Criteria**:
+- Zero instances of `toBeDefined()` in test files
+- Zero instances of `toBeTruthy()` in test files
+- All assertions verify specific expected values
+- Test quality gate passes: `npm run test:quality`
 
-**Test Pattern Change:**
-```tsx
-// OLD: Click calendar day button
-const dayButton = screen.getByRole('button', { name: '15' });
-await userEvent.click(dayButton);
+### 2. Fix or Delete 52 Failing Admin Tests (1-2 days)
+**Goal**: Achieve 100% passing test suite (no excluded tests)
 
-// NEW: Set native date input
-const dateInput = screen.getByLabelText(/select date/i);
-await userEvent.type(dateInput, '2024-01-15');
-```
+**Current Issue**: 
+- 52 admin tests excluded from critical suite in `jest.config.critical.ts`
+- Tests in: admin calendar, admin bookings, admin auth, admin workflow integration
 
-### 3. Updated Investigation Documentation
-**File:** `.docs/investigations/2025-01-14-radix-ui-react19-focus-scope.md`
+**Action Required**:
+For each failing test file:
+1. Run test file: `npm test -- path/to/test.test.tsx`
+2. Analyze failures: genuine bugs vs test brittleness
+3. Decision tree:
+   - If E2E test exists covering same behavior → DELETE unit test
+   - If test is brittle (testing implementation details) → DELETE
+   - If test catches real bug → FIX test properly
+   - If unsure → FIX (default to keeping tests)
 
-Added resolution section documenting:
-- Native input solution
-- Test results (all 9 tests passing)
-- Benefits achieved
+**Acceptance Criteria**:
+- All tests in `__tests__/components/admin/` passing
+- All tests in `__tests__/api/admin-*` passing
+- All tests in `__tests__/integration/admin-*` passing
+- Remove all entries from `testPathIgnorePatterns` in `jest.config.critical.ts`
+- `npm run test:critical` passes with zero skipped tests
 
-## Test Results
+### 3. Vitest Migration (1-2 days)
+**Goal**: Migrate from Jest to Vitest for faster execution and better ESM support
 
-✅ **All 9 integration tests passing** (0 skipped)
-```
-Test Suites: 1 passed, 1 total
-Tests:       9 passed, 9 total
-Time:        4.341 s
+**Rationale**: Research shows 98% Vitest retention rate, 2-3x faster than Jest, native ESM
 
-All 6 previously skipped tests now PASS:
-✓ completes full booking flow from start to confirmation
-✓ preserves user data through multi-step wizard
-✓ displays validation errors from API
-✓ handles network failures gracefully
-✓ shows loading state during final submission
-✓ enables time selection only after date is chosen
-```
+**Action Required**:
+1. Install Vitest: `pnpm add -D vitest @vitest/ui`
+2. Create `vitest.config.ts` (Jest-compatible API)
+3. Update package.json scripts (replace jest commands)
+4. Test migration: run full suite with Vitest
+5. Update CI workflows (`.github/workflows/ci.yml`)
+6. Remove Jest dependencies if all tests pass
+7. Update documentation references
 
-## Acceptance Criteria Status
-
-- [x] All 6 previously skipped tests pass
-- [x] No react-day-picker dependency
-- [x] Mobile responsive (native browser picker)
-- [x] Accessible (built-in ARIA support)
-- [x] React 19 compatible (no infinite loops)
-- [x] Investigation doc updated with resolution
-- [x] Changes committed and pushed with conventional commit message
-
-## Benefits Achieved
-
-✅ **Zero Dependencies:** Removed react-day-picker library
-✅ **Native UI:** Browser-optimized date picker (iOS/Android)
-✅ **Built-in Accessibility:** ARIA, keyboard navigation included
-✅ **React 19 Compatible:** No custom rendering issues
-✅ **Smaller Bundle:** Reduced package size
-✅ **Mobile Optimized:** Native date/time pickers on mobile devices
-✅ **All Tests Passing:** 9/9 integration tests pass
-
-## Commits
-
-- Committed with conventional commit message: `fix: replace react-day-picker with native date input to resolve React 19 compatibility`
-- All quality gates passed (lint, type-check, critical tests)
-- Successfully pushed to repository
-
-## Effort Used
-
-**Total Time:** ~1.5 hours
-- Component refactor: 30 minutes
-- Test updates: 30 minutes
-- Test debugging and fixes: 30 minutes
-- Documentation: 10 minutes
-
-**Circuit Breakers:** None triggered - completed within appetite
-
-## Conclusion
-
-Native `<input type="date">` successfully resolved all React 19 compatibility issues. All 6 previously skipped tests now pass, and the solution provides better mobile UX with native browser date pickers.
+**Acceptance Criteria**:
+- All tests pass under Vitest
+- CI uses Vitest
+- Test execution faster than Jest baseline
+- No Jest dependencies in package.json
+- Documentation updated

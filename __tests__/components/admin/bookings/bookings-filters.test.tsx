@@ -279,12 +279,12 @@ describe('BookingsPage Component - Filter Tests', () => {
       // Assert - UI should handle this gracefully (no exceptions thrown)
       await expect(Promise.resolve()).resolves.not.toThrow()
       
-      // Verify mockFetch was called
+      // Verify mockFetch was called with Request object
       expect(mockFetch).toHaveBeenCalled()
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('/api/admin/bookings'),
-        undefined
-      )
+      expect(mockFetch).toHaveBeenCalledTimes(2) // Initial load + filter update
+      const fetchCall = mockFetch.mock.calls[0][0]
+      const url = fetchCall.url || fetchCall
+      expect(url).toEqual(expect.stringContaining('/api/admin/bookings'))
     })
   })
 })

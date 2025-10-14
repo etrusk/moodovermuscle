@@ -160,26 +160,34 @@ describe('BookingsPage Component - Actions and Accessibility Tests', () => {
       }, { timeout: 3000 })
 
       // Act
-      const confirmButton = screen.getByText('Mark as Confirmed')
+      const confirmButton = screen.getByTestId('booking-booking-1-mark-as-confirmed')
       await user.click(confirmButton)
 
       // Assert
       await waitFor(() => {
-        expect(mockFetch).toHaveBeenCalledWith(
-          expect.stringContaining('/api/admin/bookings?id=booking-1'),
-          expect.objectContaining({
-            method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              status: 'CONFIRMED',
-            }),
-          })
-        )
+        expect(mockFetch).toHaveBeenCalledTimes(3) // Initial + Update + Refresh
       }, { timeout: 3000 })
 
-      expect(mockFetch).toHaveBeenCalledTimes(3) // Initial + Update + Refresh
+      // Check that the PATCH call was made correctly
+      // The second call should be the PATCH request
+      expect(mockFetch.mock.calls.length).toBeGreaterThanOrEqual(2)
+      const patchRequest = mockFetch.mock.calls[1][0]
+      
+      // Check URL
+      const patchUrl = typeof patchRequest === 'string' ? patchRequest : patchRequest?.url || ''
+      expect(patchUrl).toContain('/api/admin/bookings?id=booking-1')
+      
+      // Check method and body from Request object or options
+      const requestOptions = mockFetch.mock.calls[1][1] || patchRequest
+      expect(requestOptions.method).toBe('PATCH')
+      
+      // Check headers (can be Headers object or plain object)
+      const headers = requestOptions.headers?.map || requestOptions.headers
+      expect(headers['content-type'] || headers['Content-Type']).toBe('application/json')
+      
+      // Check body
+      const body = requestOptions.body || requestOptions._bodyText
+      expect(body).toBe(JSON.stringify({ status: 'CONFIRMED' }))
     })
 
     it('updates booking status when Cancel is clicked', async () => {
@@ -202,24 +210,34 @@ describe('BookingsPage Component - Actions and Accessibility Tests', () => {
       }, { timeout: 3000 })
 
       // Act
-      const cancelButton = screen.getByText('Cancel')
+      const cancelButton = screen.getByTestId('booking-booking-1-cancel')
       await user.click(cancelButton)
 
       // Assert
       await waitFor(() => {
-        expect(mockFetch).toHaveBeenCalledWith(
-          expect.stringContaining('/api/admin/bookings?id=booking-1'),
-          expect.objectContaining({
-            method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              status: 'CANCELLED',
-            }),
-          })
-        )
+        expect(mockFetch).toHaveBeenCalledTimes(3) // Initial + Update + Refresh
       }, { timeout: 3000 })
+
+      // Check that the PATCH call was made correctly
+      // The second call should be the PATCH request
+      expect(mockFetch.mock.calls.length).toBeGreaterThanOrEqual(2)
+      const patchRequest = mockFetch.mock.calls[1][0]
+      
+      // Check URL
+      const patchUrl = typeof patchRequest === 'string' ? patchRequest : patchRequest?.url || ''
+      expect(patchUrl).toContain('/api/admin/bookings?id=booking-1')
+      
+      // Check method and body from Request object or options
+      const requestOptions = mockFetch.mock.calls[1][1] || patchRequest
+      expect(requestOptions.method).toBe('PATCH')
+      
+      // Check headers (can be Headers object or plain object)
+      const headers = requestOptions.headers?.map || requestOptions.headers
+      expect(headers['content-type'] || headers['Content-Type']).toBe('application/json')
+      
+      // Check body
+      const body = requestOptions.body || requestOptions._bodyText
+      expect(body).toBe(JSON.stringify({ status: 'CANCELLED' }))
     })
 
     it('handles status update errors gracefully', async () => {
@@ -389,27 +407,35 @@ describe('BookingsPage Component - Actions and Accessibility Tests', () => {
       }, { timeout: 3000 })
 
       // Act
-      const modalConfirmButton = screen.getAllByText('Mark as Confirmed').find(btn =>
-        btn.closest('[role="dialog"]')
-      )
-      expect(modalConfirmButton).toBeInTheDocument()
-      await user.click(modalConfirmButton as HTMLElement)
+      const modalConfirmButton = screen.getByTestId('modal-booking-booking-1-mark-as-confirmed')
+      expect(modalConfirmButton).toHaveAccessibleName()
+      await user.click(modalConfirmButton)
 
       // Assert
       await waitFor(() => {
-        expect(mockFetch).toHaveBeenCalledWith(
-          expect.stringContaining('/api/admin/bookings?id=booking-1'),
-          expect.objectContaining({
-            method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              status: 'CONFIRMED',
-            }),
-          })
-        )
+        expect(mockFetch).toHaveBeenCalledTimes(3) // Initial + Update + Refresh
       }, { timeout: 3000 })
+
+      // Check that the PATCH call was made correctly
+      // The second call should be the PATCH request
+      expect(mockFetch.mock.calls.length).toBeGreaterThanOrEqual(2)
+      const patchRequest = mockFetch.mock.calls[1][0]
+      
+      // Check URL
+      const patchUrl = typeof patchRequest === 'string' ? patchRequest : patchRequest?.url || ''
+      expect(patchUrl).toContain('/api/admin/bookings?id=booking-1')
+      
+      // Check method and body from Request object or options
+      const requestOptions = mockFetch.mock.calls[1][1] || patchRequest
+      expect(requestOptions.method).toBe('PATCH')
+      
+      // Check headers (can be Headers object or plain object)
+      const headers = requestOptions.headers?.map || requestOptions.headers
+      expect(headers['content-type'] || headers['Content-Type']).toBe('application/json')
+      
+      // Check body
+      const body = requestOptions.body || requestOptions._bodyText
+      expect(body).toBe(JSON.stringify({ status: 'CONFIRMED' }))
     })
 
     it('handles modal accessibility correctly', async () => {

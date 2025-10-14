@@ -13,8 +13,8 @@
     ".docker/**",
     "archive-backups/**",
     "lib/generated/**",
-    "jest.setup.js",
-    "jest.setup.node.js",
+    "vitest.setup.ts",
+    "vitest.setup.node.ts",
     "scripts/**"
   ],
   "format": ["typescript", "javascript"],

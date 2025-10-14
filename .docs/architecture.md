@@ -22,7 +22,7 @@
 - **Database**: Neon PostgreSQL with Prisma ORM - Serverless, type-safe, familiar patterns
 - **Styling**: Tailwind CSS + shadcn/ui components - Rapid development, consistent design system
 - **Email**: Nodemailer with Gmail SMTP - Simple, reliable, fire-and-forget pattern
-- **Testing**: Jest + React Testing Library + Playwright + MSW - Comprehensive, automated quality gates
+- **Testing**: Vitest + React Testing Library + Playwright + MSW - Comprehensive, automated quality gates
 - **Performance**: Vercel Analytics + SpeedInsights - Zero-maintenance monitoring
 - **Deployment**: Vercel with GitHub integration - One-click deploys, automatic previews
 - **Security**: Built-in Next.js security + rate limiting - Good defaults, minimal configuration
@@ -434,8 +434,8 @@ export function useAvailability(selectedDate: Date | undefined) {
 }
 
 // Test Pattern: Hook Mocking (No race conditions)
-jest.mock('../useAvailability', () => ({
-  useAvailability: jest.fn().mockReturnValue({
+vi.mock('../useAvailability', () => ({
+  useAvailability: vi.fn().mockReturnValue({
     availableTimes: ['09:00', '10:00'],
     isLoading: false,
   }),

@@ -58,7 +58,7 @@ Reference for proven, reusable code patterns. Always check this before implement
 ### Prisma Mocking
 **Location**: `tests/mocks/prisma-mock.ts`
 **Use for**: Mocking database in tests
-**Pattern**: Use `jest.unstable_mockModule()` for ESM compatibility
+**Pattern**: Use `vi.mock()` for ESM compatibility
 
 ### E2E Tests
 **Location**: `tests/e2e/booking-flow.spec.ts`

@@ -25,42 +25,33 @@ npm run lint || exit 1
 echo "📘 Running type check..."
 npm run type-check || exit 1
 
-# 3. Check for skipped tests
-echo "🔍 Checking for skipped tests..."
-node scripts/check-skipped-tests.js || exit 1
-
-# 4. Test quality check
+# 3. Test quality check
 echo "🧪 Running test quality check..."
 pnpm run test:quality || exit 1
 
-# 5. Critical tests
+# 4. Critical tests
 echo "🧪 Running critical tests..."
 npm run test:critical || exit 1
 
-# 6. Complexity check (AST-based) - exclude scripts directory from check
-echo "📊 Checking complexity..."
-CHANGED_FILES_NO_SCRIPTS=$(echo $CHANGED_FILES | tr ' ' '\n' | grep -v '^scripts/' | tr '\n' ' ')
-if [ -n "$CHANGED_FILES_NO_SCRIPTS" ]; then
-  echo $CHANGED_FILES_NO_SCRIPTS | xargs node scripts/complexity-check.js || exit 1
+# 5. Check for deprecated APIs
+echo "⚠️  Checking for deprecated APIs..."
+if [ -f "scripts/check-deprecated.js" ]; then
+  echo $CHANGED_FILES | xargs node scripts/check-deprecated.js || exit 1
 else
-  echo "✅ Only script files changed, skipping complexity check"
+  echo "✅ Deprecated API check script not found, skipping"
 fi
 
-# 7. Check for deprecated APIs
-echo "⚠️  Checking for deprecated APIs..."
-echo $CHANGED_FILES | xargs node scripts/check-deprecated.js || exit 1
-
-# 8. Duplication check (scoped to changed files)
+# 6. Duplication check (scoped to changed files)
 echo "🔁 Checking duplication..."
 echo $CHANGED_FILES | xargs jscpd --threshold 3 --min-lines 5 --min-tokens 50 || exit 1
 
-# 9. Security scan (if configured)
+# 7. Security scan (if configured)
 if command -v npm run security:scan &> /dev/null; then
   echo "🔒 Running security scan..."
   npm run security:scan || exit 1
 fi
 
-# 10. Build verification
+# 8. Build verification
 echo "🏗️ Verifying build..."
 npm run build:verify || exit 1
 

@@ -95,6 +95,7 @@
   ],
   "ignorePatterns": [
     "lib/generated/prisma/**/*.js",
+    "lib/generated/prisma/**/*.mjs",
     "lib/generated/prisma/**/*.ts",
     "scripts/**/*.js"
   ],

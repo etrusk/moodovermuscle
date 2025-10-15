@@ -6,8 +6,8 @@ echo "🔍 Checking test-first compliance..."
 # Get staged files
 STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
 
-# Filter for implementation files (exclude tests, configs, docs)
-IMPL_FILES=$(echo "$STAGED_FILES" | grep -E "^(app|components|lib)/.*\.(ts|tsx)$" | grep -v "\.test\." | grep -v "\.config\." | grep -v "\.mock\.")
+# Filter for implementation files (exclude tests, configs, docs, generated files)
+IMPL_FILES=$(echo "$STAGED_FILES" | grep -E "^(app|components|lib)/.*\.(ts|tsx)$" | grep -v "\.test\." | grep -v "\.config\." | grep -v "\.mock\." | grep -v "^lib/generated/")
 
 if [ -z "$IMPL_FILES" ]; then
   echo "✅ No implementation files changed"

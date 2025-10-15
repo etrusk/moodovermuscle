@@ -60,7 +60,7 @@ print_success "Semgrep security analysis passed."
 
 # 5. Run Build Validation
 print_info "Running build validation..."
-pnpm build-validate || { print_error "Build validation failed."; exit 1; }
+pnpm build:verify || { print_error "Build validation failed."; exit 1; }
 print_success "Build validation passed."
 
 print_success "All pre-push checks passed. Pushing to remote..."

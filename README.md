@@ -71,8 +71,8 @@ pnpm test:e2e             # Run Playwright end-to-end tests
 │   └── theme-provider.tsx
 ├── scripts/              # Development and testing utilities
 ├── .github/workflows/    # GitHub Actions
-│   ├── domain-health-check.yml # Automated health monitoring
-│   └── vercel-deployment.yml   # Enhanced deployment workflow
+│   ├── ci.yml                      # CI/CD pipeline with quality gates
+│   └── auto-merge-dependabot.yml  # Automated dependency updates
 ├── lib/                  # Utility functions
 ├── public/               # Static assets
 │   └── images/          # Image assets
@@ -102,27 +102,14 @@ Essential quality validation maintained through:
 - **Build verification**: TypeScript compilation and build process validation
 - **CI/CD integration**: Automated quality checks via GitHub Actions
 
-### Automated Monitoring
+### CI/CD Pipeline
 
-- **Enhanced Deployment Workflow** (`.github/workflows/vercel-deployment.yml`):
-  - Build validation integration
-  - Health monitoring on deployments
-  - Preview deployment comments on PRs
-  - Comprehensive error reporting
-
-- **Lighthouse Audit** (`.github/workflows/lighthouse-audit.yml`):
-  - Runs weekly and on deployments
-  - Performance and accessibility audits
-  - Enforces minimum scores (Performance >90, Accessibility >95)
-  - Creates issues for audit failures
-  - Stores audit reports as artifacts
-
-- **Critical Alerts Monitoring** (`.github/workflows/critical-alerts.yml`):
-  - Runs every 3 hours
-  - Checks website availability
-  - Monitors SSL certificate expiration
-  - Measures response time performance
-  - Creates alerts for critical failures
+- **Continuous Integration** (`.github/workflows/ci.yml`):
+  - Runs on every push and pull request
+  - Automated quality gates: lint, type-check, security scan
+  - Full test suite execution (unit, integration, e2e)
+  - Build verification before deployment
+  - Automated Dependabot PR merging (`.github/workflows/auto-merge-dependabot.yml`)
 
 ## Development Guidelines
 

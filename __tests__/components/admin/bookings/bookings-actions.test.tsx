@@ -12,7 +12,7 @@ import userEvent from '@testing-library/user-event'
 import { axe } from 'jest-axe'
 import BookingsPage from '@/app/admin/bookings/page'
 
-// Test data constants
+// Test data constants - matching handlers.ts format
 const mockBookings = [
   {
     id: 'booking-1',
@@ -21,7 +21,7 @@ const mockBookings = [
     phone: '+61 400 123 456',
     service: 'Personal Training',
     date: '2025-08-10',
-    time: '10:00',
+    time: '10:00:00',
     duration: 60,
     status: 'PENDING' as const,
     goals: 'Lose weight and build strength',
@@ -37,8 +37,8 @@ const mockBookings = [
     email: 'mike@example.com',
     phone: '+61 400 987 654',
     service: 'Group Class',
-    date: '2025-08-11',
-    time: '14:30',
+    date: '2025-08-10',
+    time: '14:30:00',
     duration: 45,
     status: 'CONFIRMED' as const,
     goals: 'Improve fitness',
@@ -52,8 +52,8 @@ const mockBookings = [
     email: 'lisa@example.com',
     phone: '+61 400 555 111',
     service: 'Mums & Bubs Class',
-    date: '2025-08-09',
-    time: '09:00',
+    date: '2025-08-11',
+    time: '09:00:00',
     duration: 60,
     status: 'COMPLETED' as const,
     experience: 'Beginner',
@@ -67,7 +67,7 @@ const mockBookings = [
     phone: '+61 400 777 888',
     service: 'Personal Training',
     date: '2025-08-12',
-    time: '16:00',
+    time: '16:00:00',
     duration: 60,
     status: 'CANCELLED' as const,
     goals: 'Rehabilitation',

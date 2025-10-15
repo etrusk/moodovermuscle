@@ -537,3 +537,20 @@ vi.mock('bcryptjs', () => ({
   compare: vi.fn().mockResolvedValue(true),
   hash: vi.fn().mockResolvedValue('mock-hashed-password'),
 }))
+
+// Mock CSS style parsing to fix JSDOM CSS custom properties issue
+// This prevents "Cannot create property 'border-width' on string" errors
+if (typeof global !== 'undefined') {
+  const originalSetProperty = global.CSSStyleDeclaration?.prototype?.setProperty
+  if (originalSetProperty && global.CSSStyleDeclaration) {
+    global.CSSStyleDeclaration.prototype.setProperty = function(property: string, value: string | null, priority?: string) {
+      // Skip CSS custom properties in border shorthand that JSDOM can't parse
+      if (value && typeof value === 'string' && value.includes('var(--')) {
+        // Replace CSS custom properties with static values for testing
+        value = value.replace(/hsl\(var\(--[^)]+\)\)/g, 'rgb(0, 0, 0)')
+        value = value.replace(/var\(--[^)]+\)/g, '0')
+      }
+      return originalSetProperty.call(this, property, value, priority)
+    }
+  }
+}

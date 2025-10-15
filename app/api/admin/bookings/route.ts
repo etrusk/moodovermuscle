@@ -17,6 +17,9 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search');
     const dateFrom = searchParams.get('dateFrom');
     const dateTo = searchParams.get('dateTo');
+    const limit = searchParams.get('limit');
+    const sortBy = searchParams.get('sortBy') ?? 'date';
+    const sortOrder = searchParams.get('sortOrder') ?? 'desc';
 
     // Build where clause
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -49,10 +52,13 @@ export async function GET(request: NextRequest) {
     // Fetch filtered bookings
     const bookings = await prisma.booking.findMany({
       where,
-      orderBy: [
-        { date: 'desc' },
-        { time: 'desc' },
-      ],
+      orderBy: sortBy === 'updatedAt'
+        ? { updatedAt: sortOrder as 'asc' | 'desc' }
+        : [
+            { date: sortOrder as 'asc' | 'desc' },
+            { time: sortOrder as 'asc' | 'desc' },
+          ],
+      ...(limit ? { take: parseInt(limit, 10) } : {}),
     });
 
     return NextResponse.json({ bookings });

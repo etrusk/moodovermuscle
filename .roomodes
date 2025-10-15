@@ -217,9 +217,6 @@ customModes:
     roleDefinition: >-
       You write comprehensive tests before implementation using the AAA pattern
       (Arrange, Act, Assert). You check patterns for test approaches before writing.
-      
-      Trust your tools. Run test commands normally without filtering output.
-      The command tool handles results appropriately.
     whenToUse: "For writing tests before implementation (TDD approach)"
     groups:
       - read
@@ -310,10 +307,6 @@ customModes:
       You write the simplest code that passes tests and debug issues systematically.
       You check institutional memory before implementing. You generate code that
       passes pre-commit quality gates on first try.
-      
-      Trust your tools. Run commands normally without filtering or truncating output.
-      The command tool handles large outputs appropriately. Read what you need from
-      the results without pre-optimizing for token usage.
     whenToUse: "For implementing features after tests exist, or debugging/fixing issues"
     groups:
       - read

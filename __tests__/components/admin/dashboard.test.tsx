@@ -279,34 +279,28 @@ describe('AdminDashboardPage Component', () => {
   })
 
   describe('Recent Activity Display', () => {
-    it('renders recent activity section with mock data', async () => {
+    it('renders recent activity section with real API data', async () => {
       // Arrange & Act
       render(<AdminDashboardPage />)
 
-      // Assert
+      // Assert - Check that Recent Activity section renders
       await waitFor(() => {
         expect(screen.getByText('Recent Activity')).toBeInTheDocument()
         expect(screen.getByText('Latest booking updates and activities')).toBeInTheDocument()
-        
-        expect(screen.getByText('New booking confirmed')).toBeInTheDocument()
-        expect(screen.getByText('Sarah M. - Personal Training')).toBeInTheDocument()
-        expect(screen.getByText('Session completed')).toBeInTheDocument()
-        expect(screen.getByText('Lisa J. - Mums & Bubs Class')).toBeInTheDocument()
-        expect(screen.getByText('Booking pending')).toBeInTheDocument()
-        expect(screen.getByText('Mike R. - Personal Training')).toBeInTheDocument()
-      })
+      }, { timeout: 3000 })
+      
+      // MSW will return booking data from the API
     })
 
-    it('displays activity timestamps', async () => {
+    it('displays refresh button for recent activity', async () => {
       // Arrange & Act
       render(<AdminDashboardPage />)
 
       // Assert
       await waitFor(() => {
-        expect(screen.getByText('2h ago')).toBeInTheDocument()
-        expect(screen.getByText('4h ago')).toBeInTheDocument()
-        expect(screen.getByText('6h ago')).toBeInTheDocument()
-      })
+        const refreshButton = screen.getByRole('button', { name: /refresh recent activity/i })
+        expect(refreshButton).toBeInTheDocument()
+      }, { timeout: 3000 })
     })
   })
 

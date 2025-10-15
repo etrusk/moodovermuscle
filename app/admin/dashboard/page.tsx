@@ -6,6 +6,7 @@ import { useAdminAuth } from '@/lib/auth/AdminAuthContext'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { CalendarDays, Users, Clock, TrendingUp, AlertCircle, RefreshCw, Loader2 } from 'lucide-react'
+import RecentActivityCard from '@/components/admin/dashboard/RecentActivityCard'
 
 // This will be replaced with real data from the booking API
 interface DashboardStats {
@@ -219,44 +220,7 @@ export default function AdminDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>
-              Latest booking updates and activities
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <div className="flex-1 text-sm">
-                  <p className="font-medium">New booking confirmed</p>
-                  <p className="text-gray-500">Sarah M. - Personal Training</p>
-                </div>
-                <div className="text-xs text-gray-400">2h ago</div>
-              </div>
-              
-              <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                <div className="flex-1 text-sm">
-                  <p className="font-medium">Session completed</p>
-                  <p className="text-gray-500">Lisa J. - Mums &amp; Bubs Class</p>
-                </div>
-                <div className="text-xs text-gray-400">4h ago</div>
-              </div>
-              
-              <div className="flex items-center space-x-3">
-                <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                <div className="flex-1 text-sm">
-                  <p className="font-medium">Booking pending</p>
-                  <p className="text-gray-500">Mike R. - Personal Training</p>
-                </div>
-                <div className="text-xs text-gray-400">6h ago</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <RecentActivityCard />
       </div>
     </div>
   )

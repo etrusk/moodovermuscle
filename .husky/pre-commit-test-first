@@ -18,7 +18,7 @@ fi
 MISSING_TESTS=""
 for IMPL_FILE in $IMPL_FILES; do
   # Derive test file path
-  BASE_NAME=$(basename "$IMPL_FILE" | sed 's/\.(ts|tsx)$//')
+  BASE_NAME=$(basename "$IMPL_FILE" | sed -E 's/\.(ts|tsx)$//')
   DIR_NAME=$(dirname "$IMPL_FILE")
   
   # Try multiple test file locations

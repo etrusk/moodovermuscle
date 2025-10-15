@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useCallback } from 'react'
+import React, { useState } from 'react'
 import { Header } from '@/components/header'
 import { BookingForm } from '@/components/booking-form'
 import { HeroSection } from '@/components/sections/hero-section'
@@ -14,13 +14,13 @@ import { FinalCtaSection } from '@/components/sections/final-cta-section'
 export default function Home(): React.ReactElement {
   const [isBookingOpen, setIsBookingOpen] = useState(false)
 
-  const handleBookSessionClick = useCallback((): void => {
+  const handleBookSessionClick = (): void => {
     setIsBookingOpen(true)
-  }, [])
+  }
 
-  const handleCloseBooking = useCallback((): void => {
+  const handleCloseBooking = (): void => {
     setIsBookingOpen(false)
-  }, [])
+  }
 
   return (
     <div className="flex flex-col min-h-screen overflow-x-hidden">

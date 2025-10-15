@@ -119,12 +119,11 @@ describe('Classes Page', () => {
       expect(screen.getByText(expectedSections.cta[1])).toBeInTheDocument()
     })
 
-    it('renders all three service cards', () => {
+    it('renders all two service cards', () => {
       // Arrange
       const expectedServices = [
         { title: '1-on-1 Personal Training', price: '$80' },
-        { title: 'Double Trouble & Tiny Toots', price: '$40' },
-        { title: 'Small Mums & Bubs Classes', price: '$20' }
+        { title: 'Double Trouble & Tiny Toots', price: '$40' }
       ]
       
       // Act
@@ -140,11 +139,10 @@ describe('Classes Page', () => {
       // Assert - Prices
       const prices = screen.getAllByTestId('price')
       expect(prices).toMatchObject({
-        length: 3
+        length: 2
       })
       expect(prices[0]).toMatchObject({ textContent: expectedServices[0].price })
       expect(prices[1]).toMatchObject({ textContent: expectedServices[1].price })
-      expect(prices[2]).toMatchObject({ textContent: expectedServices[2].price })
     })
 
     it('displays popular badge on correct service', () => {
@@ -160,17 +158,13 @@ describe('Classes Page', () => {
       expect(popularBadges[0]).toMatchObject({ textContent: 'Popular' })
     })
 
-    it('displays coming soon badge on group classes', () => {
-      // Arrange
-      const expectedBadgeCount = 1
-      
-      // Act
+    it('does not display coming soon badge', () => {
+      // Arrange & Act
       render(<ClassesPage />)
       
       // Assert
-      const comingSoonBadges = screen.getAllByTestId('coming-soon-badge')
-      expect(comingSoonBadges).toMatchObject({ length: expectedBadgeCount })
-      expect(comingSoonBadges[0]).toMatchObject({ textContent: 'Coming Soon' })
+      const comingSoonBadges = screen.queryAllByTestId('coming-soon-badge')
+      expect(comingSoonBadges).toHaveLength(0)
     })
   })
 
@@ -234,14 +228,16 @@ describe('Classes Page', () => {
       })
     })
 
-    it('does not allow booking for coming soon services', () => {
+    it('allows booking for all available services', () => {
       // Arrange & Act
       render(<ClassesPage />)
       
       // Assert
-      const comingSoonButtons = screen.getAllByTestId('coming-soon-button')
-      expect(comingSoonButtons).toHaveLength(1)
-      expect(comingSoonButtons[0]).toBeDisabled()
+      const bookButtons = screen.getAllByTestId('book-service-button')
+      expect(bookButtons).toHaveLength(2)
+      bookButtons.forEach(button => {
+        expect(button).not.toBeDisabled()
+      })
     })
   })
 
@@ -252,7 +248,7 @@ describe('Classes Page', () => {
       
       // Assert
       const featureLists = screen.getAllByTestId('features-list')
-      expect(featureLists).toHaveLength(3)
+      expect(featureLists).toHaveLength(2)
       
       // Assert - Check first service (1-on-1) has 4 features
       const personalTrainingFeatures = within(featureLists[0]).getAllByRole('listitem')
@@ -265,10 +261,6 @@ describe('Classes Page', () => {
       // Assert - Check second service has 4 features
       const doubleTrainingFeatures = within(featureLists[1]).getAllByRole('listitem')
       expect(doubleTrainingFeatures).toHaveLength(4)
-      
-      // Assert - Check third service has 4 features
-      const groupClassFeatures = within(featureLists[2]).getAllByRole('listitem')
-      expect(groupClassFeatures).toHaveLength(4)
     })
   })
 
@@ -361,7 +353,6 @@ describe('Classes Page', () => {
       expect(screen.getByText('Choose Your Perfect')).toBeInTheDocument()
       expect(screen.getByText('1-on-1 Personal Training')).toBeInTheDocument()
       expect(screen.getByText('Double Trouble & Tiny Toots')).toBeInTheDocument()
-      expect(screen.getByText('Small Mums & Bubs Classes')).toBeInTheDocument()
     })
 
     it('maintains functionality on mobile', async () => {
@@ -397,14 +388,17 @@ describe('Classes Page', () => {
       expect(firstCard.className).toContain('hover:shadow-3xl')
     })
 
-    it('applies reduced opacity to coming soon cards', () => {
+    it('applies standard styling to all service cards', () => {
       // Arrange & Act
-      const { container } = render(<ClassesPage />)
+      render(<ClassesPage />)
       
       // Assert
-      const comingSoonBadge = screen.getByTestId('coming-soon-badge')
-      const comingSoonCard = comingSoonBadge.closest('.group') as HTMLElement
-      expect(comingSoonCard.className).toContain('opacity-75')
+      const serviceHeaders = screen.getAllByTestId('service-card-header')
+      expect(serviceHeaders).toHaveLength(2)
+      
+      // Verify no cards have reduced opacity (no coming soon services)
+      const serviceContents = screen.getAllByTestId('service-card-content')
+      expect(serviceContents).toHaveLength(2)
     })
   })
 
@@ -417,7 +411,6 @@ describe('Classes Page', () => {
       const prices = screen.getAllByTestId('price')
       expect(prices[0]).toHaveTextContent('$80') // 1-on-1
       expect(prices[1]).toHaveTextContent('$40') // Double Trouble
-      expect(prices[2]).toHaveTextContent('$20') // Group classes
     })
 
     it('displays correct service descriptions', () => {
@@ -427,7 +420,6 @@ describe('Classes Page', () => {
       // Assert
       expect(screen.getByText(/Completely personalized program/)).toBeInTheDocument()
       expect(screen.getByText(/chaos is more fun when shared/)).toBeInTheDocument()
-      expect(screen.getByText(/Coming soon in parks/)).toBeInTheDocument()
     })
 
     it('displays promotional messages correctly', () => {

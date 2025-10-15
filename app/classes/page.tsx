@@ -10,7 +10,6 @@ import {
   ChevronRight,
   Users,
   Heart,
-  Calendar,
   Sparkles,
   MapPin,
 } from 'lucide-react'
@@ -47,22 +46,6 @@ const services = [
       'Share the cost and the fun',
       'Flexible location options',
       'Baby-friendly environment',
-    ],
-  },
-  {
-    icon: Calendar,
-    title: 'Small Mums & Bubs Classes',
-    description:
-      'Coming soon in parks - small groups up to 10 people for community support',
-    price: '$20',
-    gradient: 'from-rose-400 to-pink-400',
-    popular: false,
-    comingSoon: true,
-    features: [
-      'Small group support (max 10 mums)',
-      'Baby-friendly park sessions',
-      'Build lasting friendships',
-      'Affordable community option',
     ],
   },
 ]
@@ -126,11 +109,9 @@ const ServicesSection = ({ onBookSessionClick }: { onBookSessionClick: () => voi
 
 const ServiceCard = ({ service, onBookSessionClick }: { service: typeof services[0], onBookSessionClick: () => void }): React.ReactElement => (
   <Card
-    className={`group border-0 shadow-2xl hover:shadow-3xl transition-all duration-500 bg-white/90 backdrop-blur-sm overflow-hidden hover:scale-105 relative ${
-      service.comingSoon ? 'opacity-75' : ''
-    }`}
+    className="group border-0 shadow-2xl hover:shadow-3xl transition-all duration-500 bg-white/90 backdrop-blur-sm overflow-hidden hover:scale-105 relative"
   >
-    <ServiceCardHeader popular={service.popular} comingSoon={service.comingSoon} />
+    <ServiceCardHeader popular={service.popular} />
 
     <CardContent className="p-10 space-y-8 pt-12">
       <ServiceCardContent
@@ -142,7 +123,6 @@ const ServiceCard = ({ service, onBookSessionClick }: { service: typeof services
       />
 
       <ServiceCardActions
-        comingSoon={service.comingSoon}
         gradient={service.gradient}
         onBookSessionClick={onBookSessionClick}
       />

@@ -661,24 +661,21 @@ describe('Classes Page Integration: Complete Booking Journey', () => {
   })
 
   describe('Service Availability Indicators', () => {
-    it('prevents booking attempts for services coming soon', async () => {
+    it('allows booking for all available services', async () => {
       // Arrange
       const user = userEvent.setup()
       render(<ClassesPage />)
 
       // Act
-      const comingSoonButtons = screen.getAllByRole('button', {
-        name: /coming soon/i,
+      const bookButtons = screen.getAllByRole('button', {
+        name: /start free session/i,
       })
 
-      // Assert
-      expect(comingSoonButtons).toHaveLength(1) // Exactly one "coming soon" service
-
-      // Act
-      await user.click(comingSoonButtons[0])
-
-      // Assert
-      expect(screen.queryByTestId('booking-form')).not.toBeInTheDocument()
+      // Assert - All displayed services are bookable
+      expect(bookButtons).toHaveLength(2) // Two active services available
+      bookButtons.forEach(button => {
+        expect(button).not.toBeDisabled()
+      })
     })
 
     it('throws error when wizard receives invalid service type', () => {

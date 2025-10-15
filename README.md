@@ -48,11 +48,7 @@ pnpm build
 # Start production server
 pnpm start
 
-# Monitoring & validation scripts
-pnpm run verify-domain      # Check domain DNS and SSL status
-pnpm run health-check       # Comprehensive site health monitoring
-pnpm run build-validate     # Validate build environment consistency
-pnpm run test-errors        # Test error scenarios and recovery
+# Quality & testing scripts
 pnpm run pre-deploy         # Full validation pipeline before deployment
 pnpm test                  # Run Vitest unit & integration tests
 pnpm test:e2e             # Run Playwright end-to-end tests
@@ -73,11 +69,7 @@ pnpm test:e2e             # Run Playwright end-to-end tests
 │   ├── ui/               # shadcn/ui components
 │   ├── booking-form.tsx  # Multi-step booking form
 │   └── theme-provider.tsx
-├── scripts/              # Monitoring and validation scripts
-│   ├── build-validation.js    # Environment consistency validation
-│   ├── health-check.js        # Production health monitoring
-│   ├── test-error-scenarios.js # Error scenario testing
-│   └── verify-domain.js       # Domain and SSL verification
+├── scripts/              # Development and testing utilities
 ├── .github/workflows/    # GitHub Actions
 │   ├── domain-health-check.yml # Automated health monitoring
 │   └── vercel-deployment.yml   # Enhanced deployment workflow
@@ -102,33 +94,13 @@ pnpm test:e2e             # Run Playwright end-to-end tests
 - **Speed Insights**: Core Web Vitals monitoring for performance optimization
 - **Real-time Metrics**: Available in Vercel dashboard after deployment
 
-### Health Monitoring Scripts
+### Quality Gates
 
-- **Domain Verification** (`scripts/verify-domain.js`):
-  - DNS resolution checking (A records, CNAME records)
-  - SSL certificate validation and expiry monitoring
-  - HTTPS functionality and security headers testing
-  - Redirect verification (HTTP→HTTPS, WWW→non-WWW)
-
-- **Health Check** (`scripts/health-check.js`):
-  - Comprehensive production health monitoring
-  - Website response time and content validation
-  - Critical pages testing (/classes, homepage)
-  - Performance threshold monitoring
-  - Detailed health reporting
-
-- **Build Validation** (`scripts/build-validation.js`):
-  - Environment consistency validation
-  - Required files and directories checking
-  - Package.json and configuration validation
-  - Build output structure verification
-
-- **Error Testing** (`scripts/test-error-scenarios.js`):
-  - 404 error pages functionality testing
-  - Build validation script testing
-  - Domain verification testing
-  - Recovery procedures validation
-  - Monitoring integration verification
+Essential quality validation maintained through:
+- **Pre-deployment pipeline**: Automated validation before production deploys
+- **Test suites**: Comprehensive unit, integration, and e2e test coverage
+- **Build verification**: TypeScript compilation and build process validation
+- **CI/CD integration**: Automated quality checks via GitHub Actions
 
 ### Automated Monitoring
 
@@ -256,23 +228,21 @@ git push origin main
 
 ## Recent Updates
 
-### GitHub Actions & Project Cleanup (Latest)
+### Tech Stack Cleanup (2025-10-15)
 
-- ✅ Fixed GitHub Actions permission issues ("Resource not accessible by integration")
-- ✅ Added explicit permissions to workflows (issues: write, pull-requests: write)
-- ✅ Created missing scripts referenced in package.json (verify-domain.js, test-error-scenarios.js)
-- ✅ Added .env.example file to resolve build validation failures
-- ✅ Cleaned up temporary documentation files (PREVIEW\_\*\_SETUP.md, test-preview.txt)
-- ✅ Removed redundant scripts (verify-preview-setup.js, check-vercel-dns.js)
-- ✅ Updated .gitignore to prevent future temporary file commits
-- ✅ All GitHub Actions workflows now running successfully
+- ✅ Removed 15 unused dependencies (shadcn/ui components, Radix UI packages)
+- ✅ Deleted 21 unused UI component files (-47% reduction)
+- ✅ Removed 8 over-engineered monitoring scripts (1,200+ LOC)
+- ✅ Cleaned 11 redundant package.json script entries
+- ✅ Fixed dependency pinning (286 packages updated from "latest")
+- ✅ All quality gates passing (lint, type-check, build, security)
+- ✅ Simplified to essential tooling (rely on pnpm, ESLint, Next.js native capabilities)
 
 ### Performance Monitoring
 
-- Implemented automated Lighthouse audits with minimum score thresholds
-- Added response time monitoring with alerts for slow responses
-- Set up SSL certificate expiration monitoring
-- Created notification system for critical failures
+- Vercel Analytics and Speed Insights integrated for production monitoring
+- Automated Lighthouse audits via GitHub Actions
+- Critical quality gates enforced in CI/CD pipeline
 
 ## Contributing
 

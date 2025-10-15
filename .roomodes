@@ -119,7 +119,7 @@ customModes:
       1. **Business context changed?**
          - New feature changes user experience?
          - Scale/scope assumptions changed?
-         → Update: `README.md` or `.docs/spec.md`
+         → Update: `./README.md` or `.docs/spec.md`
       
       2. **Technical decisions made?**
          - New dependency/library added?
@@ -141,9 +141,9 @@ customModes:
       **If NO to all:** No update needed, proceed
       
       **Update examples:**
-      - ✅ "Added Resend for emails" → architecture.md (new service)
-      - ✅ "Email template pattern" → patterns/index.md (reusable)
-      - ✅ "Fixed timezone DST bug" → investigations/index.md
+      - ✅ "Added Resend for emails" → .docs/architecture.md (new service)
+      - ✅ "Email template pattern" → .docs/patterns/index.md (reusable)
+      - ✅ "Fixed timezone DST bug" → .docs/investigations/index.md
       - ❌ "Fixed typo" → No doc needed
       - ❌ "Refactored for clarity" → No doc needed
 
@@ -165,7 +165,7 @@ customModes:
       1. Review project context:
          - .docs/architecture.md (tech stack, constraints, scale)
          - .docs/patterns/index.md (existing approaches)
-         - README.md (business context)
+         - ./README.md (business context)
       
       2. If existing pattern covers this feature:
          → Use attempt_completion immediately:
@@ -226,7 +226,7 @@ customModes:
       - edit
       - command
     customInstructions: |
-      Before writing tests, read mandate.md for patterns.
+      Before writing tests, read .roo/rules/mandate.md for patterns.
       
       ## Test Quality Requirements (100% COMPLIANCE MANDATORY)
       
@@ -321,7 +321,7 @@ customModes:
       - command
       - browser
     customInstructions: |
-      Before implementing, read mandate.md for context and patterns.
+      Before implementing, read .roo/rules/mandate.md for context and patterns.
       
       ## Pre-Implementation Verification
       

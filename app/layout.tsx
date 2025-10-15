@@ -2,7 +2,6 @@ import type React from 'react'
 import { Inter } from 'next/font/google'
 import '@/app/globals.css'
 import { cn } from '@/lib/utils'
-import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from '@/components/ui/toaster'
 
 const fontSans = Inter({
@@ -29,15 +28,8 @@ export default function RootLayout({
           fontSans.variable
         )}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-          <Toaster />
-        </ThemeProvider>
+        {children}
+        <Toaster />
       </body>
     </html>
   )

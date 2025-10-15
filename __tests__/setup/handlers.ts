@@ -5,8 +5,26 @@ interface BookingRequestBody {
   email: string
 }
 
-// Mock bookings data factory - returns fresh data to avoid mutation between tests
-const getInitialMockBookings = () => [
+interface MockBooking {
+  id: string
+  name: string
+  email: string
+  phone: string
+  service: string
+  date: string
+  time: string
+  duration: number
+  status: string
+  goals?: string
+  experience: string
+  message?: string
+  location?: string
+  createdAt: string
+  updatedAt: string
+}
+
+// Mock bookings data template
+const INITIAL_BOOKINGS: readonly MockBooking[] = [
   {
     id: 'booking-1',
     name: 'Sarah Miller',
@@ -69,10 +87,13 @@ const getInitialMockBookings = () => [
     createdAt: '2025-08-06T12:00:00Z',
     updatedAt: '2025-08-08T01:00:00Z'
   }
-]
+] as const
+
+// Returns fresh data to avoid mutation between tests
+const getInitialMockBookings = (): MockBooking[] => JSON.parse(JSON.stringify(INITIAL_BOOKINGS))
 
 // Initialize mock bookings - will be reset per test
-let mockBookings = getInitialMockBookings()
+let mockBookings: MockBooking[] = getInitialMockBookings()
 
 export const handlers = [
   http.post('/api/book-session', async ({ request }) => {

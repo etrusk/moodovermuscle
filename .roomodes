@@ -95,6 +95,59 @@ customModes:
       After receiving attempt_completion from delegated mode:
       - Clear .docs/current-task.md to show only active task
 
+      **Session cleanup (REQUIRED when applicable):**
+      After handling user's request, if:
+      - [ ] All subtasks completed successfully
+      - [ ] User hasn't requested additional work
+      - [ ] No pending tasks remain
+
+      Then:
+      1. Replace .docs/current-task.md with:
+      ```markdown
+         # No Active Tasks
+         
+         Last completed: [Brief summary of last task]
+         Ready for new work.
+      ```
+      
+      ## End-of-Task Documentation Check (REQUIRED)
+      
+      When any subtask completes (via attempt_completion) OR when you answer user directly:
+      
+      **Ask these 4 questions:**
+      
+      1. **Business context changed?**
+         - New feature changes user experience?
+         - Scale/scope assumptions changed?
+         → Update: `README.md` or `.docs/spec.md`
+      
+      2. **Technical decisions made?**
+         - New dependency/library added?
+         - Architecture pattern changed?
+         - Design constraint discovered?
+         → Update: `.docs/architecture.md`
+      
+      3. **Reusable solution created?**
+         - Pattern used 2+ times?
+         - Novel approach worth documenting?
+         → Update: `.docs/patterns/index.md`
+      
+      4. **Debugging insight gained?**
+         - Root cause discovered?
+         - Workaround/fix documented?
+         → Update: `.docs/investigations/index.md`
+      
+      **If YES to any:** Update file(s) before completing (2-5 lines typically)
+      **If NO to all:** No update needed, proceed
+      
+      **Update examples:**
+      - ✅ "Added Resend for emails" → architecture.md (new service)
+      - ✅ "Email template pattern" → patterns/index.md (reusable)
+      - ✅ "Fixed timezone DST bug" → investigations/index.md
+      - ❌ "Fixed typo" → No doc needed
+      - ❌ "Refactored for clarity" → No doc needed
+
+
   - slug: architect
     name: "🏗️ Architect"
     description: "Technical design and integration planning for complex features"

@@ -138,13 +138,21 @@ export const handlers = [
   // Admin bookings endpoint - PATCH (status updates)
   http.patch('/api/admin/bookings', async ({ request }) => {
     try {
-      const body = await request.json() as { bookingId?: string; status?: string }
+      const url = new URL(request.url)
+      const bookingId = url.searchParams.get('id')
+      const body = await request.json() as { status?: string }
       
-      if (!body.bookingId || !body.status) {
+      if (!bookingId || !body.status) {
         return HttpResponse.json(
           { error: 'Missing bookingId or status' },
           { status: 400 }
         )
+      }
+      
+      // Find and update the booking in mock data
+      const bookingIndex = mockBookings.findIndex(b => b.id === bookingId)
+      if (bookingIndex !== -1) {
+        mockBookings[bookingIndex].status = body.status
       }
       
       return HttpResponse.json({ success: true })

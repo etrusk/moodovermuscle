@@ -240,13 +240,6 @@ customModes:
       - npm run test:quality: MUST PASS (zero weak assertions)
       - All tests: MUST PASS
       
-      ## Commit Before Completion
-      
-      After all tests pass:
-      git add -A && git commit -m "test: [description of tests added]"
-      
-      Then use attempt_completion with test summary.
-      
       ## Test Design (If design doc exists)
       
       - Follow testing strategy from .docs/designs/[feature]-design.md
@@ -289,22 +282,16 @@ customModes:
       - Parameters: ≤3 (use options objects if more)
       - Duplication: ≤3% (extract on 2nd occurrence)
       
-      ## Coverage Target: 100%
-      
-      Implementation must achieve 100% test coverage:
-      - All code paths executed by tests
-      - All error conditions tested
-      - All edge cases covered
-      - Run: npm run test:coverage
-      - Verify: 100% statements, branches, functions, lines
-      
-      ## Commit and Push Before Completion
-      
-      After implementation passes all tests:
-      git add -A && git commit -m "feat: [description]" && git push
-      (For bug fixes use: git commit -m "fix: [description]" && git push)
-      
-      Then use attempt_completion with implementation summary.
+      ## Quality Verification
+
+      Before completion, verify implementation meets all requirements:
+
+      **Test Coverage**: 100% (statements, branches, functions, lines)
+      **All Tests Passing**: Zero failures
+      **Pre-commit Gates**: All checks pass
+      **Quality Limits**: Functions ≤50 lines, files ≤300 lines, params ≤3, duplication ≤3%
+
+      Use available command tools to verify these outcomes.
 
 # Override default modes to prevent accidental use
   - slug: code

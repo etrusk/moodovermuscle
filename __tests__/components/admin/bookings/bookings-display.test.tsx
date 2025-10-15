@@ -211,9 +211,9 @@ describe('BookingsPage Component - Display Tests', () => {
       expect(screen.getByText('Lisa Chen')).toBeInTheDocument()
       expect(screen.getByText('Tom Wilson')).toBeInTheDocument()
 
-      // Then check date and time formatting - all in one waitFor
-      expect(screen.getByText('Sun, 10 Aug 2025')).toBeInTheDocument()
-      expect(screen.getByText('Mon, 11 Aug 2025')).toBeInTheDocument()
+      // Then check date and time formatting - use getAllByText for duplicates
+      expect(screen.getAllByText('Sun, 10 Aug 2025')[0]).toBeInTheDocument()
+      expect(screen.getAllByText('Mon, 11 Aug 2025')[0]).toBeInTheDocument()
       expect(screen.getByText('10:00 AM')).toBeInTheDocument()
       expect(screen.getByText('2:30 PM')).toBeInTheDocument()
       expect(screen.getByText('9:00 AM')).toBeInTheDocument()

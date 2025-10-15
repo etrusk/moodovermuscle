@@ -82,9 +82,9 @@ describe('AdminCalendarPage - Data Loading', () => {
       // Act
       await user.click(nextButton)
 
-      // Assert - verify month changed
+      // Assert - verify month changed (use getAllByText since month appears in multiple places)
       await waitFor(() => {
-        expect(screen.getByText('September 2025')).toBeInTheDocument()
+        expect(screen.getAllByText('September 2025')[0]).toBeInTheDocument()
       }, { timeout: 10000 })
     }, 15000)
 
@@ -211,7 +211,7 @@ describe('AdminCalendarPage - Data Loading', () => {
       // Arrange
       render(<AdminCalendarPage />)
       await waitFor(() => {
-        expect(screen.getByText('August 2025')).toBeInTheDocument()
+        expect(screen.getAllByText('August 2025')[0]).toBeInTheDocument()
       }, { timeout: 10000 })
 
       const nextButton = screen.getAllByRole('button', { name: '' })[1]
@@ -225,7 +225,7 @@ describe('AdminCalendarPage - Data Loading', () => {
 
       // Assert
       await waitFor(() => {
-        expect(screen.getByText('August 2025')).toBeInTheDocument()
+        expect(screen.getAllByText('August 2025')[0]).toBeInTheDocument()
       }, { timeout: 10000 })
     }, 15000)
 
@@ -236,8 +236,8 @@ describe('AdminCalendarPage - Data Loading', () => {
         expect(screen.getByText('Calendar')).toBeInTheDocument()
       }, { timeout: 10000 })
 
-      // Act
-      const todayButton = screen.getByRole('button', { name: /today/i })
+      // Act - Get the navigation "Today" button (not the calendar's today date)
+      const todayButton = screen.getAllByRole('button', { name: /today/i })[0]
       await user.click(todayButton)
       
       // Assert
@@ -253,7 +253,7 @@ describe('AdminCalendarPage - Data Loading', () => {
 
       // Assert
       await waitFor(() => {
-        expect(screen.getByText('August 2025')).toBeInTheDocument()
+        expect(screen.getAllByText('August 2025')[0]).toBeInTheDocument()
       }, { timeout: 10000 })
     })
   })

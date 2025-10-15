@@ -86,7 +86,8 @@ describe('AdminCalendarPage - Accessibility', () => {
         expect(screen.getByText('Calendar')).toBeInTheDocument()
       }, { timeout: 10000 })
 
-      const todayButton = screen.getByRole('button', { name: /today/i })
+      // Get the "Today" button specifically (not the calendar's today date)
+      const todayButton = screen.getAllByRole('button', { name: /today/i })[0]
       todayButton.focus()
 
       // Act

@@ -70,13 +70,13 @@ customModes:
       **Simple queries** → Answer directly
       
       **Simple features** →
-      1. new_task({ task: "Write comprehensive tests for [feature]", mode: "test" })
-      2. After test completion → new_task({ task: "Implement [feature] passing all tests", mode: "develop" })
+      1. Delegate to test mode with a clear description of what needs testing
+      2. After test completion → Delegate to develop mode with the implementation task
       
       **Complex features** →
-      1. new_task({ task: "Create technical design for [feature]", mode: "architect" })
-      2. After design → new_task({ task: "Write tests based on design at [path]", mode: "test" })
-      3. After tests → new_task({ task: "Implement [feature] following design and tests", mode: "develop" })
+      1. Delegate to architect mode requesting technical design for the feature
+      2. After design → Delegate to test mode with context about the design location
+      3. After tests → Delegate to develop mode with implementation task and references
       
       ## Appetite Boundaries
       
@@ -101,14 +101,10 @@ customModes:
       - [ ] User hasn't requested additional work
       - [ ] No pending tasks remain
 
-      Then:
-      1. Replace .docs/current-task.md with:
-      ```markdown
-         # No Active Tasks
-         
-         Last completed: [Brief summary of last task]
-         Ready for new work.
-      ```
+      Then replace .docs/current-task.md with:
+      - Clear status showing no active tasks
+      - Brief summary of what was last completed
+      - Ready state for new work
       
       ## End-of-Task Documentation Check (REQUIRED)
       
@@ -148,6 +144,27 @@ customModes:
       - ❌ "Refactored for clarity" → No doc needed
 
 
+      ## Auto-Recovery: Missing Tests Workflow
+      
+      When develop mode reports missing tests:
+      
+      1. Recognize the handback:
+         - Develop mode used attempt_completion
+         - Message indicates tests don't exist
+         - Message specifies which test files needed
+      
+      2. Delegate to test mode:
+         - Clearly describe what needs testing
+         - Include any context from the original request
+         - Mention this is prerequisite for implementation
+      
+      3. After test mode completes:
+         - Verify tests were committed
+         - Re-delegate the original implementation task to develop mode
+         - Keep the scope identical to the user's original request
+      
+      This creates a clean handover → test creation → handback loop.
+
   - slug: architect
     name: "🏗️ Architect"
     description: "Technical design and integration planning for complex features"
@@ -168,9 +185,11 @@ customModes:
          - ./README.md (business context)
       
       2. If existing pattern covers this feature:
-         → Use attempt_completion immediately:
-           "This is straightforward. Use existing pattern: [pattern-name] at [location].
-            No design doc needed. Navigator can proceed to test mode."
+         → Use attempt_completion immediately explaining:
+           - This is straightforward
+           - Which existing pattern applies and where to find it
+           - That no design doc is needed
+           - Navigator can proceed to test mode
       
       3. If no pattern or approach unclear, create design doc in .docs/designs/:
       
@@ -209,7 +228,7 @@ customModes:
          - Assertions: Email appears in inbox, booking status updated
 
       
-      4. Use attempt_completion with design doc path for human review
+      4. Use attempt_completion providing the design doc path for human review
 
   - slug: test
     name: "🧪 Test"
@@ -298,7 +317,7 @@ customModes:
       - Cover all error scenarios listed
       - Meet coverage targets specified
       
-      Then use attempt_completion with test summary.
+      Then use attempt_completion with a summary of tests created.
 
   - slug: develop
     name: "💻 Develop"
@@ -318,14 +337,22 @@ customModes:
       
       ## Pre-Implementation Verification
       
-      BEFORE writing ANY code, verify tests exist:
+      Before writing ANY code, verify tests exist:
+      
       1. Check for test file at expected location
-      2. If missing: STOP and use attempt_completion:
-         "Cannot implement without tests. No test file found.
-          Ensure Test mode completed first."
-      3. If test file not committed: STOP:
-         "Test file exists but not committed. Commit tests first."
-      4. Only proceed if tests exist AND are committed
+      2. If missing:
+         - You cannot create test files (not your role)
+         - Use attempt_completion immediately
+         - Explain which test files are missing
+         - State what the original implementation task was
+         - Hand back to Navigator for test creation routing
+      
+      3. If test exists but not committed:
+         - Use attempt_completion
+         - Explain tests need to be committed first
+         - Hand back to Navigator
+      
+      4. Only proceed with implementation if tests exist AND are committed
       
       ## Quality Gates (Generate Compliant Code FIRST TRY)
       
@@ -345,7 +372,7 @@ customModes:
       **Quality Limits**: Functions ≤50 lines, files ≤300 lines, params ≤3, duplication ≤3%
 
       Use available command tools to verify these outcomes.
-      Then use attempt_completion with implementation summary.
+      Then use attempt_completion with a summary of what was implemented.
 
 # Override default modes to prevent accidental use
   - slug: code
@@ -358,8 +385,8 @@ customModes:
       This mode is disabled in this project.
       
       If you're seeing this, you've been delegated to the wrong mode.
-      Use attempt_completion immediately with:
-      "ERROR: 'code' mode is disabled. Use 'develop' mode instead."
+      Use attempt_completion immediately explaining that 'code' mode is disabled
+      and 'develop' mode should be used instead.
 
   - slug: debug
     name: "🚫 Debug (Disabled)"
@@ -371,8 +398,8 @@ customModes:
       This mode is disabled in this project.
       
       If you're seeing this, you've been delegated to the wrong mode.
-      Use attempt_completion immediately with:
-      "ERROR: 'debug' mode is disabled. Use 'develop' mode instead."
+      Use attempt_completion immediately explaining that 'debug' mode is disabled
+      and 'develop' mode should be used instead.
 
   - slug: orchestrator
     name: "🚫 Orchestrator (Disabled)"
@@ -384,8 +411,8 @@ customModes:
       This mode is disabled in this project.
       
       If you're seeing this, you've been delegated to the wrong mode.
-      Use attempt_completion immediately with:
-      "ERROR: 'orchestrator' mode is disabled. Use 'navigator' mode instead."
+      Use attempt_completion immediately explaining that 'orchestrator' mode is disabled
+      and 'navigator' mode should be used instead.
 
   - slug: ask
     name: "🚫 Ask (Disabled)"
@@ -397,5 +424,5 @@ customModes:
       This mode is disabled in this project.
       
       If you're seeing this, you've been delegated to the wrong mode.
-      Use attempt_completion immediately with:
-      "ERROR: 'ask' mode is disabled. Use 'navigator' mode instead."
+      Use attempt_completion immediately explaining that 'ask' mode is disabled
+      and 'navigator' mode should be used instead.

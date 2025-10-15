@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useCallback } from 'react'
+import React, { useState } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 import { useBookingForm } from '../BookingFormProvider'
 import { useAvailability } from '../useAvailability'
@@ -138,10 +138,7 @@ function useSlotLockingData(
 
 // Extract fetch callback to reduce complexity
 function useFetchDateAvailability(fetchAvailability: (date: Date) => void): (date: Date) => Promise<void> {
-  return useCallback(
-    async (date: Date) => {
-      fetchAvailability(date)
-    },
-    [fetchAvailability]
-  )
+  return async (date: Date) => {
+    fetchAvailability(date)
+  }
 }

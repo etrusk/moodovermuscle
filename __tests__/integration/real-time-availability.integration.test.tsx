@@ -115,13 +115,13 @@ describe('Real-Time Availability Integration: Live Booking Prevention', () => {
       })
     )
 
-    vi.clearAllTimers()
-    vi.useFakeTimers()
+    // Don't use fake timers - the hook uses real setTimeout for retry backoff
+    vi.useRealTimers()
   })
 
   afterEach(() => {
-    vi.runOnlyPendingTimers()
-    vi.useRealTimers()
+    // Clean up any pending operations
+    vi.clearAllMocks()
   })
 
   describe('Availability Data Synchronization', () => {

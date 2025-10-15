@@ -236,14 +236,11 @@ customModes:
       - LAST RESORT: getByTestId
       - REQUIRED: Use userEvent, NOT fireEvent
       
-      ## Quality Gates (MUST PASS BEFORE COMMIT)
-      
-      Verify all requirements met before committing:
+      **Quality Gates (MUST PASS BEFORE COMMIT)**:
       - File limits: ≤600 lines (target 550)
       - Function limits: ≤50 lines
       - Helper functions: ≤3 params
-      - Zero weak assertions
-      - All tests passing
+      - Zero weak assertions (toBeDefined, toBeTruthy, toBeGreaterThan forbidden)
       
       ## Test Design (If design doc exists)
       

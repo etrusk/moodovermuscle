@@ -11,6 +11,7 @@ import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { axe } from 'jest-axe'
 import BookingsPage from '@/app/admin/bookings/page'
+import { resetMockBookings } from '@/__tests__/setup/handlers'
 
 // Test data constants - matching handlers.ts format
 const mockBookings = [
@@ -84,6 +85,7 @@ describe('BookingsPage Component - Actions and Accessibility Tests', () => {
   beforeEach(() => {
     user = userEvent.setup()
     vi.clearAllMocks()
+    resetMockBookings() // Reset MSW mock data to initial state
   })
 
   afterEach(() => {

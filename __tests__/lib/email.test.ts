@@ -1,10 +1,14 @@
 vi.mock('nodemailer', () => {
   const mockSendMail = vi.fn()
-  return {
+  const mockModule = {
     createTransport: vi.fn(() => ({
       sendMail: mockSendMail,
     })),
     __mockSendMail: mockSendMail,
+  }
+  return {
+    default: mockModule,
+    ...mockModule,
   }
 })
 

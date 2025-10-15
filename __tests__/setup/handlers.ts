@@ -5,8 +5,8 @@ interface BookingRequestBody {
   email: string
 }
 
-// Mock bookings data for admin endpoints - matching calendar-test-setup.ts format
-const mockBookings = [
+// Mock bookings data factory - returns fresh data to avoid mutation between tests
+const getInitialMockBookings = () => [
   {
     id: 'booking-1',
     name: 'Sarah Miller',
@@ -71,6 +71,9 @@ const mockBookings = [
   }
 ]
 
+// Initialize mock bookings - will be reset per test
+let mockBookings = getInitialMockBookings()
+
 export const handlers = [
   http.post('/api/book-session', async ({ request }) => {
     let body: BookingRequestBody
@@ -124,8 +127,10 @@ export const handlers = [
     const dateFrom = url.searchParams.get('dateFrom')
     const dateTo = url.searchParams.get('dateTo')
     
-    // Filter bookings by date range if provided
+    // Use persistent mockBookings that can be mutated by PATCH requests
     let filteredBookings = mockBookings
+    
+    // Filter bookings by date range if provided
     if (dateFrom && dateTo) {
       filteredBookings = mockBookings.filter(booking =>
         booking.date >= dateFrom && booking.date <= dateTo
@@ -149,10 +154,14 @@ export const handlers = [
         )
       }
       
-      // Find and update the booking in mock data
+      // Update status in persistent mock data
       const bookingIndex = mockBookings.findIndex(b => b.id === bookingId)
       if (bookingIndex !== -1) {
-        mockBookings[bookingIndex].status = body.status
+        mockBookings[bookingIndex] = {
+          ...mockBookings[bookingIndex],
+          status: body.status,
+          updatedAt: new Date().toISOString()
+        }
       }
       
       return HttpResponse.json({ success: true })
@@ -176,3 +185,8 @@ export const handlers = [
     })
   }),
 ]
+
+// Export function to reset mock data between tests
+export const resetMockBookings = () => {
+  mockBookings = getInitialMockBookings()
+}

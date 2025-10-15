@@ -12,11 +12,15 @@ beforeAll(() => {
 
 vi.mock('nodemailer', () => {
   const mockVerify = vi.fn()
-  return {
+  const mockModule = {
     createTransport: vi.fn(() => ({
       verify: mockVerify,
     })),
     __mockVerify: mockVerify,
+  }
+  return {
+    default: mockModule,
+    ...mockModule,
   }
 })
 

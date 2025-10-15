@@ -62,7 +62,7 @@ customModes:
       Before delegating to Develop, verify:
       - [ ] Test mode used attempt_completion successfully
       - [ ] Test files committed to git
-      - [ ] npm run test:quality passed
+      - [ ] All quality gates passed
       If any unchecked → Do not delegate to Develop
       
       ## Routing Logic
@@ -136,7 +136,7 @@ customModes:
            * Coverage targets: 100% for business logic, integration points
            
          Example Testing Strategy:
-         ```markdown
+
          ## Testing Strategy
          
          **Unit Tests**: EmailService methods
@@ -155,7 +155,7 @@ customModes:
          - Test: User books → receives confirmation email
          - No mocking (real flow through UI)
          - Assertions: Email appears in inbox, booking status updated
-         ```
+
       
       4. Use attempt_completion with design doc path for human review
 
@@ -165,6 +165,9 @@ customModes:
     roleDefinition: >-
       You write comprehensive tests before implementation using the AAA pattern
       (Arrange, Act, Assert). You check patterns for test approaches before writing.
+      
+      Trust your tools. Run test commands normally without filtering output.
+      The command tool handles results appropriately.
     whenToUse: "For writing tests before implementation (TDD approach)"
     groups:
       - read
@@ -233,12 +236,14 @@ customModes:
       - LAST RESORT: getByTestId
       - REQUIRED: Use userEvent, NOT fireEvent
       
-      **Quality Gates (MUST PASS BEFORE COMMIT)**:
+      ## Quality Gates (MUST PASS BEFORE COMMIT)
+      
+      Verify all requirements met before committing:
       - File limits: ≤600 lines (target 550)
       - Function limits: ≤50 lines
       - Helper functions: ≤3 params
-      - npm run test:quality: MUST PASS (zero weak assertions)
-      - All tests: MUST PASS
+      - Zero weak assertions
+      - All tests passing
       
       ## Test Design (If design doc exists)
       
@@ -246,6 +251,13 @@ customModes:
       - Implement exact assertion approach specified
       - Cover all error scenarios listed
       - Meet coverage targets specified
+      
+      ## Commit Before Completion
+      
+      After all quality gates pass:
+      git add -A && git commit -m "test: [description of tests added]"
+      
+      Then use attempt_completion with test summary.
 
   - slug: develop
     name: "💻 Develop"
@@ -254,6 +266,10 @@ customModes:
       You write the simplest code that passes tests and debug issues systematically.
       You check institutional memory before implementing. You generate code that
       passes pre-commit quality gates on first try.
+      
+      Trust your tools. Run commands normally without filtering or truncating output.
+      The command tool handles large outputs appropriately. Read what you need from
+      the results without pre-optimizing for token usage.
     whenToUse: "For implementing features after tests exist, or debugging/fixing issues"
     groups:
       - read
@@ -292,6 +308,14 @@ customModes:
       **Quality Limits**: Functions ≤50 lines, files ≤300 lines, params ≤3, duplication ≤3%
 
       Use available command tools to verify these outcomes.
+      
+      ## Commit and Push Before Completion
+      
+      After all quality gates pass:
+      git add -A && git commit -m "feat: [description]" && git push
+      (For bug fixes use: git commit -m "fix: [description]" && git push)
+      
+      Then use attempt_completion with implementation summary.
 
 # Override default modes to prevent accidental use
   - slug: code

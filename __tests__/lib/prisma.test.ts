@@ -28,14 +28,13 @@ describe('prisma client instance', () => {
     })
   })
 
-  it('reuses global prisma instance in non-production', () => {
+  it('reuses global prisma instance in non-production', async () => {
     // Arrange
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;(process.env as any).NODE_ENV = 'development'
 
     // Act
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { prisma: prisma2 } = require('@/lib/prisma')
+    const { prisma: prisma2 } = await import('@/lib/prisma')
 
     // Assert
     expect(prisma2).toBe(prisma)

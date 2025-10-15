@@ -15,10 +15,10 @@ import {
 
 // Test timeout configured in vitest.config.ts
 
-vi.mock('@/lib/prisma', () => ({
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  prisma: require('../setup/test-db').testDb,
-}))
+vi.mock('@/lib/prisma', async () => {
+  const { testDb } = await import('../setup/test-db')
+  return { prisma: testDb }
+})
 
 describe('Admin Login Flow Integration', () => {
   beforeEach(async () => {

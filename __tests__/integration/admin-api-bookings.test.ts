@@ -17,19 +17,18 @@ import { PATCH } from '@/app/api/admin/bookings/route'
 // Test timeout configured in vitest.config.ts
 
 // Mock Prisma for admin API route
-vi.mock('@/lib/prisma', () => ({
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  prisma: require('../setup/test-db').testDb,
-}))
+vi.mock('@/lib/prisma', async () => {
+  const { testDb } = await import('../setup/test-db')
+  return { prisma: testDb }
+})
 
 // Mock PrismaClient constructor used by admin API routes
-vi.mock('@/lib/generated/prisma', () => {
-  const actual = vi.importActual('@/lib/generated/prisma')
+vi.mock('@/lib/generated/prisma', async () => {
+  const actual = await vi.importActual('@/lib/generated/prisma')
+  const { testDb } = await import('../setup/test-db')
   return {
     ...actual,
     PrismaClient: vi.fn().mockImplementation(() => {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const { testDb } = require('../setup/test-db')
       return {
         ...testDb,
         $transaction: vi.fn().mockImplementation(async (callback: any) => {

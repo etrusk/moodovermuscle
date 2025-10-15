@@ -25,6 +25,7 @@ const createPrismaMock = (): any => ({
   },
   $disconnect: vi.fn(),
   $connect: vi.fn(),
+  $transaction: vi.fn(),
 })
 
 const prismaMock = createPrismaMock()

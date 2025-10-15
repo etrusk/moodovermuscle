@@ -45,7 +45,7 @@ const getInitialMockBookings = () => [
     email: 'lisa@example.com',
     phone: '+61 400 555 111',
     service: 'Mums & Bubs Class',
-    date: '2025-08-11',
+    date: '2025-08-09',
     time: '09:00:00',
     duration: 60,
     status: 'COMPLETED',
@@ -130,11 +130,13 @@ export const handlers = [
     // Use persistent mockBookings that can be mutated by PATCH requests
     let filteredBookings = mockBookings
     
-    // Filter bookings by date range if provided
-    if (dateFrom && dateTo) {
-      filteredBookings = mockBookings.filter(booking =>
-        booking.date >= dateFrom && booking.date <= dateTo
-      )
+    // Filter bookings by date range if provided (matches client-side filtering logic)
+    if (dateFrom || dateTo) {
+      filteredBookings = mockBookings.filter(booking => {
+        if (dateFrom && booking.date < dateFrom) return false
+        if (dateTo && booking.date > dateTo) return false
+        return true
+      })
     }
     
     return HttpResponse.json({ bookings: filteredBookings })

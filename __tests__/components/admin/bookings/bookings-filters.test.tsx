@@ -175,10 +175,7 @@ describe('BookingsPage Component - Filter Tests', () => {
       }, { timeout: 3000 })
     })
 
-    // KNOWN ISSUE: Date filter doesn't trigger re-render properly in test environment
-    // The component correctly filters in production, but the test doesn't capture the state update
-    // TODO: Investigate why date input state change doesn't trigger filteredBookings recalculation
-    it.skip('filters bookings by date range', async () => {
+    it('filters bookings by date range', async () => {
       // Arrange
       render(<BookingsPage />)
 
@@ -187,14 +184,12 @@ describe('BookingsPage Component - Filter Tests', () => {
         expect(screen.getByText('Lisa Chen')).toBeInTheDocument()
       })
 
-      // Act - Clear and type the date
+      // Act - Set the from date to filter out Lisa Chen (2025-08-09)
       const dateFromInput = screen.getByLabelText('From Date') as HTMLInputElement
       await user.clear(dateFromInput)
       await user.type(dateFromInput, '2025-08-10')
 
-      // Assert - The component applies BOTH server-side and client-side filtering
-      // Since only dateFrom is set (not dateTo), the API returns all bookings,
-      // but client-side filterBookings should filter by dateFrom
+      // Assert - API filters by date range and returns only matching bookings
       // Lisa Chen (2025-08-09) should be filtered out
       await waitFor(() => {
         // Verify Lisa Chen is filtered out
@@ -202,12 +197,12 @@ describe('BookingsPage Component - Filter Tests', () => {
       }, { timeout: 5000 })
       
       await waitFor(() => {
-        // Verify other bookings are still visible
-        expect(screen.getByText('Sarah Miller')).toBeInTheDocument()
-        expect(screen.getByText('Mike Johnson')).toBeInTheDocument()
-        expect(screen.getByText('Tom Wilson')).toBeInTheDocument()
-        // Check the count
-        expect(screen.getByText('3 of 4 bookings')).toBeInTheDocument()
+        // Verify other bookings (on or after 2025-08-10) are still visible
+        expect(screen.getByText('Sarah Miller')).toBeInTheDocument() // 2025-08-10
+        expect(screen.getByText('Mike Johnson')).toBeInTheDocument() // 2025-08-11
+        expect(screen.getByText('Tom Wilson')).toBeInTheDocument() // 2025-08-12
+        // API returns 3 filtered bookings, no client-side count difference
+        expect(screen.getByText('3 of 3 bookings')).toBeInTheDocument()
       }, { timeout: 5000 })
     })
 

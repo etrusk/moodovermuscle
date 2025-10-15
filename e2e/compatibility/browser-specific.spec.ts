@@ -2,12 +2,10 @@ import { test, expect } from '@playwright/test'
 import { selectDate } from '../utils'
 
 test.describe('Cross-Browser Error Scenarios', () => {
-  test('Server error displays correctly in Firefox', async ({
+  test('Server error displays correctly across browsers', async ({
     page,
-    browserName,
   }) => {
     // Arrange
-    test.skip(browserName !== 'firefox', 'Test specific to Firefox')
     await page.route('**/api/book-session', route =>
       route.fulfill({
         status: 500,

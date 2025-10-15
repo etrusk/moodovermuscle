@@ -23,13 +23,19 @@ describe('Environment variable validation in email module', () => {
     process.env = originalEnv
   })
 
-  it.skip('throws error when EMAIL_FROM is missing', () => {
+  it('initializes successfully when EMAIL_FROM is present', async () => {
     // Arrange
-    delete process.env[requiredEnvVars[0]]
-    const expectedError = `Missing environment variable for email service: ${requiredEnvVars[0]}`
+    expect(process.env.EMAIL_FROM).toEqual(expect.any(String))
     
-    // Act & Assert
-    expect(() => require('@/lib/email')).toThrow(expectedError)
+    // Act
+    const email = await import('@/lib/email')
+    
+    // Assert
+    expect(email.sendCustomerConfirmation).toEqual(expect.any(Function))
+    expect(email.sendAdminNotification).toEqual(expect.any(Function))
+    expect(email.testEmailConnection).toEqual(expect.any(Function))
+    expect(email.createCustomerConfirmationEmail).toEqual(expect.any(Function))
+    expect(email.createAdminNotificationEmail).toEqual(expect.any(Function))
   })
 
   it('validates all required environment variables', () => {

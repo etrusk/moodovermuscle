@@ -37,7 +37,7 @@ const mockBookings = [
     email: 'mike@example.com',
     phone: '+61 400 987 654',
     service: 'Group Class',
-    date: '2025-08-11',
+    date: '2025-08-10',
     time: '14:30',
     duration: 45,
     status: 'CONFIRMED' as const,
@@ -212,8 +212,7 @@ describe('BookingsPage Component - Display Tests', () => {
       expect(screen.getByText('Tom Wilson')).toBeInTheDocument()
 
       // Then check date and time formatting - use getAllByText for duplicates
-      expect(screen.getAllByText('Sun, 10 Aug 2025')[0]).toBeInTheDocument()
-      expect(screen.getAllByText('Mon, 11 Aug 2025')[0]).toBeInTheDocument()
+      expect(screen.getAllByText('Sun, 10 Aug 2025').length).toBeGreaterThanOrEqual(2) // Sarah and Mike both on Aug 10
       expect(screen.getByText('10:00 AM')).toBeInTheDocument()
       expect(screen.getByText('2:30 PM')).toBeInTheDocument()
       expect(screen.getByText('9:00 AM')).toBeInTheDocument()

@@ -398,7 +398,8 @@ describe('Admin Workflow Integration Tests', () => {
       )
       // Then: All components render within reasonable timeframe
       await waitFor(() => {
-        expect(screen.getAllByText('MoodOverMuscle Admin').length).toBeGreaterThan(0)
+        const adminTitles = screen.getAllByText('MoodOverMuscle Admin')
+        expect(adminTitles.length).toEqual(3) // One for each rendered component
       })
       const endTime = Date.now()
       expect(endTime - startTime).toBeLessThan(5000)

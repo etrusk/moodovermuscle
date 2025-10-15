@@ -93,7 +93,6 @@ customModes:
       - Update .docs/current-task.md with task description and status "In Progress"
 
       After receiving attempt_completion from delegated mode:
-      - Archive task to .docs/task-log.md: append "## [Date] [Task]\n[Summary]\n"
       - Clear .docs/current-task.md to show only active task
 
   - slug: architect
@@ -249,11 +248,6 @@ customModes:
       - Cover all error scenarios listed
       - Meet coverage targets specified
       
-      ## Commit Before Completion
-      
-      After all quality gates pass:
-      git add -A && git commit -m "test: [description of tests added]"
-      
       Then use attempt_completion with test summary.
 
   - slug: develop
@@ -305,13 +299,6 @@ customModes:
       **Quality Limits**: Functions ≤50 lines, files ≤300 lines, params ≤3, duplication ≤3%
 
       Use available command tools to verify these outcomes.
-      
-      ## Commit and Push Before Completion
-      
-      After all quality gates pass:
-      git add -A && git commit -m "feat: [description]" && git push
-      (For bug fixes use: git commit -m "fix: [description]" && git push)
-      
       Then use attempt_completion with implementation summary.
 
 # Override default modes to prevent accidental use

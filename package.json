@@ -33,6 +33,7 @@
     "test:critical": "vitest run --config=vitest.config.critical.ts",
     "test:critical:ci": "vitest run --config=vitest.config.critical.ts --coverage",
     "test:quality": "node scripts/test-quality-check.js",
+    "test:check-skipped": "node scripts/check-skipped-tests.js",
     "test:integration": "vitest run --grep integration",
     "test:integration:ci": "vitest run --grep integration --passWithNoTests",
     "test:full": "vitest run --passWithNoTests",

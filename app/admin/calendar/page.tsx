@@ -10,8 +10,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import {
   CalendarDays,
   Clock,
-  ChevronLeft,
-  ChevronRight,
   Grid3X3,
   List,
   Phone,
@@ -184,17 +182,6 @@ export default function AdminCalendarPage(): React.JSX.Element {
     })
   }
 
-  // Navigate months
-  const navigateMonth = (direction: 'prev' | 'next'): void => {
-    const newMonth = new Date(currentMonth)
-    if (direction === 'prev') {
-      newMonth.setMonth(newMonth.getMonth() - 1)
-    } else {
-      newMonth.setMonth(newMonth.getMonth() + 1)
-    }
-    setCurrentMonth(newMonth)
-  }
-
   // Navigate to today
   const navigateToToday = (): void => {
     const today = new Date()
@@ -248,32 +235,13 @@ export default function AdminCalendarPage(): React.JSX.Element {
         <div className="lg:col-span-2">
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <CalendarDays className="h-5 w-5" />
-                  {currentMonth.toLocaleDateString('en-AU', { 
-                    month: 'long', 
-                    year: 'numeric' 
-                  })}
-                </CardTitle>
-                
-                <div className="flex items-center gap-2">
-                  <Button
-                    onClick={() => navigateMonth('prev')}
-                    variant="outline"
-                    size="sm"
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    onClick={() => navigateMonth('next')}
-                    variant="outline"
-                    size="sm"
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
+              <CardTitle className="flex items-center gap-2">
+                <CalendarDays className="h-5 w-5" />
+                {currentMonth.toLocaleDateString('en-AU', {
+                  month: 'long',
+                  year: 'numeric'
+                })}
+              </CardTitle>
             </CardHeader>
             
             <CardContent>

@@ -214,20 +214,28 @@ describe('AdminCalendarPage - Data Loading', () => {
         expect(screen.getAllByText('August 2025')[0]).toBeInTheDocument()
       }, { timeout: 10000 })
 
-      const nextButton = screen.getAllByRole('button', { name: '' })[1]
-      const prevButton = screen.getAllByRole('button', { name: '' })[0]
-
-      // Act
+      // Act & Assert - Navigate forward and back, waiting for updates
       for (let i = 0; i < 3; i++) {
+        const nextButton = screen.getByRole('button', { name: /go to the next month/i })
         await user.click(nextButton)
+        
+        // Wait for calendar to update to next month
+        await waitFor(() => {
+          expect(screen.getAllByText('September 2025')[0]).toBeInTheDocument()
+        }, { timeout: 5000 })
+
+        const prevButton = screen.getByRole('button', { name: /go to the previous month/i })
         await user.click(prevButton)
+        
+        // Wait for calendar to update back to August
+        await waitFor(() => {
+          expect(screen.getAllByText('August 2025')[0]).toBeInTheDocument()
+        }, { timeout: 5000 })
       }
 
-      // Assert
-      await waitFor(() => {
-        expect(screen.getAllByText('August 2025')[0]).toBeInTheDocument()
-      }, { timeout: 10000 })
-    }, 15000)
+      // Final assert - should still be on August after all navigation
+      expect(screen.getAllByText('August 2025')[0]).toBeInTheDocument()
+    }, 20000)
 
     it('prevents memory leaks on rapid date selection', async () => {
       // Arrange

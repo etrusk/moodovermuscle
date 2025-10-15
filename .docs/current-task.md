@@ -1,24 +1,24 @@
-# Admin UI Fixes
+# Fix Calendar Duplicate Navigation Buttons
 
 ## Task Description
-Fix three UI issues in the admin dashboard:
-1. Replace mock data in Recent Activity section with real booking data
-2. Fix navigation highlight to respond to current pathname
-3. Remove duplicate month navigation buttons from calendar page
+Remove duplicate month navigation buttons from the admin calendar page. Currently there are two sets of ChevronLeft/ChevronRight buttons:
+1. Built-in navigation from the Calendar component (react-day-picker)
+2. Custom navigation buttons in the CardHeader (lines 260-275)
 
 ## Implementation Scope
 - **Files to modify**: 
-  - `app/admin/dashboard/page.tsx` - fetch and display real recent activity
-  - `app/admin/layout.tsx` - dynamic navigation highlighting
-  - `app/admin/calendar/page.tsx` - remove duplicate navigation buttons
+  - `app/admin/calendar/page.tsx` - Remove custom navigation buttons from CardHeader OR disable built-in Calendar navigation
+
+## Solution Options
+1. **Keep custom buttons, hide Calendar built-in nav**: Add CSS to hide the Calendar component's navigation buttons
+2. **Remove custom buttons**: Delete lines 260-275 and rely on Calendar component's built-in navigation
 
 ## Roadmap
-- [ ] Fetch recent bookings sorted by updatedAt/createdAt in dashboard
-- [ ] Display latest 3 booking activities instead of mock data
-- [ ] Use pathname to determine active navigation link
-- [ ] Remove month navigation buttons from top-right of calendar card (keep only in header)
+- [ ] Decide which navigation to keep (custom vs built-in)
+- [ ] Either remove custom buttons OR hide Calendar component nav via CSS/props
+- [ ] Test that month navigation still works correctly
 
 ## Acceptance Criteria
-- Recent Activity shows real booking data with accurate timestamps
-- Navigation highlight switches correctly between Dashboard/Bookings/Calendar
-- Calendar page has only one set of month navigation buttons (in card header)
+- Only one set of month navigation buttons visible on calendar page
+- Month navigation functionality remains intact
+- No duplicate ChevronLeft/ChevronRight buttons

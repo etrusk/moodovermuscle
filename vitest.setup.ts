@@ -1,6 +1,5 @@
 // vitest.setup.ts
 import { vi, beforeAll, afterAll, afterEach } from 'vitest'
-import 'whatwg-fetch'
 import { TextEncoder, TextDecoder } from 'util'
 
 // Set email environment variables for all tests

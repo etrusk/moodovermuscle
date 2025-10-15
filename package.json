@@ -87,7 +87,7 @@
     "react-hook-form": "latest",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
-    "zod": "^3.25.76"
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.2",

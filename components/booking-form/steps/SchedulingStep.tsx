@@ -32,8 +32,6 @@ export function SchedulingStep({ isLoading = false }: SchedulingStepProps): Reac
           isCalendarOpen={schedulingData.isCalendarOpen}
           setCalendarOpen={schedulingData.setCalendarOpen}
           fetchDateAvailability={fetchDateAvailability}
-          availabilityCache={schedulingData.availabilityCache}
-          performanceMetrics={schedulingData.performanceMetrics}
         />
         <TimeSelector
           form={schedulingData.form}
@@ -64,8 +62,6 @@ function useSchedulingData(): {
   bookedTimes: string[]
   loadingAvailability: boolean
   fetchAvailability: (date: Date) => void
-  availabilityCache: Record<string, { availableTimes: string[]; bookedTimes: string[] }>
-  performanceMetrics: { responseTime?: number; cacheHit: boolean }
   lockConflict: boolean
   lockWarning: string | null
 } {
@@ -110,16 +106,12 @@ function useAvailabilityData(date: Date | undefined): {
   bookedTimes: string[]
   loadingAvailability: boolean
   fetchAvailability: (date: Date) => void
-  availabilityCache: Record<string, { availableTimes: string[]; bookedTimes: string[] }>
-  performanceMetrics: { responseTime?: number; cacheHit: boolean }
 } {
   const {
     availableTimes,
     bookedTimes,
     loadingAvailability,
     fetchAvailability,
-    availabilityCache,
-    performanceMetrics,
   } = useAvailability(date)
 
   return {
@@ -127,8 +119,6 @@ function useAvailabilityData(date: Date | undefined): {
     bookedTimes,
     loadingAvailability,
     fetchAvailability,
-    availabilityCache,
-    performanceMetrics,
   }
 }
 

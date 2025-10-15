@@ -29,7 +29,6 @@ describe('SchedulingStep', () => {
       bookedTimes: [],
       loadingAvailability: false,
       fetchAvailability: mockFetchAvailability,
-      availabilityCache: {},
     })
 
     // Act
@@ -64,7 +63,6 @@ describe('SchedulingStep', () => {
       bookedTimes: [],
       loadingAvailability: true,
       fetchAvailability: mockFetchAvailability,
-      availabilityCache: {},
     })
 
     // Act
@@ -94,7 +92,6 @@ describe('SchedulingStep', () => {
       bookedTimes: ['10:00'],
       loadingAvailability: false,
       fetchAvailability: mockFetchAvailability,
-      availabilityCache: {},
     })
 
     // Act
@@ -141,7 +138,6 @@ describe('SchedulingStep', () => {
       bookedTimes: [],
       loadingAvailability: false,
       fetchAvailability: mockFetchAvailability,
-      availabilityCache: {},
     })
 
     // Act
@@ -171,7 +167,6 @@ describe('SchedulingStep', () => {
       bookedTimes: [],
       loadingAvailability: false,
       fetchAvailability: mockFetchAvailability,
-      availabilityCache: {},
     })
 
     // Act
@@ -197,7 +192,6 @@ describe('SchedulingStep', () => {
       bookedTimes: [],
       loadingAvailability: false,
       fetchAvailability: mockFetchAvailability,
-      availabilityCache: {},
     })
 
     // Act & Assert
@@ -213,7 +207,6 @@ describe('SchedulingStep', () => {
       bookedTimes: [],
       loadingAvailability: false,
       fetchAvailability: mockFetchAvailability,
-      availabilityCache: {},
     })
 
     // Act

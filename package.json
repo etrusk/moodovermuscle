@@ -27,7 +27,7 @@
     "health-check": "node scripts/health-check.js",
     "test-errors": "node scripts/test-error-scenarios.js",
     "pre-deploy": "pnpm run type-check && pnpm run build-validate && pnpm run build",
-    "test": "vitest",
+    "test": "vitest run",
     "test:watch": "vitest --watch",
     "test:ci": "vitest run --coverage",
     "test:critical": "vitest run --config=vitest.config.critical.ts",

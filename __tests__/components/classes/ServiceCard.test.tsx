@@ -4,18 +4,19 @@
  * @last-refactored 2025-10-10
  */
 import { vi, describe, it, expect, beforeEach } from 'vitest'
-
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Users, Heart, Calendar } from 'lucide-react'
 import { axe, toHaveNoViolations } from 'jest-axe'
+import { Card, CardContent } from '@/components/ui/card'
 
 // Add jest-axe matchers
 expect.extend(toHaveNoViolations)
 
-// Mock the sub-components
+// Mock the sub-components with named exports
 vi.mock('@/components/classes/ServiceCardHeader', () => ({
+  __esModule: true,
   ServiceCardHeader: ({ popular, comingSoon }: { popular?: boolean; comingSoon?: boolean }) => (
     <div data-testid="service-card-header">
       {popular && <span data-testid="popular-badge">Most Popular</span>}
@@ -24,19 +25,26 @@ vi.mock('@/components/classes/ServiceCardHeader', () => ({
   ),
 }))
 
-vi.mock('@/components/classes/ServiceCardContent', () => ({
-  ServiceCardContent: vi.importActual('@/components/classes/ServiceCardContent').ServiceCardContent,
-}))
+vi.mock('@/components/classes/ServiceCardContent', async () => {
+  const actual = await vi.importActual<typeof import('@/components/classes/ServiceCardContent')>('@/components/classes/ServiceCardContent')
+  return { __esModule: true, ServiceCardContent: actual.ServiceCardContent }
+})
 
-vi.mock('@/components/classes/ServiceCardActions', () => ({
-  ServiceCardActions: vi.importActual('@/components/classes/ServiceCardActions').ServiceCardActions,
-}))
+vi.mock('@/components/classes/ServiceCardActions', async () => {
+  const actual = await vi.importActual<typeof import('@/components/classes/ServiceCardActions')>('@/components/classes/ServiceCardActions')
+  return { __esModule: true, ServiceCardActions: actual.ServiceCardActions }
+})
+
+// Import the mocked components (these will use the mocks defined above)
+import { ServiceCardHeader } from '@/components/classes/ServiceCardHeader'
+import { ServiceCardContent } from '@/components/classes/ServiceCardContent'
+import { ServiceCardActions } from '@/components/classes/ServiceCardActions'
 
 // Since ServiceCard is defined inline in the page component, we'll create a test version
-const ServiceCard = ({ 
-  service, 
-  onBookSessionClick 
-}: { 
+const ServiceCard = ({
+  service,
+  onBookSessionClick
+}: {
   service: {
     icon: any;
     title: string;
@@ -49,11 +57,6 @@ const ServiceCard = ({
   };
   onBookSessionClick: () => void;
 }) => {
-  const { ServiceCardHeader } = require('@/components/classes/ServiceCardHeader')
-  const { ServiceCardContent } = require('@/components/classes/ServiceCardContent')
-  const { ServiceCardActions } = require('@/components/classes/ServiceCardActions')
-  const { Card, CardContent } = require('@/components/ui/card')
-  
   return (
     <Card
       className={`group border-0 shadow-2xl hover:shadow-3xl transition-all duration-500 bg-white/90 backdrop-blur-sm overflow-hidden hover:scale-105 relative ${

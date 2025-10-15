@@ -88,15 +88,13 @@ customModes:
       If unbounded, break into appetite-sized chunks first.
       
       ## Task Tracking
-      
+
       Before delegating any task:
       - Update .docs/current-task.md with task description and status "In Progress"
-      - Commit: git add .docs/current-task.md && git commit -m "docs: start [task]"
-      
+
       After receiving attempt_completion from delegated mode:
       - Archive task to .docs/task-log.md: append "## [Date] [Task]\n[Summary]\n"
       - Clear .docs/current-task.md to show only active task
-      - Commit: git add .docs/current-task.md .docs/task-log.md && git commit -m "docs: complete [task]"
 
   - slug: architect
     name: "🏗️ Architect"

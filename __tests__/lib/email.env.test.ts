@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
+
 describe('Environment variable validation in email module', () => {
   const requiredEnvVars = [
     'EMAIL_FROM',
@@ -36,8 +38,6 @@ describe('Environment variable validation in email module', () => {
     
     // Act
     const result = allVarsPresent
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
-
     
     // Assert
     expect(result).toBe(true)

@@ -3,6 +3,14 @@ import { vi, beforeAll, afterAll, afterEach } from 'vitest'
 import 'whatwg-fetch'
 import { TextEncoder, TextDecoder } from 'util'
 
+// Set email environment variables for all tests
+process.env.EMAIL_FROM = process.env.EMAIL_FROM || 'from@example.com'
+process.env.ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@example.com'
+process.env.SMTP_HOST = process.env.SMTP_HOST || 'smtp.example.com'
+process.env.SMTP_PORT = process.env.SMTP_PORT || '587'
+process.env.SMTP_USER = process.env.SMTP_USER || 'user'
+process.env.SMTP_PASS = process.env.SMTP_PASS || 'pass'
+
 // Mock the navigator object
 const mockNavigator = {
   clipboard: {

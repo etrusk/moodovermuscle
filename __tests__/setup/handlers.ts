@@ -30,7 +30,7 @@ const mockBookings = [
     email: 'mike@example.com',
     phone: '+61 400 987 654',
     service: 'Group Class',
-    date: '2025-08-10',
+    date: '2025-08-11',
     time: '14:30',
     duration: 45,
     status: 'CONFIRMED',
@@ -38,6 +38,36 @@ const mockBookings = [
     experience: 'Intermediate',
     createdAt: '2025-08-07T15:30:00Z',
     updatedAt: '2025-08-07T16:00:00Z'
+  },
+  {
+    id: 'booking-3',
+    name: 'Lisa Chen',
+    email: 'lisa@example.com',
+    phone: '+61 400 555 111',
+    service: 'Mums & Bubs Class',
+    date: '2025-08-09',
+    time: '09:00',
+    duration: 60,
+    status: 'COMPLETED',
+    experience: 'Beginner',
+    createdAt: '2025-08-05T10:00:00Z',
+    updatedAt: '2025-08-09T10:00:00Z'
+  },
+  {
+    id: 'booking-4',
+    name: 'Tom Wilson',
+    email: 'tom@example.com',
+    phone: '+61 400 777 888',
+    service: 'Personal Training',
+    date: '2025-08-12',
+    time: '16:00',
+    duration: 60,
+    status: 'CANCELLED',
+    goals: 'Rehabilitation',
+    experience: 'Advanced',
+    message: 'Need to reschedule due to injury',
+    createdAt: '2025-08-06T12:00:00Z',
+    updatedAt: '2025-08-08T01:00:00Z'
   }
 ]
 

@@ -9,8 +9,8 @@ import * as notification from '@/app/api/book-session/functions/booking-notifica
 
 // Mock the external functions
 vi.mock('@/app/api/book-session/functions/booking-validation')
-vi.mock('@/app/api/book-session/functions/booking-creation', () => {
-  const actual = vi.importActual('@/app/api/book-session/functions/booking-creation')
+vi.mock('@/app/api/book-session/functions/booking-creation', async () => {
+  const actual = await vi.importActual<typeof import('@/app/api/book-session/functions/booking-creation')>('@/app/api/book-session/functions/booking-creation')
   return {
     ...actual,
     createBooking: vi.fn(),

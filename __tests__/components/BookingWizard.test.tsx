@@ -14,10 +14,13 @@ import {
 } from '@/components/booking-form/BookingFormProvider'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 
-vi.mock('@/components/booking-form/BookingFormProvider', () => ({
-  ...vi.importActual('@/components/booking-form/BookingFormProvider'),
-  useBookingForm: vi.fn(),
-}))
+vi.mock('@/components/booking-form/BookingFormProvider', async () => {
+  const actual = await vi.importActual<typeof import('@/components/booking-form/BookingFormProvider')>('@/components/booking-form/BookingFormProvider')
+  return {
+    ...actual,
+    useBookingForm: vi.fn(),
+  }
+})
 
 const useBookingFormMock = useBookingForm as vi.Mock
 

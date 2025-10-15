@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
+import { vi, describe, it, expect, beforeEach, afterAll } from 'vitest'
+
 describe('Email environment variable validation', () => {
   const originalEnv = process.env;
 
@@ -37,8 +39,6 @@ describe('Email environment variable validation', () => {
       // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
       // Test uses variable name to verify error message - not user-controlled input
       expect(testFn).toThrow(expectedErrorPattern);
-import { vi, describe, it, expect, beforeEach, afterAll } from 'vitest'
-
       
       // Strong type assertion for quality check
       try {

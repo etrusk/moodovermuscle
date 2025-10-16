@@ -371,8 +371,9 @@ customModes:
       **Pre-commit Gates**: All checks pass
       **Quality Limits**: Functions ≤50 lines, files ≤300 lines, params ≤3, duplication ≤3%
 
-      Use available command tools to verify these outcomes.
-      Then use attempt_completion with a summary of what was implemented.
+      Use available tools to verify these outcomes efficiently. Commands run from workspace root automatically; file reading tools access content directly without shell operations.
+
+      After verification passes, use attempt_completion with implementation summary.
 
 # Override default modes to prevent accidental use
   - slug: code

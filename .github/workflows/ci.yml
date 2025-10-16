@@ -1,4 +1,5 @@
-# Comprehensive CI/CD workflow for validation, quality checks, and Vercel deployments
+# Comprehensive CI/CD workflow for validation and quality checks
+# Deployment is handled automatically by Vercel Git integration
 name: CI/CD
 
 # Define triggers for the workflow
@@ -16,9 +17,6 @@ on:
 env:
   NODE_VERSION: '20'
   PNPM_VERSION: '9'
-  # Vercel environment variables for connecting the project
-  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
 # Define workflow jobs
 jobs:
@@ -201,38 +199,3 @@ jobs:
         env:
           ADMIN_JWT_SECRET: ${{ secrets.ADMIN_JWT_SECRET }}
 
-  # Job for deploying the application to Vercel
-  deploy:
-    name: Deploy to Vercel
-    runs-on: ubuntu-latest
-    # This job requires critical quality checks to pass (accessibility and integration tests can fail)
-    needs:
-      [
-        lint-and-typecheck,
-        test-critical,
-        test-accessibility,
-        build,
-        size-check,
-      ]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-      - name: Install Vercel CLI
-        run: pnpm add -g vercel@latest
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-      - name: Build Project Artifacts
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-      - name: Deploy Project Artifacts to Vercel
-        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}

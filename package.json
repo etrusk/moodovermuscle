@@ -28,7 +28,7 @@
     "test:critical:ci": "vitest run --coverage --reporter=verbose",
     "test:quality": "node scripts/test-quality-check.js",
     "test:integration": "vitest run --grep integration",
-    "test:integration:ci": "vitest run __tests__/integration/**/*.test.{ts,tsx} --passWithNoTests",
+    "test:integration:ci": "vitest run --passWithNoTests __tests__/integration/**/*.test.{ts,tsx}",
     "test:full": "vitest run --passWithNoTests",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",

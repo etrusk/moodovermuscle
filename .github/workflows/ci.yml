@@ -197,6 +197,7 @@ jobs:
         with:
           pattern: '.next/**/*.{js,css}'
           exclude: '{.next/cache/**}'
+          build-script: 'echo "Build already completed in previous step"'
         env:
           ADMIN_JWT_SECRET: ${{ secrets.ADMIN_JWT_SECRET }}
 

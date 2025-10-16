@@ -3,11 +3,8 @@
 
 echo "🔍 Checking test-first compliance..."
 
-# Get staged files
-STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
-
-# Filter for implementation files (exclude tests, configs, docs, generated files)
-IMPL_FILES=$(echo "$STAGED_FILES" | grep -E "^(app|components|lib)/.*\.(ts|tsx)$" | grep -v "\.test\." | grep -v "\.config\." | grep -v "\.mock\." | grep -v "^lib/generated/")
+# Get staged implementation files
+IMPL_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E "^(app|components|lib)/.*\.(ts|tsx)$" | grep -v "\.test\." | grep -v "\.config\." | grep -v "\.mock\." | grep -v "^lib/generated/")
 
 if [ -z "$IMPL_FILES" ]; then
   echo "✅ No implementation files changed"
@@ -17,7 +14,6 @@ fi
 # Check each implementation file has corresponding test
 MISSING_TESTS=""
 for IMPL_FILE in $IMPL_FILES; do
-  # Derive test file path
   BASE_NAME=$(basename "$IMPL_FILE" | sed -E 's/\.(ts|tsx)$//')
   DIR_NAME=$(dirname "$IMPL_FILE")
   
@@ -38,7 +34,7 @@ for IMPL_FILE in $IMPL_FILES; do
   done
   
   if [ "$FOUND" = false ]; then
-    MISSING_TESTS="${MISSING_TESTS}\n  ❌ ${IMPL_FILE} (no test file found)"
+    MISSING_TESTS="${MISSING_TESTS}\n  ❌ ${IMPL_FILE}"
   fi
 done
 
@@ -48,11 +44,6 @@ if [ -n "$MISSING_TESTS" ]; then
   echo ""
   echo "Implementation files require corresponding test files:"
   echo -e "$MISSING_TESTS"
-  echo ""
-  echo "Action required:"
-  echo "1. Write tests first: npm run test:watch"
-  echo "2. Ensure tests are committed alongside implementation"
-  echo "3. Or commit tests separately BEFORE implementation"
   echo ""
   exit 1
 fi

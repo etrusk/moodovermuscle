@@ -35,17 +35,19 @@ const ADMIN_USER = {
 }
 
 export class AdminAuthService {
-  private readonly JWT_SECRET = process.env.ADMIN_JWT_SECRET ?? (() => {
-    if (process.env.NODE_ENV === 'production') {
+  private readonly TOKEN_EXPIRY = '8h' // Admin sessions expire after 8 hours
+  
+  constructor() {
+    // Validate secret on instantiation in production
+    if (process.env.NODE_ENV === 'production' && !process.env.ADMIN_JWT_SECRET) {
       throw new Error('ADMIN_JWT_SECRET must be set in production')
     }
-    return 'fallback-secret-key'
-  })()
-  private readonly TOKEN_EXPIRY = '8h' // Admin sessions expire after 8 hours
+  }
   
   // Edge Runtime compatible secret as Uint8Array
   private getSecretKey(): Uint8Array {
-    return new TextEncoder().encode(this.JWT_SECRET)
+    const secret = process.env.ADMIN_JWT_SECRET ?? 'fallback-secret-key'
+    return new TextEncoder().encode(secret)
   }
 
   async authenticateAdmin(

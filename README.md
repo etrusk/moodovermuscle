@@ -109,7 +109,16 @@ Essential quality validation maintained through:
   - Automated quality gates: lint, type-check, security scan
   - Full test suite execution (unit, integration, e2e)
   - Build verification before deployment
-  - Automated Dependabot PR merging (`.github/workflows/auto-merge-dependabot.yml`)
+  - Automated dependency updates via Renovate (`.github/renovate.json`)
+
+### Dependency Management
+
+- **Renovate Bot** (`.github/renovate.json`):
+  - Weekly automated dependency updates (Mondays at 9am Australia/Sydney)
+  - Auto-merge enabled for patch and minor updates
+  - Major updates require manual review with `requires-attention` label
+  - Separate handling for npm/pnpm dependencies and GitHub Actions
+  - Email notifications via GitHub for PRs requiring manual intervention
 
 ## Development Guidelines
 

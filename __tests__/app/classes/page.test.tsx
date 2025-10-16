@@ -119,11 +119,10 @@ describe('Classes Page', () => {
       expect(screen.getByText(expectedSections.cta[1])).toBeInTheDocument()
     })
 
-    it('renders all two service cards', () => {
+    it('renders one service card', () => {
       // Arrange
       const expectedServices = [
-        { title: '1-on-1 Personal Training', price: '$80' },
-        { title: 'Double Trouble & Tiny Toots', price: '$40' }
+        { title: '1-on-1 Personal Training', price: '$80' }
       ]
       
       // Act
@@ -139,10 +138,9 @@ describe('Classes Page', () => {
       // Assert - Prices
       const prices = screen.getAllByTestId('price')
       expect(prices).toMatchObject({
-        length: 2
+        length: 1
       })
       expect(prices[0]).toMatchObject({ textContent: expectedServices[0].price })
-      expect(prices[1]).toMatchObject({ textContent: expectedServices[1].price })
     })
 
     it('displays popular badge on correct service', () => {
@@ -234,7 +232,7 @@ describe('Classes Page', () => {
       
       // Assert
       const bookButtons = screen.getAllByTestId('book-service-button')
-      expect(bookButtons).toHaveLength(2)
+      expect(bookButtons).toHaveLength(1)
       bookButtons.forEach(button => {
         expect(button).not.toBeDisabled()
       })
@@ -248,19 +246,15 @@ describe('Classes Page', () => {
       
       // Assert
       const featureLists = screen.getAllByTestId('features-list')
-      expect(featureLists).toHaveLength(2)
+      expect(featureLists).toHaveLength(1)
       
-      // Assert - Check first service (1-on-1) has 4 features
+      // Assert - Check 1-on-1 service has 4 features
       const personalTrainingFeatures = within(featureLists[0]).getAllByRole('listitem')
       expect(personalTrainingFeatures).toHaveLength(4)
       expect(personalTrainingFeatures[0]).toHaveTextContent('Fully customized workout plans')
       expect(personalTrainingFeatures[1]).toHaveTextContent('Flexible location (home, park, studio)')
       expect(personalTrainingFeatures[2]).toHaveTextContent('Postnatal recovery focus')
       expect(personalTrainingFeatures[3]).toHaveTextContent('One-on-one guidance & support')
-      
-      // Assert - Check second service has 4 features
-      const doubleTrainingFeatures = within(featureLists[1]).getAllByRole('listitem')
-      expect(doubleTrainingFeatures).toHaveLength(4)
     })
   })
 
@@ -352,7 +346,6 @@ describe('Classes Page', () => {
       // Assert
       expect(screen.getByText('Choose Your Perfect')).toBeInTheDocument()
       expect(screen.getByText('1-on-1 Personal Training')).toBeInTheDocument()
-      expect(screen.getByText('Double Trouble & Tiny Toots')).toBeInTheDocument()
     })
 
     it('maintains functionality on mobile', async () => {
@@ -394,11 +387,11 @@ describe('Classes Page', () => {
       
       // Assert
       const serviceHeaders = screen.getAllByTestId('service-card-header')
-      expect(serviceHeaders).toHaveLength(2)
+      expect(serviceHeaders).toHaveLength(1)
       
       // Verify no cards have reduced opacity (no coming soon services)
       const serviceContents = screen.getAllByTestId('service-card-content')
-      expect(serviceContents).toHaveLength(2)
+      expect(serviceContents).toHaveLength(1)
     })
   })
 
@@ -410,7 +403,6 @@ describe('Classes Page', () => {
       // Assert
       const prices = screen.getAllByTestId('price')
       expect(prices[0]).toHaveTextContent('$80') // 1-on-1
-      expect(prices[1]).toHaveTextContent('$40') // Double Trouble
     })
 
     it('displays correct service descriptions', () => {
@@ -419,7 +411,6 @@ describe('Classes Page', () => {
       
       // Assert
       expect(screen.getByText(/Completely personalized program/)).toBeInTheDocument()
-      expect(screen.getByText(/chaos is more fun when shared/)).toBeInTheDocument()
     })
 
     it('displays promotional messages correctly', () => {

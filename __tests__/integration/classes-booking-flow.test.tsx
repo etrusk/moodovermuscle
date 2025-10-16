@@ -175,18 +175,6 @@ vi.mock('@/components/booking-form', () => ({
                   >
                     1-on-1 Personal Training - $80
                   </button>
-                  <button
-                    onClick={() => {
-                      setFormData({
-                        ...formData,
-                        service: 'Double Trouble & Tiny Toots',
-                      })
-                      setStep(2)
-                    }}
-                    data-testid="select-double-training"
-                  >
-                    Double Trouble & Tiny Toots - $40
-                  </button>
                 </div>
               )}
 
@@ -373,7 +361,7 @@ describe('Classes Page Integration: Complete Booking Journey', () => {
       expect(screen.getByTestId('booking-form')).toBeInTheDocument()
 
       // Act
-      await user.click(screen.getByTestId('select-double-training'))
+      await user.click(screen.getByTestId('select-personal-training'))
 
       await waitFor(() => {
         expect(screen.getByTestId('personal-details')).toBeInTheDocument()
@@ -426,7 +414,7 @@ describe('Classes Page Integration: Complete Booking Journey', () => {
       expect(screen.getByTestId('service-selection')).toBeInTheDocument()
 
       // Act
-      await user.click(screen.getByTestId('select-double-training'))
+      await user.click(screen.getByTestId('select-personal-training'))
 
       // Assert
       expect(screen.getByTestId('personal-details')).toBeInTheDocument()
@@ -672,7 +660,7 @@ describe('Classes Page Integration: Complete Booking Journey', () => {
       })
 
       // Assert - All displayed services are bookable
-      expect(bookButtons).toHaveLength(2) // Two active services available
+      expect(bookButtons).toHaveLength(1) // One active service available
       bookButtons.forEach(button => {
         expect(button).not.toBeDisabled()
       })

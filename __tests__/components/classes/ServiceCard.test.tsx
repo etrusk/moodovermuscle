@@ -283,56 +283,6 @@ describe('ServiceCard Component', () => {
       })
     })
 
-    it('renders correctly for Double Trouble & Tiny Toots', () => {
-      // Arrange
-      const doubleTraining = {
-        ...defaultService,
-        icon: Heart,
-        title: 'Double Trouble & Tiny Toots',
-        price: '$40',
-        popular: false,
-      }
-      
-      // Act
-      render(
-        <ServiceCard
-          service={doubleTraining}
-          onBookSessionClick={mockOnBookSessionClick}
-        />
-      )
-      
-      // Assert
-      expect(screen.getByTestId('service-card')).toMatchObject({
-        tagName: 'DIV'
-      })
-      expect(screen.queryByTestId('popular-badge')).toBeNull()
-    })
-
-    it('renders correctly for Small Mums & Bubs Classes', () => {
-      // Arrange
-      const groupClass = {
-        ...defaultService,
-        icon: Calendar,
-        title: 'Small Mums & Bubs Classes',
-        price: '$20',
-        comingSoon: true,
-      }
-      
-      // Act
-      render(
-        <ServiceCard
-          service={groupClass}
-          onBookSessionClick={mockOnBookSessionClick}
-        />
-      )
-      
-      // Assert
-      expect(screen.getByTestId('service-card')).toMatchObject({
-        tagName: 'DIV'
-      })
-      expect(screen.getByTestId('coming-soon-badge')).toBeInTheDocument()
-      expect(screen.getByTestId('service-card').className).toEqual(expect.stringContaining('opacity-75'))
-    })
   })
 
   describe('Interaction', () => {

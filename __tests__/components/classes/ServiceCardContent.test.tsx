@@ -296,51 +296,6 @@ describe('ServiceCardContent Component', () => {
       })
     })
 
-    it('renders correctly for Double Trouble & Tiny Toots', () => {
-      const doubleTraining = {
-        icon: Heart,
-        title: 'Double Trouble & Tiny Toots',
-        description: 'Personalised private training for two mums',
-        price: '$40',
-        features: [
-          'Training for two mums together',
-          'Share the cost and the fun',
-          'Flexible location options',
-          'Baby-friendly environment',
-        ],
-      }
-      
-      render(<ServiceCardContent {...doubleTraining} />)
-      
-      expect(screen.getByRole('heading', { name: 'Double Trouble & Tiny Toots' })).toBeInTheDocument()
-      expect(screen.getByText('$40')).toBeInTheDocument()
-      // Features are rendered as divs with checkmarks, not list items
-      const features = screen.getAllByText(/Training for two mums|Share the cost|Flexible location|Baby-friendly/)
-      expect(features).toHaveLength(4)
-    })
-
-    it('renders correctly for Small Mums & Bubs Classes', () => {
-      const groupClass = {
-        icon: Calendar,
-        title: 'Small Mums & Bubs Classes',
-        description: 'Coming soon in parks - small groups up to 10 people',
-        price: '$20',
-        features: [
-          'Small group support (max 10 mums)',
-          'Baby-friendly park sessions',
-          'Build lasting friendships',
-          'Affordable community option',
-        ],
-      }
-      
-      render(<ServiceCardContent {...groupClass} />)
-      
-      expect(screen.getByRole('heading', { name: 'Small Mums & Bubs Classes' })).toBeInTheDocument()
-      expect(screen.getByText('$20')).toBeInTheDocument()
-      // Features are rendered as divs with checkmarks, not list items
-      const features = screen.getAllByText(/Small group support|Baby-friendly park|Build lasting friendships|Affordable community/)
-      expect(features).toHaveLength(4)
-    })
   })
 
   describe('Accessibility', () => {

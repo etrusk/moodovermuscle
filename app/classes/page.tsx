@@ -9,7 +9,6 @@ import { Card, CardContent } from '@/components/ui/card'
 import {
   ChevronRight,
   Users,
-  Heart,
   Sparkles,
   MapPin,
 } from 'lucide-react'
@@ -31,21 +30,6 @@ const services = [
       'Flexible location (home, park, studio)',
       'Postnatal recovery focus',
       'One-on-one guidance & support',
-    ],
-  },
-  {
-    icon: Heart,
-    title: 'Double Trouble & Tiny Toots',
-    description:
-      'Personalised private training for two mums – because chaos is more fun when shared (and so is fitness!) at yours or mine place',
-    price: '$40',
-    gradient: 'from-pink-500 to-rose-500',
-    popular: false,
-    features: [
-      'Training for two mums together',
-      'Share the cost and the fun',
-      'Flexible location options',
-      'Baby-friendly environment',
     ],
   },
 ]

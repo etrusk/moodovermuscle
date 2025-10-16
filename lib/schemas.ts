@@ -4,7 +4,7 @@ export const bookingSchema = z.object({
   name: z.string({ required_error: 'Name is required.' }).min(2, { message: 'Name must be at least 2 characters.' }),
   email: z.string({ required_error: 'Email is required.' }).min(1, { message: 'Email is required.' }).email({ message: 'Please enter a valid email address.' }),
   phone: z.string().optional().refine((val) => val === undefined || val.length >= 10, { message: 'Please enter a valid phone number.' }),
-  service: z.enum(['1-on-1 Personal Training', 'Double Trouble & Tiny Toots', 'Small Mums & Bubs Classes'], { required_error: 'Please select a valid service.' }),
+  service: z.enum(['1-on-1 Personal Training'], { required_error: 'Please select a valid service.' }),
   date: z.preprocess((arg) => {
     if (typeof arg === 'string' || arg instanceof Date) {
       const date = new Date(arg)

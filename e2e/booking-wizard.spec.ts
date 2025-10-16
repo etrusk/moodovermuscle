@@ -99,7 +99,7 @@ test.describe('3-step Booking Wizard Flow', () => {
     await page.getByTestId('booking-form-continue-button').click()
     // Step 2
     await expect(page.getByTestId('booking-form-step-2')).toBeVisible()
-    await page.getByTestId('service-option-Small-Mums-&-Bubs-Classes').click()
+    await page.getByTestId('service-option-1-on-1-Personal-Training').click()
     await page.getByTestId('booking-form-continue-button').click()
     // Step 3 date
     await expect(page.getByTestId('booking-form-step-3')).toBeVisible()

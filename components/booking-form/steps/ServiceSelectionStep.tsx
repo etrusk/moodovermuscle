@@ -27,18 +27,6 @@ const services: Service[] = [
     popular: true,
     description: 'Personalized attention just for you',
   },
-  {
-    name: 'Double Trouble & Tiny Toots',
-    price: 'FREE First Session',
-    popular: false,
-    description: 'Training for two mums - chaos is more fun when shared!',
-  },
-  {
-    name: 'Small Mums & Bubs Classes',
-    price: 'FREE First Session',
-    popular: false,
-    description: 'Coming soon in parks (small groups up to 10)',
-  },
 ]
 
 interface ServiceSelectionStepProps {

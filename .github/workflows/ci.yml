@@ -197,6 +197,8 @@ jobs:
         with:
           pattern: '.next/**/*.{js,css}'
           exclude: '{.next/cache/**}'
+        env:
+          ADMIN_JWT_SECRET: ${{ secrets.ADMIN_JWT_SECRET }}
 
   # Job for deploying the application to Vercel
   deploy:

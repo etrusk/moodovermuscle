@@ -58,25 +58,6 @@ components/
 tests/
   integration/       # API integration tests
   e2e/              # End-to-end flows
-```
-
-## Key Architectural Decisions
-
-See `.docs/decisions/index.md` for full ADRs.
-
-**Critical Decisions:**
-1. **App Router** - Better data fetching, server components
-2. **Prisma ORM** - Type-safe queries, migration management
-3. **PostgreSQL** - ACID for booking conflict prevention
-4. **JWT Strategy** - Refresh token rotation for security
-5. **Zod Validation** - Runtime type safety at API boundaries
-
-## Recent Changes
-
-- 2025-01-10: Added pre-commit enforcement (complexity, duplication)
-- 2025-01-10: Migrated to lean custom modes
-- 2025-01-05: Implemented JWT refresh token rotation
-- 2024-12-20: Fixed calendar DST boundary bug
 
 ## Known Issues & Gotchas
 

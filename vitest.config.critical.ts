@@ -49,6 +49,9 @@ export default defineConfig({
         branches: 65,
         functions: 70,
         lines: 45,
+        
+        // === STRATEGIC COVERAGE TARGETS ===
+        
         // Critical booking functionality requires higher coverage
         'app/api/book-session/route.ts': {
           statements: 85,
@@ -67,6 +70,24 @@ export default defineConfig({
           branches: 80,
           functions: 85,
           lines: 85,
+        },
+        
+        // Authentication/Authorization (Target: >80%)
+        // Business-critical security logic requires comprehensive coverage
+        'lib/auth/**/*.ts': {
+          statements: 80,
+          branches: 80,
+          functions: 80,
+          lines: 80,
+        },
+        
+        // API Endpoints (Target: >80%)
+        // Core business functionality exposed through APIs
+        'app/api/**/*.ts': {
+          statements: 80,
+          branches: 75,
+          functions: 80,
+          lines: 80,
         },
       },
     },

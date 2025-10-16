@@ -167,6 +167,8 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Build application
         run: pnpm build
+        env:
+          ADMIN_JWT_SECRET: ${{ secrets.ADMIN_JWT_SECRET }}
 
   # Job for checking the bundle size to prevent regressions
   size-check:
@@ -188,6 +190,8 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Build application
         run: pnpm build
+        env:
+          ADMIN_JWT_SECRET: ${{ secrets.ADMIN_JWT_SECRET }}
       - name: Check bundle size
         uses: preactjs/compressed-size-action@v2
         with:

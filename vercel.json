@@ -13,6 +13,7 @@
   "buildCommand": "pnpm build",
   "installCommand": "pnpm install",
   "devCommand": "pnpm dev",
+  "startCommand": "pnpm start",
   "framework": "nextjs",
   "functions": {
     "app/**/*.{js,ts,tsx}": {

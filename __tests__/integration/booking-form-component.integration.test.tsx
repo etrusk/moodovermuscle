@@ -106,7 +106,11 @@ describe('Booking Form User Journey Integration', () => {
       expect(
         await screen.findByText(/booking confirmed/i, {}, { timeout: 5000 })
       ).toBeInTheDocument()
-      expect(onClose).toHaveBeenCalledTimes(1)
+      
+      // Wait for onClose to be called (it's called via setTimeout with 0ms delay)
+      await waitFor(() => {
+        expect(onClose).toHaveBeenCalledTimes(1)
+      }, { timeout: 1000 })
     })
 
     it('preserves user data through multi-step wizard', async () => {

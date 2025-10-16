@@ -65,15 +65,18 @@ describe('AdminCalendarPage - Navigation', () => {
       }, { timeout: 10000 })
 
       // Get only the ChevronLeft and ChevronRight navigation buttons
-      const allButtons = screen.getAllByRole('button')
-      const navigationButtons = allButtons.filter(button => {
-        const svg = button.querySelector('svg')
-        // Check if it's a navigation button (has chevron, no text, no aria-expanded)
-        return svg &&
-               button.textContent === '' &&
-               !button.getAttribute('aria-expanded')
-      })
-      expect(navigationButtons.length).toBeGreaterThanOrEqual(2)
+      // Wait for buttons to be rendered
+      await waitFor(() => {
+        const allButtons = screen.getAllByRole('button')
+        const navigationButtons = allButtons.filter(button => {
+          const svg = button.querySelector('svg')
+          // Check if it's a navigation button (has chevron, no text, no aria-expanded)
+          return svg &&
+                 button.textContent === '' &&
+                 !button.getAttribute('aria-expanded')
+        })
+        expect(navigationButtons.length).toBeGreaterThanOrEqual(2)
+      }, { timeout: 10000 })
     })
 
     it('navigates to previous month when previous button is clicked', async () => {

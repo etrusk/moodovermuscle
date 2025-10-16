@@ -217,11 +217,22 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      # Use the official Vercel GitHub Action
-      - name: Deploy to Vercel
-        uses: vercel/action@v3
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
         with:
-          # Use token from secrets
-          token: ${{ secrets.VERCEL_TOKEN }}
-          # The action automatically deploys to production for pushes to the main branch
-          # and to a preview environment for pull requests. It also handles PR comments.
+          version: ${{ env.PNPM_VERSION }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Install Vercel CLI
+        run: pnpm add -g vercel@latest
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Build Project Artifacts
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Deploy Project Artifacts to Vercel
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}

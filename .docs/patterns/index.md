@@ -65,6 +65,47 @@ Reference for proven, reusable code patterns. Always check this before implement
 **Use for**: User workflow testing
 **Pattern**: Playwright test, full browser automation
 
+### Admin API Route Testing
+**Location**: `__tests__/app/api/admin/*/route.test.ts`
+**Use for**: Testing admin API endpoints with authentication
+**Pattern**:
+- Mock Prisma client for database operations
+- Mock auth utilities for authentication checks
+- Test CRUD operations, error scenarios, edge cases
+- Verify response formats and status codes
+**Example**: `__tests__/app/api/admin/bookings/route.test.ts`
+**Coverage Target**: 80%+ for API routes
+
+### Auth Service Testing with JWT
+**Location**: `__tests__/lib/auth/admin-auth.test.ts`
+**Use for**: Testing authentication service layer
+**Pattern**:
+- Mock environment variables (ADMIN_EMAIL, ADMIN_PASSWORD_HASH)
+- Mock JWT utilities (sign, verify)
+- Test authentication flows, token generation, token validation
+- Test error scenarios (invalid credentials, expired tokens)
+**Coverage Target**: 95%+ for auth services
+
+### MSW Handler Setup for Admin Endpoints
+**Location**: Test files using MSW for admin API mocking
+**Use for**: Mocking admin API calls in component tests
+**Pattern**:
+- Define MSW handlers for `/api/admin/*` endpoints
+- Return realistic response structures matching API contracts
+- Handle both success and error scenarios
+- Use request handlers to validate request payloads
+**Note**: Global fetch mocking conflicts with MSW - avoid mixing approaches
+
+### Client-Side Auth Hook Testing (Partial)
+**Location**: `__tests__/lib/auth/useAdminAuth.test.ts`
+**Use for**: Testing React hooks that use browser fetch API
+**Known Issues**:
+- Global fetch mock interferes with MSW's fetch interception
+- Tests fail when MSW handlers and global fetch mocks are both present
+- Requires MSW handler refactoring or fetch polyfill approach
+**Workaround**: E2E tests provide coverage for client-side auth flows
+**Future Pattern**: Remove global fetch mocks, use MSW exclusively or node-fetch polyfill
+
 ## Component Patterns
 
 ### Component Decomposition

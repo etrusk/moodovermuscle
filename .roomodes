@@ -86,6 +86,8 @@ customModes:
       - Won't require reading >5 files
       - Complexity level: trivial / straightforward / medium / complex
       
+      For complexity estimation guidance, see `.docs/patterns/complexity-estimation-examples.md`
+      
       If unbounded, break into scope-sized chunks first.
       
       ## Task Tracking

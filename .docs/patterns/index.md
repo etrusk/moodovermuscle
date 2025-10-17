@@ -87,24 +87,29 @@ Reference for proven, reusable code patterns. Always check this before implement
 **Coverage Target**: 95%+ for auth services
 
 ### MSW Handler Setup for Admin Endpoints
-**Location**: Test files using MSW for admin API mocking
-**Use for**: Mocking admin API calls in component tests
+**Location**: `__tests__/setup/handlers.ts`
+**Use for**: Mocking admin API calls in component and hook tests
 **Pattern**:
-- Define MSW handlers for `/api/admin/*` endpoints
+- Define MSW handlers for `/api/admin/*` endpoints in centralized handlers file
 - Return realistic response structures matching API contracts
 - Handle both success and error scenarios
 - Use request handlers to validate request payloads
-**Note**: Global fetch mocking conflicts with MSW - avoid mixing approaches
+- Use `server.use()` in individual tests for test-specific handler overrides
+**Important**: Use MSW exclusively for API mocking - avoid mixing with global fetch mocks (causes interception conflicts)
 
-### Client-Side Auth Hook Testing (Partial)
+### Client-Side Auth Hook Testing with MSW
 **Location**: `__tests__/lib/auth/useAdminAuth.test.ts`
 **Use for**: Testing React hooks that use browser fetch API
-**Known Issues**:
-- Global fetch mock interferes with MSW's fetch interception
-- Tests fail when MSW handlers and global fetch mocks are both present
-- Requires MSW handler refactoring or fetch polyfill approach
-**Workaround**: E2E tests provide coverage for client-side auth flows
-**Future Pattern**: Remove global fetch mocks, use MSW exclusively or node-fetch polyfill
+**Pattern**:
+- Use MSW handlers exclusively for API mocking (no global fetch mocks)
+- Define MSW handlers in `__tests__/setup/handlers.ts` for all endpoints hook uses
+- Import `server` from MSW setup and use `server.use()` for test-specific handlers
+- Avoid mixing global fetch mocking with MSW - causes interception conflicts
+**Prerequisites**:
+- MSW handlers defined for all API endpoints the hook calls
+- Test utils configured with MSW server setup/teardown
+**Resolution Note**: Previous issue with global fetch mocking resolved by removing manual fetch mocks in favor of MSW-only approach
+**Coverage Target**: 80%+ for client-side hooks
 
 ## Component Patterns
 

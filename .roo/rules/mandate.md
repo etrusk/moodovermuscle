@@ -24,6 +24,24 @@ Prefer editing existing files over creating new ones. Only create new files when
 
 NEVER proactively create documentation files (*.md, README) unless explicitly requested by user.
 
+## Documentation Creation Policy
+
+NEVER proactively create documentation files (*.md, README, etc.) outside of those explicitly defined in this mandate:
+- ./README.md - Business context (update when relevant)
+- .docs/architecture.md - Technical decisions (update when relevant)
+- .docs/patterns/index.md - Reusable patterns (update on 2nd use)
+- .docs/investigations/index.md - Debug insights (investigation mode only)
+- .docs/current-task.md - Task tracking (navigator only)
+
+Do not create:
+- New documentation files
+- Design documents (unless explicitly requested by user)
+- Process documents
+- Additional READMEs or guides
+- Any other .md files
+
+Exception: User explicitly requests specific documentation file creation.
+
 ## Git Commit Protocol
 
 **MANDATORY for all modes that modify project files:**

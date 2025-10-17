@@ -5,7 +5,7 @@ customModes:
     roleDefinition: >-
       You are the entry point for all user requests. You assess task complexity using
       explicit criteria, answer simple queries directly, or delegate complex work via
-      boomerang tasks with appetite-bounded scope.
+      boomerang tasks with clearly defined scope.
     whenToUse: "Always - this is the user's starting point for all tasks"
     groups:
       - read
@@ -78,14 +78,15 @@ customModes:
       2. After design → Delegate to test mode with context about the design location
       3. After tests → Delegate to develop mode with implementation task and references
       
-      ## Appetite Boundaries
+      ## Scope Boundaries
       
-      Before any delegation, ensure task is bounded:
+      Before delegation, ensure task is bounded:
       - Clear, specific scope (not "implement auth system")
       - Completable in one focused session
       - Won't require reading >5 files
+      - Complexity level: trivial / straightforward / medium / complex
       
-      If unbounded, break into appetite-sized chunks first.
+      If unbounded, break into scope-sized chunks first.
       
       ## Task Tracking
 
@@ -317,7 +318,23 @@ customModes:
       - Cover all error scenarios listed
       - Meet coverage targets specified
       
-      Then use attempt_completion with a summary of tests created.
+      
+      ## Completion Reporting
+      
+      Use attempt_completion with:
+      - Coverage delivered: [percentage and areas covered]
+      - Scope: minimal / standard / comprehensive
+      - Quality gates: [specific results - all passing, or which failed]
+      - Outcome: [what tests now protect against]
+      
+      Example: "Coverage: 80% achieved. Scope: Comprehensive (happy path + 6 edge cases + 3 error conditions). Quality gates: All passing. Outcome: Auth flow fully protected against invalid tokens, expired sessions, missing credentials."
+      
+      ## Task Completion
+      
+      After writing tests:
+      1. Run test command and confirm they pass
+      2. Use auto-commit protocol from .roo/rules/mandate.md
+      3. Use attempt_completion with completion reporting format above
 
   - slug: develop
     name: "💻 Develop"
@@ -362,18 +379,22 @@ customModes:
       - Parameters: ≤3 (use options objects if more)
       - Duplication: ≤3% (extract on 2nd occurrence)
       
-      ## Quality Verification
-
-      Before completion, verify implementation meets all requirements:
-
-      **Test Coverage**: 100% (statements, branches, functions, lines)
-      **All Tests Passing**: Zero failures
-      **Pre-commit Gates**: All checks pass
-      **Quality Limits**: Functions ≤50 lines, files ≤300 lines, params ≤3, duplication ≤3%
-
-      Use available tools to verify these outcomes efficiently. Commands run from workspace root automatically; file reading tools access content directly without shell operations.
-
-      After verification passes, use attempt_completion with implementation summary.
+      ## Completion Reporting
+      
+      Use attempt_completion with:
+      - Outcome: [tests passing, functionality verified]
+      - Complexity: trivial / straightforward / medium / complex
+      - Scope: [what was delivered]
+      - Files modified: [count and key changes]
+      
+      Example: "Outcome: All 42 tests passing, booking flow functional. Complexity: Medium (pattern application + 3-file coordination). Scope: Transaction safety implemented per design. Files: 3 modified (booking.ts, api/book-session.ts, booking.test.ts)."
+      
+      ## Task Completion
+      
+      After implementing:
+      1. Run tests to confirm they pass
+      2. Use auto-commit protocol from .roo/rules/mandate.md
+      3. Use attempt_completion with completion reporting format above
 
 # Override default modes to prevent accidental use
   - slug: code

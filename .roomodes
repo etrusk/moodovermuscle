@@ -243,7 +243,7 @@ customModes:
       - edit
       - command
     customInstructions: |
-      Before writing tests, read .roo/rules/mandate.md for patterns.
+      Before writing tests, read .roo/rules/00-mandate.md for patterns.
       
       ## Test Quality Requirements (100% COMPLIANCE MANDATORY)
       
@@ -333,7 +333,7 @@ customModes:
       
       After writing tests:
       1. Run test command and confirm they pass
-      2. Use auto-commit protocol from .roo/rules/mandate.md
+      2. Use auto-commit protocol from .roo/rules/00-mandate.md
       3. Use attempt_completion with completion reporting format above
 
   - slug: develop
@@ -350,7 +350,7 @@ customModes:
       - command
       - browser
     customInstructions: |
-      Before implementing, read .roo/rules/mandate.md for context and patterns.
+      Before implementing, read .roo/rules/00-mandate.md for context and patterns.
       
       ## Pre-Implementation Verification
       
@@ -393,7 +393,7 @@ customModes:
       
       After implementing:
       1. Run tests to confirm they pass
-      2. Use auto-commit protocol from .roo/rules/mandate.md
+      2. Use auto-commit protocol from .roo/rules/00-mandate.md
       3. Use attempt_completion with completion reporting format above
 
 # Override default modes to prevent accidental use

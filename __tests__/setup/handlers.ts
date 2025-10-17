@@ -207,6 +207,31 @@ export const handlers = [
       completedBookings: mockBookings.filter(b => b.status === 'COMPLETED').length,
     })
   }),
+
+  // Admin session endpoint - GET (check session)
+  http.get('/api/admin/session', () => {
+    return HttpResponse.json({
+      user: { id: 'emily-admin-1', email: 'emily@moodovermuscle.com.au', name: 'Emily' },
+    })
+  }),
+
+  // Admin session endpoint - DELETE (logout)
+  http.delete('/api/admin/session', () => {
+    return HttpResponse.json({ success: true })
+  }),
+
+  // Admin login endpoint
+  http.post('/api/admin/login', async ({ request }) => {
+    const body = (await request.json()) as { email: string; password: string }
+    
+    if (body.email === 'emily@moodovermuscle.com.au' && body.password === 'Emily2025!') {
+      return HttpResponse.json({
+        user: { id: 'emily-admin-1', email: 'emily@moodovermuscle.com.au', name: 'Emily' },
+      })
+    }
+    
+    return HttpResponse.json({ error: 'Invalid credentials' }, { status: 401 })
+  }),
 ]
 
 // Export function to reset mock data between tests

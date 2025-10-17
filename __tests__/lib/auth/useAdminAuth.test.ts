@@ -3,20 +3,18 @@
  * Tests custom React hook for admin authentication functionality
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, waitFor } from '@testing-library/react'
 import { act } from '@testing-library/react'
 import { useAdminAuth } from '@/lib/auth/useAdminAuth'
 import { useRouter } from 'next/navigation'
+import { server } from '@/__tests__/setup/server'
+import { http, HttpResponse } from 'msw'
 
 // Mock Next.js router
 vi.mock('next/navigation', () => ({
   useRouter: vi.fn(),
 }))
-
-// Mock fetch globally
-const mockFetch = vi.fn()
-global.fetch = mockFetch
 
 describe('useAdminAuth', () => {
   const mockPush = vi.fn()
@@ -24,22 +22,20 @@ describe('useAdminAuth', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    mockFetch.mockClear()
     vi.mocked(useRouter).mockReturnValue({
       push: mockPush,
       refresh: mockRefresh,
     } as any)
   })
 
-  afterEach(() => {
-    vi.restoreAllMocks()
-    mockFetch.mockReset()
-  })
-
   describe('hook initialization', () => {
     it('initializes with loading state', () => {
-      // Arrange: Mock pending session check
-      mockFetch.mockImplementation(() => new Promise(() => {}))
+      // Arrange: Mock pending session check with MSW
+      server.use(
+        http.get('/api/admin/session', () => {
+          return new Promise(() => {}) // Never resolves
+        })
+      )
 
       // Act: Render hook
       const { result } = renderHook(() => useAdminAuth())
@@ -51,11 +47,12 @@ describe('useAdminAuth', () => {
     })
 
     it('handles invalid session on mount', async () => {
-      // Arrange: Mock invalid session
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        json: async () => ({ error: 'Unauthorized' }),
-      })
+      // Arrange: Mock invalid session with MSW
+      server.use(
+        http.get('/api/admin/session', () => {
+          return HttpResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        })
+      )
 
       // Act: Render hook with invalid session
       const { result } = renderHook(() => useAdminAuth())
@@ -69,8 +66,12 @@ describe('useAdminAuth', () => {
     })
 
     it('handles session check error on mount', async () => {
-      // Arrange: Mock network error
-      mockFetch.mockRejectedValueOnce(new Error('Network error'))
+      // Arrange: Mock network error with MSW
+      server.use(
+        http.get('/api/admin/session', () => {
+          return HttpResponse.error()
+        })
+      )
 
       // Act: Render hook
       const { result } = renderHook(() => useAdminAuth())
@@ -83,14 +84,7 @@ describe('useAdminAuth', () => {
     })
 
     it('successfully loads valid session on mount', async () => {
-      // Arrange: Mock valid session
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          user: { id: 'emily-admin-1', email: 'emily@moodovermuscle.com.au', name: 'Emily' },
-        }),
-      })
-
+      // Arrange: MSW default handler returns valid session
       // Act: Render hook
       const { result } = renderHook(() => useAdminAuth())
 
@@ -109,18 +103,12 @@ describe('useAdminAuth', () => {
 
   describe('login', () => {
     it('successfully logs in with valid credentials', async () => {
-      // Arrange: Setup initial unauthenticated state
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: false,
-          json: async () => ({}),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({
-            user: { id: 'emily-admin-1', email: 'emily@moodovermuscle.com.au', name: 'Emily' },
-          }),
-        })
+      // Arrange: Setup initial unauthenticated state with MSW
+      server.use(
+        http.get('/api/admin/session', () => {
+          return HttpResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        }, { once: true })
+      )
 
       const { result } = renderHook(() => useAdminAuth())
 
@@ -128,7 +116,7 @@ describe('useAdminAuth', () => {
         expect(result.current.isLoading).toBe(false)
       })
 
-      // Act: Perform login
+      // Act: Perform login (MSW default handler validates credentials)
       let loginResult: { success: boolean; error?: string } = { success: false }
       await act(async () => {
         loginResult = await result.current.login('emily@moodovermuscle.com.au', 'Emily2025!')
@@ -145,16 +133,12 @@ describe('useAdminAuth', () => {
     })
 
     it('handles invalid credentials', async () => {
-      // Arrange: Setup failed login
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: false,
-          json: async () => ({}),
-        })
-        .mockResolvedValueOnce({
-          ok: false,
-          json: async () => ({ error: 'Invalid credentials' }),
-        })
+      // Arrange: Setup initial unauthenticated state
+      server.use(
+        http.get('/api/admin/session', () => {
+          return HttpResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        }, { once: true })
+      )
 
       const { result } = renderHook(() => useAdminAuth())
 
@@ -162,7 +146,7 @@ describe('useAdminAuth', () => {
         expect(result.current.isLoading).toBe(false)
       })
 
-      // Act: Attempt login with invalid credentials
+      // Act: Attempt login with invalid credentials (MSW validates and rejects)
       let loginResult: { success: boolean; error?: string } = { success: true }
       await act(async () => {
         loginResult = await result.current.login('emily@moodovermuscle.com.au', 'WrongPassword')
@@ -175,13 +159,15 @@ describe('useAdminAuth', () => {
     })
 
     it('handles network error during login', async () => {
-      // Arrange: Setup network failure
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: false,
-          json: async () => ({}),
-        })
-        .mockRejectedValueOnce(new Error('Network error'))
+      // Arrange: Setup network failure with MSW
+      server.use(
+        http.get('/api/admin/session', () => {
+          return HttpResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        }, { once: true }),
+        http.post('/api/admin/login', () => {
+          return HttpResponse.error()
+        }, { once: true })
+      )
 
       const { result } = renderHook(() => useAdminAuth())
 
@@ -202,16 +188,15 @@ describe('useAdminAuth', () => {
     })
 
     it('handles login response without error property', async () => {
-      // Arrange: Setup failed login without error message
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: false,
-          json: async () => ({}),
-        })
-        .mockResolvedValueOnce({
-          ok: false,
-          json: async () => ({}),
-        })
+      // Arrange: Setup failed login without error message with MSW
+      server.use(
+        http.get('/api/admin/session', () => {
+          return HttpResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        }, { once: true }),
+        http.post('/api/admin/login', () => {
+          return HttpResponse.json({}, { status: 401 })
+        }, { once: true })
+      )
 
       const { result } = renderHook(() => useAdminAuth())
 
@@ -233,19 +218,7 @@ describe('useAdminAuth', () => {
 
   describe('logout', () => {
     it('successfully logs out and navigates to login page', async () => {
-      // Arrange: Setup authenticated state
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({
-            user: { id: 'emily-admin-1', email: 'emily@moodovermuscle.com.au', name: 'Emily' },
-          }),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({}),
-        })
-
+      // Arrange: Setup authenticated state (MSW default returns valid session)
       const { result } = renderHook(() => useAdminAuth())
 
       await waitFor(() => {
@@ -268,22 +241,17 @@ describe('useAdminAuth', () => {
     })
 
     it('handles logout when already logged out', async () => {
-      // Arrange: Setup unauthenticated state
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        json: async () => ({}),
-      })
+      // Arrange: Setup unauthenticated state with MSW
+      server.use(
+        http.get('/api/admin/session', () => {
+          return HttpResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        }, { once: true })
+      )
 
       const { result } = renderHook(() => useAdminAuth())
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false)
-      })
-
-      mockFetch.mockClear()
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({}),
       })
 
       // Act: Logout when not authenticated
@@ -301,21 +269,18 @@ describe('useAdminAuth', () => {
     })
 
     it('clears session even when logout API fails', async () => {
-      // Arrange: Setup authenticated state with failing logout
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({
-            user: { id: 'emily-admin-1', email: 'emily@moodovermuscle.com.au', name: 'Emily' },
-          }),
-        })
-        .mockRejectedValueOnce(new Error('Network error'))
-
+      // Arrange: Setup authenticated state with failing logout using MSW
       const { result } = renderHook(() => useAdminAuth())
 
       await waitFor(() => {
         expect(result.current.isAuthenticated).toBe(true)
       })
+
+      server.use(
+        http.delete('/api/admin/session', () => {
+          return HttpResponse.error()
+        }, { once: true })
+      )
 
       // Act: Logout with network error
       await act(async () => {
@@ -335,18 +300,12 @@ describe('useAdminAuth', () => {
 
   describe('refreshSession', () => {
     it('successfully refreshes valid session', async () => {
-      // Arrange: Setup initial unauthenticated state
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: false,
-          json: async () => ({}),
-        })
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({
-            user: { id: 'emily-admin-1', email: 'emily@moodovermuscle.com.au', name: 'Emily' },
-          }),
-        })
+      // Arrange: Setup initial unauthenticated state with MSW
+      server.use(
+        http.get('/api/admin/session', () => {
+          return HttpResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        }, { once: true })
+      )
 
       const { result } = renderHook(() => useAdminAuth())
 
@@ -354,6 +313,9 @@ describe('useAdminAuth', () => {
         expect(result.current.isLoading).toBe(false)
       })
       expect(result.current.isAuthenticated).toBe(false)
+
+      // Reset to default handler that returns valid session
+      server.resetHandlers()
 
       // Act: Refresh session
       await act(async () => {
@@ -373,24 +335,19 @@ describe('useAdminAuth', () => {
     })
 
     it('handles refresh session failure', async () => {
-      // Arrange: Setup authenticated state with failing refresh
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({
-            user: { id: 'emily-admin-1', email: 'emily@moodovermuscle.com.au', name: 'Emily' },
-          }),
-        })
-        .mockResolvedValueOnce({
-          ok: false,
-          json: async () => ({ error: 'Session expired' }),
-        })
-
+      // Arrange: Setup authenticated state (MSW default returns valid session)
       const { result } = renderHook(() => useAdminAuth())
 
       await waitFor(() => {
         expect(result.current.isAuthenticated).toBe(true)
       })
+
+      // Override for failing refresh
+      server.use(
+        http.get('/api/admin/session', () => {
+          return HttpResponse.json({ error: 'Session expired' }, { status: 401 })
+        }, { once: true })
+      )
 
       // Act: Refresh session with expired token
       await act(async () => {
@@ -405,21 +362,19 @@ describe('useAdminAuth', () => {
     })
 
     it('handles refresh session network error', async () => {
-      // Arrange: Setup authenticated state with network error on refresh
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({
-            user: { id: 'emily-admin-1', email: 'emily@moodovermuscle.com.au', name: 'Emily' },
-          }),
-        })
-        .mockRejectedValueOnce(new Error('Network error'))
-
+      // Arrange: Setup authenticated state (MSW default returns valid session)
       const { result } = renderHook(() => useAdminAuth())
 
       await waitFor(() => {
         expect(result.current.isAuthenticated).toBe(true)
       })
+
+      // Override for network error on refresh
+      server.use(
+        http.get('/api/admin/session', () => {
+          return HttpResponse.error()
+        }, { once: true })
+      )
 
       // Act: Refresh session with network failure
       await act(async () => {
@@ -436,11 +391,12 @@ describe('useAdminAuth', () => {
 
   describe('edge cases', () => {
     it('maintains correct loading state throughout operations', async () => {
-      // Arrange: Mock initial check
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        json: async () => ({}),
-      })
+      // Arrange: Mock initial check with MSW
+      server.use(
+        http.get('/api/admin/session', () => {
+          return HttpResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        }, { once: true })
+      )
 
       const { result } = renderHook(() => useAdminAuth())
 
@@ -457,11 +413,12 @@ describe('useAdminAuth', () => {
     })
 
     it('exposes all required functions and state', async () => {
-      // Arrange: Mock session check
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        json: async () => ({}),
-      })
+      // Arrange: Mock session check with MSW
+      server.use(
+        http.get('/api/admin/session', () => {
+          return HttpResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        }, { once: true })
+      )
 
       // Act: Render hook
       const { result } = renderHook(() => useAdminAuth())

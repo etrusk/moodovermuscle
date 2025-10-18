@@ -238,3 +238,13 @@ export const handlers = [
 export const resetMockBookings = () => {
   mockBookings = getInitialMockBookings()
 }
+
+// Error handlers for test-specific error scenarios
+export const errorHandlers = {
+  statsError: http.get('/api/admin/stats', () => {
+    return HttpResponse.json(
+      { error: 'Failed to fetch stats' },
+      { status: 500 }
+    )
+  }),
+}

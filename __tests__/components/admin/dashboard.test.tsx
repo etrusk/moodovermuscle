@@ -12,6 +12,8 @@ import { axe } from 'jest-axe'
 import AdminDashboardPage from '@/app/admin/dashboard/page'
 import { useAdminAuth } from '@/lib/auth/AdminAuthContext'
 import { useRouter } from 'next/navigation'
+import { server } from '../../setup/server'
+import { errorHandlers } from '../../setup/handlers'
 
 // Mock Next.js router
 const mockPush = vi.fn()
@@ -172,44 +174,76 @@ describe('AdminDashboardPage Component', () => {
 
   describe('Error Handling with Retry', () => {
     it('displays error message when stats fetch fails', async () => {
-      // Skip error test - MSW doesn't simulate errors easily
-      // TODO: Implement MSW error handler for this test
-      const { container } = render(<AdminDashboardPage />)
+      // Arrange: Override with error handler
+      server.use(errorHandlers.statsError)
 
-      // Assert - Normal rendering
+      // Act: Render the dashboard
+      render(<AdminDashboardPage />)
+
+      // Assert: Error message is displayed
       await waitFor(() => {
-        expect(screen.getByText(/welcome back, emily/i)).toBeInTheDocument()
+        expect(screen.getByText(/failed to fetch dashboard statistics/i)).toBeInTheDocument()
       })
-
-      const results = await axe(container)
-      expect(results).toHaveNoViolations()
     })
 
     it('displays error with proper styling and retry button', async () => {
-      // Skip error styling test
+      // Arrange: Override with error handler
+      server.use(errorHandlers.statsError)
+
+      // Act: Render the dashboard
       render(<AdminDashboardPage />)
 
+      // Assert: Error message has proper styling
       await waitFor(() => {
-        expect(screen.getByText(/welcome back, emily/i)).toBeInTheDocument()
+        expect(screen.getByText(/failed to fetch dashboard statistics/i)).toBeInTheDocument()
       })
+      
+      const errorMessage = screen.getByText(/error loading dashboard data/i)
+      expect(errorMessage).toBeInTheDocument()
+      
+      // Assert: Retry button is present
+      const retryButton = screen.getByRole('button', { name: /retry/i })
+      expect(retryButton).toBeInTheDocument()
     })
 
     it('retries stats fetch when retry button is clicked', async () => {
-      // Skip retry test
+      // Arrange: Start with error handler
+      server.use(errorHandlers.statsError)
       render(<AdminDashboardPage />)
 
+      // Arrange: Wait for error state
+      await waitFor(() => {
+        expect(screen.getByText(/failed to fetch dashboard statistics/i)).toBeInTheDocument()
+      })
+
+      // Act: Reset to success handler and click retry
+      server.resetHandlers()
+      const retryButton = screen.getByRole('button', { name: /retry/i })
+      await user.click(retryButton)
+
+      // Assert: Success data appears after retry
       await waitFor(() => {
         expect(screen.getByText('25')).toBeInTheDocument()
-      }, { timeout: 5000 })
+      })
+      
+      // Assert: Error message is no longer displayed
+      expect(screen.queryByText(/failed to fetch dashboard statistics/i)).not.toBeInTheDocument()
     })
 
     it('handles API error responses correctly', async () => {
-      // Skip API error test
+      // Arrange: Override with error handler
+      server.use(errorHandlers.statsError)
+
+      // Act: Render the dashboard
       render(<AdminDashboardPage />)
 
+      // Assert: Success data is not displayed
       await waitFor(() => {
-        expect(screen.getByText(/welcome back, emily/i)).toBeInTheDocument()
+        expect(screen.queryByText('25')).not.toBeInTheDocument()
       })
+      
+      // Assert: Error state is shown instead
+      expect(screen.getByText(/failed to fetch dashboard statistics/i)).toBeInTheDocument()
     })
   })
 

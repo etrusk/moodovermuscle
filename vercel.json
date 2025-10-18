@@ -10,7 +10,7 @@
       "NEXT_PUBLIC_ENABLE_DEBUG_MODE": "false"
     }
   },
-  "buildCommand": "pnpm build",
+  "buildCommand": "npx prisma migrate deploy && pnpm build",
   "installCommand": "pnpm install",
   "framework": "nextjs",
   "functions": {

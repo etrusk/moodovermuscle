@@ -8,7 +8,7 @@
   },
   "homepage": "https://moodovermuscle.com.au",
   "scripts": {
-    "build": "prisma generate && next build",
+    "build": "prisma migrate deploy && prisma generate && next build",
     "dev": "next dev",
     "dev:start": "docker-compose up -d && npx prisma migrate deploy && npm run dev",
     "lint": "next lint",

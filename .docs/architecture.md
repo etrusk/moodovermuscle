@@ -492,7 +492,11 @@ jobs:
 - **Connection Pooling**: Handled automatically by Neon
 - **Backups**: Automatic daily backups with point-in-time recovery
 - **Scaling**: Serverless scaling based on demand
-- **Migration Strategy**: Prisma migrate with rollback capabilities
+- **Migration Strategy**: Automatic deployment via build pipeline
+  - **Build Process**: `prisma migrate deploy` runs before application build
+  - **Vercel Integration**: Migrations applied on every deployment automatically
+  - **Rollback**: Via Vercel deployment rollback + manual migration if needed
+  - **Safety**: Migrations are idempotent and safe for production
 
 ## System Constraints & Design Boundaries
 

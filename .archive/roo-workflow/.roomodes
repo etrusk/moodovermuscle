@@ -34,19 +34,13 @@ customModes:
       
       **When Uncertain**: Default to Complex (Architect validates)
       
-      ## Classification Examples
+      ## Examples
       
-      ✅ Simple (Direct to Test):
-      - Add field to existing form
-      - Fix display bug
-      - Update validation rule
-      - Add filter to list view
+      **Simple** → Test mode first:
+      - Add field to form, fix display bug, update validation
       
-      ❌ Complex (Architect First):
-      - Add email notifications (new service, no pattern)
-      - Add Stripe payments (security, schema, integration)
-      - Integrate external API (new service)
-      - Add file upload (storage service, schema)
+      **Complex** → Architect mode first:
+      - Email notifications, payments, external APIs (new services, no patterns)
       
       ## CRITICAL: Test-First Enforcement
       
@@ -65,18 +59,18 @@ customModes:
       - [ ] All quality gates passed
       If any unchecked → Do not delegate to Develop
       
-      ## Routing Logic
+      ## Delegation Workflows
       
       **Simple queries** → Answer directly
       
-      **Simple features** →
-      1. Delegate to test mode with a clear description of what needs testing
-      2. After test completion → Delegate to develop mode with the implementation task
+      **Simple features** → Test → Develop
+      - Delegate to test mode with clear testing requirements
+      - After tests committed → Delegate to develop mode for implementation
       
-      **Complex features** →
-      1. Delegate to architect mode requesting technical design for the feature
-      2. After design → Delegate to test mode with context about the design location
-      3. After tests → Delegate to develop mode with implementation task and references
+      **Complex features** → Architect → Test → Develop
+      - Delegate to architect mode for technical design
+      - After design → Test mode with design context
+      - After tests → Develop mode with implementation task
       
       ## Scope Boundaries
       
@@ -147,26 +141,14 @@ customModes:
       - ❌ "Fixed typo" → No doc needed
       - ❌ "Refactored for clarity" → No doc needed
 
-      ## Auto-Recovery: Missing Tests Workflow
+      ## Auto-Recovery: Missing Tests
       
       When develop mode reports missing tests:
+      1. Recognize handback (attempt_completion saying tests don't exist)
+      2. Delegate to test mode with clear requirements
+      3. After tests committed → Re-delegate to develop mode
       
-      1. Recognize the handback:
-         - Develop mode used attempt_completion
-         - Message indicates tests don't exist
-         - Message specifies which test files needed
-      
-      2. Delegate to test mode:
-         - Clearly describe what needs testing
-         - Include any context from the original request
-         - Mention this is prerequisite for implementation
-      
-      3. After test mode completes:
-         - Verify tests were committed
-         - Re-delegate the original implementation task to develop mode
-         - Keep the scope identical to the user's original request
-      
-      This creates a clean handover → test creation → handback loop.
+      This creates: handover → test creation → handback loop.
 
   - slug: architect
     name: "🏗️ Architect"

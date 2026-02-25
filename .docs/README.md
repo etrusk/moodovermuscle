@@ -20,6 +20,11 @@
 
 - **[patterns/index.md](./patterns/index.md)** - Reusable code patterns (auth, forms, database, testing)
 
+### Decisions & Lessons
+
+- **[decisions/index.md](./decisions/index.md)** - Architectural decision records
+- **[lessons-learned/index.md](./lessons-learned/index.md)** - Process improvements from TDD sessions
+
 ### Known Issues
 
 - **[investigations/index.md](./investigations/index.md)** - Common issues and solutions (DST bugs, Prisma patterns, etc.)
@@ -75,6 +80,6 @@ Functionality changes require:
 
 ---
 
-**Last Updated**: 2025-10-10  
-**Documentation Status**: Lean and focused - 7 core files
-**Next Review**: When major features change system architecture
+**Last Updated**: 2026-02-25
+**Documentation Status**: Lean and focused - core docs + TDD workflow
+**Workflow**: Claude CLI with `/tdd` command (see workflow.md)

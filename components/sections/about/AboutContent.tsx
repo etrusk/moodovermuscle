@@ -15,8 +15,8 @@ export function AboutContent(): React.ReactElement {
 
       <p className="text-base md:text-lg">
         My background includes postnatal training with a focus on pelvic floor
-        and core restoration, strength and stability for seniors, balance and
-        fall-prevention work, and ongoing Pilates Mat instructor education.
+        and core restoration, strength and stability for seniors, and balance and
+        fall-prevention work.
       </p>
 
       <CredibilitySection />
@@ -64,7 +64,7 @@ function CredibilitySection(): React.ReactElement {
           <CredibilityPoint text="Certified Postnatal Exercise Specialist (Safe Return to Exercise)" />
           <CredibilityPoint text="Pelvic floor & core restoration training" />
           <CredibilityPoint text="Senior strength, balance & fall-prevention" />
-          <CredibilityPoint text="Pilates Mat certification (in progress)" />
+          <CredibilityPoint text="Mat-based movement training" />
         </div>
       </div>
     </div>

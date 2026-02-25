@@ -83,7 +83,7 @@ function FooterSocial(): React.ReactElement {
         </Button>
       </div>
       <p className="text-stone-400 text-base md:text-lg">
-        © 2026 MoodOverMuscle. All rights reserved.
+        © 2026 Mood Over Muscle. All rights reserved.
       </p>
     </div>
   )

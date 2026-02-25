@@ -10,9 +10,9 @@ const fontSans = Inter({
 })
 
 export const metadata = {
-  title: 'MoodOverMuscle - Fitness for Mums',
+  title: 'Mood Over Muscle - Personal Training',
   description:
-    "Join our M.O.M.unity where we move our bodies, take care of our minds, and remind each other we're not alone in this motherhood journey.",
+    'Personal training for people who care about how they move — postnatal recovery, senior strength, and movement that lasts.',
 }
 
 export default function RootLayout({

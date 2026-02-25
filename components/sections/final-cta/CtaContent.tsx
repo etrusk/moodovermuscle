@@ -50,7 +50,7 @@ function CtaBenefits(): React.ReactElement {
       <BenefitCard
         icon={<Users className="h-5 w-5 stroke-1 text-rose-200" />}
         title="Real Expertise"
-        description="Certified trainer with postnatal, senior, and Pilates specialisations."
+        description="Certified trainer with postnatal, senior, and movement specialisations."
       />
     </div>
   )

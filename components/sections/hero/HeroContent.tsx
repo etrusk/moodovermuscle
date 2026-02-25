@@ -25,7 +25,7 @@ function HeroHeading(): React.ReactElement {
     <div className="space-y-4 md:space-y-8">
       <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-tight pb-2">
         <span className="text-white block animate-fade-in-up drop-shadow-2xl">
-          MoodOverMuscle
+          Mood Over Muscle
         </span>
       </h1>
       <p className="text-xl md:text-2xl lg:text-3xl text-white leading-relaxed max-w-3xl mx-auto font-light animate-fade-in-up delay-400 drop-shadow-lg">
@@ -46,7 +46,7 @@ function HeroDescription(): React.ReactElement {
       </p>
       <p className="text-lg md:text-xl text-white leading-relaxed max-w-3xl mx-auto drop-shadow-lg">
         My background is in postnatal recovery, senior strength and stability,
-        and Pilates-informed movement.
+        and movement-informed training.
       </p>
     </div>
   )

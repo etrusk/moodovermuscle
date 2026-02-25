@@ -44,10 +44,10 @@ const services: ServiceData[] = [
   },
   {
     icon: <Move className="h-8 w-8 stroke-1 text-rose-500" />,
-    title: 'Pilates Mat',
+    title: 'Movement on Mat',
     subtitle: 'Better Movement',
     description:
-      'Pilates principles make everything else I teach work better — from postnatal recovery to senior sessions.',
+      'Mat-based movement principles make everything else I teach work better — from postnatal recovery to senior sessions.',
     points: [
       'Core control',
       'Spinal mobility',

@@ -14,7 +14,7 @@ const nextConfig = {
         splitChunks: false,
       }
     }
-    
+
     config.watchOptions = {
       ...config.watchOptions,
       ignored: [

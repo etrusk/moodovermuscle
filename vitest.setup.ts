@@ -1,4 +1,19 @@
 // vitest.setup.ts
+// Polyfill localStorage BEFORE any imports that trigger MSW module loading.
+// MSW 2.x CookieStore calls localStorage.getItem() at import time.
+// jsdom may provide a localStorage that lacks working methods.
+if (typeof globalThis.localStorage?.getItem !== 'function') {
+  const store = new Map<string, string>()
+  globalThis.localStorage = {
+    getItem: (key: string) => store.get(key) ?? null,
+    setItem: (key: string, value: string) => { store.set(key, value) },
+    removeItem: (key: string) => { store.delete(key) },
+    clear: () => { store.clear() },
+    get length() { return store.size },
+    key: (index: number) => [...store.keys()][index] ?? null,
+  } as Storage
+}
+
 import { vi, beforeAll, afterAll, afterEach } from 'vitest'
 import { TextEncoder, TextDecoder } from 'util'
 

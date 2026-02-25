@@ -1,12 +1,8 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended"
-  ],
+  "extends": ["config:recommended"],
   "timezone": "Australia/Sydney",
-  "schedule": [
-    "after 9am on Monday"
-  ],
+  "schedule": ["after 9am on Monday"],
   "prCreation": "immediate",
   "prConcurrentLimit": 10,
   "automerge": true,
@@ -33,7 +29,12 @@
       "groupName": "major dependencies",
       "automerge": false,
       "prPriority": 5,
-      "labels": ["dependencies", "automated", "requires-attention", "major-update"],
+      "labels": [
+        "dependencies",
+        "automated",
+        "requires-attention",
+        "major-update"
+      ],
       "semanticCommitType": "chore",
       "semanticCommitScope": "deps"
     },
@@ -59,7 +60,7 @@
     }
   ],
   "prNotPendingHours": 0,
-  "stabilityDays": 0,
+  "minimumReleaseAge": null,
   "dependencyDashboard": true,
   "dependencyDashboardTitle": "🤖 Renovate Dashboard",
   "dependencyDashboardLabels": ["dependencies"],

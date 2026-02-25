@@ -1,14 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import {
-  ChevronRight,
-  Heart,
-  Mail,
-  MapPin,
-  Sparkles,
-  Users,
-} from 'lucide-react'
+import { ChevronRight, Heart, Mail, MapPin, Sparkles, Users } from 'lucide-react'
 
 interface CtaContentProps {
   onBookSessionClick: () => void
@@ -31,12 +24,11 @@ function CtaHeader(): React.ReactElement {
   return (
     <div className="space-y-6">
       <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold leading-tight pb-2">
-        Ready to Transform Your Life?
+        Ready to Move Better?
       </h2>
       <p className="text-lg md:text-xl lg:text-2xl text-rose-100 leading-relaxed font-light max-w-3xl mx-auto">
-        Join our amazing M.O.M.unity who&apos;ve already started their
-        transformation. Your first session is completely FREE with no strings
-        attached!
+        If you&apos;re after long-term health, moving well, and feeling capable
+        in your own body — get in touch. We&apos;ll figure out where to start.
       </p>
     </div>
   )
@@ -47,18 +39,18 @@ function CtaBenefits(): React.ReactElement {
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-4xl mx-auto">
       <BenefitCard
         icon={<Sparkles className="h-5 w-5 stroke-1 text-rose-200" />}
-        title="100% FREE First Session"
-        description="No payment, no commitment, just come and see what we're about!"
+        title="Free First Session"
+        description="No payment, no commitment — just come and see if it's right for you."
       />
       <BenefitCard
         icon={<Heart className="h-5 w-5 stroke-1 text-rose-200" />}
-        title="Supportive Community"
-        description="Connect with amazing mums who understand your journey."
+        title="Training That Fits You"
+        description="Programs adapted to your body, your stage of life, and your goals."
       />
       <BenefitCard
         icon={<Users className="h-5 w-5 stroke-1 text-rose-200" />}
-        title="Expert Guidance"
-        description="Certified trainer with specialized postnatal expertise."
+        title="Real Expertise"
+        description="Certified trainer with postnatal, senior, and Pilates specialisations."
       />
     </div>
   )
@@ -96,14 +88,11 @@ function CtaButton({ onBookSessionClick }: CtaButtonProps): React.ReactElement {
       <Button
         onClick={onBookSessionClick}
         size="lg"
-        className="bg-white text-rose-600 hover:bg-rose-50 shadow-2xl hover:shadow-3xl transition-all duration-300 rounded-full px-8 md:px-12 py-6 md:py-8 text-lg md:text-xl font-bold hover:scale-105 w-full md:w-auto group pulse-glow"
+        className="bg-white text-rose-600 hover:bg-rose-50 shadow-2xl hover:shadow-3xl transition-all duration-300 rounded-full px-8 md:px-12 py-6 md:py-8 text-lg md:text-xl font-bold hover:scale-105 w-full md:w-auto group"
       >
-        Book Your FREE Session Now
+        Book a Free Session
         <ChevronRight className="ml-2 md:ml-3 h-4 md:h-5 w-4 md:w-5 stroke-1 group-hover:translate-x-1 transition-transform" />
       </Button>
-      <p className="text-rose-100 text-sm">
-        ⚡ Quick booking • 📞 Instant confirmation • 💯 No pressure
-      </p>
     </div>
   )
 }

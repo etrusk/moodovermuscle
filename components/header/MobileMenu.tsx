@@ -1,7 +1,6 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { Sparkles } from 'lucide-react'
 import { MobileMenuItems } from './MobileMenuItems'
 
 interface MobileMenuProps {
@@ -28,8 +27,7 @@ export function MobileMenu({
           }}
           className="w-full bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white rounded-full py-4 text-lg font-medium mt-4 shadow-lg"
         >
-          Start Your FREE Session
-          <Sparkles className="ml-2 h-4 w-4 stroke-1" />
+          Book a Session
         </Button>
       </div>
     </div>

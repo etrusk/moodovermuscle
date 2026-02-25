@@ -10,7 +10,7 @@ export function GalleryHeader(): React.ReactElement {
         Gallery
       </div>
       <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-stone-900 to-rose-600 bg-clip-text text-transparent pb-2">
-        M.O.M.unity in Action
+        Training in Action
       </h2>
     </div>
   )

@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Sparkles } from 'lucide-react'
 
 interface DesktopNavigationProps {
   onBookSessionClick: () => void
@@ -46,8 +45,7 @@ export function DesktopNavigation({
         size="sm"
         className="bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-full px-6 font-medium group"
       >
-        Start FREE
-        <Sparkles className="ml-2 h-3 w-3 stroke-1 group-hover:rotate-12 transition-transform" />
+        Book a Session
       </Button>
     </nav>
   )

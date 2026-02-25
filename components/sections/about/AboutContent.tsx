@@ -7,19 +7,20 @@ export function AboutContent(): React.ReactElement {
   return (
     <div className="space-y-6 md:space-y-8 text-stone-600 leading-relaxed">
       <p className="text-lg md:text-xl lg:text-2xl font-light">
-        I&apos;m a proud mum of a little tornado named Max and a Certified Safe
-        Return to Exercise trainer.
+        I&apos;m a Personal Trainer on the Sunshine Coast who works with people
+        who care about their long-term health and movement.
       </p>
 
       <CertificationLogos />
 
       <p className="text-base md:text-lg">
-        With a background in yoga, Pilates, and fitness training, I help women
-        feel strong, supported, and seen.
+        My background includes postnatal training with a focus on pelvic floor
+        and core restoration, strength and stability for seniors, balance and
+        fall-prevention work, and ongoing Pilates Mat instructor education.
       </p>
 
       <CredibilitySection />
-      <PersonalMessage />
+      <PhilosophySection />
     </div>
   )
 }
@@ -56,28 +57,38 @@ function CredibilitySection(): React.ReactElement {
     <div className="bg-gradient-to-r from-rose-50 to-pink-50 rounded-2xl md:rounded-3xl p-6 md:p-8 border border-rose-100 shadow-lg hover:shadow-xl transition-shadow">
       <div className="space-y-3 md:space-y-4">
         <h3 className="font-bold text-stone-800 text-lg md:text-xl">
-          Why Mums Choose Me:
+          Qualifications
         </h3>
         <div className="space-y-2 md:space-y-3">
-          <CredibilityPoint text="Experienced Personal Trainer, Cert III and IV in Fitness" />
-          <CredibilityPoint text="Certified Postnatal Exercise Specialist" />
-          <CredibilityPoint text="Pelvic floor & core restoration expert" />
-          <CredibilityPoint text="I'm a mum too - I get it!" />
+          <CredibilityPoint text="Cert III & IV in Personal Training" />
+          <CredibilityPoint text="Certified Postnatal Exercise Specialist (Safe Return to Exercise)" />
+          <CredibilityPoint text="Pelvic floor & core restoration training" />
+          <CredibilityPoint text="Senior strength, balance & fall-prevention" />
+          <CredibilityPoint text="Pilates Mat certification (in progress)" />
         </div>
       </div>
     </div>
   )
 }
 
-function PersonalMessage(): React.ReactElement {
+function PhilosophySection(): React.ReactElement {
   return (
     <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl md:rounded-3xl p-6 md:p-8 border border-amber-100 shadow-lg hover:shadow-xl transition-shadow">
-      <p className="text-base md:text-lg text-stone-700 font-medium">
-        💕 &quot;I created MoodOverMuscle because I know how isolating
-        motherhood can feel. Let&apos;s lift the mood, one squat (or stretch) at
-        a time. You don&apos;t have to do it alone – M.O.M.unity got your back
-        (and your core).&quot;
-      </p>
+      <div className="space-y-3">
+        <h3 className="font-bold text-stone-800 text-lg md:text-xl">
+          How I Work
+        </h3>
+        <p className="text-base md:text-lg text-stone-700">
+          I&apos;m not interested in flogging people. I don&apos;t program
+          workouts that leave you wrecked and call that
+          &quot;results.&quot;
+        </p>
+        <p className="text-base md:text-lg text-stone-700">
+          What I care about: technique that holds up under load and fatigue,
+          progression that&apos;s gradual enough to stick, and training that
+          accounts for where your body is now — not where it was ten years ago.
+        </p>
+      </div>
     </div>
   )
 }

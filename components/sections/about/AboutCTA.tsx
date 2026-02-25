@@ -16,7 +16,7 @@ export function AboutCTA({
         onClick={onBookSessionClick}
         className="bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white rounded-full px-6 md:px-8 py-5 md:py-6 text-base md:text-lg font-medium shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 w-full group"
       >
-        Start Your FREE Session
+        Book a Session
         <ChevronRight className="ml-2 h-3 md:h-4 w-3 md:w-4 stroke-1 group-hover:translate-x-1 transition-transform" />
       </Button>
     </div>

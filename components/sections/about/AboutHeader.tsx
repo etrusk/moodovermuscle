@@ -10,7 +10,7 @@ export function AboutHeader(): React.ReactElement {
         Meet Your Trainer
       </div>
       <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-stone-900 to-rose-600 bg-clip-text text-transparent leading-tight pb-2">
-        Hi mama, I&apos;m Emily
+        Hi, I&apos;m Emily
       </h2>
     </div>
   )

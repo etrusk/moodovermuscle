@@ -26,8 +26,8 @@ function FooterAbout(): React.ReactElement {
         className="rounded-full shadow-lg mx-auto md:mx-0 hover:scale-110 transition-transform"
       />
       <p className="text-stone-400 leading-relaxed text-base md:text-lg">
-        Building a supportive community for mums on the Sunshine Coast through
-        fitness, wellness, and connection.
+        Personal training on the Sunshine Coast — postnatal recovery, senior
+        strength, and movement that lasts.
       </p>
       <div className="flex items-center gap-4 justify-center md:justify-start">
         <p className="text-stone-400 text-sm">
@@ -44,7 +44,7 @@ function FooterAbout(): React.ReactElement {
 
 function FooterLinks(): React.ReactElement {
   const links = [
-    { href: '#about', label: 'About Emily' },
+    { href: '#about', label: 'About' },
     { href: '/classes', label: 'Classes' },
     { href: '#contact', label: 'Contact' },
     { href: '#gallery', label: 'Gallery' },
@@ -83,7 +83,7 @@ function FooterSocial(): React.ReactElement {
         </Button>
       </div>
       <p className="text-stone-400 text-base md:text-lg">
-        © 2025 MoodOverMuscle. All rights reserved.
+        © 2026 MoodOverMuscle. All rights reserved.
       </p>
     </div>
   )

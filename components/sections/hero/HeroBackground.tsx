@@ -7,7 +7,7 @@ export function HeroBackground(): React.ReactElement {
     <>
       <Image
         src="/images/mom-group.jpeg"
-        alt="Group of mothers exercising"
+        alt="Group fitness training session"
         fill
         priority
         className="absolute inset-0 object-cover object-center"

@@ -6,17 +6,17 @@ name: CI/CD
 on:
   # Run on pushes to the main branch
   push:
-    branches: [main]
-  # Run on pull requests targeting the main branch
+    branches: [main, preview]
+  # Run on pull requests targeting the main or preview branch
   pull_request:
-    branches: [main]
+    branches: [main, preview]
   # Allow manual triggering
   workflow_dispatch:
 
 # Set default environment variables
 env:
-  NODE_VERSION: '20'
-  PNPM_VERSION: '9'
+  NODE_VERSION: '22'
+  PNPM_VERSION: '10'
 
 # Define workflow jobs
 jobs:
@@ -198,4 +198,25 @@ jobs:
           build-script: ''
         env:
           ADMIN_JWT_SECRET: ${{ secrets.ADMIN_JWT_SECRET }}
+
+  # Job for auditing production dependencies for known vulnerabilities
+  security-audit:
+    name: security-audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Audit production dependencies
+        run: pnpm audit --audit-level moderate --production
 

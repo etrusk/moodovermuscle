@@ -60,14 +60,12 @@ Write to `.tdd/fix-plan.md`:
 - **Risk**: [what could go wrong with this fix]
 ```
 
-## Handoff Protocol
+## Handoff
 
 1. Write fix plan to `.tdd/fix-plan.md`
 2. Update `.tdd/session.md` with phase completion
 
 ## Completion Block
-
-Output AGENT_COMPLETION YAML block on completion. This is MANDATORY.
 
 ```yaml
 # AGENT_COMPLETION
@@ -97,8 +95,7 @@ next_recommended: FIX
 </output>
 
 <critical_constraints>
-
 - Write only to `.tdd/fix-plan.md` and `.tdd/session.md`
 - Identify root causes, not symptoms — each fix must target the underlying issue
 - Analysis only — pass implementation to the coder phase
-  </critical_constraints>
+</critical_constraints>

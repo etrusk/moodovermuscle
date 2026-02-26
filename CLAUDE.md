@@ -65,16 +65,18 @@ For requirement clarification before `/tdd`, use `/tdd-spec [task description]`.
 
 ## Critical Constraints
 
-- NEVER hardcode secrets, API keys, or credentials
+<constraints>
+- Secrets, API keys, and credentials go in environment variables only
 - All new code requires tests (TDD workflow)
 - Max 300 lines per source file — extract if exceeded
 - Max 600 lines per test file
 - Max 50 lines per function (target 40)
 - Max 3 function parameters (use options objects if more)
 - Code duplication max 3% (extract on 2nd occurrence)
-- No `any` types in TypeScript
+- Use explicit types — `any` is prohibited
 - Follow patterns in `.docs/patterns/index.md`
 - Prefer Claude CLI tools (Read, Write, Edit, Grep, Glob) over bash equivalents
+</constraints>
 
 ## Session State
 

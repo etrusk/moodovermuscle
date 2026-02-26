@@ -71,14 +71,12 @@ Review implemented code against spec, patterns, and architecture. Write findings
 <output>
 Write findings to `.tdd/review-findings.md` (keep under 1500 tokens).
 
-## Handoff Protocol
+## Handoff
 
 1. Write findings to `.tdd/review-findings.md`
 2. Update `.tdd/session.md` with verdict and issue counts
 
 ## Completion Block
-
-Output AGENT_COMPLETION YAML block on completion. This is MANDATORY.
 
 ```yaml
 # AGENT_COMPLETION
@@ -108,8 +106,7 @@ next_recommended: [SYNC_DOCS|ANALYZE_FIX|HUMAN_VERIFY|HUMAN_APPROVAL]
 </output>
 
 <critical_constraints>
-
 - Write only to `.tdd/review-findings.md` and `.tdd/session.md`
 - All CRITICAL issues must be resolved before approval
 - Check duplication FIRST — search codebase for similar implementations before other checks
-  </critical_constraints>
+</critical_constraints>

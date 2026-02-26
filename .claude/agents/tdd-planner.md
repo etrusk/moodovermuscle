@@ -33,7 +33,7 @@ Before ANY planning work, read:
 5. **Patterns**: `.docs/patterns/index.md`
 6. **Decisions**: `.docs/decisions/index.md`
 7. **Visual design** (UI tasks): `.docs/ui-ux-guidelines.md` and relevant `.docs/visual-specs/*.md` for affected components
-   </context>
+</context>
 
 <instructions>
 
@@ -90,14 +90,12 @@ When a plan involves migrating or modifying a known set of files:
 <output>
 Write plan to `.tdd/plan.md`. Be concise and actionable. Focus on what to do, not lengthy explanations.
 
-## Handoff Protocol
+## Handoff
 
 1. Write plan to `.tdd/plan.md`
 2. Update `.tdd/session.md` with phase completion
 
 ## Completion Block
-
-Output AGENT_COMPLETION YAML block on completion. This is MANDATORY.
 
 ```yaml
 # AGENT_COMPLETION
@@ -127,8 +125,7 @@ next_recommended: DESIGN_TESTS
 </output>
 
 <critical_constraints>
-
 - Write only to `.tdd/plan.md` and `.tdd/session.md`
 - Enumerate every file path explicitly — approximate counts hide missed files
 - Verify dependency APIs against installed versions, not training data
-  </critical_constraints>
+</critical_constraints>

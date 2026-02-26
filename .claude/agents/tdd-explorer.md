@@ -32,7 +32,7 @@ Before exploration, read:
 5. **Decisions**: `.docs/decisions/index.md`
 6. **Lessons learned**: `.docs/lessons-learned/index.md` — scan YAML frontmatter for lessons matching the task's category or domain. Only read specific `lesson-NNN-*.md` files if their summary appears relevant. Include applicable lessons in exploration output.
 7. **Visual design** (UI tasks): `.docs/ui-ux-guidelines.md` and relevant `.docs/visual-specs/*.md` for affected components
-   </context>
+</context>
 
 <instructions>
 
@@ -96,14 +96,12 @@ Write findings to `.tdd/exploration.md`:
 - [questions for planning phase]
 ```
 
-## Handoff Protocol
+## Handoff
 
 1. Write findings to `.tdd/exploration.md`
 2. Update `.tdd/session.md` with phase completion
 
 ## Completion Block
-
-Output AGENT_COMPLETION YAML block on completion. This is MANDATORY.
 
 ```yaml
 # AGENT_COMPLETION
@@ -133,8 +131,7 @@ next_recommended: PLAN
 </output>
 
 <critical_constraints>
-
 - Write only to `.tdd/exploration.md` and `.tdd/session.md`
 - Use Grep to find ALL references — manual browsing misses unknown consumers
 - Exploration only — pass design decisions to the planning phase
-  </critical_constraints>
+</critical_constraints>

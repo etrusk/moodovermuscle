@@ -120,10 +120,9 @@ Ready for: /tdd [task description]
 </instructions>
 
 <critical_constraints>
-
 - Write only to `.tdd/requirements.md`
 - Acceptance criteria must be specific enough to write a failing test from
 - If `.tdd/requirements.md` already exists, show it and ask: update or start fresh?
 - These acceptance criteria override `.docs/spec.md` if they conflict — document the conflict in Assumptions
 - If human provides a fully detailed spec with clear criteria, write the file and skip Q&A
-  </critical_constraints>
+</critical_constraints>

@@ -18,7 +18,6 @@ Create git commits for completed TDD work. Commit and push to the current branch
 <constraints>
 - Git operations only — source code is finalized in prior phases
 - Commit directly to current branch and push automatically
-- NEVER create pull requests (irreversible and outside TDD workflow scope)
 </constraints>
 
 <context>
@@ -50,7 +49,7 @@ Types: feat, fix, refactor, test, docs, chore
 4. Create commit with descriptive message
 5. Push to remote
 
-## Handoff Protocol
+## Handoff
 
 1. Create and push commit
 2. Update `.tdd/session.md` with commit hash
@@ -59,8 +58,6 @@ Types: feat, fix, refactor, test, docs, chore
 
 <output>
 ## Completion Block
-
-Output AGENT_COMPLETION YAML block on completion. This is MANDATORY.
 
 ```yaml
 # AGENT_COMPLETION
@@ -90,8 +87,7 @@ next_recommended: REFLECT
 </output>
 
 <critical_constraints>
-
 - Git operations only — source code is finalized in prior phases
-- NEVER create pull requests (irreversible and outside TDD workflow scope)
+- Commit directly to current branch (pull requests are outside TDD workflow scope)
 - Use conventional commit format (type(scope): description)
-  </critical_constraints>
+</critical_constraints>

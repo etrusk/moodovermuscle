@@ -59,14 +59,12 @@ Find root causes for stuck TDD agents. Write diagnostic reports to `.tdd/trouble
 <output>
 Write to `.tdd/troubleshooter-report.md`.
 
-## Handoff Protocol
+## Handoff
 
 1. Write report to `.tdd/troubleshooter-report.md`
 2. Update `.tdd/session.md` with root cause and recommendation
 
 ## Completion Block
-
-Output AGENT_COMPLETION YAML block on completion. This is MANDATORY.
 
 ```yaml
 # AGENT_COMPLETION
@@ -97,8 +95,7 @@ next_recommended: [FIX|PLAN|ESCALATE]
 </output>
 
 <critical_constraints>
-
 - 10 exchange hard limit (escalate to human for issues requiring more diagnostic depth)
 - Diagnosis only — pass fixes to the coder phase
 - Begin documenting findings at exchange 7 regardless of resolution status
-  </critical_constraints>
+</critical_constraints>

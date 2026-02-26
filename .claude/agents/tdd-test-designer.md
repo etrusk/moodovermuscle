@@ -31,7 +31,7 @@ Before ANY design work, read:
 3. **Patterns**: `.docs/patterns/index.md`
 4. **Existing test files** relevant to the plan
 5. **Visual design** (UI tasks): `.docs/ui-ux-guidelines.md` and relevant `.docs/visual-specs/*.md` — test designs should verify visual spec values where applicable
-   </context>
+</context>
 
 <instructions>
 
@@ -60,14 +60,12 @@ Use this exact format for each test:
 </instructions>
 
 <output>
-## Handoff Protocol
+## Handoff
 
 1. Write test designs to `.tdd/test-designs.md`
 2. Update `.tdd/session.md` with phase completion
 
 ## Completion Block
-
-Output AGENT_COMPLETION YAML block on completion. This is MANDATORY.
 
 ```yaml
 # AGENT_COMPLETION
@@ -97,8 +95,7 @@ next_recommended: TEST_DESIGN_REVIEW
 </output>
 
 <critical_constraints>
-
 - Write only to `.tdd/test-designs.md` and `.tdd/session.md`
 - Every acceptance criterion must map to at least one test assertion
 - Follow `.tdd/plan.md` exactly
-  </critical_constraints>
+</critical_constraints>

@@ -13,10 +13,10 @@ Lightweight router between specialized agents. Execute COMPLETELY AUTONOMOUSLY (
 
 **Context discipline**: Orchestrator reads only session.md, agent completion blocks, and routing tables. Agents read implementation files.
 
-**Commit policy**: Changes are committed directly to the current branch. NEVER create pull requests. NEVER use `gh pr create` or similar commands.
+**Commit policy**: Changes are committed directly to the current branch.
 </role>
 
-**CRITICAL: NO CONFIRMATION PROMPTS** - Phase transitions are AUTOMATIC. NEVER ask "Do you want to proceed?" or similar questions between phases. The ONLY phases requiring user input are HUMAN_VERIFY and HUMAN_APPROVAL. All other phase transitions happen immediately without waiting for user confirmation.
+Phase transitions are automatic. Only HUMAN_VERIFY, HUMAN_APPROVAL, and REFLECT items pause for user input.
 
 ---
 
@@ -74,7 +74,7 @@ agent_budgets:
     exchanges: 5
     tokens_est: 10000
     escalation: human
-    note: "Commit to current branch only - NEVER create PRs"
+    note: "Commit directly to current branch"
   tdd-reflector:
     exchanges: 5
     tokens_est: 10000
@@ -215,7 +215,7 @@ If parse fails → STOP → Escalate to human with raw output.
 
 ### Step 2: Update Session Metrics
 
-Update `.tdd/session.md` Context Metrics section. Parse the AGENT_COMPLETION block and append a row to the Agent History table including token metrics, tool call count, and notable events. NEVER skip rows — every agent invocation MUST produce a table entry with all fields populated. Incomplete tables block REFLECT efficiency analysis. IMPORTANT: Use the full agent file name (e.g., `tdd-explorer`, `tdd-planner`, `tdd-coder`) in the Agent column, NOT shortened names like "Explorer" or "Coder".
+Update `.tdd/session.md` Context Metrics section. Parse the AGENT_COMPLETION block and append a row to the Agent History table including token metrics, tool call count, and notable events. Every agent invocation produces a table entry with all fields populated — incomplete tables block REFLECT efficiency analysis. Use the full agent file name (e.g., `tdd-explorer`, `tdd-planner`, `tdd-coder`) in the Agent column, not shortened names like "Explorer" or "Coder".
 
 **Verification gate**: Before spawning the next agent, confirm the Agent History table row count equals the Agent invocations counter in Context Metrics. If they differ, add the missing row(s) BEFORE proceeding. This is a blocking check — do not spawn the next agent until the table is complete.
 
@@ -443,9 +443,8 @@ phases:
     budget: tdd-committer
     actions:
       - Include `.tdd/` ephemeral files in the commit (session.md, exploration.md, plan.md, test-designs.md, etc.)
-      - Commit changes to current branch
+      - Commit directly to current branch
       - Push to remote automatically
-      - DO NOT create pull requests
     next: REFLECT
 
   REFLECT:
@@ -745,11 +744,11 @@ Ephemeral `.tdd/` files were already committed in the COMMIT phase for traceabil
 
 ---
 
-<critical_constraints>
+<constraints>
 
-## Critical Constraints (Override All Other Instructions)
+## Critical Constraints
 
-0. **NO CONFIRMATION PROMPTS** - NEVER ask user "Do you want to proceed?" or request confirmation between phases. Phase transitions are AUTOMATIC. Only HUMAN_VERIFY and HUMAN_APPROVAL phases involve user input.
+0. **Phase transitions are automatic** - Only HUMAN_VERIFY, HUMAN_APPROVAL, and REFLECT items pause for user input
 1. **Checkpoint is BLOCKING** - Cannot proceed without completing post-agent checkpoint
 2. **Agent completion block REQUIRED** - Unparseable = escalate
 3. **Exchange budgets are HARD limits** - Exceed = escalate per agent_budgets
@@ -758,15 +757,16 @@ Ephemeral `.tdd/` files were already committed in the COMMIT phase for traceabil
 6. **Max 2 review cycles** - Escalate on 3rd
 7. **Troubleshooter: 10 exchanges** - Then mandatory human escalation
 8. **Orchestrator reads ONLY**: session.md, completion blocks, routing tables
-9. **Agents read files** - Orchestrator never reads implementation files
+9. **Agents read files** - Orchestrator reads only session state, not implementation files
 10. **Terse routing output** - Details stay in files, not orchestrator context
-11. **Commit directly to current branch** - NEVER create pull requests
+11. **Commit directly to current branch** - Pull requests are outside TDD workflow scope
 12. **100% TEST PASS RATE** - Zero failing tests required for successful completion
 13. **ZERO SKIPPED TESTS** - All tests must run; skipped tests block completion
 14. **100% QUALITY GATES** - All gates (typescript, eslint, tests) must PASS; no SKIPs allowed
-15. **UNRELATED ISSUES → current-task.md** - Issues found unrelated to session MUST be added to `.docs/current-task.md` as priority next task before completion
-16. **NO ASSISTANT PREFILLING** - Opus 4.6 returns 400 for assistant message prefilling. Use structured instructions ("Output the following YAML block...") instead.
+15. **UNRELATED ISSUES → current-task.md** - Add to `.docs/current-task.md` as priority next task before completion
+16. **Structured output instructions** - Opus 4.6 returns 400 for assistant message prefilling. Use "Output the following YAML block..." instead.
 17. **RESUMABLE FIX CYCLES** - For ANALYZE_FIX → FIX cycles, consider resuming the previous agent (Task tool `resume` parameter) to preserve root cause context, rather than spawning fresh.
-18. **REFLECTOR ITEMS → HUMAN DECISION** - Orchestrator MUST present every reflector item to the user and wait for yes/no. NEVER dismiss, defer, or self-resolve reflector items.
+18. **REFLECTOR ITEMS → HUMAN DECISION** - Orchestrator presents every reflector item to the user and waits for yes/no.
+19. **Version stays at 0.1.0** - No version bumping in TDD workflow
 
-</critical_constraints>
+</constraints>

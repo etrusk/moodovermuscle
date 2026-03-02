@@ -27,10 +27,9 @@
       "semanticCommitScope": "deps"
     },
     {
-      "description": "Major npm/pnpm updates require manual review",
+      "description": "Major npm/pnpm updates require manual review (one PR per package)",
       "matchManagers": ["npm"],
       "matchUpdateTypes": ["major"],
-      "groupName": "major dependencies",
       "automerge": false,
       "prPriority": 5,
       "labels": ["dependencies", "automated", "requires-attention", "major-update"],

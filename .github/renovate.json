@@ -3,6 +3,7 @@
   "extends": [
     "config:recommended"
   ],
+  "baseBranches": ["preview"],
   "timezone": "Australia/Sydney",
   "schedule": [
     "after 9am on Monday"
@@ -27,10 +28,9 @@
       "semanticCommitScope": "deps"
     },
     {
-      "description": "Major npm/pnpm updates require manual review",
+      "description": "Major npm/pnpm updates require manual review (one PR per package)",
       "matchManagers": ["npm"],
       "matchUpdateTypes": ["major"],
-      "groupName": "major dependencies",
       "automerge": false,
       "prPriority": 5,
       "labels": ["dependencies", "automated", "requires-attention", "major-update"],
@@ -59,7 +59,7 @@
     }
   ],
   "prNotPendingHours": 0,
-  "stabilityDays": 0,
+  "minimumReleaseAge": "0 days",
   "dependencyDashboard": true,
   "dependencyDashboardTitle": "🤖 Renovate Dashboard",
   "dependencyDashboardLabels": ["dependencies"],

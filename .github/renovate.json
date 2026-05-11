@@ -59,7 +59,7 @@
     }
   ],
   "prNotPendingHours": 0,
-  "stabilityDays": 0,
+  "minimumReleaseAge": "0 days",
   "dependencyDashboard": true,
   "dependencyDashboardTitle": "🤖 Renovate Dashboard",
   "dependencyDashboardLabels": ["dependencies"],

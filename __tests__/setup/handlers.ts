@@ -1,99 +1,13 @@
 import { http, HttpResponse } from 'msw'
 import { TEST_STRINGS } from '@/__tests__/constants/test-strings'
+import { buildMockBookings, type MockBooking } from '@/__tests__/fixtures/bookings'
 
 interface BookingRequestBody {
   email: string
 }
 
-interface MockBooking {
-  id: string
-  name: string
-  email: string
-  phone: string
-  service: string
-  date: string
-  time: string
-  duration: number
-  status: string
-  goals?: string
-  experience: string
-  message?: string
-  location?: string
-  createdAt: string
-  updatedAt: string
-}
-
-// Mock bookings data template
-const INITIAL_BOOKINGS: readonly MockBooking[] = [
-  {
-    id: 'booking-1',
-    name: 'Sarah Miller',
-    email: 'sarah@example.com',
-    phone: '+61 400 123 456',
-    service: 'Personal Training',
-    date: '2025-08-10',
-    time: '10:00:00',
-    duration: 60,
-    status: 'PENDING',
-    goals: 'Lose weight and build strength',
-    experience: 'Beginner',
-    message: 'Looking forward to the session!',
-    location: 'Home Gym',
-    createdAt: '2025-08-08T02:00:00Z',
-    updatedAt: '2025-08-08T02:00:00Z'
-  },
-  {
-    id: 'booking-2',
-    name: 'Mike Johnson',
-    email: 'mike@example.com',
-    phone: '+61 400 987 654',
-    service: 'Group Class',
-    date: '2025-08-10',
-    time: '14:30:00',
-    duration: 45,
-    status: 'CONFIRMED',
-    goals: 'Improve fitness',
-    experience: 'Intermediate',
-    createdAt: '2025-08-07T15:30:00Z',
-    updatedAt: '2025-08-07T16:00:00Z'
-  },
-  {
-    id: 'booking-3',
-    name: 'Lisa Chen',
-    email: 'lisa@example.com',
-    phone: '+61 400 555 111',
-    service: 'Mums & Bubs Class',
-    date: '2025-08-09',
-    time: '09:00:00',
-    duration: 60,
-    status: 'COMPLETED',
-    experience: 'Beginner',
-    createdAt: '2025-08-05T10:00:00Z',
-    updatedAt: '2025-08-09T10:00:00Z'
-  },
-  {
-    id: 'booking-4',
-    name: 'Tom Wilson',
-    email: 'tom@example.com',
-    phone: '+61 400 777 888',
-    service: 'Personal Training',
-    date: '2025-08-12',
-    time: '16:00:00',
-    duration: 60,
-    status: 'CANCELLED',
-    goals: 'Rehabilitation',
-    experience: 'Advanced',
-    message: 'Need to reschedule due to injury',
-    createdAt: '2025-08-06T12:00:00Z',
-    updatedAt: '2025-08-08T01:00:00Z'
-  }
-] as const
-
-// Returns fresh data to avoid mutation between tests
-const getInitialMockBookings = (): MockBooking[] => JSON.parse(JSON.stringify(INITIAL_BOOKINGS))
-
 // Initialize mock bookings - will be reset per test
-let mockBookings: MockBooking[] = getInitialMockBookings()
+let mockBookings: MockBooking[] = buildMockBookings()
 
 export const handlers = [
   http.post('/api/book-session', async ({ request }) => {
@@ -236,7 +150,7 @@ export const handlers = [
 
 // Export function to reset mock data between tests
 export const resetMockBookings = () => {
-  mockBookings = getInitialMockBookings()
+  mockBookings = buildMockBookings()
 }
 
 // Error handlers for test-specific error scenarios

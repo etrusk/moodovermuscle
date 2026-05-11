@@ -3,6 +3,7 @@
   "extends": [
     "config:recommended"
   ],
+  "baseBranches": ["preview"],
   "timezone": "Australia/Sydney",
   "schedule": [
     "after 9am on Monday"

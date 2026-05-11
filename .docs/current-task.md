@@ -1,6 +1,6 @@
 # Project Status
 
-**Updated**: 2026-02-25
+**Updated**: 2026-05-11
 **Branch**: `preview` (primary development branch)
 **Deployment**: `preview.moodovermuscle.com.au` → `preview` branch
 
@@ -37,6 +37,12 @@
 - Only `main` and `preview` remain (all feature branches deleted)
 - Vercel preview domain assigned to `preview` branch
 
+### Housekeeping pass (2026-05-11)
+- Renovate `baseBranches: ["preview"]` set — open Renovate PRs targeting `main` will be rebased to `preview` on next run
+- Husky pre-commit: removed deprecated `husky.sh` sourcing (was breaking under husky v10)
+- Committed stale prisma client regeneration (output had drifted from source schema after `DATABASE_POSTGRES_PRISMA_URL` rename)
+- `.docker/` confirmed empty (Task 4 from prior queue is moot)
+
 ---
 
 ## Task Queue
@@ -45,17 +51,7 @@ Work items below are ordered for "grab the next task" sessions. Each is self-con
 
 ---
 
-### 1. Fix Renovate base branch
-**Type**: Config fix (1 file)
-**Why now**: Renovate targets `main` (GitHub default) but development is on `preview`. PRs will land on the wrong branch until fixed.
-
-Add `"baseBranches": ["preview"]` to `.github/renovate.json`.
-
-**Verification**: Check the Renovate Dashboard issue on GitHub — new PRs should target `preview`.
-
----
-
-### 2. Complete content pivot
+### 1. Complete content pivot
 **Type**: Find/replace across source + tests
 **Why now**: The initial pivot only covered frontpage sections. Admin pages, error pages, email templates, and tests still have old names.
 
@@ -95,30 +91,7 @@ Add `"baseBranches": ["preview"]` to `.github/renovate.json`.
 
 ---
 
-### 3. Husky v10 compatibility
-**Type**: Config fix (1 file)
-**Why now**: Pre-commit hook prints deprecation warning. Will break on husky v10.
-
-Remove lines 1-2 from `.husky/pre-commit`:
-```
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-```
-
-**Verification**: `git commit --allow-empty -m "test: verify husky"` runs hooks without deprecation warning. Then `git reset HEAD~1` to undo.
-
----
-
-### 4. Remove stale Docker data (MANUAL)
-**Type**: Human action
-**Impact**: Blocks local `next build` only (Vercel unaffected)
-```bash
-sudo rm -rf .docker/postgres-data .docker/.docker-build-backup-3197817
-```
-
----
-
-### 5. Clean up vitest.setup.ts
+### 2. Clean up vitest.setup.ts
 **Type**: Refactor (1 file, ~370 lines to remove)
 **Why**: ~570 lines of polyfills for APIs native since Node 18. The localStorage polyfill added in this session is a band-aid on top of other band-aids.
 
@@ -131,7 +104,7 @@ sudo rm -rf .docker/postgres-data .docker/.docker-build-backup-3197817
 
 ---
 
-### 6. Upgrade Prisma 6 → 7
+### 3. Upgrade Prisma 6 → 7
 **Type**: Major dependency upgrade
 **Scope**: Check migration guide, update schema if needed, verify all DB queries.
 
@@ -140,20 +113,20 @@ sudo rm -rf .docker/postgres-data .docker/.docker-build-backup-3197817
 
 ---
 
-### 7. Upgrade ESLint 8 → 9
+### 4. Upgrade ESLint 8 → 9
 **Type**: Major dependency upgrade + config migration
 **Scope**: Flat config migration (`.eslintrc.*` → `eslint.config.js`). Also migrates away from deprecated `next lint` CLI (removed in Next.js 16) to direct ESLint CLI.
 
 **Packages to update**: `eslint` 8→9, `@typescript-eslint/eslint-plugin` 7→8, `@typescript-eslint/parser` 7→8, `eslint-plugin-react-hooks` 4→5+, `eslint-config-prettier` 9→10.
 
-**Note**: Tasks 6 and 7 can run in parallel.
+**Note**: Tasks 3 and 4 can run in parallel.
 **Verification**: `pnpm lint` (zero errors), `pnpm type-check`, CI lint job passes.
 
 ---
 
-### 8. Upgrade Vitest 3 → 4
+### 5. Upgrade Vitest 3 → 4
 **Type**: Major dependency upgrade
-**Depends on**: Tasks 6, 7 (minimize variables)
+**Depends on**: Tasks 3, 4 (minimize variables)
 
 **Packages**: `vitest`, `@vitest/coverage-v8`, `@vitest/ui` — all must match.
 **Key files**: `vitest.config.ts`, `vitest.config.critical.ts`, `vitest.config.accessibility.ts`, `vitest.setup.ts`.
@@ -161,9 +134,9 @@ sudo rm -rf .docker/postgres-data .docker/.docker-build-backup-3197817
 
 ---
 
-### 9. Migrate Tailwind CSS 3 → 4
+### 6. Migrate Tailwind CSS 3 → 4
 **Type**: Major dependency upgrade + config migration
-**Depends on**: Tasks 6, 7, 8 (stabilise first)
+**Depends on**: Tasks 3, 4, 5 (stabilise first)
 
 **Changes**:
 - Replace `tailwindcss` v3 + `postcss` + `autoprefixer` with `tailwindcss` v4 + `@tailwindcss/postcss`
@@ -178,7 +151,7 @@ sudo rm -rf .docker/postgres-data .docker/.docker-build-backup-3197817
 
 ## Known Technical Debt
 
-### pnpm overrides (remove at Task 9)
+### pnpm overrides (remove at Task 6)
 ```json
 "glob@>=10.2.0 <10.5.0": ">=10.5.0",
 "minimatch@>=9.0.0 <9.0.6": ">=9.0.6"

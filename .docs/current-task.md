@@ -40,8 +40,16 @@
 ### Housekeeping pass (2026-05-11)
 - Renovate `baseBranches: ["preview"]` set — open Renovate PRs targeting `main` will be rebased to `preview` on next run
 - Husky pre-commit: removed deprecated `husky.sh` sourcing (was breaking under husky v10)
-- Committed stale prisma client regeneration (output had drifted from source schema after `DATABASE_POSTGRES_PRISMA_URL` rename)
 - `.docker/` confirmed empty (Task 4 from prior queue is moot)
+- Untracked `lib/generated/prisma/` (gitignored). `postinstall` runs `prisma generate` so fresh installs materialise the client. CI workflow exports a placeholder `DATABASE_POSTGRES_PRISMA_URL` for schema validation.
+- Split `build` script into a CI-friendly `build` (`prisma generate && next build`) and `build:deploy` (with `prisma migrate deploy`). Vercel's `buildCommand` already wraps with `prisma migrate deploy` so deploys are unchanged.
+- CI build/size-check were red since the schema env-var rename in February. Now green.
+- Security audit: 13 advisories → 0. Achieved via `pnpm update`, bumping nodemailer 7 → 8 (only API break is the `NoAuth` → `ENOAUTH` rename, which the codebase does not use), and adding a `postcss@<8.5.10 → >=8.5.10` pnpm override to force a patched version through next>postcss.
+- Updated e2e/accessibility tests to match the post-pivot "Book a Free Session" CTA text (was "Book Your FREE Session" — broken across 9 files).
+- All 799 tests pass.
+
+**Still dirty after this pass**:
+- `.env.example` references `DATABASE_URL` but the schema uses `DATABASE_POSTGRES_PRISMA_URL`. Sandbox blocked `.env*` access from this session — needs a manual edit.
 
 ---
 

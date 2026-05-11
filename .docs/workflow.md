@@ -139,15 +139,29 @@ pnpm run quality:gates     # Full pipeline
 - AAA pattern required (enforced)
 - No weak assertions (enforced)
 
-## Preview-First Deployment
+## Branching & Deployment
 
-**MANDATORY** for functionality changes (new features, UI mods, behavior changes):
-1. Push branch → Vercel creates preview
-2. Share preview URL with client
-3. Get explicit approval
-4. Merge to production
+**Branches:**
+- `main` — production. Auto-deploys to `moodovermuscle.com.au` on push. Branch-protected: PRs only, CI required green.
+- `preview` — staging. Auto-deploys to `preview.moodovermuscle.com.au` on push. Direct commits allowed.
 
-**Skip preview** for: docs, config, internal tooling, non-user-facing fixes.
+**Invariant: one feature on `preview` at a time.** No parallel feature branches. `preview` is either identical to `main` (idle) or `main` + one in-flight feature.
+
+**Per-feature flow** (functionality changes — features, UI, behavior):
+1. Confirm `preview` is idle (== `main`). If not, finish or abandon the in-flight feature first.
+2. Commit directly to `preview`.
+3. Push → `preview.moodovermuscle.com.au` updates.
+4. Share preview URL with client.
+5. Iterate on `preview` until approved.
+6. **Promote to prod**: PR `preview → main`, CI green required, merge. Vercel auto-deploys `main` to prod.
+
+**Skip preview** for docs, config, internal tooling, non-user-facing fixes — PR directly to `main`.
+
+**Edge cases (manual intervention by solo dev, not encoded in tooling):**
+- **Abandoned feature**: `git reset --hard origin/main` on `preview` and force-push before starting the next feature. Otherwise dead commits stack.
+- **Mid-review prod hotfix**: hotfix branch off `main` → PR to `main`. Then rebase `preview` onto new `main` to keep the pending feature on top.
+
+**Why PRs only for `preview → main`:** CI runs on push to both branches, so PRs add no quality gate for `feature → preview`. The `preview → main` PR exists to enforce CI-green-before-prod via branch protection (Vercel deploys `main` in parallel with CI; without the gate, broken code can ship). It's the technical safety net, not code review.
 
 ## Anti-Patterns to Avoid
 
@@ -155,8 +169,9 @@ pnpm run quality:gates     # Full pipeline
 - **Creating abstractions prematurely** — wait until 2nd use
 - **Ignoring pattern library** — reinventing existing solutions
 - **Skipping investigation check** — missing known solutions
-- **Merging without client approval** — breaking preview-first rule
+- **Merging `preview → main` without client approval** — breaking preview-first rule
+- **Stacking features on `preview`** — violates one-at-a-time invariant; reset or finish first
 
 ---
 
-**Quick Reference**: `/tdd-spec` (clarify) → `/tdd` (implement) → pre-commit enforces → push → preview (if needed) → client approval → merge
+**Quick Reference**: `/tdd-spec` (clarify) → `/tdd` (implement) → pre-commit enforces → commit to `preview` → client approves preview URL → PR `preview → main` → merge

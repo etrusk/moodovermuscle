@@ -63,13 +63,14 @@ All commits must pass:
 
 See **[workflow.md](./workflow.md)** for details.
 
-### Preview-First Deployment
+### Branching & Deployment
 
-Functionality changes require:
-1. Create PR (triggers Vercel preview)
-2. Share preview URL with client
-3. Get explicit approval
-4. Merge to production
+- `main` → production (`moodovermuscle.com.au`), PRs only with CI green
+- `preview` → staging (`preview.moodovermuscle.com.au`), direct commits, one feature at a time
+
+Functionality changes: commit to `preview` → client approves preview URL → PR `preview → main` → merge.
+
+See **[workflow.md](./workflow.md)** for the full flow including edge cases.
 
 ## Key Principles
 

@@ -78,6 +78,15 @@ For requirement clarification before `/tdd`, use `/tdd-spec [task description]`.
 - Prefer Claude CLI tools (Read, Write, Edit, Grep, Glob) over bash equivalents
 </constraints>
 
+## Branching
+
+- `main` = prod (auto-deploys to `moodovermuscle.com.au`). PRs only, CI green required.
+- `preview` = staging (auto-deploys to `preview.moodovermuscle.com.au`). Direct commits.
+- **One feature on `preview` at a time.** No parallel feature branches.
+- Flow: commit to `preview` → client approves preview URL → PR `preview → main` → merge.
+- Trivial non-functional changes (docs, config, tooling): PR directly to `main`.
+- Details and edge cases: `.docs/workflow.md`.
+
 ## Session State
 
 - **Long-term project status**: `.docs/current-task.md`

@@ -28,14 +28,15 @@
       "semanticCommitScope": "deps"
     },
     {
-      "description": "Major npm/pnpm updates require manual review (one PR per package)",
+      "description": "Major npm/pnpm updates require manual review (one PR per package). groupName:null overrides group:recommended from config:recommended, which would otherwise bundle all majors into a single PR.",
       "matchManagers": ["npm"],
       "matchUpdateTypes": ["major"],
       "automerge": false,
       "prPriority": 5,
       "labels": ["dependencies", "automated", "requires-attention", "major-update"],
       "semanticCommitType": "chore",
-      "semanticCommitScope": "deps"
+      "semanticCommitScope": "deps",
+      "groupName": null
     },
     {
       "description": "Auto-merge GitHub Actions updates",

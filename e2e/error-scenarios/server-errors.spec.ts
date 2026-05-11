@@ -16,7 +16,7 @@ test.describe('Server Error Scenarios', () => {
 
     await page.goto('/')
     await page
-      .getByRole('button', { name: 'Book Your FREE Session' })
+      .getByRole('button', { name: 'Book a Free Session' })
       .first()
       .click()
     await expect(page.getByTestId('booking-form-dialog')).toBeVisible()
@@ -77,7 +77,7 @@ test.describe('Server Error Scenarios', () => {
 
     await page.goto('/')
     await page
-      .getByRole('button', { name: 'Book Your FREE Session' })
+      .getByRole('button', { name: 'Book a Free Session' })
       .first()
       .click()
     await selectDate(page)
@@ -139,7 +139,7 @@ test.describe('Server Error Scenarios', () => {
 
     await page.goto('/')
     await page
-      .getByRole('button', { name: 'Book Your FREE Session' })
+      .getByRole('button', { name: 'Book a Free Session' })
       .first()
       .click()
 

@@ -22,9 +22,9 @@ test.describe('E2E Accessibility Comprehensive', () => {
     await page.goto('/')
     await page.waitForLoadState('networkidle')
     
-    // Click button to open dialog (this was missing!)
+    // Click button to open dialog
     await page
-      .getByRole('button', { name: 'Book Your FREE Session', exact: true })
+      .getByRole('button', { name: 'Book a Free Session', exact: true })
       .first()
       .click()
     

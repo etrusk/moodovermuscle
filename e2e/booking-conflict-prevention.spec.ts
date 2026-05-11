@@ -33,8 +33,8 @@ test.describe('Booking Conflict Prevention E2E', () => {
 
     // Act - Both users start booking process simultaneously
     await Promise.all([
-      page.getByRole('button', { name: 'Book Your FREE Session', exact: true }).first().click(),
-      secondPage.getByRole('button', { name: 'Book Your FREE Session', exact: true }).first().click()
+      page.getByRole('button', { name: 'Book a Free Session', exact: true }).first().click(),
+      secondPage.getByRole('button', { name: 'Book a Free Session', exact: true }).first().click()
     ])
 
     // Assert - Verify both booking forms opened
@@ -129,7 +129,7 @@ test.describe('Booking Conflict Prevention E2E', () => {
 
   test('conflict prevention with database constraint simulation', async ({ page }) => {
     // Open booking form
-    await page.getByRole('button', { name: 'Book Your FREE Session', exact: true }).first().click()
+    await page.getByRole('button', { name: 'Book a Free Session', exact: true }).first().click()
     await expect(page.getByTestId('booking-form-dialog')).toBeVisible()
 
     // Mock server response that simulates database constraint violation
@@ -195,7 +195,7 @@ test.describe('Booking Conflict Prevention E2E', () => {
   })
 
   test('availability checking updates in real-time to prevent conflicts', async ({ page }) => {
-    await page.getByRole('button', { name: 'Book Your FREE Session', exact: true }).first().click()
+    await page.getByRole('button', { name: 'Book a Free Session', exact: true }).first().click()
     await expect(page.getByTestId('booking-form-dialog')).toBeVisible()
 
     // Mock availability API to show time slot as taken
@@ -259,7 +259,7 @@ test.describe('Booking Conflict Prevention E2E', () => {
 
   test('throws error when business hours constraint violated', async ({ page }) => {
     // Arrange
-    await page.getByRole('button', { name: 'Book Your FREE Session', exact: true }).first().click()
+    await page.getByRole('button', { name: 'Book a Free Session', exact: true }).first().click()
     await page.route('**/api/book-session', route =>
       route.fulfill({
         status: 400,
@@ -291,7 +291,7 @@ test.describe('Booking Conflict Prevention E2E', () => {
 
   test('throws error when booking conflict occurs', async ({ page }) => {
     // Arrange
-    await page.getByRole('button', { name: 'Book Your FREE Session', exact: true }).first().click()
+    await page.getByRole('button', { name: 'Book a Free Session', exact: true }).first().click()
     await page.route('**/api/book-session', route =>
       route.fulfill({
         status: 409,

@@ -19,7 +19,7 @@ test.describe('Mobile-Specific Error Scenarios', () => {
     // Act
     await page.goto('/')
     await page
-      .getByRole('button', { name: 'Book Your FREE Session' })
+      .getByRole('button', { name: 'Book a Free Session' })
       .first()
       .tap()
     await page.getByTestId('name-input').tap()
@@ -50,7 +50,7 @@ test.describe('Mobile-Specific Error Scenarios', () => {
     
     // Act
     await page.goto('/')
-    await page.getByRole('button', { name: 'Book Your FREE Session' }).first().tap()
+    await page.getByRole('button', { name: 'Book a Free Session' }).first().tap()
     
     // Assert
     await expect(page.getByTestId('booking-form-dialog')).toBeVisible()

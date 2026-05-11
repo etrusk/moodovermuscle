@@ -17,7 +17,7 @@ test.describe('Cross-Browser Error Scenarios', () => {
     // Act - Start booking flow and submit
     await page.goto('/')
     await page
-      .getByRole('button', { name: 'Book Your FREE Session' })
+      .getByRole('button', { name: 'Book a Free Session' })
       .first()
       .click()
     await page.getByTestId('booking-form-dialog').waitFor()

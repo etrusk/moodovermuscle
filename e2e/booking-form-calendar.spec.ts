@@ -13,7 +13,7 @@ test.describe('Booking Form Calendar', () => {
 
     // Act - Navigate through booking form to calendar
     const bookSessionButton = page
-      .getByRole('button', { name: 'Book Your FREE Session' })
+      .getByRole('button', { name: 'Book a Free Session' })
       .first()
     await bookSessionButton.waitFor({ state: 'visible' })
     await bookSessionButton.click()

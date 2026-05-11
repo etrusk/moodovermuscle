@@ -4,9 +4,9 @@ import { selectDate } from './utils'
 test.describe('3-step Booking Wizard Flow', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
-    // Click the "Book Your FREE Session" button to open the booking form
+    // Click the "Book a Free Session" button to open the booking form
     await page
-      .getByRole('button', { name: 'Book Your FREE Session', exact: true })
+      .getByRole('button', { name: 'Book a Free Session', exact: true })
       .first()
       .click()
     await expect(page.getByTestId('booking-form-dialog')).toBeVisible()

@@ -14,7 +14,7 @@ test.describe('Network Failure Scenarios', () => {
     await page.goto('/')
     await simulateOffline(page)
     await page
-      .getByRole('button', { name: 'Book Your FREE Session' })
+      .getByRole('button', { name: 'Book a Free Session' })
       .first()
       .click()
     await expect(page.getByTestId('booking-form-dialog')).toBeVisible()
@@ -68,7 +68,7 @@ test.describe('Network Failure Scenarios', () => {
 
     await page.goto('/')
     await page
-      .getByRole('button', { name: 'Book Your FREE Session' })
+      .getByRole('button', { name: 'Book a Free Session' })
       .first()
       .click()
     await expect(page.getByTestId('booking-form-dialog')).toBeVisible()
@@ -109,7 +109,7 @@ test.describe('Network Failure Scenarios', () => {
 
     await page.goto('/')
     await page
-      .getByRole('button', { name: 'Book Your FREE Session' })
+      .getByRole('button', { name: 'Book a Free Session' })
       .first()
       .click()
 

@@ -7,7 +7,7 @@ import { buildMockBookings } from '@/__tests__/fixtures/bookings'
 
 export const mockUser = {
   id: '1',
-  name: 'Emily',
+  name: 'Emilia',
   email: 'emily@moodovermuscle.com.au'
 }
 

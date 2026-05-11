@@ -539,7 +539,7 @@ vi.mock('jose', () => ({
     payload: {
       adminId: 'emily-admin-1',
       email: 'emily@moodovermuscle.com.au',
-      name: 'Emily',
+      name: 'Emilia',
       iat: Math.floor(Date.now() / 1000),
       exp: Math.floor(Date.now() / 1000) + 3600,
     },

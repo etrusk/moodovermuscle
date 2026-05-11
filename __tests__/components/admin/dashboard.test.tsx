@@ -34,7 +34,7 @@ vi.mock('@/lib/auth/AdminAuthContext', () => ({
 // Test data constants
 const mockUser = {
   id: '1',
-  name: 'Emily',
+  name: 'Emilia',
   email: 'emily@moodovermuscle.com.au'
 }
 
@@ -114,7 +114,7 @@ describe('AdminDashboardPage Component', () => {
 
       // Assert
       await waitFor(() => {
-        expect(screen.getByText(/Welcome back, Emily!/)).toBeInTheDocument()
+        expect(screen.getByText(/Welcome back, Emilia!/)).toBeInTheDocument()
         expect(screen.getByText(/Here's what's happening with your fitness coaching business today/)).toBeInTheDocument()
       })
 
@@ -348,7 +348,7 @@ describe('AdminDashboardPage Component', () => {
       })
 
       // Act
-      const newUser = { ...mockUser, id: '2', name: 'Updated Emily' }
+      const newUser = { ...mockUser, id: '2', name: 'Updated Emilia' }
       mockUseAdminAuth.mockReturnValue({
         user: newUser,
         isLoading: false,
@@ -381,7 +381,7 @@ describe('AdminDashboardPage Component', () => {
       const { container } = render(<AdminDashboardPage />)
 
       await waitFor(() => {
-        expect(screen.getByText('Welcome back, Emily!')).toBeInTheDocument()
+        expect(screen.getByText('Welcome back, Emilia!')).toBeInTheDocument()
       })
 
       // Assert
@@ -395,7 +395,7 @@ describe('AdminDashboardPage Component', () => {
 
       // Assert
       await waitFor(() => {
-        const mainHeading = screen.getByRole('heading', { level: 2, name: /welcome back, emily/i })
+        const mainHeading = screen.getByRole('heading', { level: 2, name: /welcome back, emilia/i })
         expect(mainHeading).toBeInTheDocument()
         
         expect(screen.getByText('Quick Actions')).toBeInTheDocument()
@@ -432,7 +432,7 @@ describe('AdminDashboardPage Component', () => {
       render(<AdminDashboardPage />)
 
       await waitFor(() => {
-        expect(screen.getByText(/welcome back, emily/i)).toBeInTheDocument()
+        expect(screen.getByText(/welcome back, emilia/i)).toBeInTheDocument()
       })
     })
   })

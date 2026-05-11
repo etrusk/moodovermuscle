@@ -96,7 +96,7 @@ describe('useAdminAuth', () => {
       expect(result.current.user).toEqual({
         id: 'emily-admin-1',
         email: 'emily@moodovermuscle.com.au',
-        name: 'Emily',
+        name: 'Emilia',
       })
     })
   })
@@ -128,7 +128,7 @@ describe('useAdminAuth', () => {
       expect(result.current.user).toEqual({
         id: 'emily-admin-1',
         email: 'emily@moodovermuscle.com.au',
-        name: 'Emily',
+        name: 'Emilia',
       })
     })
 
@@ -330,7 +330,7 @@ describe('useAdminAuth', () => {
       expect(result.current.user).toEqual({
         id: 'emily-admin-1',
         email: 'emily@moodovermuscle.com.au',
-        name: 'Emily',
+        name: 'Emilia',
       })
     })
 

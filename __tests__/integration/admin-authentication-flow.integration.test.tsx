@@ -134,7 +134,7 @@ describe('Admin Authentication Flow Integration: Complete Login Journey', () => 
       // Arrange
       const mockUser = {
         id: '1',
-        name: 'Emily',
+        name: 'Emilia',
         email: 'emily@moodovermuscle.com.au',
       }
       mockUseAdminAuth.mockReturnValue({
@@ -157,7 +157,7 @@ describe('Admin Authentication Flow Integration: Complete Login Journey', () => 
       await waitFor(() => {
         const adminHeader = screen.getByText('MoodOverMuscle Admin')
         const welcomeText = screen.getByText(/Welcome,/)
-        const userName = screen.getByText('Emily')
+        const userName = screen.getByText('Emilia')
         const dashboardContent = screen.getByText('Dashboard Content')
         
         expect(adminHeader).toBeInTheDocument()
@@ -175,7 +175,7 @@ describe('Admin Authentication Flow Integration: Complete Login Journey', () => 
       mockUseAdminAuth.mockReturnValue({
         user: {
           id: '1',
-          name: 'Emily',
+          name: 'Emilia',
           email: 'emily@moodovermuscle.com.au',
         },
         isLoading: false,

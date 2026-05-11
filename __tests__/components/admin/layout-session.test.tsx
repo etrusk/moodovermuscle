@@ -38,7 +38,7 @@ const mockUseAdminAuth = useAdminAuth as vi.MockedFunction<typeof useAdminAuth>
 // Test data constants
 const mockUser = {
   id: '1',
-  name: 'Emily',
+  name: 'Emilia',
   email: 'emily@moodovermuscle.com.au'
 }
 

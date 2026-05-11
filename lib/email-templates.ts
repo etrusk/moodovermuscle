@@ -50,7 +50,7 @@ export const createCustomerConfirmationHtmlTemplate = (booking: {
     
     <p><strong>What's Next?</strong></p>
     <ul>
-      <li>Emily will contact you within 24 hours to confirm details</li>
+      <li>Emilia will contact you within 24 hours to confirm details</li>
       <li>Please arrive 5-10 minutes early for your session</li>
       <li>Bring comfortable workout clothes and a water bottle</li>
       <li>If you need to reschedule, please contact us at least 24 hours in advance</li>
@@ -61,7 +61,7 @@ export const createCustomerConfirmationHtmlTemplate = (booking: {
     <p>Looking forward to seeing you soon!</p>
     
     <p>Best regards,<br>
-    <strong>Emily & the Mood Over Muscle Team</strong></p>
+    <strong>Emilia & the Mood Over Muscle Team</strong></p>
   </div>
   
   <div class="footer">
@@ -97,7 +97,7 @@ ${booking.goals ? `- Goals: ${booking.goals}` : ''}
 ${booking.experience ? `- Experience Level: ${booking.experience}` : ''}
 
 What's Next?
-- Emily will contact you within 24 hours to confirm details
+- Emilia will contact you within 24 hours to confirm details
 - Please arrive 5-10 minutes early for your session
 - Bring comfortable workout clothes and a water bottle
 - If you need to reschedule, please contact us at least 24 hours in advance
@@ -107,7 +107,7 @@ If you have any questions or need to make changes to your booking, please don't 
 Looking forward to seeing you soon!
 
 Best regards,
-Emily & the Mood Over Muscle Team
+Emilia & the Mood Over Muscle Team
 
 ---
 This is an automated confirmation email. Please do not reply to this email.
@@ -148,7 +148,7 @@ export const createAdminNotificationHtmlTemplate = (booking: {
   </div>
   
   <div class="content">
-    <h2>Hi Emily,</h2>
+    <h2>Hi Emilia,</h2>
     
     <p>You have received a new booking through your website!</p>
     
@@ -192,7 +192,7 @@ export const createAdminNotificationTextTemplate = (booking: {
 }): string => `
 New Booking Alert - Mood Over Muscle
 
-Hi Emily,
+Hi Emilia,
 
 You have received a new booking through your website!
 

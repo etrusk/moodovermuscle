@@ -125,7 +125,7 @@ export const handlers = [
   // Admin session endpoint - GET (check session)
   http.get('/api/admin/session', () => {
     return HttpResponse.json({
-      user: { id: 'emily-admin-1', email: 'emily@moodovermuscle.com.au', name: 'Emily' },
+      user: { id: 'emily-admin-1', email: 'emily@moodovermuscle.com.au', name: 'Emilia' },
     })
   }),
 
@@ -140,7 +140,7 @@ export const handlers = [
     
     if (body.email === 'emily@moodovermuscle.com.au' && body.password === 'Emily2025!') {
       return HttpResponse.json({
-        user: { id: 'emily-admin-1', email: 'emily@moodovermuscle.com.au', name: 'Emily' },
+        user: { id: 'emily-admin-1', email: 'emily@moodovermuscle.com.au', name: 'Emilia' },
       })
     }
     

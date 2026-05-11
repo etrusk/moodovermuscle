@@ -157,7 +157,7 @@ describe('AdminAuthContext', () => {
       server.use(
         http.get('/api/admin/session', () => {
           return HttpResponse.json({
-            user: { id: 'emily-admin-1', email: 'emily@moodovermuscle.com.au', name: 'Emily' },
+            user: { id: 'emily-admin-1', email: 'emily@moodovermuscle.com.au', name: 'Emilia' },
           })
         })
       )
@@ -186,7 +186,7 @@ describe('AdminAuthContext', () => {
         http.get('/api/admin/session', () => HttpResponse.json({}, { status: 401 }), { once: true }),
         http.post('/api/admin/login', () => {
           return HttpResponse.json({
-            user: { id: 'emily-admin-1', email: 'emily@moodovermuscle.com.au', name: 'Emily' },
+            user: { id: 'emily-admin-1', email: 'emily@moodovermuscle.com.au', name: 'Emilia' },
           })
         })
       )
@@ -304,7 +304,7 @@ describe('AdminAuthContext', () => {
       server.use(
         http.get('/api/admin/session', () => {
           return HttpResponse.json({
-            user: { id: 'emily-admin-1', email: 'emily@moodovermuscle.com.au', name: 'Emily' },
+            user: { id: 'emily-admin-1', email: 'emily@moodovermuscle.com.au', name: 'Emilia' },
           })
         }, { once: true }),
         http.delete('/api/admin/session', () => HttpResponse.json({}))
@@ -337,7 +337,7 @@ describe('AdminAuthContext', () => {
       server.use(
         http.get('/api/admin/session', () => {
           return HttpResponse.json({
-            user: { id: 'emily-admin-1', email: 'emily@moodovermuscle.com.au', name: 'Emily' },
+            user: { id: 'emily-admin-1', email: 'emily@moodovermuscle.com.au', name: 'Emilia' },
           })
         }, { once: true }),
         http.delete('/api/admin/session', () => HttpResponse.error())
@@ -376,7 +376,7 @@ describe('AdminAuthContext', () => {
             return HttpResponse.json({}, { status: 401 })
           }
           return HttpResponse.json({
-            user: { id: 'emily-admin-1', email: 'emily@moodovermuscle.com.au', name: 'Emily' },
+            user: { id: 'emily-admin-1', email: 'emily@moodovermuscle.com.au', name: 'Emilia' },
           })
         })
       )
@@ -409,7 +409,7 @@ describe('AdminAuthContext', () => {
           callCount++
           if (callCount === 1) {
             return HttpResponse.json({
-              user: { id: 'emily-admin-1', email: 'emily@moodovermuscle.com.au', name: 'Emily' },
+              user: { id: 'emily-admin-1', email: 'emily@moodovermuscle.com.au', name: 'Emilia' },
             })
           }
           return HttpResponse.json({ error: 'Session expired' }, { status: 401 })

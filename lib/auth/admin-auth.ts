@@ -22,11 +22,11 @@ export interface AdminCredentials {
   password: string
 }
 
-// Simple in-memory admin for Emily - can be moved to database later
+// Simple in-memory admin for Emilia - can be moved to database later
 const ADMIN_USER = {
   id: 'emily-admin-1',
   email: 'emily@moodovermuscle.com.au',
-  name: 'Emily',
+  name: 'Emilia',
   // nosemgrep: generic.secrets.security.detected-bcrypt-hash.detected-bcrypt-hash
   passwordHash: '$2b$10$TxurKCRrHneGuehrqu24WueBLoLfqRtN6HnS.9qQ6Tq.zWv7TEF5e',
   isActive: true,

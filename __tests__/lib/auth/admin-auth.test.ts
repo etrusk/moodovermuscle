@@ -23,7 +23,7 @@ vi.mock('jose', () => ({
       const payload: JWTPayload = {
         adminId: 'emily-admin-1',
         email: 'emily@moodovermuscle.com.au',
-        name: 'Emily',
+        name: 'Emilia',
         iat: Math.floor(Date.now() / 1000),
         exp: Math.floor(Date.now() / 1000) + 28800,
       }
@@ -86,7 +86,7 @@ describe('AdminAuthService', () => {
       expect(result?.user).toEqual({
         id: 'emily-admin-1',
         email: 'emily@moodovermuscle.com.au',
-        name: 'Emily',
+        name: 'Emilia',
         isActive: true,
         lastLogin: expect.any(Date),
       })
@@ -135,7 +135,7 @@ describe('AdminAuthService', () => {
       expect(payload).toEqual({
         adminId: 'emily-admin-1',
         email: 'emily@moodovermuscle.com.au',
-        name: 'Emily',
+        name: 'Emilia',
         iat: expect.any(Number),
         exp: expect.any(Number),
       })

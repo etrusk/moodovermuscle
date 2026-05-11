@@ -21,7 +21,7 @@ describe('app/api/admin/session/route', () => {
         user: {
           id: 'admin-123',
           email: 'emily@moodovermuscle.com.au',
-          name: 'Emily',
+          name: 'Emilia',
         },
       }
       vi.mocked(handlers.handleSessionValidation).mockResolvedValue(mockValidationResult)
@@ -43,7 +43,7 @@ describe('app/api/admin/session/route', () => {
         user: {
           id: 'admin-123',
           email: 'emily@moodovermuscle.com.au',
-          name: 'Emily',
+          name: 'Emilia',
         },
         isAuthenticated: true,
       })

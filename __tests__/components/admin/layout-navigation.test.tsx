@@ -38,7 +38,7 @@ const mockUseAdminAuth = useAdminAuth as vi.MockedFunction<typeof useAdminAuth>
 // Test data constants
 const mockUser = {
   id: '1',
-  name: 'Emily',
+  name: 'Emilia',
   email: 'emily@moodovermuscle.com.au'
 }
 
@@ -80,7 +80,7 @@ describe('AdminLayout - Navigation Structure', () => {
     await waitFor(() => {
       expect(screen.getByText(/moodovermuscle admin/i)).toBeInTheDocument()
       expect(screen.getByText(/welcome/i)).toBeInTheDocument()
-      expect(screen.getByText(/emily/i)).toBeInTheDocument()
+      expect(screen.getByText(/emilia/i)).toBeInTheDocument()
     })
   })
 

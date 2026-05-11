@@ -51,7 +51,7 @@ global.fetch = mockFetch
 // Test data - realistic admin workflow data
 const mockUser = {
   id: '1',
-  name: 'Emily',
+  name: 'Emilia',
   email: 'emily@moodovermuscle.com.au'
 }
 const mockStatsData = {
@@ -125,7 +125,7 @@ describe('Admin Workflow Integration Tests', () => {
       )
       // Assert
       await waitFor(() => {
-        expect(screen.getByText(/Welcome back, Emily!/)).toBeInTheDocument()
+        expect(screen.getByText(/Welcome back, Emilia!/)).toBeInTheDocument()
         expect(screen.getByText('25')).toBeInTheDocument() // Total bookings
       })
       // When: Admin navigates to bookings
@@ -187,7 +187,7 @@ describe('Admin Workflow Integration Tests', () => {
         await waitFor(() => {
           expect(screen.getByText('MoodOverMuscle Admin')).toBeInTheDocument()
           expect(screen.getByText(/Welcome,/)).toBeInTheDocument()
-          expect(screen.getByText('Emily')).toBeInTheDocument()
+          expect(screen.getByText('Emilia')).toBeInTheDocument()
         })
         unmount()
       }
@@ -240,7 +240,7 @@ describe('Admin Workflow Integration Tests', () => {
       )
       // Then: Dashboard loads successfully
       await waitFor(() => {
-        expect(screen.getByText(/Welcome back, Emily!/)).toBeInTheDocument()
+        expect(screen.getByText(/Welcome back, Emilia!/)).toBeInTheDocument()
       })
     })
   })
@@ -435,7 +435,7 @@ describe('Admin Workflow Integration Tests', () => {
         </AdminLayout>
       )
       await waitFor(() => {
-        expect(screen.getByText(/Welcome back, Emily!/)).toBeInTheDocument()
+        expect(screen.getByText(/Welcome back, Emilia!/)).toBeInTheDocument()
       })
       // And: Admin uses keyboard to navigate
       const bookingsLink = screen.getByText('Bookings')
@@ -487,7 +487,7 @@ describe('Admin Workflow Integration Tests', () => {
       )
       // Then: System displays dashboard normally
       await waitFor(() => {
-        expect(screen.getByText(/Welcome back, Emily!/)).toBeInTheDocument()
+        expect(screen.getByText(/Welcome back, Emilia!/)).toBeInTheDocument()
       })
     })
     it('throws error when authentication fails', async () => {

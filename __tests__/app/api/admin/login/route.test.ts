@@ -21,7 +21,7 @@ describe('app/api/admin/login/route', () => {
         user: {
           id: 'admin-123',
           email: 'emily@moodovermuscle.com.au',
-          name: 'Emily',
+          name: 'Emilia',
         },
         token: 'mock-jwt-token',
       }
@@ -46,7 +46,7 @@ describe('app/api/admin/login/route', () => {
         user: {
           id: 'admin-123',
           email: 'emily@moodovermuscle.com.au',
-          name: 'Emily',
+          name: 'Emilia',
         },
       })
       expect(handlers.handleLogin).toHaveBeenCalledWith({
@@ -181,7 +181,7 @@ describe('app/api/admin/login/route', () => {
         user: {
           id: 'admin-123',
           email: 'emily@moodovermuscle.com.au',
-          name: 'Emily',
+          name: 'Emilia',
         },
         token: 'mock-jwt-token',
       }
@@ -213,7 +213,7 @@ describe('app/api/admin/login/route', () => {
         user: {
           id: 'admin-123',
           email: 'emily@moodovermuscle.com.au',
-          name: 'Emily',
+          name: 'Emilia',
         },
         // No token field
       }
@@ -238,7 +238,7 @@ describe('app/api/admin/login/route', () => {
         user: {
           id: 'admin-123',
           email: 'emily@moodovermuscle.com.au',
-          name: 'Emily',
+          name: 'Emilia',
         },
       })
       const setCookieHeader = response.headers.get('set-cookie')

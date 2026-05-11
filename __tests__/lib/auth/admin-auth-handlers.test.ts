@@ -33,7 +33,7 @@ describe('admin-auth-handlers', () => {
         user: {
           id: 'emily-admin-1',
           email: 'emily@moodovermuscle.com.au',
-          name: 'Emily',
+          name: 'Emilia',
           isActive: true,
           lastLogin: new Date(),
         },
@@ -50,7 +50,7 @@ describe('admin-auth-handlers', () => {
       expect(result.user).toEqual({
         id: 'emily-admin-1',
         email: 'emily@moodovermuscle.com.au',
-        name: 'Emily',
+        name: 'Emilia',
       })
       expect(result.token).toBe('mock-jwt-token')
       expect(result.error).toBeUndefined()
@@ -148,7 +148,7 @@ describe('admin-auth-handlers', () => {
       const mockPayload = {
         adminId: 'emily-admin-1',
         email: 'emily@moodovermuscle.com.au',
-        name: 'Emily',
+        name: 'Emilia',
         iat: Math.floor(Date.now() / 1000),
         exp: Math.floor(Date.now() / 1000) + 3600,
       }
@@ -163,7 +163,7 @@ describe('admin-auth-handlers', () => {
       expect(result.user).toEqual({
         id: 'emily-admin-1',
         email: 'emily@moodovermuscle.com.au',
-        name: 'Emily',
+        name: 'Emilia',
       })
       expect(result.error).toBeUndefined()
       expect(adminAuth.verifyAdminToken).toHaveBeenCalledWith(validToken)

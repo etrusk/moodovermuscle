@@ -8,7 +8,8 @@
   },
   "homepage": "https://moodovermuscle.com.au",
   "scripts": {
-    "build": "prisma migrate deploy && prisma generate && next build",
+    "build": "prisma generate && next build",
+    "build:deploy": "prisma migrate deploy && prisma generate && next build",
     "dev": "next dev",
     "dev:start": "docker-compose up -d && npx prisma migrate deploy && npm run dev",
     "lint": "next lint",
@@ -46,6 +47,7 @@
     "quality:gates": "pnpm run lint && pnpm run type-check && pnpm run test:critical && pnpm run security:scan && pnpm run security:semgrep && pnpm run build:verify",
     "deploy:verify": "pnpm run quality:gates",
     "prepare": "husky",
+    "postinstall": "prisma generate",
     "lint-staged": "lint-staged",
     "deps:update": "pnpm update --latest -r",
     "deps:audit": "pnpm audit --audit-level moderate"

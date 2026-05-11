@@ -37,7 +37,7 @@ const NameInput = ({ loading, form }: { loading: boolean, form: UseFormReturn<Bo
         </FormLabel>
         <FormControl>
           <Input
-            placeholder="Your beautiful name"
+            placeholder="Your name"
             {...field}
             disabled={loading}
             data-testid="name-input"
@@ -125,13 +125,13 @@ const GoalsSelect = ({ loading, form }: { loading: boolean, form: UseFormReturn<
               Postnatal recovery
             </SelectItem>
             <SelectItem value="Community" role="option">
-              Find my mum tribe
+              Connection & community
             </SelectItem>
             <SelectItem value="Mental Health" role="option">
               Improve mental wellbeing
             </SelectItem>
             <SelectItem value="Other" role="option">
-              Something else amazing
+              Something else
             </SelectItem>
           </SelectContent>
         </Select>

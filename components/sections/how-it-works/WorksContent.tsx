@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { Baby, Heart, Move } from 'lucide-react'
+import { Dumbbell, Heart, Move } from 'lucide-react'
 
 interface WorksContentProps {
   onBookSessionClick: () => void
@@ -17,29 +17,16 @@ interface ServiceData {
 
 const services: ServiceData[] = [
   {
-    icon: <Baby className="h-8 w-8 stroke-1 text-rose-500" />,
-    title: 'For Mums',
-    subtitle: 'Postnatal Training',
+    icon: <Dumbbell className="h-8 w-8 stroke-1 text-rose-500" />,
+    title: 'General Fitness',
+    subtitle: 'Personal Training',
     description:
-      'After pregnancy, most fitness advice is either "rest forever" or "get your body back." Neither is helpful.',
+      "Strength and conditioning built around how you actually move. No fads, no flogging — just training that adds up.",
     points: [
-      'Pelvic floor reconnection',
-      'Deep core activation',
-      'Postural strength',
-      'Gradual return to full-body training and impact',
-    ],
-  },
-  {
-    icon: <Heart className="h-8 w-8 stroke-1 text-rose-500" />,
-    title: 'For Seniors',
-    subtitle: 'Strength & Stability',
-    description:
-      "Getting older doesn't mean accepting decline. It means training has to be smarter.",
-    points: [
-      'Functional strength for daily life',
-      'Balance and coordination',
-      'Joint mobility',
-      'Fall prevention',
+      'Technique-first programming',
+      'Gradual, sustainable progression',
+      'Strength and conditioning that lasts',
+      'Flexible location (home, park, studio)',
     ],
   },
   {
@@ -47,12 +34,25 @@ const services: ServiceData[] = [
     title: 'Movement on Mat',
     subtitle: 'Better Movement',
     description:
-      'Mat-based movement principles make everything else I teach work better — from postnatal recovery to senior sessions.',
+      'Mat-based movement principles that improve everything else — control, mobility, and how you carry load.',
     points: [
       'Core control',
       'Spinal mobility',
       'Shoulder stability',
       'Breath mechanics',
+    ],
+  },
+  {
+    icon: <Heart className="h-8 w-8 stroke-1 text-rose-500" />,
+    title: 'Specialty Programs',
+    subtitle: 'Postnatal & Senior Training',
+    description:
+      'Dedicated programming for mums returning to exercise and older adults staying strong and independent.',
+    points: [
+      'Postnatal pelvic floor & core restoration',
+      'Senior strength & stability',
+      'Balance and fall prevention',
+      'Safe, gradual return to full training',
     ],
   },
 ]
@@ -73,8 +73,8 @@ function WorksDescription(): React.ReactElement {
   return (
     <div className="text-center mb-12">
       <p className="text-lg md:text-xl text-stone-700 max-w-3xl mx-auto">
-        Whether you&apos;re postpartum, in your 60s and beyond, or just looking
-        for training that respects your body — there&apos;s a place for you
+        Whether you&apos;re starting fresh, coming back after a break, or
+        training around a specific life stage — there&apos;s a place for you
         here.
       </p>
     </div>

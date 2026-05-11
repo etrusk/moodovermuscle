@@ -8,7 +8,7 @@ export function ProfileImage(): React.ReactElement {
       <div className="absolute -inset-6 md:-inset-8 bg-gradient-to-r from-rose-200/40 to-pink-200/40 rounded-3xl blur-3xl"></div>
       <Image
         src="/images/emily-portrait.jpeg"
-        alt="Emilia, founder of Mood Over Muscle"
+        alt="Emilia, founder of MoodOverMuscle"
         width={600}
         height={700}
         sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 50vw"

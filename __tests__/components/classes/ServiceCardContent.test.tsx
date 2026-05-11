@@ -21,7 +21,7 @@ describe('ServiceCardContent Component', () => {
     features: [
       'Fully customized workout plans',
       'Flexible location (home, park, studio)',
-      'Postnatal recovery focus',
+      'Programs adapted to any stage of life',
       'One-on-one guidance & support',
     ],
   }
@@ -315,9 +315,10 @@ describe('ServiceCardContent Component', () => {
       // Should use paragraph for description
       expect(screen.getByRole('paragraph')).toBeInTheDocument()
       
-      // Features are rendered as divs with checkmarks, not a list
-      const featureTexts = screen.getAllByText(/Fully customized|Flexible location|Postnatal recovery|One-on-one guidance/)
-      expect(featureTexts).toHaveLength(4)
+      // Features render as <span> children — assert all fixture features appear (structural via fixture iteration)
+      defaultProps.features.forEach(feature => {
+        expect(screen.getByText(feature)).toBeInTheDocument()
+      })
     })
 
     it('provides appropriate text hierarchy', () => {

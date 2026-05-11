@@ -14,9 +14,11 @@ export function AboutContent(): React.ReactElement {
       <CertificationLogos />
 
       <p className="text-base md:text-lg">
-        My background includes postnatal training with a focus on pelvic floor
-        and core restoration, strength and stability for seniors, and balance and
-        fall-prevention work.
+        I work with adults across the Sunshine Coast on strength, mobility,
+        and training that lasts — whether you&apos;re building from scratch,
+        coming back after time off, or training around a specific life stage.
+        I also hold specialist credentials in postnatal recovery and senior
+        strength.
       </p>
 
       <CredibilitySection />
@@ -61,10 +63,10 @@ function CredibilitySection(): React.ReactElement {
         </h3>
         <div className="space-y-2 md:space-y-3">
           <CredibilityPoint text="Cert III & IV in Personal Training" />
+          <CredibilityPoint text="Mat-based movement training" />
           <CredibilityPoint text="Certified Postnatal Exercise Specialist (Safe Return to Exercise)" />
           <CredibilityPoint text="Pelvic floor & core restoration training" />
           <CredibilityPoint text="Senior strength, balance & fall-prevention" />
-          <CredibilityPoint text="Mat-based movement training" />
         </div>
       </div>
     </div>

@@ -98,7 +98,7 @@ describe('ServiceCard Component', () => {
     features: [
       'Fully customized workout plans',
       'Flexible location (home, park, studio)',
-      'Postnatal recovery focus',
+      'Programs adapted to any stage of life',
       'One-on-one guidance & support',
     ],
   }

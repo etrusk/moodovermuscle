@@ -28,7 +28,7 @@ const services = [
     features: [
       'Fully customized workout plans',
       'Flexible location (home, park, studio)',
-      'Postnatal recovery focus',
+      'Programs adapted to any stage of life',
       'One-on-one guidance & support',
     ],
   },
@@ -56,7 +56,7 @@ const HeroSection = (): React.ReactElement => (
           </h1>
 
           <p className="text-lg md:text-xl lg:text-2xl text-stone-600 leading-relaxed max-w-3xl mx-auto font-light animate-fade-in-up delay-400">
-            Every option includes our supportive M.O.M.unity and your
+            Every option includes supportive, one-on-one coaching — and your
             first session is completely FREE!
           </p>
         </div>
@@ -70,8 +70,8 @@ const HeroSection = (): React.ReactElement => (
           </div>
           <p className="text-stone-700 text-base md:text-lg">
             Bringing feel-good fitness to your doorstep—from Maroochydore
-            and Mudjimba to Buderim and Coolum—Mood Over Muscle is your
-            local Sunshine Coast M.O.M.unity.
+            and Mudjimba to Buderim and Coolum—MoodOverMuscle is your
+            local Sunshine Coast personal training service.
           </p>
         </div>
       </div>
@@ -127,8 +127,8 @@ const CtaSection = ({ onBookSessionClick }: { onBookSessionClick: () => void }):
             Ready to Start Your Journey?
           </h2>
           <p className="text-lg md:text-xl lg:text-2xl text-rose-100 leading-relaxed font-light max-w-3xl mx-auto">
-            Book your FREE session today and discover why mums across the
-            Sunshine Coast choose M.O.M.unity!
+            Book your FREE session today and discover why Sunshine Coast
+            locals choose MoodOverMuscle!
           </p>
         </div>
 

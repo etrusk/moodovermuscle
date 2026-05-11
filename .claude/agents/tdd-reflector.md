@@ -23,7 +23,7 @@ Identify 0-2 process issues from THIS session and propose immediate fixes to wor
 
 <context>
 1. **Session state**: `.tdd/session.md` — primary input, focus on Agent History table, Action Log, and Context Metrics
-2. **Lessons learned**: `.docs/lessons-learned/index.md` — avoid duplicating known lessons
+2. **Lessons learned**: `.docs/lessons-learned/index.md` — check for existing lessons before proposing new ones
 3. **Lessons detail files**: Read specific files from `.docs/lessons-learned/` only if index references something relevant
 </context>
 
@@ -85,6 +85,14 @@ When reviewing a flagged agent's session data, check:
 2. File: Name the exact file to change (e.g., `.claude/agents/tdd-coder.md`)
 3. Section: Name the section or line range
 4. Change: Provide the actual text to add/modify (not a description of it)
+
+## Instruction Quality Rules
+
+Proposed instruction text must follow these rules (agent files are prompts consumed by reasoning models):
+
+1. **Positive framing**: Write "do X" not "avoid Y" or "do not Y." Negative framing reduces model accuracy.
+2. **Concrete rules over exhortations**: Write "reject files larger than 500 lines" not "be careful about file size."
+3. **No reasoning scaffolding**: Never add "think carefully about," "consider whether," or "step by step." Reasoning models handle this internally — adding it degrades performance.
 
 ## Rejection Criteria (do NOT report)
 

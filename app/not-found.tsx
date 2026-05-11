@@ -40,7 +40,7 @@ const HelpfulMessage = (): React.ReactElement => (
   <div className="bg-white rounded-3xl p-6 md:p-8 shadow-xl border border-rose-100">
     <div className="flex items-center justify-center gap-2 mb-4">
       <Heart className="h-5 w-5 text-rose-500" />
-      <span className="font-semibold text-stone-800">M.O.M.unity Support</span>
+      <span className="font-semibold text-stone-800">MoodOverMuscle Support</span>
     </div>
     <p className="text-stone-600">
       Looking for something specific? You can always head back to our

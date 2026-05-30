@@ -1,6 +1,6 @@
 # Project Status
 
-**Updated**: 2026-05-11
+**Updated**: 2026-05-30
 **Branch**: `preview` (primary development branch)
 **Deployment**: `preview.moodovermuscle.com.au` → `preview` branch
 
@@ -17,10 +17,11 @@
 - Dependabot disabled (replaced by Renovate)
 - GitHub notification settings verified
 
-### Content Pivot (partial)
-- Renamed "MoodOverMuscle" → "Mood Over Muscle" in frontpage sections and footer copyright
-- Replaced "Pilates Mat" → "Movement on Mat" in service cards and about section
-- Renamed "Emily" → "Emilia" in about header and profile image alt text
+### Content Pivot (complete as of 2026-05-30)
+- **Company name is "MoodOverMuscle" (one word) everywhere — this is the legal/brand name.** An earlier pass wrongly spaced it to "Mood Over Muscle" in email templates (`lib/email.ts`, `lib/email-templates.ts`) and the `EMAIL_FROM_NAME` default; reverted 2026-05-30. Do NOT re-space it.
+- Replaced "Pilates Mat" → "Movement on Mat" in service cards and about section; test fixtures updated off `sessionType: 'Pilates'`.
+- Renamed "Emily" → "Emilia" across customer/admin copy and email templates
+- Renamed `public/images/emily-portrait.jpeg` → `emilia-portrait.jpeg` + updated `ProfileImage.tsx` src
 - Updated `app/layout.tsx` metadata: broadened from mums-only to general audience
 
 ### Security Fixes
@@ -48,8 +49,11 @@
 - Updated e2e/accessibility tests to match the post-pivot "Book a Free Session" CTA text (was "Book Your FREE Session" — broken across 9 files).
 - All 799 tests pass.
 
-**Still dirty after this pass**:
-- `.env.example` references `DATABASE_URL` but the schema uses `DATABASE_POSTGRES_PRISMA_URL`. Sandbox blocked `.env*` access from this session — needs a manual edit.
+### Follow-up pass (2026-05-30)
+- `.env.example` aligned to `DATABASE_POSTGRES_PRISMA_URL` (commit `cdea284`) — the prior "still dirty" item is resolved.
+- Task 2 (vitest.setup.ts polyfill cleanup) landed in commit `141aa01`.
+- Content pivot closed out: reverted the erroneous "Mood Over Muscle" spacing back to the real one-word brand "MoodOverMuscle" in email templates + `EMAIL_FROM_NAME` default; renamed the portrait image; updated `Pilates` test fixtures. See Completed → Content Pivot above.
+- Added `.claude/scheduled_tasks.lock` to `.gitignore` (untracked runtime lock).
 
 ---
 
@@ -59,56 +63,17 @@ Work items below are ordered for "grab the next task" sessions. Each is self-con
 
 ---
 
-### 1. Complete content pivot
-**Type**: Find/replace across source + tests
-**Why now**: The initial pivot only covered frontpage sections. Admin pages, error pages, email templates, and tests still have old names.
+### 1. ~~Complete content pivot~~ — DONE (2026-05-30)
+The original version of this task assumed "MoodOverMuscle" should be spaced to "Mood Over Muscle". **That premise was wrong** — the human confirmed the legal/brand name is the one-word "MoodOverMuscle". The spacing that had leaked into email templates was reverted. Emily→Emilia, the Pilates fixtures, and the portrait image rename are all complete. No further content-pivot work outstanding.
 
-**Remaining "MoodOverMuscle" → "Mood Over Muscle"** (user-facing):
-- `components/header/Logo.tsx:17` — alt text
-- `components/sections/footer/FooterContent.tsx:25` — alt text
-- `app/admin/layout.tsx:53` — admin header title
-- `app/admin/login/page.tsx:84` — login description
-- `app/not-found.tsx:17` — alt text
-- `app/error.tsx:23` — alt text
-- `app/500.tsx:18` — alt text
-
-**Remaining "Emily" → "Emilia"** (user-facing):
-- `lib/email-templates.ts:53,64,100,110,151,195` — customer/admin emails say "Emily will contact you", "Hi Emily"
-- `app/admin/login/page.tsx:101` — placeholder email (display only)
-- `lib/auth/admin-auth.ts:29` — admin display name (safe to change)
-
-**Note on admin credentials**: `lib/auth/admin-auth.ts` uses email `emily@moodovermuscle.com.au`. Changing the email address would lock out the admin — only change if the actual mailbox has been renamed. Ask the human before touching the email address.
-
-**Remaining "Pilates"** (test data):
-- `__tests__/lib/email.templates.test.ts:32` — `sessionType: 'Pilates'`
-- `__tests__/lib/email.test.ts:81` — `sessionType: 'Pilates'`
-
-**Image file rename**:
-- Rename `public/images/emily-portrait.jpeg` → `public/images/emilia-portrait.jpeg`
-- Update `components/sections/about/ProfileImage.tsx:10` src path
-
-**Test updates**: ~30 test files reference `emily@moodovermuscle.com.au`, `name: 'Emily'`, and `'MoodOverMuscle Admin'` in assertions. These must be updated to match the source changes. Key files:
-- `__tests__/setup/handlers.ts` — MSW mock handlers (central, update first)
-- `vitest.setup.ts:540-542` — mock admin user
-- `__tests__/components/admin/` — all layout test files use mock admin user
-- `__tests__/lib/auth/` — all auth test files
-- `__tests__/integration/admin-*` — admin integration tests
-- `e2e/admin/admin-workflow.spec.ts` — Playwright E2E tests
-
-**Verification**: `pnpm test` (all 799 tests pass), `pnpm lint`, `pnpm type-check`.
+**Note on admin credentials (still relevant)**: `lib/auth/admin-auth.ts` uses email `emily@moodovermuscle.com.au`. Changing the email address would lock out the admin — only change if the actual mailbox has been renamed. Ask the human before touching the email address.
 
 ---
 
-### 2. Clean up vitest.setup.ts
-**Type**: Refactor (1 file, ~370 lines to remove)
-**Why**: ~570 lines of polyfills for APIs native since Node 18. The localStorage polyfill added in this session is a band-aid on top of other band-aids.
+### 2. ~~Clean up vitest.setup.ts~~ — DONE (commit `141aa01`)
+Node-native polyfills dropped; browser-only mocks and the localStorage CookieStore polyfill retained.
 
-**Keep**: browser-only API mocks (IntersectionObserver, ResizeObserver, matchMedia, scrollIntoView, hasPointerCapture), test isolation mocks (nodemailer, jose, bcryptjs, next/router, next/navigation, next/server), and the localStorage polyfill (needed until MSW/jsdom fix the CookieStore issue).
-
-**Remove**: TextEncoder, TextDecoder, Request, Response, Headers, ReadableStream, WritableStream, TransformStream polyfills — all native since Node 18. Remove the NextResponse polyfill (covered by next/server mock). Remove global console suppression (replace with targeted suppression).
-
-**Target**: ~200 lines.
-**Verification**: `pnpm test` (all 799 tests pass), `pnpm type-check`.
+**Next up: the major dependency upgrades below (Tasks 3–6) are the remaining real work.**
 
 ---
 

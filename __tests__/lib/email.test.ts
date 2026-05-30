@@ -78,7 +78,7 @@ describe('sendAdminNotification', () => {
     const bookingData = {
       customerName: 'Charlie',
       customerEmail: 'charlie@example.com',
-      sessionType: 'Pilates',
+      sessionType: 'Movement on Mat',
       sessionDate: '2025-08-03',
       sessionTime: '3:00 PM',
       goals: 'Strength',

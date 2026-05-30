@@ -81,3 +81,6 @@ temp-*.md
 # Docker data directories
 .docker/postgres-data/
 .docker/
+
+# Claude Code runtime lock
+.claude/scheduled_tasks.lock

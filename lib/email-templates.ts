@@ -28,14 +28,14 @@ export const createCustomerConfirmationHtmlTemplate = (booking: {
 </head>
 <body>
   <div class="header">
-    <h1>Mood Over Muscle</h1>
+    <h1>MoodOverMuscle</h1>
     <p>Your booking has been confirmed!</p>
   </div>
   
   <div class="content">
     <h2>Hi ${booking.customerName},</h2>
     
-    <p>Thank you for booking a session with Mood Over Muscle! We're excited to help you on your fitness journey.</p>
+    <p>Thank you for booking a session with MoodOverMuscle! We're excited to help you on your fitness journey.</p>
     
     <div class="booking-details">
       <h3>Booking Details:</h3>
@@ -61,7 +61,7 @@ export const createCustomerConfirmationHtmlTemplate = (booking: {
     <p>Looking forward to seeing you soon!</p>
     
     <p>Best regards,<br>
-    <strong>Emilia & the Mood Over Muscle Team</strong></p>
+    <strong>Emilia & the MoodOverMuscle Team</strong></p>
   </div>
   
   <div class="footer">
@@ -81,11 +81,11 @@ export const createCustomerConfirmationTextTemplate = (booking: {
   goals?: string
   experience?: string
 }): string => `
-Mood Over Muscle - Booking Confirmation
+MoodOverMuscle - Booking Confirmation
 
 Hi ${booking.customerName},
 
-Thank you for booking a session with Mood Over Muscle! We're excited to help you on your fitness journey.
+Thank you for booking a session with MoodOverMuscle! We're excited to help you on your fitness journey.
 
 Booking Details:
 - Session Type: ${booking.sessionType}
@@ -107,7 +107,7 @@ If you have any questions or need to make changes to your booking, please don't 
 Looking forward to seeing you soon!
 
 Best regards,
-Emilia & the Mood Over Muscle Team
+Emilia & the MoodOverMuscle Team
 
 ---
 This is an automated confirmation email. Please do not reply to this email.
@@ -190,7 +190,7 @@ export const createAdminNotificationTextTemplate = (booking: {
   goals?: string
   experience?: string
 }): string => `
-New Booking Alert - Mood Over Muscle
+New Booking Alert - MoodOverMuscle
 
 Hi Emilia,
 

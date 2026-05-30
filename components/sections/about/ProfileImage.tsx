@@ -7,7 +7,7 @@ export function ProfileImage(): React.ReactElement {
     <div className="relative order-2 lg:order-1">
       <div className="absolute -inset-6 md:-inset-8 bg-gradient-to-r from-rose-200/40 to-pink-200/40 rounded-3xl blur-3xl"></div>
       <Image
-        src="/images/emily-portrait.jpeg"
+        src="/images/emilia-portrait.jpeg"
         alt="Emilia, founder of MoodOverMuscle"
         width={600}
         height={700}

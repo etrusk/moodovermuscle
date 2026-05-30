@@ -38,7 +38,7 @@ import {
   createAdminNotificationTextTemplate,
 } from './email-templates'
 
-export const createCustomerConfirmationEmail = (booking: {
+type BookingEmailInput = {
   customerName: string
   customerEmail: string
   sessionType: string
@@ -46,23 +46,17 @@ export const createCustomerConfirmationEmail = (booking: {
   sessionTime: string
   goals?: string
   experience?: string
-}): { subject: string; html: string; text: string } => {
-  const subject = 'Booking Confirmation - Mood Over Muscle'
+}
+
+export const createCustomerConfirmationEmail = (booking: BookingEmailInput): { subject: string; html: string; text: string } => {
+  const subject = 'Booking Confirmation - MoodOverMuscle'
   const html = createCustomerConfirmationHtmlTemplate(booking)
   const text = createCustomerConfirmationTextTemplate(booking)
 
   return { subject, html, text }
 }
 
-export const createAdminNotificationEmail = (booking: {
-  customerName: string
-  customerEmail: string
-  sessionType: string
-  sessionDate: string
-  sessionTime: string
-  goals?: string
-  experience?: string
-}): { subject: string; html: string; text: string } => {
+export const createAdminNotificationEmail = (booking: BookingEmailInput): { subject: string; html: string; text: string } => {
   const subject = `New Booking: ${booking.customerName} - ${booking.sessionType}`
   const html = createAdminNotificationHtmlTemplate(booking)
   const text = createAdminNotificationTextTemplate(booking)
@@ -71,20 +65,12 @@ export const createAdminNotificationEmail = (booking: {
 }
 
 // Email sending functions
-export const sendCustomerConfirmation = async (booking: {
-  customerName: string
-  customerEmail: string
-  sessionType: string
-  sessionDate: string
-  sessionTime: string
-  goals?: string
-  experience?: string
-}): Promise<{ success: boolean; messageId?: string; error?: string }> => {
+export const sendCustomerConfirmation = async (booking: BookingEmailInput): Promise<{ success: boolean; messageId?: string; error?: string }> => {
   try {
     const { subject, html, text } = createCustomerConfirmationEmail(booking)
 
     const mailOptions = {
-      from: `"${process.env.EMAIL_FROM_NAME ?? 'Mood Over Muscle'}" <${process.env.EMAIL_FROM}>`,
+      from: `"${process.env.EMAIL_FROM_NAME ?? 'MoodOverMuscle'}" <${process.env.EMAIL_FROM}>`,
       to: booking.customerEmail,
       subject,
       text,
@@ -103,20 +89,12 @@ export const sendCustomerConfirmation = async (booking: {
   }
 }
 
-export const sendAdminNotification = async (booking: {
-  customerName: string
-  customerEmail: string
-  sessionType: string
-  sessionDate: string
-  sessionTime: string
-  goals?: string
-  experience?: string
-}): Promise<{ success: boolean; messageId?: string; error?: string }> => {
+export const sendAdminNotification = async (booking: BookingEmailInput): Promise<{ success: boolean; messageId?: string; error?: string }> => {
   try {
     const { subject, html, text } = createAdminNotificationEmail(booking)
 
     const mailOptions = {
-      from: `"${process.env.EMAIL_FROM_NAME ?? 'Mood Over Muscle'}" <${process.env.EMAIL_FROM}>`,
+      from: `"${process.env.EMAIL_FROM_NAME ?? 'MoodOverMuscle'}" <${process.env.EMAIL_FROM}>`,
       to: process.env.ADMIN_EMAIL,
       subject,
       text,

@@ -29,7 +29,7 @@ describe('Email template generation', () => {
   const bookingMinimal = {
     customerName: 'Test User2',
     customerEmail: 'test2@example.com',
-    sessionType: 'Pilates',
+    sessionType: 'Movement on Mat',
     sessionDate: '2025-09-02',
     sessionTime: '10:00 AM',
   }

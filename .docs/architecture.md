@@ -293,7 +293,7 @@ return NextResponse.json(
 - `SMTP_USER` (Gmail account with app-specific password)
 - `SMTP_PASS` (Gmail app-specific password)
 - `EMAIL_FROM` (sender email address)
-- `EMAIL_FROM_NAME` (default: "Mood Over Muscle")
+- `EMAIL_FROM_NAME` (default: "MoodOverMuscle")
 - `ADMIN_EMAIL` (Emily's notification email)
 
 ### Performance Monitoring Architecture

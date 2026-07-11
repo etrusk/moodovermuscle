@@ -1,95 +1,35 @@
-# MoodOverMuscle Project Configuration
+# MoodOverMuscle
 
-<!-- TOKEN BUDGET: Keep under 800 tokens. Loads on EVERY prompt. -->
+<!-- v7 minimal harness: this file + the Stop-hook quality gate + built-ins (plan mode,
+     /code-review). No agent files, no commands, no .docs/ ceremony.
+     Reference: .docs/spec.md (requirements), .docs/architecture.md (schema, APIs, security). -->
 
-## Project Overview
+## Commands
+- Test: `pnpm run test`   Lint + types: `pnpm run lint && pnpm run type-check`   Build: `pnpm run build`
+- Run a single test, not the whole suite, while iterating: `pnpm vitest run <file>`.
+- Full pre-deploy gate (security, semgrep, build) is `pnpm run quality:gates` — husky pre-commit +
+  CI run it. The turn-end Stop hook runs only the fast lint + types + `test:critical` subset.
 
-A Next.js booking platform for personal training/wellness services. Features real-time session booking with conflict prevention, admin dashboard for booking management, calendar integration with availability management, and client-facing booking forms.
+## How we work
+- Verification-first: for behavior changes, write the failing test first, watch it fail, then
+  implement. Test-first is the default; a Playwright/screenshot check is a fine oracle where a
+  unit test isn't.
+- Build the smallest thing that passes. No abstraction, option, or fallback without a present need.
+- Complete tasks exactly as described; stop and ask if unclear. Report failures honestly — never
+  silently retry, work around, or modify tests/gates to force a pass. Fix the root cause.
+- Non-trivial change (multiple files, unfamiliar code, or you can't describe the diff in one
+  sentence): plan first, then run `/code-review` on the diff before committing — act only on
+  correctness/requirement findings, not style.
+- Done = quality gate green (all tests pass, none skipped) with evidence shown, not "looks done."
 
-## Tech Stack
+## Conventions
+- Strict TS, no `any` (ESLint-enforced). Server components by default (App Router); Prisma with
+  explicit `include`; Zod schemas in `lib/schemas.ts`; JWT in `lib/auth/`; tests in `__tests__/`
+  mirroring source. Module layout + deeper design: `.docs/architecture.md`.
+- Branching: `main` = prod (auto-deploys moodovermuscle.com.au; PR + green CI only). `preview` =
+  staging (direct commits; one feature at a time). Flow: commit `preview` → approve preview URL →
+  PR `preview→main`. Tooling/docs may PR straight to `main`. Conventional commits (commitlint).
+- Files: ~300 lines is a smell, 400 is a hard limit — split before exceeding.
 
-- Language: TypeScript 5.9 (strict mode)
-- Framework: Next.js 15 (App Router) with React 19
-- Database: Prisma 6 ORM with PostgreSQL (Neon)
-- Styling: Tailwind CSS 3 with Radix UI components
-- Auth: JWT (jose) with bcryptjs
-- Email: Nodemailer (fire-and-forget pattern)
-- Testing: Vitest 3 with Testing Library, Playwright for E2E
-- Linting: ESLint 8 with TypeScript support
-- Formatting: Prettier 3
-- Package Manager: pnpm
-
-## Key Commands
-
-```bash
-pnpm run build           # Prisma migrate + generate + Next.js build
-pnpm run test            # Run all tests with Vitest
-pnpm run test:watch      # TDD mode
-pnpm run test:critical   # Critical path tests only
-pnpm run lint            # Run ESLint via Next.js
-pnpm run type-check      # TypeScript strict mode check
-pnpm run test:quality    # Test quality validation (AAA, weak assertions)
-pnpm run security:scan   # pnpm audit
-pnpm run duplication-check # jscpd (3% threshold)
-pnpm run quality:gates   # Full quality check pipeline
-```
-
-## Documentation Structure
-
-This project maintains documentation in `.docs/`:
-
-- **spec.md**: Requirements and acceptance criteria
-- **architecture.md**: System design, schema, API endpoints, security
-- **patterns/index.md**: Reusable code patterns catalog
-- **decisions/index.md**: Architectural decision records
-- **investigations/index.md**: Debugging sessions and known issues
-- **lessons-learned/index.md**: Process improvements
-- **workflow.md**: Development workflow and quality gates
-- **current-task.md**: Project status tracking
-
-**Agents MUST read relevant `.docs/` files before making changes.**
-
-## TDD Workflow
-
-Non-trivial tasks use `/tdd [task description]`:
-
-1. Explorer reads `.docs/` and explores codebase
-2. Planner creates implementation plan referencing spec and patterns
-3. Test Designer designs tests with justifications
-4. Test Reviewer validates test coverage and spec alignment
-5. Coder implements tests (red), then code (green)
-6. Reviewer validates against spec and patterns
-7. Committer creates conventional commit and pushes
-
-For requirement clarification before `/tdd`, use `/tdd-spec [task description]`.
-
-## Critical Constraints
-
-- NEVER hardcode secrets, API keys, or credentials
-- All new code requires tests (TDD workflow)
-- Max 300 lines per source file — extract if exceeded
-- Max 600 lines per test file
-- Max 50 lines per function (target 40)
-- Max 3 function parameters (use options objects if more)
-- Code duplication max 3% (extract on 2nd occurrence)
-- No `any` types in TypeScript
-- Follow patterns in `.docs/patterns/index.md`
-- Prefer Claude CLI tools (Read, Write, Edit, Grep, Glob) over bash equivalents
-
-## Session State
-
-- **Long-term project status**: `.docs/current-task.md`
-- **Workflow-specific ephemeral state**: `.tdd/session.md` (deleted after commit)
-- **Project knowledge**: `.docs/` (version controlled)
-
-Read `.docs/current-task.md` and `.tdd/session.md` at workflow start for continuity.
-
-## Project-Specific Patterns
-
-- Server components by default (Next.js App Router)
-- Prisma for all database access with explicit `include` for relations
-- Zod schemas for validation at `lib/validation/schemas.ts`
-- JWT auth service at `lib/auth/jwt-service.ts`
-- Booking queries at `lib/db/booking-queries.ts`
-- Tests in `__tests__/` directory mirroring source structure
-- Pre-commit hooks enforce all quality gates
+## Maintaining this harness
+- When you touch this file or the gate hook, cut what no longer earns its keep.

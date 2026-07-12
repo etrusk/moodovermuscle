@@ -195,10 +195,15 @@
   }
 }
 
-/* Prevent horizontal scroll */
-* {
-  max-width: 100%;
-  box-sizing: border-box;
+/* Prevent horizontal scroll. Layered into `base` so Tailwind's max-w-*
+   utilities (in the utilities layer) still win — in Tailwind 4 unlayered CSS
+   overrides layered utilities regardless of specificity, which otherwise made
+   `* { max-width: 100% }` clobber every max-w-* (e.g. the booking dialog width). */
+@layer base {
+  * {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
 }
 
 /* Section heights with proper margins */

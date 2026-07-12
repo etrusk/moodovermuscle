@@ -7,7 +7,7 @@ import { testDb } from '@/__tests__/setup/test-db'
 vi.mock('@/lib/generated/prisma', () => {
   let db: any
   return {
-    PrismaClient: vi.fn().mockImplementation(() => {
+    PrismaClient: vi.fn().mockImplementation(function () {
       if (!db) {
         db = testDb
       }

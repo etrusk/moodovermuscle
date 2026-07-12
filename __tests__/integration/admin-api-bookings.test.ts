@@ -28,7 +28,7 @@ vi.mock('@/lib/generated/prisma', async () => {
   const { testDb } = await import('../setup/test-db')
   return {
     ...actual,
-    PrismaClient: vi.fn().mockImplementation(() => {
+    PrismaClient: vi.fn().mockImplementation(function () {
       return {
         ...testDb,
         $transaction: vi.fn().mockImplementation(async (callback: any) => {

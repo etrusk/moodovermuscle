@@ -1,10 +1,12 @@
 vi.resetModules()
 
 vi.mock('@/lib/generated/prisma', () => ({
-  PrismaClient: vi.fn().mockImplementation(() => ({
-    $connect: vi.fn(),
-    $disconnect: vi.fn(),
-  })),
+  PrismaClient: vi.fn().mockImplementation(function () {
+    return {
+      $connect: vi.fn(),
+      $disconnect: vi.fn(),
+    }
+  }),
 }))
 
 import { vi, describe, it, expect } from 'vitest'

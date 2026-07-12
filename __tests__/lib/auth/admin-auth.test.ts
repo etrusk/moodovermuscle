@@ -14,11 +14,12 @@ vi.unmock('bcryptjs')
 const mockTokenStore = new Map<string, JWTPayload>()
 
 vi.mock('jose', () => ({
-  SignJWT: vi.fn().mockImplementation(() => ({
-    setProtectedHeader: vi.fn().mockReturnThis(),
-    setIssuedAt: vi.fn().mockReturnThis(),
-    setExpirationTime: vi.fn().mockReturnThis(),
-    sign: vi.fn().mockImplementation(() => {
+  SignJWT: vi.fn().mockImplementation(function () {
+    return {
+      setProtectedHeader: vi.fn().mockReturnThis(),
+      setIssuedAt: vi.fn().mockReturnThis(),
+      setExpirationTime: vi.fn().mockReturnThis(),
+      sign: vi.fn().mockImplementation(() => {
       const token = `mock-jwt-token-${Date.now()}-${Math.random()}`
       const payload: JWTPayload = {
         adminId: 'emily-admin-1',
@@ -29,8 +30,9 @@ vi.mock('jose', () => ({
       }
       mockTokenStore.set(token, payload)
       return Promise.resolve(token)
-    }),
-  })),
+      }),
+    }
+  }),
   jwtVerify: vi.fn().mockImplementation((token: string) => {
     const payload = mockTokenStore.get(token)
     if (payload) {

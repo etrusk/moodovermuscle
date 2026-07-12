@@ -30,7 +30,17 @@ export class PlaywrightAccessibilityTester {
     if (excludeRules && excludeRules.length > 0) {
       builder.disableRules(excludeRules)
     }
-    
+
+    // Snap CSS animations/transitions to their end state before scanning so axe
+    // evaluates the settled resting UI, not a transient frame. Without this, a
+    // scan that lands mid-dialog-fade sees text at partial opacity (e.g. the
+    // #666 muted placeholder at ~0.67 opacity computes to #999), producing a
+    // flaky colour-contrast failure that does not exist once the UI settles.
+    await this.page.addStyleTag({
+      content:
+        '*, *::before, *::after { animation-duration: 0s !important; animation-delay: 0s !important; transition-duration: 0s !important; transition-delay: 0s !important; }',
+    })
+
     const results = await builder.analyze()
     if (results.violations.length > 0) {
       const violationMessages = results.violations

@@ -68,7 +68,7 @@ function BenefitCard({
   description,
 }: BenefitCardProps): React.ReactElement {
   return (
-    <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+    <div className="bg-white/10 backdrop-blur-xs rounded-2xl p-6 border border-white/20">
       <div className="flex items-center gap-3 justify-center mb-3">
         {icon}
         <span className="font-bold text-rose-100">{title}</span>
@@ -101,11 +101,11 @@ function CtaFooter(): React.ReactElement {
   return (
     <div className="flex flex-col gap-4 md:flex-row justify-center md:gap-8 pt-8 md:pt-12 border-t border-white/20">
       <div className="flex items-center gap-3 justify-center text-rose-100">
-        <MapPin className="h-4 md:h-5 w-4 md:w-5 stroke-1 flex-shrink-0" />
+        <MapPin className="h-4 md:h-5 w-4 md:w-5 stroke-1 shrink-0" />
         <span className="text-base md:text-lg">Sunshine Coast, QLD</span>
       </div>
       <div className="flex items-center gap-3 justify-center text-rose-100">
-        <Mail className="h-4 md:h-5 w-4 md:w-5 stroke-1 flex-shrink-0" />
+        <Mail className="h-4 md:h-5 w-4 md:w-5 stroke-1 shrink-0" />
         <span className="text-base md:text-lg">moodovermuscle@gmail.com</span>
       </div>
     </div>

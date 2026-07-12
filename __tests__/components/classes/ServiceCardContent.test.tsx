@@ -31,7 +31,7 @@ describe('ServiceCardContent Component', () => {
       // Arrange & Act
       const { container } = render(<ServiceCardContent {...defaultProps} />)
       
-      const iconContainer = container.querySelector('.bg-gradient-to-r.from-rose-500.to-pink-500')
+      const iconContainer = container.querySelector('.bg-linear-to-r.from-rose-500.to-pink-500')
       const svg = iconContainer?.querySelector('svg')
       
       // Assert
@@ -47,7 +47,7 @@ describe('ServiceCardContent Component', () => {
       // Arrange & Act
       const { container } = render(<ServiceCardContent {...defaultProps} />)
       
-      const iconContainer = container.querySelector('.bg-gradient-to-r.from-rose-500.to-pink-500')
+      const iconContainer = container.querySelector('.bg-linear-to-r.from-rose-500.to-pink-500')
       
       // Assert
       expect(iconContainer?.className).toEqual(expect.stringContaining('p-6'))
@@ -69,7 +69,7 @@ describe('ServiceCardContent Component', () => {
       // Arrange & Act
       const { container } = render(<ServiceCardContent {...defaultProps} icon={Users} />)
       
-      const iconContainer = container.querySelector('.bg-gradient-to-r.from-rose-500.to-pink-500')
+      const iconContainer = container.querySelector('.bg-linear-to-r.from-rose-500.to-pink-500')
       const svg = iconContainer?.querySelector('svg')
       
       // Assert
@@ -80,7 +80,7 @@ describe('ServiceCardContent Component', () => {
       // Arrange & Act
       const { container } = render(<ServiceCardContent {...defaultProps} icon={Heart} />)
       
-      const iconContainer = container.querySelector('.bg-gradient-to-r.from-rose-500.to-pink-500')
+      const iconContainer = container.querySelector('.bg-linear-to-r.from-rose-500.to-pink-500')
       const svg = iconContainer?.querySelector('svg')
       
       // Assert
@@ -91,7 +91,7 @@ describe('ServiceCardContent Component', () => {
       // Arrange & Act
       const { container } = render(<ServiceCardContent {...defaultProps} icon={Calendar} />)
       
-      const iconContainer = container.querySelector('.bg-gradient-to-r.from-rose-500.to-pink-500')
+      const iconContainer = container.querySelector('.bg-linear-to-r.from-rose-500.to-pink-500')
       const svg = iconContainer?.querySelector('svg')
       
       // Assert
@@ -427,7 +427,7 @@ describe('ServiceCardContent Component', () => {
       const { container } = render(<ServiceCardContent {...defaultProps} />)
       
       // Look for the icon container by its classes instead of role
-      const iconContainer = container.querySelector('.bg-gradient-to-r.from-rose-500.to-pink-500')
+      const iconContainer = container.querySelector('.bg-linear-to-r.from-rose-500.to-pink-500')
       expect(iconContainer).toBeInTheDocument()
       expect(iconContainer?.className).toContain('rounded-3xl')
       expect(iconContainer?.className).toContain('shadow-xl')

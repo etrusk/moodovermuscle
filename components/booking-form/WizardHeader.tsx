@@ -23,9 +23,9 @@ export function WizardHeader({
   const progressPercentage = (currentStep / totalSteps) * 100
 
   return (
-    <DialogHeader className="bg-gradient-to-br from-green-500 via-emerald-500 to-teal-600 text-white">
+    <DialogHeader className="bg-linear-to-br from-green-500 via-emerald-500 to-teal-600 text-white">
       <div className="relative p-8">
-        <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-r from-white/10 to-transparent" />
         <div className="absolute top-4 left-4 bg-amber-400 text-amber-900 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
           <Sparkles className="h-3 w-3 stroke-1" />
           100% FREE Session
@@ -54,7 +54,7 @@ export function WizardHeader({
             <div className="w-full bg-white/20 rounded-full h-2">
               <div
                 className={cn(
-                  'bg-gradient-to-r from-amber-400 to-yellow-300 h-2 rounded-full transition-all duration-500 ease-out',
+                  'bg-linear-to-r from-amber-400 to-yellow-300 h-2 rounded-full transition-all duration-500 ease-out',
                   isLoading && 'animate-pulse'
                 )}
                 style={{ width: `${progressPercentage}%` }}

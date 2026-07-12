@@ -99,7 +99,7 @@ function ServiceCard({ service }: ServiceCardProps): React.ReactElement {
   return (
     <div className="bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-105">
       <div className="mb-6">
-        <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-r from-rose-100 to-pink-100 flex items-center justify-center shadow-lg">
+        <div className="w-16 h-16 mx-auto rounded-full bg-linear-to-r from-rose-100 to-pink-100 flex items-center justify-center shadow-lg">
           {service.icon}
         </div>
       </div>
@@ -136,7 +136,7 @@ function WorksCTA({ onBookSessionClick }: WorksCTAProps): React.ReactElement {
     <div className="text-center mt-16">
       <Button
         onClick={onBookSessionClick}
-        className="bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white rounded-full px-8 py-4 text-lg font-medium shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
+        className="bg-linear-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white rounded-full px-8 py-4 text-lg font-medium shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
       >
         Book a Free Session
       </Button>

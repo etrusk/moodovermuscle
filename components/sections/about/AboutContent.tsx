@@ -56,7 +56,7 @@ function CertificationLogos(): React.ReactElement {
 
 function CredibilitySection(): React.ReactElement {
   return (
-    <div className="bg-gradient-to-r from-rose-50 to-pink-50 rounded-2xl md:rounded-3xl p-6 md:p-8 border border-rose-100 shadow-lg hover:shadow-xl transition-shadow">
+    <div className="bg-linear-to-r from-rose-50 to-pink-50 rounded-2xl md:rounded-3xl p-6 md:p-8 border border-rose-100 shadow-lg hover:shadow-xl transition-shadow">
       <div className="space-y-3 md:space-y-4">
         <h3 className="font-bold text-stone-800 text-lg md:text-xl">
           Qualifications
@@ -75,7 +75,7 @@ function CredibilitySection(): React.ReactElement {
 
 function PhilosophySection(): React.ReactElement {
   return (
-    <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl md:rounded-3xl p-6 md:p-8 border border-amber-100 shadow-lg hover:shadow-xl transition-shadow">
+    <div className="bg-linear-to-r from-amber-50 to-orange-50 rounded-2xl md:rounded-3xl p-6 md:p-8 border border-amber-100 shadow-lg hover:shadow-xl transition-shadow">
       <div className="space-y-3">
         <h3 className="font-bold text-stone-800 text-lg md:text-xl">
           How I Work

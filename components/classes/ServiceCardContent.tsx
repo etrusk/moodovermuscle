@@ -20,7 +20,7 @@ export function ServiceCardContent({
 }: ServiceCardContentProps): React.JSX.Element {
   return (
     <div className="flex flex-col lg:flex-row items-start lg:items-center gap-6 lg:gap-8">
-      <div className="inline-flex p-6 rounded-3xl bg-gradient-to-r from-rose-500 to-pink-500 shadow-xl group-hover:scale-110 transition-transform">
+      <div className="inline-flex p-6 rounded-3xl bg-linear-to-r from-rose-500 to-pink-500 shadow-xl group-hover:scale-110 transition-transform">
         <Icon className="h-8 w-8 stroke-1 text-white" />
       </div>
 
@@ -49,7 +49,7 @@ export function ServiceCardContent({
               key={featureIndex}
               className="flex items-center gap-3 text-stone-600"
             >
-              <CheckCircle className="h-4 w-4 stroke-1 text-rose-500 flex-shrink-0" />
+              <CheckCircle className="h-4 w-4 stroke-1 text-rose-500 shrink-0" />
               <span>{feature}</span>
             </div>
           ))}

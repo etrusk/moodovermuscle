@@ -25,7 +25,7 @@ export function MobileMenu({
             onBookSessionClick()
             onClose()
           }}
-          className="w-full bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white rounded-full py-4 text-lg font-medium mt-4 shadow-lg"
+          className="w-full bg-linear-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white rounded-full py-4 text-lg font-medium mt-4 shadow-lg"
         >
           Book a Session
         </Button>

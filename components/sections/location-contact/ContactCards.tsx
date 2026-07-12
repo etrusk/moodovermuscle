@@ -16,7 +16,7 @@ function LocationCard(): React.ReactElement {
   return (
     <div className="bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-105">
       <div className="text-center space-y-6">
-        <div className="inline-flex p-4 rounded-2xl bg-gradient-to-r from-rose-100 to-pink-100">
+        <div className="inline-flex p-4 rounded-2xl bg-linear-to-r from-rose-100 to-pink-100">
           <MapPin className="h-8 w-8 stroke-1 text-rose-600" />
         </div>
         <h3 className="text-xl font-bold text-stone-900">Studio Location</h3>
@@ -46,7 +46,7 @@ function ContactCard(): React.ReactElement {
   return (
     <div className="bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-105">
       <div className="text-center space-y-6">
-        <div className="inline-flex p-4 rounded-2xl bg-gradient-to-r from-rose-100 to-pink-100">
+        <div className="inline-flex p-4 rounded-2xl bg-linear-to-r from-rose-100 to-pink-100">
           <Phone className="h-8 w-8 stroke-1 text-rose-600" />
         </div>
         <h3 className="text-xl font-bold text-stone-900">Get In Touch</h3>
@@ -93,7 +93,7 @@ function HoursCard(): React.ReactElement {
   return (
     <div className="bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-105">
       <div className="text-center space-y-6">
-        <div className="inline-flex p-4 rounded-2xl bg-gradient-to-r from-rose-100 to-pink-100">
+        <div className="inline-flex p-4 rounded-2xl bg-linear-to-r from-rose-100 to-pink-100">
           <Calendar className="h-8 w-8 stroke-1 text-rose-600" />
         </div>
         <h3 className="text-xl font-bold text-stone-900">Flexible Hours</h3>

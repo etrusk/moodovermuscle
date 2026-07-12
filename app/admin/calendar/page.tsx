@@ -336,7 +336,7 @@ export default function AdminCalendarPage(): React.JSX.Element {
                 selectedBookings.map((booking) => (
                   <div
                     key={booking.id}
-                    className="p-3 border rounded-lg hover:shadow-sm transition-shadow cursor-pointer"
+                    className="p-3 border rounded-lg hover:shadow-xs transition-shadow cursor-pointer"
                     onClick={() => setSelectedBooking(booking)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {

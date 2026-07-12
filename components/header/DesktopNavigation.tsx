@@ -43,7 +43,7 @@ export function DesktopNavigation({
       <Button
         onClick={onBookSessionClick}
         size="sm"
-        className="bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-full px-6 font-medium group"
+        className="bg-linear-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-full px-6 font-medium group"
       >
         Book a Session
       </Button>

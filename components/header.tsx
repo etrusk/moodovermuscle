@@ -24,7 +24,7 @@ export function Header({
   }
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-white/20 bg-white/80 backdrop-blur-xl supports-[backdrop-filter]:bg-white/60">
+    <header className="sticky top-0 z-40 w-full border-b border-white/20 bg-white/80 backdrop-blur-xl supports-backdrop-filter:bg-white/60">
       <div className="container flex h-20 md:h-24 items-center px-4 md:px-6 max-w-7xl mx-auto">
         <Logo />
         <DesktopNavigation onBookSessionClick={onBookSessionClick} />

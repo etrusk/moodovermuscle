@@ -76,7 +76,7 @@ function InlineCalendar({
         min={minDate}
         aria-label="Select date"
         disabled={isLoading}
-        className="w-full max-w-[350px] px-3 py-2 text-base border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+        className="w-full max-w-[350px] px-3 py-2 text-base border border-gray-300 rounded-md shadow-xs focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
       />
     </div>
   )

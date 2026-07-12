@@ -39,7 +39,7 @@ const HeroSection = (): React.ReactElement => (
     <div className="container relative z-10 px-4 md:px-6 max-w-7xl mx-auto section-inner mobile-px">
       <div className="text-center space-y-8 md:space-y-12">
         <div className="space-y-6">
-          <div className="inline-flex items-center gap-2 md:gap-3 rounded-full bg-gradient-to-r from-green-400 to-emerald-400 text-green-900 px-4 md:px-6 py-3 md:py-4 text-xs md:text-sm font-bold shadow-xl border border-green-300 animate-pulse">
+          <div className="inline-flex items-center gap-2 md:gap-3 rounded-full bg-linear-to-r from-green-400 to-emerald-400 text-green-900 px-4 md:px-6 py-3 md:py-4 text-xs md:text-sm font-bold shadow-xl border border-green-300 animate-pulse">
             <Sparkles className="h-3 md:h-4 w-3 md:w-4 stroke-1" />
             <span className="text-xs md:text-sm">
               Your First Session is 100% FREE!
@@ -47,10 +47,10 @@ const HeroSection = (): React.ReactElement => (
           </div>
 
           <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
-            <span className="bg-gradient-to-r from-stone-900 via-rose-600 to-rose-500 bg-clip-text text-transparent block animate-fade-in-up">
+            <span className="bg-linear-to-r from-stone-900 via-rose-600 to-rose-500 bg-clip-text text-transparent block animate-fade-in-up">
               Choose Your Perfect
             </span>
-            <span className="bg-gradient-to-r from-rose-500 to-pink-500 bg-clip-text text-transparent block animate-fade-in-up delay-200">
+            <span className="bg-linear-to-r from-rose-500 to-pink-500 bg-clip-text text-transparent block animate-fade-in-up delay-200">
               Training Option
             </span>
           </h1>
@@ -61,7 +61,7 @@ const HeroSection = (): React.ReactElement => (
           </p>
         </div>
 
-        <div className="bg-gradient-to-r from-rose-50 to-pink-50 rounded-2xl md:rounded-3xl p-6 md:p-8 border border-rose-100 shadow-lg max-w-4xl mx-auto animate-fade-in-up delay-600">
+        <div className="bg-linear-to-r from-rose-50 to-pink-50 rounded-2xl md:rounded-3xl p-6 md:p-8 border border-rose-100 shadow-lg max-w-4xl mx-auto animate-fade-in-up delay-600">
           <div className="flex items-center gap-3 justify-center mb-4">
             <MapPin className="h-5 w-5 stroke-1 text-rose-600" />
             <h3 className="font-bold text-stone-800 text-lg md:text-xl">
@@ -93,7 +93,7 @@ const ServicesSection = ({ onBookSessionClick }: { onBookSessionClick: () => voi
 
 const ServiceCard = ({ service, onBookSessionClick }: { service: typeof services[0], onBookSessionClick: () => void }): React.ReactElement => (
   <Card
-    className="group border-0 shadow-2xl hover:shadow-3xl transition-all duration-500 bg-white/90 backdrop-blur-sm overflow-hidden hover:scale-105 relative"
+    className="group border-0 shadow-2xl hover:shadow-3xl transition-all duration-500 bg-white/90 backdrop-blur-xs overflow-hidden hover:scale-105 relative"
   >
     <ServiceCardHeader popular={service.popular} />
 
@@ -115,8 +115,8 @@ const ServiceCard = ({ service, onBookSessionClick }: { service: typeof services
 )
 
 const CtaSection = ({ onBookSessionClick }: { onBookSessionClick: () => void }): React.ReactElement => (
-  <section className="section-height section-pink w-full bg-gradient-to-br from-rose-500 via-pink-500 to-rose-600 text-white relative overflow-hidden">
-    <div className="absolute inset-0 bg-gradient-to-r from-black/10 to-transparent"></div>
+  <section className="section-height section-pink w-full bg-linear-to-br from-rose-500 via-pink-500 to-rose-600 text-white relative overflow-hidden">
+    <div className="absolute inset-0 bg-linear-to-r from-black/10 to-transparent"></div>
     <div className="absolute top-20 right-10 w-64 md:w-80 h-64 md:h-80 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
     <div className="absolute bottom-10 left-20 w-48 md:w-64 h-48 md:h-64 bg-white/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
 

@@ -12,7 +12,7 @@ export function HeroBackground(): React.ReactElement {
         priority
         className="absolute inset-0 object-cover object-center"
       />
-      <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/60 to-black/70"></div>
+      <div className="absolute inset-0 bg-linear-to-r from-black/70 via-black/60 to-black/70"></div>
     </>
   )
 }

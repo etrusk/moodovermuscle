@@ -15,7 +15,7 @@ interface ErrorProps {
 const ErrorHeader = (): React.ReactElement => (
   <div className="flex justify-center mb-8">
     <div className="relative">
-      <div className="absolute -inset-3 bg-gradient-to-r from-rose-400 to-pink-400 rounded-full blur-xl opacity-40"></div>
+      <div className="absolute -inset-3 bg-linear-to-r from-rose-400 to-pink-400 rounded-full blur-xl opacity-40"></div>
       <Image
         src="/images/logo.png"
         width={80}
@@ -29,7 +29,7 @@ const ErrorHeader = (): React.ReactElement => (
 
 const ErrorIcon = (): React.ReactElement => (
   <div className="flex justify-center">
-    <div className="p-4 rounded-full bg-gradient-to-r from-amber-100 to-orange-100">
+    <div className="p-4 rounded-full bg-linear-to-r from-amber-100 to-orange-100">
       <AlertTriangle className="h-12 w-12 text-amber-600" />
     </div>
   </div>
@@ -82,7 +82,7 @@ const ActionButtons = ({ onReset }: { onReset: () => void }): React.ReactElement
   <div className="flex flex-col sm:flex-row gap-4 justify-center">
     <Button
       onClick={onReset}
-      className="bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white rounded-full px-8 py-4 text-lg font-medium shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
+      className="bg-linear-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white rounded-full px-8 py-4 text-lg font-medium shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
     >
       <RefreshCw className="mr-2 h-4 w-4" />
       Try Again
@@ -134,7 +134,7 @@ export default function Error({ error, reset }: ErrorProps): React.ReactElement 
   }, [error])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-white flex items-center justify-center px-4">
+    <div className="min-h-screen bg-linear-to-br from-rose-50 via-pink-50 to-white flex items-center justify-center px-4">
       <div className="max-w-2xl mx-auto text-center space-y-8">
         <ErrorHeader />
         <ErrorIcon />

@@ -20,7 +20,7 @@ export function ServiceCardActions({ comingSoon, gradient, onBookSessionClick }:
             ? onBookSessionClick
             : undefined
         }
-        className={`flex-1 lg:flex-none lg:px-8 bg-gradient-to-r ${gradient} hover:shadow-xl text-white rounded-full transition-all duration-300 py-6 text-lg font-medium group disabled:opacity-50 disabled:cursor-not-allowed`}
+        className={`flex-1 lg:flex-none lg:px-8 bg-linear-to-r ${gradient} hover:shadow-xl text-white rounded-full transition-all duration-300 py-6 text-lg font-medium group disabled:opacity-50 disabled:cursor-not-allowed`}
       >
         {comingSoon
           ? 'Coming Soon'

@@ -108,7 +108,7 @@ const GoalsSelect = ({ loading, form }: { loading: boolean, form: UseFormReturn<
         >
           <FormControl>
             <SelectTrigger
-              className="min-h-[3.5rem] h-auto"
+              className="min-h-14 h-auto"
               data-testid="goals-select-trigger"
             >
               <SelectValue placeholder="Choose your goal..." />

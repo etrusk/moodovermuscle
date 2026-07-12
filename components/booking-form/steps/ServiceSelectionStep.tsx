@@ -68,7 +68,7 @@ function getServiceCardClassName(loading: boolean, isSelected: boolean): string 
   const baseClasses = 'relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:scale-105'
   const loadingClasses = loading ? 'opacity-50 pointer-events-none ' : ''
   const selectionClasses = isSelected
-    ? 'border-green-500 bg-gradient-to-r from-green-50 to-emerald-50 shadow-lg'
+    ? 'border-green-500 bg-linear-to-r from-green-50 to-emerald-50 shadow-lg'
     : 'border-stone-200 bg-white hover:border-green-300 hover:shadow-md'
   
   return `${loadingClasses}${baseClasses} ${selectionClasses}`
@@ -89,7 +89,7 @@ function ServicePopularBadge({ service }: { service: Service }): React.JSX.Eleme
   if (!service.popular) return null
   
   return (
-    <div className="absolute -top-3 left-6 bg-gradient-to-r from-amber-400 to-orange-400 text-amber-900 px-3 py-1 rounded-full text-xs font-bold">
+    <div className="absolute -top-3 left-6 bg-linear-to-r from-amber-400 to-orange-400 text-amber-900 px-3 py-1 rounded-full text-xs font-bold">
       Most Popular ⭐
     </div>
   )

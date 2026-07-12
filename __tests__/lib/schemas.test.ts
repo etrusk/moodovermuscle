@@ -44,7 +44,7 @@ describe('bookingSchema validation', () => {
     // Assert
     expect(result.success).toBe(false)
     if (!result.success) {
-      expect(result.error.errors[0].message).toContain('Name must be at least 2 characters.')
+      expect(result.error.issues[0].message).toContain('Name must be at least 2 characters.')
     }
   })
 
@@ -58,7 +58,7 @@ describe('bookingSchema validation', () => {
     // Assert
     expect(result.success).toBe(false)
     if (!result.success) {
-      expect(result.error.errors[0].message).toContain('Please enter a valid email address.')
+      expect(result.error.issues[0].message).toContain('Please enter a valid email address.')
     }
   })
 
@@ -72,7 +72,7 @@ describe('bookingSchema validation', () => {
     // Assert
     expect(result.success).toBe(false)
     if (!result.success) {
-      expect(result.error.errors[0].message).toContain('Please enter a valid phone number.')
+      expect(result.error.issues[0].message).toContain('Please enter a valid phone number.')
     }
   })
 
@@ -87,7 +87,7 @@ describe('bookingSchema validation', () => {
     // Assert
     expect(result.success).toBe(false)
     if (!result.success) {
-      expect(result.error.errors[0].message).toContain('Please select a valid service.')
+      expect(result.error.issues[0].message).toContain('Please select a valid service.')
     }
   })
 
@@ -102,7 +102,7 @@ describe('bookingSchema validation', () => {
     // Assert
     expect(result.success).toBe(false)
     if (!result.success) {
-      expect(result.error.errors[0].message).toContain('Message must be less than 500 characters.')
+      expect(result.error.issues[0].message).toContain('Message must be less than 500 characters.')
     }
   })
 
@@ -116,7 +116,7 @@ describe('bookingSchema validation', () => {
     // Assert
     expect(result.success).toBe(false)
     if (!result.success) {
-      expect(result.error.errors[0].message).toContain('Invalid enum value')
+      expect(result.error.issues[0].message).toContain('Please select your experience level.')
     }
   })
   it('parses date from string input', () => {
@@ -150,7 +150,7 @@ describe('bookingSchema validation', () => {
     // Assert
     expect(result.success).toBe(false)
     if (!result.success) {
-      expect(result.error.errors[0].message).toContain('Please select a date.')
+      expect(result.error.issues[0].message).toContain('Please select a date.')
     }
   })
 
@@ -165,7 +165,7 @@ describe('bookingSchema validation', () => {
     // Assert
     expect(result.success).toBe(false)
     if (!result.success) {
-      expect(result.error.errors[0].message).toContain('Please select a time.')
+      expect(result.error.issues[0].message).toContain('Please select a time.')
     }
   })
 })

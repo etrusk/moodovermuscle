@@ -55,7 +55,11 @@ export async function handleLogin(
       success: false,
       error: 'Invalid input',
       validationErrors: validationResult.error.issues.map((issue) => ({
-        path: issue.path,
+        // zod 4 widened issue.path to PropertyKey[]; these schemas never key on
+        // symbols, so narrow back to the string|number path this API returns.
+        path: issue.path.filter(
+          (segment): segment is string | number => typeof segment !== 'symbol'
+        ),
         message: issue.message,
       })),
     }

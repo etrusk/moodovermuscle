@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { bookingSchema } from '@/lib/schemas'
 import {
@@ -122,7 +122,10 @@ export function useBookingFormLogic(
 // Extract form initialization to reduce main function size
 function useFormWithDefaults(initialValues?: Partial<BookingFormData>): UseFormReturn<BookingFormData> {
   return useForm<BookingFormData>({
-    resolver: zodResolver(bookingSchema),
+    // BookingFormData is deliberately looser than the schema's inferred literal
+    // types (e.g. service?: string), and zod 4 infers the preprocessed date as
+    // unknown; the resolver validates against the schema at runtime regardless.
+    resolver: zodResolver(bookingSchema) as Resolver<BookingFormData>,
     defaultValues: {
       name: '',
       email: '',

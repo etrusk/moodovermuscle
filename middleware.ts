@@ -1,6 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { adminAuth } from '@/lib/auth/admin-auth'
 
+type AdminPayload = NonNullable<
+  Awaited<ReturnType<typeof adminAuth.verifyAdminToken>>
+>
+
+// Forward the verified admin identity to downstream handlers via request headers.
+function withAdminHeaders(
+  request: NextRequest,
+  payload: AdminPayload
+): NextResponse {
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set('x-admin-id', payload.adminId)
+  requestHeaders.set('x-admin-email', payload.email)
+  requestHeaders.set('x-admin-name', payload.name)
+
+  return NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  })
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
@@ -33,17 +54,7 @@ export async function middleware(request: NextRequest) {
       return response
     }
 
-    // Add admin info to headers for API routes
-    const requestHeaders = new Headers(request.headers)
-    requestHeaders.set('x-admin-id', payload.adminId)
-    requestHeaders.set('x-admin-email', payload.email)
-    requestHeaders.set('x-admin-name', payload.name)
-
-    return NextResponse.next({
-      request: {
-        headers: requestHeaders,
-      },
-    })
+    return withAdminHeaders(request, payload)
   }
 
   // Handle admin API routes protection
@@ -72,17 +83,7 @@ export async function middleware(request: NextRequest) {
       )
     }
 
-    // Add admin info to headers
-    const requestHeaders = new Headers(request.headers)
-    requestHeaders.set('x-admin-id', payload.adminId)
-    requestHeaders.set('x-admin-email', payload.email)
-    requestHeaders.set('x-admin-name', payload.name)
-
-    return NextResponse.next({
-      request: {
-        headers: requestHeaders,
-      },
-    })
+    return withAdminHeaders(request, payload)
   }
 
   return NextResponse.next()

@@ -64,18 +64,7 @@ async function updateBookingStatus(
 }
 
 async function sendNotifications(booking: Booking): Promise<void> {
-  if (booking.status === 'CONFIRMED') {
-    sendCustomerConfirmation({
-      customerName: booking.name,
-      customerEmail: booking.email,
-      sessionType: booking.service,
-      sessionDate: booking.date?.toISOString().split('T')[0] ?? '',
-      sessionTime: booking.time,
-      goals: booking.goals ?? undefined,
-      experience: booking.experience ?? undefined,
-    })
-  }
-  sendAdminNotification({
+  const emailPayload = {
     customerName: booking.name,
     customerEmail: booking.email,
     sessionType: booking.service,
@@ -83,7 +72,11 @@ async function sendNotifications(booking: Booking): Promise<void> {
     sessionTime: booking.time,
     goals: booking.goals ?? undefined,
     experience: booking.experience ?? undefined,
-  })
+  }
+  if (booking.status === 'CONFIRMED') {
+    sendCustomerConfirmation(emailPayload)
+  }
+  sendAdminNotification(emailPayload)
 }
 
 export async function POST(

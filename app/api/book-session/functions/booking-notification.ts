@@ -7,8 +7,7 @@ import type { Booking } from '../../../../lib/generated/prisma'
 export function sendBookingNotifications(booking: Booking): void {
   const { name, email, service, date, time, goals, experience } = booking
 
-  // Send emails without awaiting them to avoid blocking the response
-  sendCustomerConfirmation({
+  const emailPayload = {
     customerName: name,
     customerEmail: email,
     sessionType: service,
@@ -16,7 +15,10 @@ export function sendBookingNotifications(booking: Booking): void {
     sessionTime: time,
     goals: goals ?? '',
     experience: experience ?? '',
-  })
+  }
+
+  // Send emails without awaiting them to avoid blocking the response
+  sendCustomerConfirmation(emailPayload)
     .then((res) => {
       if (!res.success) {
         console.error(
@@ -29,15 +31,7 @@ export function sendBookingNotifications(booking: Booking): void {
       console.error('Error in sendCustomerConfirmation:', err)
     })
 
-  sendAdminNotification({
-    customerName: name,
-    customerEmail: email,
-    sessionType: service,
-    sessionDate: date.toLocaleDateString('en-AU'),
-    sessionTime: time,
-    goals: goals ?? '',
-    experience: experience ?? '',
-  })
+  sendAdminNotification(emailPayload)
     .then((res) => {
       if (!res.success) {
         console.error('Failed to send admin notification email:', res.error)

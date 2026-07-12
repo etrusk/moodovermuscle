@@ -62,40 +62,54 @@ interface GalleryImageCardProps {
   isMobile?: boolean
 }
 
+// Size/spacing variants collapsed into a single object so the card stays under
+// the complexity budget (one branch instead of one ternary per attribute).
+const CARD_VARIANTS = {
+  mobile: {
+    radius: 'rounded-2xl',
+    width: 200,
+    height: 200,
+    sizes: '(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw',
+    imageClass: 'aspect-square shadow-lg',
+    captionPosition: 'bottom-3 left-3',
+    iconSize: 'h-4 w-4',
+  },
+  desktop: {
+    radius: 'rounded-3xl',
+    width: 400,
+    height: 300,
+    sizes: '(max-width: 768px) 50vw, (max-width: 1024px) 25vw, 20vw',
+    imageClass: 'h-full shadow-xl',
+    captionPosition: 'bottom-6 left-6',
+    iconSize: 'h-5 w-5',
+  },
+} as const
+
 function GalleryImageCard({
   image,
   isMobile = false,
 }: GalleryImageCardProps): React.ReactElement {
+  const variant = isMobile ? CARD_VARIANTS.mobile : CARD_VARIANTS.desktop
   return (
     <div
-      className={`relative group overflow-hidden ${
-        isMobile ? 'rounded-2xl' : 'rounded-3xl'
-      } hover:scale-105 transition-transform duration-500 ${image.span ?? ''}`}
+      className={`relative group overflow-hidden ${variant.radius} hover:scale-105 transition-transform duration-500 ${image.span ?? ''}`}
     >
       <Image
         src={image.src || '/placeholder.svg'}
         alt={image.alt}
-        width={isMobile ? 200 : 400}
-        height={isMobile ? 200 : 300}
-        sizes={
-          isMobile
-            ? '(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw'
-            : '(max-width: 768px) 50vw, (max-width: 1024px) 25vw, 20vw'
-        }
+        width={variant.width}
+        height={variant.height}
+        sizes={variant.sizes}
         loading="lazy"
         placeholder="blur"
         blurDataURL="/placeholder.svg"
-        className={`w-full ${
-          isMobile ? 'aspect-square shadow-lg' : 'h-full shadow-xl'
-        } object-cover transition-all duration-700 group-hover:scale-110`}
+        className={`w-full ${variant.imageClass} object-cover transition-all duration-700 group-hover:scale-110`}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
       <div
-        className={`absolute ${
-          isMobile ? 'bottom-3 left-3' : 'bottom-6 left-6'
-        } text-white opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
+        className={`absolute ${variant.captionPosition} text-white opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
       >
-        <Instagram className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'} stroke-1`} />
+        <Instagram className={`${variant.iconSize} stroke-1`} />
       </div>
     </div>
   )

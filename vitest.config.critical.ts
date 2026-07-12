@@ -42,52 +42,60 @@ export default defineConfig({
         '**/__tests__/**',
         '**/setup/**',
         '**/*.mock.{ts,tsx}',
+        // Pure-presentational view code (no logic/branches): covered by the
+        // Playwright a11y + e2e suites, not unit tests. Excluded from unit
+        // coverage so the gate measures code-items (logic) rather than JSX.
+        'components/ui/**', // shadcn/radix primitives (generated wrappers)
+        'components/sections/**', // marketing page sections (static JSX)
+        'components/header/**', // site nav (presentational; behaviour via e2e)
+        'components/header.tsx', // header shell (menu-toggle glue; behaviour via e2e)
       ],
       thresholds: {
-        // Global thresholds - adjusted for realistic coverage with UI exclusions
-        statements: 45,
-        branches: 65,
-        functions: 70,
-        lines: 45,
-        
-        // === STRATEGIC COVERAGE TARGETS ===
-        
-        // Critical booking functionality requires higher coverage
+        // Pinned to vitest 4's honest measurement (~4-6pt buffer under the
+        // achieved coverage). vitest 3's v8 remapping over-reported (scored
+        // uncovered files' 0/0 branches+funcs as 100%), so the previous
+        // 45/65/70 floors sat far under true coverage; these enforce the real
+        // current level as the floor. Pure-presentational view code is excluded
+        // above (covered by the Playwright a11y + e2e suites).
+        statements: 90,
+        branches: 82,
+        functions: 90,
+        lines: 90,
+
+        // Critical booking submission endpoint
         'app/api/book-session/route.ts': {
-          statements: 85,
-          branches: 80,
-          functions: 85,
-          lines: 85,
+          statements: 95,
+          branches: 88,
+          functions: 95,
+          lines: 95,
         },
+        // Booking form (logic + steps + wizard)
         'components/booking-form/**/*.{ts,tsx}': {
-          statements: 75,
-          branches: 75,
-          functions: 80,
-          lines: 75,
-        },
-        'lib/schemas.ts': {
           statements: 85,
           branches: 80,
           functions: 85,
           lines: 85,
         },
-        
-        // Authentication/Authorization (Target: >80%)
-        // Business-critical security logic requires comprehensive coverage
-        'lib/auth/**/*.ts': {
-          statements: 80,
-          branches: 80,
-          functions: 80,
-          lines: 80,
+        // Validation schemas (pure, fully covered)
+        'lib/schemas.ts': {
+          statements: 95,
+          branches: 95,
+          functions: 95,
+          lines: 95,
         },
-        
-        // API Endpoints (Target: >80%)
-        // Core business functionality exposed through APIs
+        // Authentication/Authorization — business-critical security logic
+        'lib/auth/**/*.ts': {
+          statements: 92,
+          branches: 88,
+          functions: 95,
+          lines: 92,
+        },
+        // API endpoints — core business functionality
         'app/api/**/*.ts': {
-          statements: 80,
-          branches: 75,
-          functions: 80,
-          lines: 80,
+          statements: 90,
+          branches: 82,
+          functions: 90,
+          lines: 90,
         },
       },
     },

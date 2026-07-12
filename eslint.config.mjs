@@ -1,13 +1,21 @@
+import { createRequire } from 'module'
 import coreWebVitals from 'eslint-config-next/core-web-vitals'
 import nextTypescript from 'eslint-config-next/typescript'
+import jsxA11y from 'eslint-plugin-jsx-a11y'
 import prettierConfig from 'eslint-config-prettier'
 
+// Track the actually-installed React version so version-gated react rules stay
+// accurate across bumps (pinning avoids the eslint-10 detection crash; deriving
+// avoids drift from a hard-coded literal).
+const reactVersion = createRequire(import.meta.url)('react/package.json').version
+
 // Flat-config migration of the former .eslintrc.json. eslint-config-next 16
-// ships native flat configs (core-web-vitals bundles the react, react-hooks,
-// jsx-a11y and import rule sets; typescript adds @typescript-eslint recommended
-// via typescript-eslint). The project's own complexity/TS rules and per-area
-// overrides are layered on top; prettier is applied last to disable stylistic
-// rules that Prettier owns.
+// ships native flat configs (core-web-vitals bundles react/react-hooks/import;
+// typescript adds @typescript-eslint recommended via typescript-eslint). Its
+// jsx-a11y coverage is only a handful of warn-level rules, so the old eslintrc's
+// explicit `plugin:jsx-a11y/recommended` set is re-applied below at parity. The
+// project's own complexity/TS rules and per-area overrides are layered on top;
+// prettier is applied last to disable stylistic rules that Prettier owns.
 const eslintConfig = [
   {
     ignores: [
@@ -32,12 +40,17 @@ const eslintConfig = [
     },
     settings: {
       react: {
-        // Pinned (not 'detect') so eslint-plugin-react 7.37.5 skips the version
+        // Explicit (not 'detect') so eslint-plugin-react 7.37.5 skips the version
         // auto-detection path that calls the eslint-10-removed context.getFilename().
-        version: '19.2.7',
+        version: reactVersion,
       },
     },
     rules: {
+      // Restore the full jsx-a11y recommended set (24 error-level rules) that the
+      // old eslintrc extended via plugin:jsx-a11y/recommended; the jsx-a11y plugin
+      // itself is already registered by eslint-config-next.
+      ...jsxA11y.flatConfigs.recommended.rules,
+
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
 
       // React-Compiler advisory rules newly enabled by eslint-plugin-react-hooks

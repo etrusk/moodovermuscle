@@ -13,7 +13,7 @@ import {
   setupIntegrationTest,
   teardownIntegrationTest,
 } from '../setup/test-helpers'
-import type { Booking, Prisma } from '@/lib/generated/prisma'
+import type { Booking, Prisma } from '@/lib/generated/prisma/client'
 
 const mockPrisma = prisma as vi.Mocked<typeof prisma>
 

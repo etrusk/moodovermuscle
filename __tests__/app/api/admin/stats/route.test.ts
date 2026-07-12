@@ -4,7 +4,7 @@ import * as adminAuthCheck from '@/lib/utils/admin-auth-check'
 import { testDb } from '@/__tests__/setup/test-db'
 
 // Mock PrismaClient constructor to return testDb instance
-vi.mock('@/lib/generated/prisma', () => {
+vi.mock('@/lib/generated/prisma/client', () => {
   let db: any
   return {
     PrismaClient: vi.fn().mockImplementation(function () {

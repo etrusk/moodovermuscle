@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '../../../../../lib/prisma'
-import { Booking, BookingStatus, Prisma } from '../../../../../lib/generated/prisma'
+import { Booking, BookingStatus, Prisma } from '../../../../../lib/generated/prisma/client'
 import {
   sendCustomerConfirmation,
   sendAdminNotification,

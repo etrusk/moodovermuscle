@@ -1,4 +1,4 @@
-import { PrismaClient } from '@/lib/generated/prisma'
+import { PrismaClient } from '@/lib/generated/prisma/client'
 import { vi, beforeEach } from 'vitest'
 
 // Create a deep mock for PrismaClient

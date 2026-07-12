@@ -16,7 +16,7 @@ import {
   teardownIntegrationTest,
   waitFor,
 } from '../setup/test-helpers'
-import type { Booking, Prisma } from '@/lib/generated/prisma'
+import type { Booking, Prisma } from '@/lib/generated/prisma/client'
 
 // Mock the prisma client to use the test database
 vi.mock('@/lib/prisma', async () => {

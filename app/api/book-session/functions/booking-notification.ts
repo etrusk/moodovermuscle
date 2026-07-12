@@ -2,7 +2,7 @@ import {
   sendCustomerConfirmation,
   sendAdminNotification,
 } from '../../../../lib/email'
-import type { Booking } from '../../../../lib/generated/prisma'
+import type { Booking } from '../../../../lib/generated/prisma/client'
 
 export function sendBookingNotifications(booking: Booking): void {
   const { name, email, service, date, time, goals, experience } = booking

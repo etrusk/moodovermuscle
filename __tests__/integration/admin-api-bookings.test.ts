@@ -17,42 +17,32 @@ import { PATCH } from '@/app/api/admin/bookings/route'
 // Test timeout configured in vitest.config.ts
 
 // Mock Prisma for admin API route
+// Admin routes build their client via createPrismaClient(); back it (and the
+// singleton) with testDb plus a transaction client for the PATCH workflow.
 vi.mock('@/lib/prisma', async () => {
   const { testDb } = await import('../setup/test-db')
-  return { prisma: testDb }
-})
-
-// Mock PrismaClient constructor used by admin API routes
-vi.mock('@/lib/generated/prisma', async () => {
-  const actual = await vi.importActual('@/lib/generated/prisma')
-  const { testDb } = await import('../setup/test-db')
-  return {
-    ...actual,
-    PrismaClient: vi.fn().mockImplementation(function () {
-      return {
-        ...testDb,
-        $transaction: vi.fn().mockImplementation(async (callback: any) => {
-          // Mock transaction client
-          const mockTx = {
-            booking: {
-              findUnique: testDb.booking.findUnique,
-              update: testDb.booking.update,
-            },
-            bookingStatusChange: {
-              create: vi.fn().mockResolvedValue({
-                id: 'status-change-id',
-                bookingId: 'test-booking-id',
-                fromStatus: 'PENDING',
-                toStatus: 'CONFIRMED',
-                createdAt: new Date(),
-              }),
-            },
-          }
-          return await callback(mockTx)
-        }),
+  const client = {
+    ...testDb,
+    $transaction: vi.fn().mockImplementation(async (callback: any) => {
+      const mockTx = {
+        booking: {
+          findUnique: testDb.booking.findUnique,
+          update: testDb.booking.update,
+        },
+        bookingStatusChange: {
+          create: vi.fn().mockResolvedValue({
+            id: 'status-change-id',
+            bookingId: 'test-booking-id',
+            fromStatus: 'PENDING',
+            toStatus: 'CONFIRMED',
+            createdAt: new Date(),
+          }),
+        },
       }
+      return await callback(mockTx)
     }),
   }
+  return { prisma: client, createPrismaClient: () => client }
 })
 
 describe('Admin Bookings API Integration', () => {

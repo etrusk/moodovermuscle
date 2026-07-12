@@ -1,7 +1,7 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import { sendBookingNotifications } from '@/app/api/book-session/functions/booking-notification'
 import * as email from '@/lib/email'
-import type { Booking, BookingStatus } from '../../lib/generated/prisma'
+import type { Booking, BookingStatus } from '../../lib/generated/prisma/client'
 
 vi.mock('@/lib/email', () => ({
   sendCustomerConfirmation: vi.fn(),

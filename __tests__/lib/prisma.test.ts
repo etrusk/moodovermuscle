@@ -1,6 +1,6 @@
 vi.resetModules()
 
-vi.mock('@/lib/generated/prisma', () => ({
+vi.mock('@/lib/generated/prisma/client', () => ({
   PrismaClient: vi.fn().mockImplementation(function () {
     return {
       $connect: vi.fn(),
@@ -12,7 +12,7 @@ vi.mock('@/lib/generated/prisma', () => ({
 import { vi, describe, it, expect } from 'vitest'
 
 import { prisma } from '@/lib/prisma'
-import { PrismaClient } from '@/lib/generated/prisma'
+import { PrismaClient } from '@/lib/generated/prisma/client'
 
 describe('prisma client instance', () => {
   it('creates a new PrismaClient with expected config', () => {
@@ -23,7 +23,9 @@ describe('prisma client instance', () => {
     // (prisma instance is imported at module level)
 
     // Assert
-    expect(PrismaClient).toHaveBeenCalledWith({ log: ['query'] })
+    expect(PrismaClient).toHaveBeenCalledWith(
+      expect.objectContaining({ log: ['query'], adapter: expect.anything() })
+    )
     expect(prisma).toMatchObject({
       $connect: expect.any(Function),
       $disconnect: expect.any(Function),

@@ -1,5 +1,5 @@
 import { prisma } from '../../../../lib/prisma'
-import type { Booking } from '../../../../lib/generated/prisma'
+import type { Booking } from '../../../../lib/generated/prisma/client'
 import { z } from 'zod'
 import { bookingSchema } from '../../../../lib/schemas'
 import {

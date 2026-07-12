@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { timeSlots } from '@/components/booking-form/steps/timeSlots'
-import type { Booking } from '@/lib/generated/prisma'
+import type { Booking } from '@/lib/generated/prisma/client'
 
 export interface AvailabilityData {
   availableTimes: string[]

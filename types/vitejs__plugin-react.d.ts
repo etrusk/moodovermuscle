@@ -1,6 +1,5 @@
 // Type definition override for @vitejs/plugin-react
 // Fixes syntax error in official types: Cannot use '"module.exports"' as export name
-// See: .docs/current-task.md - TypeScript Type-Check Failure
 
 declare module '@vitejs/plugin-react' {
   import type { Plugin } from 'vite';

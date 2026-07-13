@@ -22,7 +22,9 @@ export interface AdminCredentials {
   password: string
 }
 
-// Simple in-memory admin for Emilia - can be moved to database later
+// Single hardcoded admin for Emilia — the ONLY credential path (no user table). Changing this
+// email or passwordHash is the only way to rotate admin access, and a wrong value locks out the
+// sole admin. Keep the email in sync with the bcrypt hash. Can be moved to a DB user table later.
 const ADMIN_USER = {
   id: 'emily-admin-1',
   email: 'emily@moodovermuscle.com.au',

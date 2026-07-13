@@ -197,7 +197,7 @@ feature/new-feature → preview → main
 
 ### Branch Management
 
-See [Development Workflows](.docs/workflow.md) for the correct preview deployment process using Vercel's automatic PR preview integration.
+Vercel's GitHub integration creates a preview deployment for every PR automatically; production deploys on merge to `main`. Branch etiquette is in `CLAUDE.md`.
 
 ```bash
 # Deploy to production after approval

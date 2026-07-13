@@ -18,7 +18,7 @@
 
 ### Tech Stack (Proven & Stable)
 
-- **Framework**: Next.js 15.x (App Router) - Mature, well-documented, excellent TypeScript support
+- **Framework**: Next.js 16 (App Router) - Mature, well-documented, excellent TypeScript support
 - **Database**: Neon PostgreSQL with Prisma ORM - Serverless, type-safe, familiar patterns
 - **Styling**: Tailwind CSS + shadcn/ui components - Rapid development, consistent design system
 - **Email**: Nodemailer with SMTP - Simple, reliable, fire-and-forget pattern
@@ -73,6 +73,14 @@ model BookingStatusChange {
   @@index([bookingId])
 }
 ```
+
+#### Prisma Client & Connection (Prisma 7 driver adapter)
+
+The client is instantiated in [`lib/prisma.ts`](lib/prisma.ts) via a **driver adapter** — `PrismaPg`
+(`@prisma/adapter-pg` + `pg`) built from a `connectionString`, wrapped in a `createPrismaClient()`
+factory; there is no `datasource url` on the client itself. The generated client lives at
+`lib/generated/prisma` (schema `generator` is `provider = "prisma-client"`,
+`output = "../lib/generated/prisma"`). The models above still match `prisma/schema.prisma`.
 
 #### Future Appetite (Multi-trainer Support - Future 6+ month appetite)
 
@@ -243,6 +251,7 @@ export async function GET(request: Request) {
 - **State Management**: Centralized booking state with TypeScript safety
 - **Accessibility**: WCAG 2.1 AA compliance throughout wizard flow
 - **Mobile-First**: Responsive design with touch-friendly interactions
+- **Native date input (deliberate)**: the scheduling step uses a native `<input type="date">`, not a calendar component — a `react-day-picker`/Radix Popover calendar nested in the booking Dialog trips a React 19 + `@radix-ui/react-focus-scope` infinite setState loop. See the comment in `components/booking-form/steps/scheduling/DateSelector.tsx`; don't "upgrade" it back to a calendar.
 
 ### Email Architecture (Stable Pattern)
 
@@ -280,7 +289,7 @@ return NextResponse.json(
 
 **Gmail SMTP (Production Implementation):**
 - **Provider**: Gmail SMTP (`smtp.gmail.com:587`, STARTTLS)
-- **Library**: Nodemailer 7.0.9
+- **Library**: Nodemailer 9
 - **Scale Threshold**: Sufficient for 50-100 bookings/month (~2-4 emails/day)
 - **Configuration**: App-specific password via environment variables
 - **Fire-and-Forget**: Email failures logged but never block booking success
@@ -338,7 +347,7 @@ const chromeFlags = [
 'audits:largest-contentful-paint': ['error', { maxNumericValue: 2500 }],  // LCP < 2.5s
 'audits:cumulative-layout-shift': ['error', { maxNumericValue: 0.1 }],    // CLS < 0.1
 
-// Warning Gates (Tracked in debt.md)
+// Warning Gates (non-blocking)
 'categories:performance': ['warn', { minScore: 0.85 }],    // Overall performance
 'audits:total-blocking-time': ['warn', { maxNumericValue: 300 }]  // TBT < 300ms
 ```
@@ -377,22 +386,7 @@ const chromeFlags = [
 
 ### Input Validation Strategy (Defense in Depth)
 
-```typescript
-// Server-side validation with Zod (Never trust client)
-export const bookingSchema = z.object({
-  name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
-  email: z.string().email({ message: 'Please enter a valid email address.' }),
-  phone: z.string().min(10, { message: 'Please enter a valid phone number.' }),
-  service: z.string({ required_error: 'Please select a service.' }),
-  date: z
-    .string()
-    .pipe(z.coerce.date({ required_error: 'Please select a date.' })),
-  time: z.string({ required_error: 'Please select a time.' }),
-  message: z.string().max(500).optional(),
-  goals: z.string({ required_error: 'Please select a goal.' }),
-  experience: z.string().optional(),
-})
-```
+Server-side validation with Zod on every input — never trust the client. The booking schema lives in [`lib/schemas.ts`](lib/schemas.ts) (`bookingSchema`); it validates types and format only. **Gap:** the `date` field has no server-side past/future bound — see the comment in `lib/schemas.ts` for the migration history — so the client-side `<input min>` is the only past-date guard, and it's bypassable via the API.
 
 ### Security Headers (Next.js Defaults + Enhancements)
 
@@ -520,6 +514,15 @@ export const handlers = [
 ]
 ```
 
+### Layered Pure-Handler Testing (NextRequest isn't mockable)
+
+`NextRequest` (especially `.cookies`) can't be reliably constructed or mocked in the test env, so
+route logic is extracted into **pure functions** tested directly: `lib/auth/admin-auth-handlers.ts`
+(`handleLogin` / `handleSessionValidation`) and `app/api/*/functions/*.ts` (e.g. `booking-validation.ts`,
+`booking-creation.ts`). The route handlers are thin wrappers over them. Where a route itself must be
+exercised, tests build `new Request(...) as NextRequest`. Don't try to unit-test a route by mocking
+`NextRequest` — test the pure function.
+
 ## Deployment Architecture (Zero-Maintenance)
 
 ### Vercel Platform Integration
@@ -547,7 +550,7 @@ jobs:
   
 # CI Strategy:
 - Critical tests block merge (no exceptions)
-- Integration tests warn but don't block (tracked in .docs/debt.md)
+- Integration tests warn but don't block (non-blocking)
 - Accessibility failures trigger automated PR comments
 - All jobs use pnpm with frozen lockfile
 ```
@@ -559,7 +562,7 @@ jobs:
 - **Scaling**: Serverless scaling based on demand
 - **Migration Strategy**: Explicit configuration in vercel.json and package.json
   - **vercel.json**: `buildCommand: "npx prisma migrate deploy && pnpm build"`
-  - **package.json**: `build: "prisma migrate deploy && prisma generate && next build"`
+  - **package.json**: `build: "prisma generate && next build"` (DB migrations run via `build:deploy` / Vercel buildCommand, not the plain `build`)
   - **Vercel Integration**: Migrations run before Next.js build on every deployment
   - **Rollback**: Via Vercel deployment rollback + manual migration revert if needed
   - **Safety**: Migrations are idempotent and tested in preview environments first
@@ -743,7 +746,7 @@ jobs:
 
 ---
 
-**Last Updated**: 2024-10-18
+**Last Updated**: 2026-07-13
 **Architecture Status**: Transaction safety implemented, admin dashboard operational
 **Next Review**: After multi-trainer support appetite (6+ months)
 **Evolution Driver**: Emily's business needs and user feedback

@@ -43,7 +43,10 @@ export function DateSelector(props: DateSelectorProps): React.JSX.Element {
   )
 }
 
-// Native date input component
+// Native date input — deliberate; do NOT replace with a react-day-picker / Radix Popover calendar.
+// A calendar nested inside the booking Dialog trips a React 19 + @radix-ui/react-focus-scope
+// infinite setState loop. react-day-picker is still installed and used elsewhere
+// (components/ui/calendar.tsx), so the trap is reachable if you "upgrade" this back. (Saga in git.)
 function InlineCalendar({
   field,
   isLoading,

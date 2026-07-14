@@ -258,7 +258,7 @@ describe('Booking API Workflow Integration', () => {
   describe('Date and Time Handling', () => {
     it('preserves exact booking date and time', async () => {
       // Arrange
-      const specificDateTime = new Date('2024-12-25T14:30:00Z')
+      const specificDateTime = new Date(Date.now() + 30 * 864e5)
       const bookingData = createTestBookingData({
         date: specificDateTime.toISOString(),
         time: '14:30',

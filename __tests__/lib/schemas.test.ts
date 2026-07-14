@@ -168,4 +168,30 @@ describe('bookingSchema validation', () => {
       expect(result.error.issues[0].message).toContain('Please select a time.')
     }
   })
+
+  it('fails when the booking date is in the past', () => {
+    // Arrange — 30 days ago, well past the same-day grace
+    const past = new Date(Date.now() - 30 * 864e5)
+    const data = { ...validData, date: past }
+
+    // Act
+    const result = bookingSchema.safeParse(data)
+
+    // Assert
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error.issues.some((i) => i.message.includes('cannot be in the past'))).toBe(true)
+    }
+  })
+
+  it('accepts a future booking date', () => {
+    // Arrange — 30 days ahead
+    const future = new Date(Date.now() + 30 * 864e5)
+
+    // Act
+    const result = bookingSchema.safeParse({ ...validData, date: future })
+
+    // Assert
+    expect(result.success).toBe(true)
+  })
 })

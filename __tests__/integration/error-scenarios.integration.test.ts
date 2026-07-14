@@ -466,7 +466,7 @@ describe('Error Scenarios Integration: System Resilience Under Failure', () => {
             email: `concurrent-${currentCall}-${Date.now()}@example.com`,
             phone: null,
             service: '1-on-1 Personal Training',
-            date: new Date('2025-12-01T10:00:00Z'),
+            date: new Date(Date.now() + 30 * 864e5),
             time: `${10 + currentCall}:00`,
             message: null,
             goals: 'Community',

@@ -87,7 +87,7 @@ interface AvailabilityResponse {
 
 ### Known gaps / debt
 - Admin "Recent Activity" section shows mock data.
-- No server-side past/future bound on the booking `date` (client-side `<input min>` only, bypassable via the API) — see the comment in `lib/schemas.ts`.
+- Booking `date` rejects past dates server-side (create path); far-future dates are intentionally uncapped — add a max only when there's a product-stated window.
 
 ---
 *Requirements doc. Stack versions: `package.json`. Schema: `prisma/schema.prisma`. System design + gotchas: `architecture.md` and code comments.*

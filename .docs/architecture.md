@@ -386,7 +386,7 @@ const chromeFlags = [
 
 ### Input Validation Strategy (Defense in Depth)
 
-Server-side validation with Zod on every input — never trust the client. The booking schema lives in [`lib/schemas.ts`](lib/schemas.ts) (`bookingSchema`); it validates types and format only. **Gap:** the `date` field has no server-side past/future bound — see the comment in `lib/schemas.ts` for the migration history — so the client-side `<input min>` is the only past-date guard, and it's bypassable via the API.
+Server-side validation with Zod on every input — never trust the client. The booking schema lives in [`lib/schemas.ts`](lib/schemas.ts) (`bookingSchema`). It rejects **past** booking dates server-side (a create-only `refine` — see the comment in `lib/schemas.ts` for the timezone grace and why it's safe on this create-only schema). Far-future dates are intentionally uncapped (no product-stated maximum).
 
 ### Security Headers (Next.js Defaults + Enhancements)
 

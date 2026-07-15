@@ -27,10 +27,10 @@ export interface AdminCredentials {
 // sole admin. Keep the email in sync with the bcrypt hash. Can be moved to a DB user table later.
 const ADMIN_USER = {
   id: 'emily-admin-1',
-  email: 'emily@moodovermuscle.com.au',
+  email: 'admin@moodovermuscle.com.au',
   name: 'Emilia',
   // nosemgrep: generic.secrets.security.detected-bcrypt-hash.detected-bcrypt-hash
-  passwordHash: '$2b$10$TxurKCRrHneGuehrqu24WueBLoLfqRtN6HnS.9qQ6Tq.zWv7TEF5e',
+  passwordHash: '$2b$10$3r9yr7rKeJdndK8P0TsguO76EtSbI0Oev56Ft86qe4ubQp7FrcBqO',
   isActive: true,
 }
 

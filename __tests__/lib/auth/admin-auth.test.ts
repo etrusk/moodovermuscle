@@ -23,7 +23,7 @@ vi.mock('jose', () => ({
       const token = `mock-jwt-token-${Date.now()}-${Math.random()}`
       const payload: JWTPayload = {
         adminId: 'emily-admin-1',
-        email: 'emily@moodovermuscle.com.au',
+        email: 'admin@moodovermuscle.com.au',
         name: 'Emilia',
         iat: Math.floor(Date.now() / 1000),
         exp: Math.floor(Date.now() / 1000) + 28800,
@@ -77,8 +77,8 @@ describe('AdminAuthService', () => {
 
     it('successfully authenticates with valid credentials', async () => {
       // Arrange: Setup valid credentials (using real bcrypt to verify against stored hash)
-      const validEmail = 'emily@moodovermuscle.com.au'
-      const validPassword = 'Emily2025!'
+      const validEmail = 'admin@moodovermuscle.com.au'
+      const validPassword = 'Emcekwadrat997'
 
       // Act: Authenticate with valid credentials
       const result = await authService.authenticateAdmin(validEmail, validPassword)
@@ -87,7 +87,7 @@ describe('AdminAuthService', () => {
       expect(result).not.toBeNull()
       expect(result?.user).toEqual({
         id: 'emily-admin-1',
-        email: 'emily@moodovermuscle.com.au',
+        email: 'admin@moodovermuscle.com.au',
         name: 'Emilia',
         isActive: true,
         lastLogin: expect.any(Date),
@@ -97,7 +97,7 @@ describe('AdminAuthService', () => {
 
     it('rejects invalid password', async () => {
       // Arrange: Setup invalid password
-      const validEmail = 'emily@moodovermuscle.com.au'
+      const validEmail = 'admin@moodovermuscle.com.au'
       const invalidPassword = 'WrongPassword123'
 
       // Act: Attempt authentication with wrong password
@@ -109,23 +109,23 @@ describe('AdminAuthService', () => {
 
     it('normalizes email for comparison', async () => {
       // Arrange: Setup email with mixed case and whitespace
-      const unnormalizedEmail = '  Emily@MoodOverMuscle.com.au  '
-      const validPassword = 'Emily2025!'
+      const unnormalizedEmail = '  Admin@MoodOverMuscle.com.au  '
+      const validPassword = 'Emcekwadrat997'
 
       // Act: Authenticate with unnormalized email
       const result = await authService.authenticateAdmin(unnormalizedEmail, validPassword)
 
       // Assert: Successfully authenticates after normalization
       expect(result).not.toBeNull()
-      expect(result?.user.email).toBe('emily@moodovermuscle.com.au')
+      expect(result?.user.email).toBe('admin@moodovermuscle.com.au')
     })
   })
 
   describe('verifyAdminToken', () => {
     it('successfully verifies valid token', async () => {
       // Arrange: Generate valid token using real JWT implementation
-      const validEmail = 'emily@moodovermuscle.com.au'
-      const validPassword = 'Emily2025!'
+      const validEmail = 'admin@moodovermuscle.com.au'
+      const validPassword = 'Emcekwadrat997'
       const authResult = await authService.authenticateAdmin(validEmail, validPassword)
       const token = authResult!.token
 
@@ -136,7 +136,7 @@ describe('AdminAuthService', () => {
       expect(payload).not.toBeNull()
       expect(payload).toEqual({
         adminId: 'emily-admin-1',
-        email: 'emily@moodovermuscle.com.au',
+        email: 'admin@moodovermuscle.com.au',
         name: 'Emilia',
         iat: expect.any(Number),
         exp: expect.any(Number),
@@ -170,8 +170,8 @@ describe('AdminAuthService', () => {
   describe('refreshAdminToken', () => {
     it('successfully refreshes valid token', async () => {
       // Arrange: Generate initial token
-      const validEmail = 'emily@moodovermuscle.com.au'
-      const validPassword = 'Emily2025!'
+      const validEmail = 'admin@moodovermuscle.com.au'
+      const validPassword = 'Emcekwadrat997'
       const authResult = await authService.authenticateAdmin(validEmail, validPassword)
       const originalToken = authResult!.token
 
@@ -186,7 +186,7 @@ describe('AdminAuthService', () => {
       const newPayload = await authService.verifyAdminToken(newToken!)
       expect(newPayload).not.toBeNull()
       expect(newPayload?.adminId).toBe('emily-admin-1')
-      expect(newPayload?.email).toBe('emily@moodovermuscle.com.au')
+      expect(newPayload?.email).toBe('admin@moodovermuscle.com.au')
     })
 
     it('rejects refresh for invalid token', async () => {

@@ -2,6 +2,7 @@
 
 import { BookingFormData } from '../bookingFormLogic'
 import { convertTo24HourFormat } from '@/lib/utils/time-conversion'
+import { toDateKey } from '@/lib/utils/date-key'
 
 export async function validateAvailability(
   formData: BookingFormData
@@ -10,7 +11,7 @@ export async function validateAvailability(
     return {}
   }
 
-  const dateKey = formData.date.toISOString().split('T')[0]
+  const dateKey = toDateKey(formData.date)
   const availRes = await fetch(`/api/availability?date=${dateKey}`)
   
   if (!availRes.ok) {
@@ -30,7 +31,7 @@ export async function validateAvailability(
 export function prepareSubmissionData(formData: BookingFormData): Record<string, unknown> {
   const data: Record<string, unknown> = {
     ...formData,
-    date: formData.date ? formData.date.toISOString() : undefined,
+    date: formData.date ? toDateKey(formData.date) : undefined,
     // Convert to 24-hour format for backend (database now expects HH:MM format)
     time: formData.time ? convertTo24HourFormat(formData.time) : formData.time,
   }

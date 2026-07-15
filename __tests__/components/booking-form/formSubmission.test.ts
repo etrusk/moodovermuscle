@@ -18,7 +18,9 @@ function makeFetch(responses: Array<{ ok: boolean; body: unknown }>) {
 const baseData: BookingFormData = {
   name: 'Ada',
   email: 'ada@example.com',
-  date: new Date('2026-08-01T00:00:00.000Z'),
+  // The booking form builds `date` as *local* midnight (see DateSelector). The
+  // date-key/payload must preserve that calendar day regardless of timezone.
+  date: new Date('2026-08-01T00:00:00'),
   time: '10:00 AM',
 }
 
@@ -87,10 +89,10 @@ describe('formSubmission', () => {
   })
 
   describe('prepareSubmissionData', () => {
-    it('serialises the date to ISO and converts the time to 24-hour format', () => {
+    it('serialises the date to a timezone-safe calendar-day key (YYYY-MM-DD) and converts the time to 24-hour format', () => {
       const data = prepareSubmissionData({ ...baseData, time: '02:30 PM' })
 
-      expect(data.date).toBe('2026-08-01T00:00:00.000Z')
+      expect(data.date).toBe('2026-08-01')
       expect(data.time).toBe('14:30')
     })
 

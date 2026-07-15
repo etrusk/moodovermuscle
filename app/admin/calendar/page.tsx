@@ -19,6 +19,8 @@ import {
   MessageSquare,
   Target,
 } from 'lucide-react'
+import { toDateKey } from '@/lib/utils/date-key'
+import { bookingsForCalendarDay } from './bookingDayFilter'
 
 interface Booking {
   id: string
@@ -80,8 +82,8 @@ export default function AdminCalendarPage(): React.JSX.Element {
       const lastDay = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0)
 
       const params = new URLSearchParams({
-        dateFrom: firstDay.toISOString().split('T')[0],
-        dateTo: lastDay.toISOString().split('T')[0],
+        dateFrom: toDateKey(firstDay),
+        dateTo: toDateKey(lastDay),
       })
 
       const response = await fetch(`/api/admin/bookings?${params}`)
@@ -116,11 +118,9 @@ export default function AdminCalendarPage(): React.JSX.Element {
 
   // Update selected bookings when date changes
   useEffect(() => {
-    const dateString = selectedDate.toISOString().split('T')[0]
-    const dayBookings = bookings.filter(booking => 
-      booking.date === dateString
-    ).sort((a, b) => a.time.localeCompare(b.time))
-    
+    const dayBookings = bookingsForCalendarDay(bookings, selectedDate)
+      .sort((a, b) => a.time.localeCompare(b.time))
+
     setSelectedBookings(dayBookings)
   }, [selectedDate, bookings])
 
@@ -161,8 +161,7 @@ export default function AdminCalendarPage(): React.JSX.Element {
   }
 
   const getBookingsForDate = (date: Date): CalendarBooking[] => {
-    const dateString = date.toISOString().split('T')[0]
-    return bookings.filter(booking => booking.date === dateString)
+    return bookingsForCalendarDay(bookings, date)
   }
 
   const formatTime = (timeString: string): string => {

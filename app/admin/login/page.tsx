@@ -98,7 +98,7 @@ export default function AdminLoginPage() {
               <Input
                 id="email"
                 type="email"
-                placeholder="emily@moodovermuscle.com.au"
+                placeholder="admin@moodovermuscle.com.au"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isLoading}

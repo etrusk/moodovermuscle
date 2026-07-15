@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { toDateKey } from '@/lib/utils/date-key'
 
 export interface AvailabilityData {
   availableTimes: string[]
@@ -19,7 +20,7 @@ export const useAvailability = (date: Date | undefined): UseAvailabilityReturn =
   const [loadingAvailability, setLoadingAvailability] = useState(false)
 
   const fetchAvailability = async (fetchDate: Date): Promise<void> => {
-    const dateParam = fetchDate.toISOString().split('T')[0]
+    const dateParam = toDateKey(fetchDate)
     setLoadingAvailability(true)
 
     try {

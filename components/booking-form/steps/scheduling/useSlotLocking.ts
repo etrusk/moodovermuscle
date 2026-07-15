@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 import { BookingFormData } from '../../bookingFormLogic'
+import { toDateKey } from '@/lib/utils/date-key'
 
 interface SlotLockingResult {
   lockConflict: boolean
@@ -20,7 +21,7 @@ export function useSlotLocking(
   useEffect(() => {
     if (!date || !selectedTime) return
     const interval = window.setInterval(async () => {
-      const dateKey = date.toISOString().split('T')[0]
+      const dateKey = toDateKey(date)
       try {
         const res = await fetch(`/api/availability?date=${dateKey}`)
         if (!res.ok) throw new Error('Failed to fetch')

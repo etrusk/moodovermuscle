@@ -16,3 +16,19 @@ export function toDateKey(date: Date): string {
   const day = String(date.getDate()).padStart(2, '0')
   return `${year}-${month}-${day}`
 }
+
+/**
+ * Format a Date as a `YYYY-MM-DD` calendar-day key using its *UTC* parts.
+ *
+ * Bookings are stored as UTC midnight of the selected day (the server parses the
+ * `YYYY-MM-DD` payload with `new Date(...)`). To recover which calendar day a
+ * stored booking belongs to — independent of the viewer's timezone — read its
+ * UTC parts. Pair with `toDateKey` for values that represent a *local* midnight
+ * (e.g. react-day-picker grid cells).
+ */
+export function utcDateKey(date: Date): string {
+  const year = date.getUTCFullYear()
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0')
+  const day = String(date.getUTCDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}

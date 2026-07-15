@@ -33,7 +33,7 @@ jobs:
       - name: Run security audit
         id: audit
         run: |
-          if ! pnpm audit --audit-level moderate --production > audit-output.txt 2>&1; then
+          if ! pnpm dlx pnpm@11.13.0 audit --audit-level moderate --production > audit-output.txt 2>&1; then
             echo "has_vulnerabilities=true" >> "$GITHUB_OUTPUT"
             cat audit-output.txt
           else

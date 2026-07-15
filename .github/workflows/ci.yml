@@ -221,5 +221,5 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Audit production dependencies
-        run: pnpm audit --audit-level moderate --production
+        run: pnpm dlx pnpm@11.13.0 audit --audit-level moderate --production
 

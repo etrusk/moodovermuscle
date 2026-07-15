@@ -40,7 +40,7 @@
     "accessibility:validate": "bash scripts/validate-accessibility-compliance.sh",
     "accessibility:report": "playwright show-report --reporter=html",
     "accessibility:ci": "playwright test -c playwright.config.accessibility.ts",
-    "security:scan": "pnpm audit --audit-level moderate --production",
+    "security:scan": "pnpm dlx pnpm@11.13.0 audit --audit-level moderate --production",
     "security:semgrep": "if semgrep --version >/dev/null 2>&1; then semgrep --config=auto --quiet --error --timeout=60 .; else echo '⚠️  Semgrep not available - skipping. Install with: pipx install semgrep' && exit 0; fi",
     "build:verify": "pnpm run type-check && ADMIN_JWT_SECRET=build-time-secret-for-verification next build >/dev/null 2>&1",
     "duplication-check": "jscpd --config .jscpd.json",

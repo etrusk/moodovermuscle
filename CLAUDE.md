@@ -31,5 +31,20 @@
   PR `preview→main`. Tooling/docs may PR straight to `main`. Conventional commits (commitlint).
 - Files: ~300 lines is a smell, 400 is a hard limit — split before exceeding.
 
+## Deploy & verification access (this environment)
+Agents here can drive the whole deploy/verify loop — use it to check the real preview/prod, not just localhost:
+- GitHub: `gh` CLI, admin on `etrusk/moodovermuscle` (scopes incl. `repo`, `workflow`, `admin:repo_hook`) —
+  read/trigger Actions, read CI logs, manage PRs/issues/comments, read `deployment_status`.
+- Vercel: `vercel` CLI (deploy, `inspect`, `logs`, `env ls`, rollback). Repo isn't linked locally — link or
+  pass `--project`/`--scope`. Deploys to moodovermuscle.com.au. Invocation quirk + token: user memory.
+- Claude-in-Chrome: interactive browser automation (navigate/click/screenshot, read console+network) against
+  any preview/prod URL. Local + interactive only — a person kicks it off; it is NOT an unattended CI gate.
+- Claude Design (`claude.ai/design`): interactive AI design surface — prototype product UI on the real brand
+  before building, then hand off to Claude Code to implement with the real components. Authorized 2026-07-12
+  (`/design consent` + `/design-login`); push the component library with `/design-sync` (plan-approval gated:
+  it lists the files it will write, you approve). Local + interactive, person-initiated — NOT a CI gate.
+  Design work only; presentational layer (`components/ui`, `components/sections`); `components/` TSX stays canonical.
+Verified 2026-07-12.
+
 ## Maintaining this harness
 - When you touch this file or the gate hook, cut what no longer earns its keep.

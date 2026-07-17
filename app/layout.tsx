@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import '@/app/globals.css'
 import { cn } from '@/lib/utils'
 import { Toaster } from '@/components/ui/toaster'
+import { Analytics } from '@vercel/analytics/next'
 
 const fontSans = Inter({
   subsets: ['latin'],
@@ -30,6 +31,7 @@ export default function RootLayout({
       >
         {children}
         <Toaster />
+        <Analytics />
       </body>
     </html>
   )

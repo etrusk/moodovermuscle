@@ -7,6 +7,9 @@ export default defineConfig({
   test: {
     name: 'accessibility',
     environment: 'jsdom',
+    // vitest.setup.ts imports 'jest-axe/extend-expect', which touches a global
+    // `expect` at module scope. Without this every file dies on import.
+    globals: true,
     setupFiles: [
       './vitest.setup.ts',
       './__tests__/setup/msw-setup.js',

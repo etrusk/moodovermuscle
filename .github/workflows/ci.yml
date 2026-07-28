@@ -15,7 +15,7 @@ on:
 
 # Set default environment variables
 env:
-  NODE_VERSION: '22'
+  NODE_VERSION: '24'
   PNPM_VERSION: '10'
   # Placeholder for `prisma generate` (runs via postinstall after `pnpm install`).
   # CI never connects to a database; Vercel deploys use the real value.

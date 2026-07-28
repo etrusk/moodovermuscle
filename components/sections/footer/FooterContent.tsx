@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { Instagram } from 'lucide-react'
+import { InstagramIcon } from '@/components/ui/instagram-icon'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -79,7 +79,7 @@ function FooterSocial(): React.ReactElement {
           aria-label="Visit Instagram"
           className="text-stone-400 hover:text-white hover:bg-white/10 rounded-full p-3 hover:scale-110 transition-all"
         >
-          <Instagram className="h-4 md:h-5 w-4 md:w-5 stroke-1" />
+          <InstagramIcon className="h-4 md:h-5 w-4 md:w-5 stroke-1" />
         </Button>
       </div>
       <p className="text-stone-400 text-base md:text-lg">

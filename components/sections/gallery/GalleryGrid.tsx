@@ -1,6 +1,6 @@
 'use client'
 
-import { Instagram } from 'lucide-react'
+import { InstagramIcon } from '@/components/ui/instagram-icon'
 import Image from 'next/image'
 
 interface GalleryImage {
@@ -109,7 +109,7 @@ function GalleryImageCard({
       <div
         className={`absolute ${variant.captionPosition} text-white opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
       >
-        <Instagram className={`${variant.iconSize} stroke-1`} />
+        <InstagramIcon className={`${variant.iconSize} stroke-1`} />
       </div>
     </div>
   )

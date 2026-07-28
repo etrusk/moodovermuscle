@@ -86,7 +86,6 @@ interface AvailabilityResponse {
 - **Future growth** (planned, not built): client booking portal (view/cancel own bookings); multi-trainer support; payment integration; recurring-appointment scheduling; analytics/reporting; richer email templates.
 
 ### Known gaps / debt
-- Admin "Recent Activity" section shows mock data.
 - Booking `date` rejects past dates server-side (create path); far-future dates are intentionally uncapped — add a max only when there's a product-stated window.
 
 ---

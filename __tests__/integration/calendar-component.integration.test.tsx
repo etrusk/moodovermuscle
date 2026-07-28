@@ -4,21 +4,33 @@
  * @user-journey Users interact with calendar to choose available appointment dates
  */
 
-import { vi, describe, it, expect } from 'vitest'
+import { vi, describe, it, expect, beforeAll, afterAll } from 'vitest'
 
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Calendar } from '@/components/ui/calendar'
-import { addMonths, format } from 'date-fns'
+import { format } from 'date-fns'
+
+// The calendar shows outside days, so a day number near a month boundary renders
+// twice (e.g. on the 28th, both 28 June and 28 July) and getByRole finds two
+// cells. Pin the clock mid-month so the queried day numbers stay unique.
+const TODAY = new Date(2026, 2, 10)
+const TOMORROW = new Date(2026, 2, 11)
 
 describe('Calendar Component Integration: Date Selection Journey', () => {
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
+  beforeAll(() => {
+    // Date only — userEvent needs real setTimeout.
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(TODAY)
+  })
 
-  const tomorrow = new Date()
-  tomorrow.setDate(today.getDate() + 1)
-  tomorrow.setHours(0, 0, 0, 0)
+  afterAll(() => {
+    vi.useRealTimers()
+  })
+
+  const today = TODAY
+  const tomorrow = TOMORROW
 
   describe('Calendar Navigation', () => {
     it('provides month navigation controls for finding desired date', () => {

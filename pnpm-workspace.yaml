@@ -1,6 +1,21 @@
 packages:
   - '.'
 
+# Transitive security pins. Lives here, not package.json: pnpm 11 no longer
+# reads the `pnpm` field there.
+overrides:
+  # Without this, tailwind pulls a second copy at 8.4.31 (GHSA-r28c-9q8g-f849,
+  # GHSA-6g55-p6wh-862q). The floor is 8.5.18, not 8.5.10 — advisories reach
+  # 8.5.17.
+  'postcss@<8.5.18': '>=8.5.18'
+  # GHSA-f88m-g3jw-g9cj — libvips CVEs; next 16.2.12 still asks for ^0.34.5
+  'sharp@<0.35.0': '>=0.35.0'
+  # Reached via @prisma/client's optional `prisma` peer > @prisma/dev. Build-time
+  # only — the CLI never ships — but pnpm audit --production walks it.
+  'fast-uri@<3.1.4': '>=3.1.4 <4' # GHSA-v2hh-gcrm-f6hx
+  'valibot@<1.4.2': '>=1.4.2' # GHSA-5qjj-4xww-7phc
+  '@hono/node-server@<2.0.10': '>=2.0.10' # GHSA-9mqv-5hh9-4cgg
+
 ignoredBuiltDependencies:
   - sharp
   - unrs-resolver

@@ -12,6 +12,11 @@ env:
   NODE_VERSION: '22'
   PNPM_VERSION: '10'
 
+# Without issues:write the report step 403s and the audit fails silently.
+permissions:
+  contents: read
+  issues: write
+
 jobs:
   audit:
     name: audit-production-deps
@@ -70,5 +75,5 @@ jobs:
               repo: context.repo.repo,
               title: `Security audit: vulnerabilities found (${new Date().toISOString().slice(0, 10)})`,
               labels: ['security'],
-              body: `## Production dependency vulnerabilities detected\n\nThe weekly security audit found vulnerabilities in production dependencies.\n\n\`\`\`\n${auditOutput.slice(0, 3000)}\n\`\`\`\n\n### Next steps\n1. Run \`pnpm audit --production\` locally to see full details\n2. Update affected packages: \`pnpm update <package>\`\n3. If a direct fix isn't available, add a pnpm override in \`package.json\`\n4. Close this issue when resolved`,
+              body: `## Production dependency vulnerabilities detected\n\nThe weekly security audit found vulnerabilities in production dependencies.\n\n\`\`\`\n${auditOutput.slice(0, 3000)}\n\`\`\`\n\n### Next steps\n1. Run \`pnpm audit --production\` locally to see full details\n2. Update affected packages: \`pnpm update <package>\`\n3. If a direct fix isn't available, add a pnpm override in \`pnpm-workspace.yaml\`\n4. Close this issue when resolved`,
             });

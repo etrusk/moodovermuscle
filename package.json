@@ -33,7 +33,7 @@
     "test:full": "vitest run --passWithNoTests",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "test:accessibility:unit": "vitest --config=vitest.config.accessibility.ts",
+    "test:accessibility:unit": "vitest run --config=vitest.config.accessibility.ts",
     "test:accessibility:e2e": "playwright test --config=playwright.config.accessibility.ts",
     "test:accessibility:all": "pnpm run test:accessibility:unit && pnpm run test:accessibility:e2e",
     "accessibility:regression-check": "bash scripts/accessibility-regression-check.sh",

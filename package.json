@@ -81,7 +81,7 @@
     "date-fns": "^4.4.0",
     "jose": "^6.2.3",
     "lucide-react": "^0.454.0",
-    "next": "^16.2.10",
+    "next": "^16.2.11",
     "nodemailer": "^9.0.3",
     "pg": "^8.22.0",
     "react": "^19.2.7",
@@ -91,15 +91,6 @@
     "tailwind-merge": "^3.6.0",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^4.4.3"
-  },
-  "pnpm": {
-    "overrides": {
-      "glob@>=10.2.0 <10.5.0": ">=10.5.0",
-      "minimatch@>=9.0.0 <9.0.6": ">=9.0.6",
-      "postcss@<8.5.10": ">=8.5.10",
-      "@babel/core@<7.29.6": ">=7.29.6 <8",
-      "@hono/node-server@<1.19.13": ">=1.19.13"
-    }
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",

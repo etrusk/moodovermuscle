@@ -8,11 +8,14 @@ overrides:
   'minimatch@>=9.0.0 <9.0.6': '>=9.0.6'
   'postcss@<8.5.10': '>=8.5.10'
   '@babel/core@<7.29.6': '>=7.29.6 <8'
-  '@hono/node-server@<1.19.13': '>=1.19.13'
-  # GHSA-f88m-g3jw-g9cj — libvips CVEs; next 16.2.11 still asks for ^0.34.5
+  # GHSA-9mqv-5hh9-4cgg (2.x) supersedes the old <1.19.13 pin, which no longer
+  # matched anything: @prisma/dev now resolves this to 2.0.8.
+  '@hono/node-server@<2.0.10': '>=2.0.10'
+  # GHSA-f88m-g3jw-g9cj — libvips CVEs; next 16.2.12 still asks for ^0.34.5
   'sharp@<0.35.0': '>=0.35.0'
-  # GHSA-v2hh-gcrm-f6hx — host confusion; reached via @prisma/client > ajv
-  'fast-uri@<3.1.4': '>=3.1.4 <4'
+  # Reached via @prisma/client > prisma > @prisma/dev:
+  'fast-uri@<3.1.4': '>=3.1.4 <4' # GHSA-v2hh-gcrm-f6hx
+  'valibot@<1.4.2': '>=1.4.2' # GHSA-5qjj-4xww-7phc
 
 ignoredBuiltDependencies:
   - sharp

@@ -12,7 +12,7 @@ overrides:
   'sharp@<0.35.0': '>=0.35.0'
   # Reached via @prisma/client's optional `prisma` peer > @prisma/dev. Build-time
   # only — the CLI never ships — but pnpm audit --production walks it.
-  'fast-uri@<3.1.4': '>=3.1.4 <4' # GHSA-v2hh-gcrm-f6hx
+  'fast-uri@<3.1.4': '>=3.1.4 <5' # GHSA-v2hh-gcrm-f6hx
   'valibot@<1.4.2': '>=1.4.2' # GHSA-5qjj-4xww-7phc
   '@hono/node-server@<2.0.10': '>=2.0.10' # GHSA-9mqv-5hh9-4cgg
 

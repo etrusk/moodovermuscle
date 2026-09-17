@@ -25,7 +25,7 @@ MoodOverMuscle is a fitness website for mothers on the Sunshine Coast, Queenslan
 
 ## Technology Stack
 
-- **Framework**: Next.js 15.2.4 with App Router
+- **Framework**: Next.js 16 with App Router
 - **Language**: TypeScript 5
 - **Styling**: Tailwind CSS 3.4.17
 - **UI Components**: shadcn/ui built on Radix UI

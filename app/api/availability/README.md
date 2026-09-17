@@ -101,9 +101,18 @@ Returns available time slots for booking, with real-time conflict prevention.
 
 ### Caching Strategy
 
-- **Full day availability**: 60 second cache with 30 second stale-while-revalidate
-- **Single slot checks**: 30 second cache with 15 second stale-while-revalidate
-- Shorter cache times ensure real-time accuracy for booking decisions
+Both responses send `Cache-Control: no-store`. Availability is live booking
+state that changes on every write, and the single-slot variant is the
+pre-submit freshness check, so caching it defeats its purpose.
+
+The previous 60s/30s CDN cache let the booking form offer a slot someone had
+already taken — recoverable, because the create transaction revalidates and
+returns a 409, but it cost the customer their slot choice at the point of
+conversion. It also made the endpoint useless for verifying a booking landed:
+reads within the window returned a stale body, which looked indistinguishable
+from a real bug.
+
+There is no load here worth shedding — the site takes a handful of bookings.
 
 ## Valid Time Slots
 

@@ -1,6 +1,13 @@
 import { NextResponse } from 'next/server'
 import type { AvailabilityData, SingleSlotCheck } from './availability-checking'
 
+// Availability is live booking state, and the single-slot variant is the
+// pre-submit freshness check — caching it defeats the thing it exists to do.
+// The previous 60s/30s CDN cache let the form offer a slot already taken, and
+// made this endpoint unusable for verifying a booking actually landed. There
+// is no load here worth shedding: the whole site takes a handful of bookings.
+const NO_CACHE = 'no-store'
+
 /**
  * Create response for single slot availability check
  */
@@ -20,10 +27,7 @@ export function createSingleSlotResponse(
     },
     {
       status: 200,
-      // Shorter cache for single slot checks to ensure real-time accuracy
-      headers: {
-        'Cache-Control': 'public, max-age=30, stale-while-revalidate=15',
-      },
+      headers: { 'Cache-Control': NO_CACHE },
     }
   )
 }
@@ -36,9 +40,7 @@ export function createFullDayResponse(
 ): NextResponse {
   return NextResponse.json(availabilityData, {
     status: 200,
-    headers: {
-      'Cache-Control': 'public, max-age=60, stale-while-revalidate=30',
-    },
+    headers: { 'Cache-Control': NO_CACHE },
   })
 }
 

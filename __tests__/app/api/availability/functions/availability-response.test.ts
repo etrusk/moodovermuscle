@@ -25,15 +25,11 @@ describe('app/api/availability/functions/availability-response', () => {
         date: '2024-12-25',
         time: '09:00',
       })
-      // Headers are case-insensitive but may be lowercase in response
-      const cacheControl = response.headers.get('cache-control')
-      if (!cacheControl) {
-        // Try with uppercase
-        const altCacheControl = Array.from(response.headers.entries()).find(([k]) => k.toLowerCase() === 'cache-control')?.[1]
-        expect(altCacheControl).toBe('public, max-age=30, stale-while-revalidate=15')
-      } else {
-        expect(cacheControl).toBe('public, max-age=30, stale-while-revalidate=15')
-      }
+      expect(
+        Array.from(response.headers.entries()).find(
+          ([k]) => k.toLowerCase() === 'cache-control'
+        )?.[1]
+      ).toBe('no-store')
     })
 
     it('should create response for unavailable slot with conflicting booking', async () => {
@@ -66,24 +62,6 @@ describe('app/api/availability/functions/availability-response', () => {
       })
     })
 
-    it('should set shorter cache duration for single slot checks', () => {
-      // Arrange
-      const slotCheck = { isAvailable: true }
-
-      // Act
-      const response = createSingleSlotResponse(slotCheck, '2024-12-25', '09:00')
-
-      // Assert
-      // Check if headers are set by examining the response object
-      // Headers might not be accessible in the same way in tests
-      const headers = Array.from(response.headers.entries())
-      const cacheControlEntry = headers.find(([k]) => k.toLowerCase() === 'cache-control')
-      expect(cacheControlEntry).toEqual([
-        expect.stringMatching(/cache-control/i),
-        expect.stringContaining('max-age=30'),
-      ])
-      expect(cacheControlEntry![1]).toContain('stale-while-revalidate=15')
-    })
   })
 
   describe('createFullDayResponse', () => {
@@ -108,26 +86,6 @@ describe('app/api/availability/functions/availability-response', () => {
       })
     })
 
-    it('should set cache control headers for full day queries', () => {
-      // Arrange
-      const availabilityData = {
-        availableTimes: ['09:00'],
-        bookedTimes: [],
-        date: '2024-12-25',
-      }
-
-      // Act
-      const response = createFullDayResponse(availabilityData)
-
-      // Assert
-      // Headers are case-insensitive but may be lowercase in response
-      const headers = Array.from(response.headers.entries())
-      const cacheControlEntry = headers.find(([k]) => k.toLowerCase() === 'cache-control')
-      expect(cacheControlEntry).toEqual([
-        expect.stringMatching(/cache-control/i),
-        'public, max-age=60, stale-while-revalidate=30',
-      ])
-    })
 
     it('should handle empty availability data', async () => {
       // Arrange
@@ -238,6 +196,36 @@ describe('app/api/availability/functions/availability-response', () => {
 
       // Assert
       expect(response.status).toBe(500)
+    })
+  })
+
+  // Availability reflects booking state that changes on every write. A cached
+  // copy lets the form offer a slot someone already took, and it made the
+  // endpoint useless as a verification oracle.
+  describe('freshness', () => {
+    const cacheHeader = (response: NextResponse): string | undefined =>
+      Array.from(response.headers.entries()).find(
+        ([k]) => k.toLowerCase() === 'cache-control'
+      )?.[1]
+
+    it('does not allow a full day response to be cached', () => {
+      const response = createFullDayResponse({
+        availableTimes: ['09:00'],
+        bookedTimes: [],
+        date: '2024-12-25',
+      })
+
+      expect(cacheHeader(response)).toBe('no-store')
+    })
+
+    it('does not allow a single slot response to be cached', () => {
+      const response = createSingleSlotResponse(
+        { isAvailable: true },
+        '2024-12-25',
+        '09:00'
+      )
+
+      expect(cacheHeader(response)).toBe('no-store')
     })
   })
 })

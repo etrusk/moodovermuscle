@@ -24,7 +24,11 @@ describe('prisma client instance', () => {
 
     // Assert
     expect(PrismaClient).toHaveBeenCalledWith(
-      expect.objectContaining({ log: ['query'], adapter: expect.anything() })
+      expect.objectContaining({
+        log: ['query'],
+        adapter: expect.anything(),
+        transactionOptions: { maxWait: 10000 },
+      })
     )
     expect(prisma).toMatchObject({
       $connect: expect.any(Function),

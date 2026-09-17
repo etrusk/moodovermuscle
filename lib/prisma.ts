@@ -21,6 +21,12 @@ export function createPrismaClient(): PrismaClient {
   return new PrismaClient({
     adapter,
     log: ['query'],
+    // Neon scales the database to zero when idle and Prisma's default 2s
+    // maxWait expired while it woke: prod logged P2028 on the first request
+    // after a quiet period (2026-07-28, 2026-09-16) and the retry that worked
+    // took ~3s. The Vercel function ceiling is 30s (vercel.json maxDuration),
+    // so 10s leaves room for the transaction itself.
+    transactionOptions: { maxWait: 10_000 },
   })
 }
 

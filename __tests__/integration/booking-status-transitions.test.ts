@@ -114,6 +114,48 @@ describe('Booking Status Lifecycle Integration', () => {
       })
     })
 
+    it('does not respond until the confirmation email has settled', async () => {
+      // Arrange
+      const bookingId = 'booking-await-1'
+      const booking = {
+        id: bookingId,
+        status: BookingStatus.PENDING,
+        email: 'customer@example.com',
+      }
+      testDb.booking.findUnique.mockResolvedValue(booking as unknown as Booking)
+      testDb.booking.update.mockResolvedValue({
+        ...booking,
+        status: BookingStatus.CONFIRMED,
+      } as unknown as Booking)
+      ;(
+        testDb.bookingStatusChange as unknown as { create: vi.Mock }
+      ).create.mockResolvedValue({})
+
+      let releaseCustomer: (value: { success: boolean }) => void = () => {}
+      ;(email.sendCustomerConfirmation as vi.Mock).mockReturnValue(
+        new Promise((resolve) => {
+          releaseCustomer = resolve
+        })
+      )
+
+      // Act
+      let responded = false
+      const pending = POST(makeStatusRequest(bookingId, 'CONFIRMED'), {
+        params: { id: bookingId },
+      }).then((res) => {
+        responded = true
+        return res
+      })
+      await new Promise((resolve) => setTimeout(resolve, 0))
+
+      // Assert
+      expect(responded).toBe(false)
+
+      releaseCustomer({ success: true })
+      const response = await pending
+      expect(response.status).toBe(200)
+    })
+
     it('sends customer notification on confirmation', async () => {
       // Arrange
       const bookingId = 'booking-notification-1'

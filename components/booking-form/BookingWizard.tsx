@@ -16,12 +16,14 @@ interface SubmissionResult {
   error?: string
   success?: boolean
   booking?: unknown
+  notificationsDelivered?: boolean
 }
 
 interface SubmissionHandlers {
   submitForm: (data: BookingFormData) => Promise<SubmissionResult>
   setSubmissionSuccess: (value: boolean) => void
   setSubmissionError: (value: string | null) => void
+  setNotificationsDelivered: (value: boolean) => void
   setCurrentStep: (value: number) => void
   form: {
     setValue: (field: keyof BookingFormData, value: string) => void
@@ -42,6 +44,7 @@ const handleFormSubmission = async (
       handlers.form.setValue('time', '')
       return
     }
+    handlers.setNotificationsDelivered(result.notificationsDelivered !== false)
     handlers.setSubmissionSuccess(true)
     handlers.setSubmissionError(null)
   } catch (error) {
@@ -61,6 +64,7 @@ interface WizardLogicReturn {
   }
   submissionSuccess: boolean
   submissionError: string | null
+  notificationsDelivered: boolean
   handleNext: () => Promise<void>
   handlePrevious: () => void
   handleSubmit: (data: BookingFormData) => Promise<void>
@@ -76,6 +80,7 @@ const useWizardLogic = (onClose: () => void): WizardLogicReturn => {
   const { validateStep, submitForm, form, loadingStates } = useBookingForm()
   const [submissionSuccess, setSubmissionSuccess] = useState(false)
   const [submissionError, setSubmissionError] = useState<string | null>(null)
+  const [notificationsDelivered, setNotificationsDelivered] = useState(true)
 
   const handleNext = async (): Promise<void> => {
     const isValid = await validateStep(currentStep)
@@ -95,17 +100,18 @@ const useWizardLogic = (onClose: () => void): WizardLogicReturn => {
       submitForm,
       setSubmissionSuccess,
       setSubmissionError,
+      setNotificationsDelivered,
       setCurrentStep,
       form
     })
   }
 
   useEffect(() => {
-    if (submissionSuccess) {
+    if (submissionSuccess && notificationsDelivered) {
       const timer = setTimeout(() => onClose(), 0)
       return () => clearTimeout(timer)
     }
-  }, [submissionSuccess, onClose])
+  }, [submissionSuccess, notificationsDelivered, onClose])
 
   return {
     totalSteps,
@@ -113,6 +119,7 @@ const useWizardLogic = (onClose: () => void): WizardLogicReturn => {
     loadingStates,
     submissionSuccess,
     submissionError,
+    notificationsDelivered,
     handleNext,
     handlePrevious,
     handleSubmit,
@@ -120,9 +127,26 @@ const useWizardLogic = (onClose: () => void): WizardLogicReturn => {
   }
 }
 
-const SuccessView = (): React.ReactElement => (
+const SuccessView = ({
+  notificationsDelivered,
+}: {
+  notificationsDelivered: boolean
+}): React.ReactElement => (
   <div className="p-8 text-center" data-testid="booking-confirmation">
     Booking Confirmed!
+    {!notificationsDelivered && (
+      <p
+        className="mt-4 text-amber-700"
+        data-testid="booking-notification-warning"
+      >
+        Your session is booked, but our confirmation email didn&apos;t go
+        through. Please call{' '}
+        <a href="tel:0406846416" className="underline">
+          0406 846 416
+        </a>{' '}
+        so we can confirm it with you.
+      </p>
+    )}
   </div>
 )
 
@@ -197,6 +221,7 @@ export function BookingWizard({ onClose }: BookingWizardProps): React.ReactEleme
     loadingStates,
     submissionSuccess,
     submissionError,
+    notificationsDelivered,
     handleNext,
     handlePrevious,
     handleSubmit,
@@ -206,7 +231,7 @@ export function BookingWizard({ onClose }: BookingWizardProps): React.ReactEleme
   return (
     <form onSubmit={form.handleSubmit(handleSubmit)}>
       {submissionSuccess ? (
-        <SuccessView />
+        <SuccessView notificationsDelivered={notificationsDelivered} />
       ) : (
         <FormView
           currentStep={currentStep}

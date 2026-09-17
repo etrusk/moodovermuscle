@@ -46,10 +46,10 @@ export async function POST(request: Request): Promise<NextResponse> {
 
     const newBooking = await createBooking(validationResult.data)
 
-    sendBookingNotifications(newBooking)
+    const notificationsDelivered = await sendBookingNotifications(newBooking)
 
     return NextResponse.json(
-      { message: 'Booking submitted successfully!', data: newBooking },
+      { message: 'Booking submitted successfully!', data: newBooking, notificationsDelivered },
       { status: 201 }
     )
   } catch (error) {

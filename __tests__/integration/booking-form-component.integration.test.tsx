@@ -113,6 +113,31 @@ describe('Booking Form User Journey Integration', () => {
       }, { timeout: 1000 })
     })
 
+    it('warns and stays open when the confirmation emails did not send', async () => {
+      // Arrange
+      const onClose = vi.fn()
+
+      // Act
+      render(<BookingForm isOpen={true} onClose={onClose} />)
+      await completeBookingFlow({ email: 'notify-fail@example.com' })
+      await user.click(
+        screen.getByRole('button', { name: /book my free session/i })
+      )
+
+      // Assert
+      expect(
+        await screen.findByTestId(
+          'booking-notification-warning',
+          {},
+          { timeout: 5000 }
+        )
+      ).toBeInTheDocument()
+      expect(screen.getByText(/0406 846 416/)).toBeInTheDocument()
+
+      await new Promise(resolve => setTimeout(resolve, 200))
+      expect(onClose).not.toHaveBeenCalled()
+    })
+
     it('preserves user data through multi-step wizard', async () => {
       // Arrange
       const onClose = vi.fn()

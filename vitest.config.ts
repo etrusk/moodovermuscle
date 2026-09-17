@@ -37,6 +37,7 @@ export default defineConfig({
       '**/node_modules/**',
       '**/.next/**',
       '**/e2e/**',
+      '**/.claude/**',
     ],
     testTimeout: 10000,
   },

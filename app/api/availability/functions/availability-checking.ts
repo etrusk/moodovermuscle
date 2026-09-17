@@ -1,6 +1,12 @@
 import { prisma } from '@/lib/prisma'
 import { timeSlots } from '@/components/booking-form/steps/timeSlots'
-import type { Booking } from '@/lib/generated/prisma/client'
+import type { Booking, BookingStatus } from '@/lib/generated/prisma/client'
+
+// Mirrors the predicate of the partial unique index
+// booking_active_time_conflict_prevention. If the two disagree, the form
+// offers a slot the database then rejects, which surfaces as a 500 rather
+// than a conflict the customer can act on.
+const ACTIVE_BOOKING_STATUSES: BookingStatus[] = ['PENDING', 'CONFIRMED']
 
 export interface AvailabilityData {
   availableTimes: string[]
@@ -36,8 +42,7 @@ export async function getAvailableTimesForDate(
       const existingBookings = await tx.booking.findMany({
         where: {
           date: date,
-          // Only consider confirmed/pending bookings, not cancelled ones
-          // Add status filter if booking status is implemented
+          status: { in: ACTIVE_BOOKING_STATUSES },
         },
         select: {
           id: true,
@@ -77,6 +82,7 @@ export async function checkSingleSlotAvailability(
         where: {
           date: date,
           time: time,
+          status: { in: ACTIVE_BOOKING_STATUSES },
         },
         select: {
           id: true,
@@ -128,6 +134,7 @@ export async function validateRealTimeAvailability(
     where: {
       date: date,
       time: time,
+      status: { in: ACTIVE_BOOKING_STATUSES },
     },
   })
 

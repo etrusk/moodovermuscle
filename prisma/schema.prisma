@@ -30,7 +30,11 @@ model Booking {
   updatedAt       DateTime      @updatedAt
   statusChanges   BookingStatusChange[]
 
-  @@unique([date, time])
+  // Slot uniqueness is a PARTIAL unique index restricted to PENDING/CONFIRMED
+  // (booking_active_time_conflict_prevention), so a cancelled booking releases
+  // its slot. Prisma's schema language cannot express a partial index, so it
+  // lives in SQL. Do not add @@unique([date, time]) back: the status-blind
+  // version is what made cancelled slots permanently unbookable.
   @@index([date])
 }
 

@@ -166,7 +166,11 @@ describe('availability-checking', () => {
       ).resolves.not.toThrow()
 
       expect(mockClient.booking.findFirst).toHaveBeenCalledWith({
-        where: { date: testDate, time: '10:00' },
+        where: {
+          date: testDate,
+          time: '10:00',
+          status: { in: ['PENDING', 'CONFIRMED'] },
+        },
       })
     })
 
@@ -210,7 +214,69 @@ describe('availability-checking', () => {
       ).resolves.not.toThrow()
 
       expect(mockPrisma.booking.findFirst).toHaveBeenCalledWith({
-        where: { date: testDate, time: '10:00' },
+        where: {
+          date: testDate,
+          time: '10:00',
+          status: { in: ['PENDING', 'CONFIRMED'] },
+        },
+      })
+    })
+  })
+
+  // Must match the predicate of the partial unique index
+  // booking_active_time_conflict_prevention, or the form offers a slot the
+  // database then rejects.
+  describe('cancelled bookings release their slot', () => {
+    const activeOnly = { in: ['PENDING', 'CONFIRMED'] }
+
+    it('getAvailableTimesForDate counts only active bookings', async () => {
+      // Arrange
+      const findMany = vi.fn().mockResolvedValue([])
+      mockPrisma.$transaction.mockImplementation(async callback =>
+        callback({ booking: { findMany } } as never)
+      )
+
+      // Act
+      await getAvailableTimesForDate(testDate)
+
+      // Assert
+      expect(findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { date: testDate, status: activeOnly },
+        })
+      )
+    })
+
+    it('checkSingleSlotAvailability counts only active bookings', async () => {
+      // Arrange
+      const findFirst = vi.fn().mockResolvedValue(null)
+      mockPrisma.$transaction.mockImplementation(async callback =>
+        callback({ booking: { findFirst } } as never)
+      )
+
+      // Act
+      await checkSingleSlotAvailability(testDate, '10:00')
+
+      // Assert
+      expect(findFirst).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { date: testDate, time: '10:00', status: activeOnly },
+        })
+      )
+    })
+
+    it('validateRealTimeAvailability ignores a cancelled booking', async () => {
+      // Arrange
+      const findFirst = vi.fn().mockResolvedValue(null)
+      const mockClient = { booking: { findFirst } }
+
+      // Act & Assert
+      await expect(
+        validateRealTimeAvailability(testDate, '10:00', mockClient as never)
+      ).resolves.not.toThrow()
+
+      expect(findFirst).toHaveBeenCalledWith({
+        where: { date: testDate, time: '10:00', status: activeOnly },
       })
     })
   })

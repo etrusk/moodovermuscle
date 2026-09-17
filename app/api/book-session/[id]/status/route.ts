@@ -73,10 +73,22 @@ async function sendNotifications(booking: Booking): Promise<void> {
     goals: booking.goals ?? undefined,
     experience: booking.experience ?? undefined,
   }
+  const sends = [sendAdminNotification(emailPayload)]
   if (booking.status === 'CONFIRMED') {
-    sendCustomerConfirmation(emailPayload)
+    sends.push(sendCustomerConfirmation(emailPayload))
   }
-  sendAdminNotification(emailPayload)
+
+  const outcomes = await Promise.allSettled(sends)
+  outcomes.forEach((outcome) => {
+    if (outcome.status === 'rejected') {
+      console.error('Error sending booking status email:', outcome.reason)
+    } else if (!outcome.value.success) {
+      console.error(
+        'Failed to send booking status email:',
+        outcome.value.error
+      )
+    }
+  })
 }
 
 export async function POST(

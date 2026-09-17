@@ -41,10 +41,23 @@ export const handlers = [
       )
     }
 
+    if (body.email === 'notify-fail@example.com') {
+      return HttpResponse.json(
+        {
+          message: TEST_STRINGS.BOOKING.SUCCESS_MESSAGE,
+          notificationsDelivered: false,
+        },
+        { status: 201 }
+      )
+    }
+
     // Add a small delay to simulate network latency
     await new Promise(resolve => setTimeout(resolve, 250))
     return HttpResponse.json(
-      { message: TEST_STRINGS.BOOKING.SUCCESS_MESSAGE },
+      {
+        message: TEST_STRINGS.BOOKING.SUCCESS_MESSAGE,
+        notificationsDelivered: true,
+      },
       { status: 201 }
     )
   }),

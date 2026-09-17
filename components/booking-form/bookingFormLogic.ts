@@ -35,6 +35,7 @@ export interface BookingResult {
   success: boolean
   bookingId?: string
   message?: string
+  notificationsDelivered?: boolean
 }
 
 export interface LoadingStates {

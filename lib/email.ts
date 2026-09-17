@@ -16,6 +16,10 @@ if (process.env.NODE_ENV === 'test') {
   })
 }
 
+// The booking route awaits these sends before responding, so nodemailer's
+// defaults (2min connection, 10min socket) would hang the customer's form.
+const SMTP_TIMEOUT_MS = 10_000
+
 // Email configuration
 const emailConfig = {
   host: process.env.SMTP_HOST ?? 'smtp.gmail.com',
@@ -25,6 +29,9 @@ const emailConfig = {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
+  connectionTimeout: SMTP_TIMEOUT_MS,
+  greetingTimeout: SMTP_TIMEOUT_MS,
+  socketTimeout: SMTP_TIMEOUT_MS,
 }
 
 // Create reusable transporter object using the default SMTP transport

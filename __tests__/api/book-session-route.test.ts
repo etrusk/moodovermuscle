@@ -118,6 +118,74 @@ describe('API POST /api/book-session', () => {
     )
   })
 
+  test('does not respond until booking notifications have settled', async () => {
+    // Arrange
+    mockValidation.validateBookingRequest.mockResolvedValue({
+      success: true,
+      data: validData,
+      error: null,
+    })
+    mockCreation.createBooking.mockResolvedValue(mockBooking)
+    let releaseNotifications: (value: boolean) => void = () => {}
+    mockNotification.sendBookingNotifications.mockReturnValue(
+      new Promise<boolean>((resolve) => {
+        releaseNotifications = resolve
+      })
+    )
+
+    // Act
+    let responded = false
+    const responsePromise = POST(makeJsonRequest(validData)).then((res) => {
+      responded = true
+      return res
+    })
+    await new Promise((resolve) => setTimeout(resolve, 0))
+
+    // Assert
+    expect(responded).toBe(false)
+
+    releaseNotifications(true)
+    const res = await responsePromise
+    expect(res.status).toBe(201)
+  })
+
+  test('reports undelivered notifications in the 201 body', async () => {
+    // Arrange
+    mockValidation.validateBookingRequest.mockResolvedValue({
+      success: true,
+      data: validData,
+      error: null,
+    })
+    mockCreation.createBooking.mockResolvedValue(mockBooking)
+    mockNotification.sendBookingNotifications.mockResolvedValue(false)
+
+    // Act
+    const res = await POST(makeJsonRequest(validData))
+
+    // Assert
+    expect(res.status).toBe(201)
+    const json = await res.json()
+    expect(json).toHaveProperty('notificationsDelivered', false)
+  })
+
+  test('reports delivered notifications in the 201 body', async () => {
+    // Arrange
+    mockValidation.validateBookingRequest.mockResolvedValue({
+      success: true,
+      data: validData,
+      error: null,
+    })
+    mockCreation.createBooking.mockResolvedValue(mockBooking)
+    mockNotification.sendBookingNotifications.mockResolvedValue(true)
+
+    // Act
+    const res = await POST(makeJsonRequest(validData))
+
+    // Assert
+    const json = await res.json()
+    expect(json).toHaveProperty('notificationsDelivered', true)
+  })
+
   test('returns 409 on booking conflict', async () => {
     // Arrange
     mockValidation.validateBookingRequest.mockResolvedValue({

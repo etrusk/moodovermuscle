@@ -255,29 +255,44 @@ export async function GET(request: Request) {
 
 ### Email Architecture (Stable Pattern)
 
-#### Fire-and-Forget Implementation (✅ Production)
+#### Awaited Send With a Deadline (✅ Production)
 
 ```typescript
-// Production non-blocking email pattern
 // app/api/book-session/route.ts
 const newBooking = await createBooking(validationResult.data)
 
-// Fire-and-forget notification sending (never blocks API response)
-sendBookingNotifications(newBooking)
+// Awaited: the response must not outrun the send (see below)
+const notificationsDelivered = await sendBookingNotifications(newBooking)
 
-// Return success immediately
 return NextResponse.json(
-  { message: 'Booking submitted successfully!', data: newBooking },
+  { message: 'Booking submitted successfully!', data: newBooking, notificationsDelivered },
   { status: 201 }
 )
 ```
 
-**Architectural Benefits**:
+**Do not "restore" fire-and-forget here.** This route previously called
+`sendBookingNotifications(newBooking)` without awaiting it. On Vercel the
+instance can be torn down once the response is sent, so the in-flight SMTP
+handshake dies with it. On 2026-09-16 a real booking was written to the
+database and neither its customer confirmation nor its admin notification was
+ever sent; nobody learned of it until the customer phoned. SMTP credentials
+were verified working at the time, which ruled out the other explanation.
 
-- **Reliability**: Email failures don't affect booking success
-- **Performance**: API responses not blocked by SMTP timeouts
-- **User Experience**: Immediate feedback regardless of email service status
-- **Monitoring**: Email failures logged for admin awareness
+**How the current design holds**:
+
+- **Awaited**: `sendBookingNotifications` resolves only once both sends settle,
+  so no work is left floating past the response.
+- **Bounded**: one overall `NOTIFICATION_DEADLINE_MS` (8s) guards the request.
+  Nodemailer's timeouts are per-phase and its socket timer resets on each
+  server response, so without a single deadline a slow-but-responsive host can
+  outlast `vercel.json`'s `maxDuration` of 30s and 504 a booking that already
+  exists — the customer then resubmits into a 409 on their own slot.
+- **Visible on failure**: the 201 carries `notificationsDelivered`. When it is
+  false the booking wizard keeps the confirmation open and tells the customer
+  to call, instead of auto-closing. A send failure must reach a human, not just
+  `console.error`.
+- **Never blocks the booking**: `Promise.allSettled` means one failing
+  recipient does not stop the other, and a failed send never fails the 201.
 
 #### Email Template Strategy
 
@@ -292,7 +307,7 @@ return NextResponse.json(
 - **Library**: Nodemailer 9
 - **Scale Threshold**: Sufficient for 50-100 bookings/month (~2-4 emails/day)
 - **Configuration**: App-specific password via environment variables
-- **Fire-and-Forget**: Email failures logged but never block booking success
+- **Awaited with an 8s deadline**: failures never block booking success, but they are reported to the customer via `notificationsDelivered`
 - **Migration Trigger**: Consider dedicated service (SendGrid/Postmark) if volume exceeds 500 emails/month
 
 **Environment Variables Required:**

@@ -104,6 +104,7 @@ export default defineConfig({
       '**/node_modules/**',
       '**/.next/**',
       '**/e2e/**',
+      '**/.claude/**',
       
       // Complex Component Integration Tests - EXCLUDED with E2E coverage
       '**/__tests__/integration/booking-form-component.integration.test.tsx',

@@ -25,14 +25,5 @@
       "Bash(curl:*)",
       "Bash(wget:*)"
     ]
-  },
-  "hooks": {
-    "Stop": [
-      {
-        "hooks": [
-          { "type": "command", "command": ".claude/hooks/gate-stop.sh" }
-        ]
-      }
-    ]
   }
 }

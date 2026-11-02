@@ -19,7 +19,6 @@
       "Read(./secrets/**)",
       "Read(./**/*.pem)",
       "Read(./**/*.key)",
-      "Bash(rm -rf:*)",
       "Bash(sudo:*)",
       "Bash(chmod 777:*)",
       "Bash(curl:*)",

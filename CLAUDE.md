@@ -1,18 +1,22 @@
 # MoodOverMuscle
 
+<!-- Baseline template. The project layer is this file, NOW.md, BACKLOG.md and .claude/gate.sh.
+     Everything else is global: ~/.claude/CLAUDE.md, the hooks in ~/.claude/hooks,
+     /session-end, advisor. Every line here is paid in every session; keep it short. -->
+
 ## Commands
 - Test: `pnpm run test`   Lint + types: `pnpm run lint && pnpm run type-check`   Build: `pnpm run build`
-- Run a single test, not the whole suite, while iterating: `pnpm vitest run <file>`.
+- While iterating, run only the tests that cover your change: `pnpm vitest run <file>`.
 - `.claude/gate.sh` is the turn-end gate: lint, types and the critical test subset. The global
-  Stop hook runs it when the tree changed and blocks turn-end until it is green. The full
-  pre-deploy gate (security, semgrep, build) is `pnpm run quality:gates`, run by husky and CI.
+  Stop hook runs it when the tree changed. A failure blocks turn-end once, and again after any
+  change to the tree. The full pre-deploy gate (security, semgrep, build) is
+  `pnpm run quality:gates`, run by husky and CI.
 
 ## How we work
 - Verification-first for behavior changes: write the failing test, watch it fail, then
   implement. A Playwright or screenshot check is a fine oracle where a unit test is not.
-- Build the smallest thing that passes. No abstraction, option or fallback without a present need.
-- Complete tasks exactly as described; stop and ask if unclear. Report failures honestly. Never
-  silently retry, work around, or change tests or gates to force a pass. Fix the root cause.
+- Report failures honestly. Never silently retry, work around, or change tests or gates to
+  force a pass. Fix the root cause.
 - Non-trivial change (several files, unfamiliar code, or the diff takes more than a sentence):
   plan first, then run `/code-review` on the diff before committing. Act on findings that affect
   correctness or the stated requirement, not style.
@@ -32,8 +36,6 @@
   `preview`, approve the preview URL, PR `preview` to `main`. Tooling and docs may PR straight
   to `main`. Do not push unless asked.
 - Processes this session started (dev server, tunnels, browser tabs) are stopped at session end.
-- Working artefacts live in the session scratchpad. Evidence worth keeping goes to
-  `.test-output`, gitignored.
 
 ## Where to look
 | Question | Location |
@@ -48,7 +50,6 @@
 - Strict TS, no `any` (ESLint-enforced). Server components by default (App Router); Prisma with
   explicit `include`; Zod schemas in `lib/schemas.ts`; JWT in `lib/auth/`; tests in `__tests__/`
   mirroring source.
-- Files: about 300 lines is a smell, 400 is the limit; split before exceeding.
 
 ## Deploy and verification access (this environment)
 Agents here can drive the whole deploy and verify loop. Use it to check the real preview and

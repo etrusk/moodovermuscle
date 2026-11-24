@@ -7,10 +7,10 @@
 ## Commands
 - Test: `pnpm run test`   Lint + types: `pnpm run lint && pnpm run type-check`   Build: `pnpm run build`
 - While iterating, run only the tests that cover your change: `pnpm vitest run <file>`.
-- `.claude/gate.sh` is the turn-end gate: lint, types and the critical test subset. The global
-  Stop hook runs it when the tree changed. A failure blocks turn-end once, and again after any
-  change to the tree. The full pre-deploy gate (security, semgrep, build) is
-  `pnpm run quality:gates`, run by husky and CI.
+- `.claude/gate.sh` is the turn-end gate: file length, lint, types and the critical test
+  subset. The global Stop hook runs it when the tree changed. A failure blocks turn-end once,
+  and again after any change to the tree. The full pre-deploy gate (security, semgrep, build)
+  is `pnpm run quality:gates`, run by husky and CI.
 
 ## How we work
 - Verification-first for behavior changes: write the failing test, watch it fail, then

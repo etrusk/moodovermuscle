@@ -8,3 +8,7 @@
 ## Ideas
 
 ## Not doing
+
+- Check SMTP settings outside tests. `lib/email` loads with the booking route, so a throw there would break bookings, not just email.
+- Default `secure` to true on port 465. The live port and `SMTP_SECURE` delivered email on 2026-11-26.
+- Trim whitespace from SMTP settings. No such failure has been seen.

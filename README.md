@@ -2,9 +2,6 @@
 
 A modern, accessible fitness website built with Next.js and deployed on Vercel.
 
-<!-- Verifying GitHub-Vercel integration - updated test -->
-<!-- Simplified GitHub Flow Test -->
-
 [![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/redundant-koalas-projects-c165d4a1/moodovermuscle)
 [![GitHub Repository](https://img.shields.io/badge/GitHub-Repository-black?style=for-the-badge&logo=github)](https://github.com/etrusk/moodovermuscle)
 
@@ -258,4 +255,3 @@ For technical issues or questions about the codebase, refer to:
 - Next.js documentation for framework questions
 - Tailwind CSS docs for styling
 - shadcn/ui docs for component usage
-  // Test comment for pre-commit timing

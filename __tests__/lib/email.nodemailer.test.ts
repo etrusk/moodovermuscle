@@ -1,9 +1,29 @@
 // @vitest-environment node
-import { vi, describe, it, expect } from 'vitest'
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 
 vi.unmock('nodemailer')
 
 describe('booking email through the real nodemailer', () => {
+  beforeEach(() => vi.resetModules())
+  afterEach(() => {
+    vi.unstubAllEnvs()
+    vi.restoreAllMocks()
+  })
+
+  it('falls back to the default SMTP host and port when they are set but blank', async () => {
+    vi.stubEnv('NODE_ENV', 'production')
+    vi.stubEnv('SMTP_HOST', '')
+    vi.stubEnv('SMTP_PORT', '')
+    const nodemailer = (await import('nodemailer')).default
+    const createTransport = vi.spyOn(nodemailer, 'createTransport')
+
+    await import('@/lib/email')
+
+    expect(createTransport).toHaveBeenCalledWith(
+      expect.objectContaining({ host: 'smtp.gmail.com', port: 587 })
+    )
+  })
+
   it('composes and sends the customer confirmation', async () => {
     vi.stubEnv('EMAIL_FROM_NAME', 'Studio Name')
     const nodemailer = (await import('nodemailer')).default

@@ -22,8 +22,10 @@ const SMTP_TIMEOUT_MS = 10_000
 
 // Email configuration
 const emailConfig = {
-  host: process.env.SMTP_HOST ?? 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT ?? '587'),
+  // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- ?? lets a blank value through
+  host: process.env.SMTP_HOST || 'smtp.gmail.com',
+  // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- ?? lets a blank value through to NaN
+  port: parseInt(process.env.SMTP_PORT || '587', 10),
   secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
   auth: {
     user: process.env.SMTP_USER,
